@@ -1,5 +1,7 @@
 module ArrayFlow
 
+import Base: +, -, *, /
+
 include("constants.jl")
 
 
@@ -125,6 +127,15 @@ type Tensor
     end
 end
 
+function Base.show(io::IO, t::Tensor)
+    print(io, "Tensor: ")
+    if ndims(t) == 0
+        show(io, Number(t))
+    else
+        show(io, Array(t))
+    end
+end
+
 function Base.ndims(t::Tensor)
     ccall((:TF_NumDims, LIB), Cint, (Ptr{Void},), t.ptr) |> Int
 end
@@ -167,25 +178,41 @@ function Base.run(sess::Session, input_names, inputs, output_names)
     return [Tensor(_) for _ in output_ptr]
 end
 
+Base.run(sess::Session, output_name::String, feed_dict::Associative) = run(sess, [output_name], feed_dict)[1]
+
+function Base.run(sess::Session, output_names, feed_dict::Associative)
+    input_names = collect(keys(feed_dict))
+    inputs = collect(values(feed_dict))
+    run(sess, input_names, inputs, output_names)
+end
+
+Base.run(sess::Session, output_names::Vector{String}) = run(sess, output_names, Dict())
+
 function Base.eltype(t::Tensor)
     tf_type = ccall((:TF_TensorType, LIB), TF_DataType, (Ptr{Void},), t.ptr)
     tf_to_jl_type(tf_type)
 end
 
+const type_map = Dict(TF_FLOAT=>Float32, TF_INT32=>Int32)
+const inv_type_map = Dict(v=>k for (k, v) in type_map)
+
 function tf_to_jl_type(dt::TF_DataType)
-    d = Dict(TF_FLOAT=>Float32, TF_INT32=>Int32)
-    return d[dt]
+    return type_map[dt]
 end
 
 function jl_to_df_type(dt)
-    d = Dict(Float32=>TF_FLOAT, Int32=>TF_INT32)
-    return d[dt]
+    return inv_type_map[dt]
 end
 
 function Base.convert(::Type{Array}, t::Tensor)
     dims = ndims(t)
     data = ccall((:TF_TensorData, LIB), Ptr{eltype(t)}, (Ptr{Void},), t.ptr)
     unsafe_wrap(Array, data, size(t))
+end
+
+function Base.convert(::Type{Number}, t::Tensor)
+    @assert ndims(t)==0
+    return convert(Array, t)[]
 end
 
 
