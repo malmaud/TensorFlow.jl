@@ -1,9 +1,10 @@
 module ArrayFlow
 
 import Base: +, -, *, /
+using PyCall
+@pyimport tensorflow as tf
 
 include("constants.jl")
-
 
 const LIB = joinpath(dirname(@__FILE__), "..", "deps", "libtensorflow.so")
 
@@ -69,6 +70,7 @@ function extend_graph(sess::Session, proto::Vector{UInt8})
     ccall((:TF_ExtendGraph, LIB), Void, (Ptr{Void}, Ptr{Void}, Csize_t, Ptr{Void}), sess.ptr, pointer(proto), sizeof(proto), status.ptr)
     return status
 end
+
 
 type Buffer
     ptr::Ptr{Void}
@@ -178,15 +180,15 @@ function Base.run(sess::Session, input_names, inputs, output_names)
     return [Tensor(_) for _ in output_ptr]
 end
 
-Base.run(sess::Session, output_name::String, feed_dict::Associative) = run(sess, [output_name], feed_dict)[1]
+Base.run(sess::Session, output_name, feed_dict::Associative) = run(sess, [output_name], feed_dict)[1]
 
-function Base.run(sess::Session, output_names, feed_dict::Associative)
-    input_names = collect(keys(feed_dict))
+function Base.run(sess::Session, output_names::Vector, feed_dict::Associative)
+    input_names = map(get_name, collect(keys(feed_dict)))
     inputs = collect(values(feed_dict))
-    run(sess, input_names, inputs, output_names)
+    run(sess, input_names, inputs, map(get_name, output_names))
 end
 
-Base.run(sess::Session, output_names::Vector{String}) = run(sess, output_names, Dict())
+Base.run(sess::Session, output_names::Vector) = run(sess, output_names, Dict())
 
 function Base.eltype(t::Tensor)
     tf_type = ccall((:TF_TensorType, LIB), TF_DataType, (Ptr{Void},), t.ptr)
@@ -215,5 +217,35 @@ function Base.convert(::Type{Number}, t::Tensor)
     return convert(Array, t)[]
 end
 
+
+function extend_graph(sess::Session)
+    proto = tf.get_default_graph()[:as_graph_def]()[:SerializeToString]()
+    extend_graph(sess, proto.data)
+end
+
+immutable Node
+    o::PyObject
+
+    function Node(o::PyObject)
+        this = new(o)
+    end
+end
+
+function placeholder(dt::TF_DataType)
+    Node(tf.placeholder(Int(dt)))
+end
+
+function placeholder(dt::Type)
+    placeholder(jl_to_df_type(dt))
+end
+
+for (jl_op, tf_op) in [(:+, :add), (:-, :sub), (:*, :mul), (:/, :div)]
+    @eval function $jl_op(n1::Node, n2::Node)
+        Node(tf.$tf_op(n1.o, n2.o))
+    end
+end
+
+get_name(s::String) = s
+get_name(n::Node) = n.o[:name]
 
 end

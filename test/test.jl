@@ -1,7 +1,15 @@
 sess=Session()
 
+# status=extend_graph(sess, graph)
+# output=run(sess, "z", Dict("x"=>Float32(10.0), "y"=>Float32[3,4]))
+# output
 
-graph=read(open(joinpath(dirname(@__FILE__),"../test/graph.pb")))
-status=extend_graph(sess, graph)
-output=run(sess, "z", Dict("x"=>Float32[1,2], "y"=>Float32[3,4]))
+x=placeholder(TF_FLOAT)
+y=placeholder(TF_FLOAT)
+z=x+y
+extend_graph(sess)
+
+output=run(sess, z, Dict(x=>Float32(10.0), y=>Float32[3,4]))
 output
+
+x.o[:name]
