@@ -1,6 +1,11 @@
 import Requests
 
-base = joinpath(Pkg.dir("TensorFlow"), "deps")
+base = dirname(@__FILE__)
+download_dir = joinpath(base, "downloads")
+
+if !isdir(download_dir)
+    mkdir(download_dir)
+end
 
 @static if is_apple()
     r = Requests.get("https://malmaud.github.io/files/mac/tensorflow.zip")
