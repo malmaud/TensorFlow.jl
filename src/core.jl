@@ -1,5 +1,5 @@
+import Base: setindex!, run
 
-const LIB = joinpath(dirname(@__FILE__), "..", "deps", "libc_api.so")
 const LIB_BASE = "/Users/malmaud/tensorflow"
 
 Libdl.dlopen(joinpath(LIB_BASE, "bazel-bin", "tensorflow", "libtensorflow.so"), Libdl.RTLD_GLOBAL)
@@ -105,7 +105,7 @@ function deallocator(data, len, arg)
 
 end
 
-c_deallocator = cfunction(deallocator, Void, (Ptr{Void}, Csize_t, Ptr{Void}))
+const c_deallocator = cfunction(deallocator, Void, (Ptr{Void}, Csize_t, Ptr{Void}))
 
 type Tensor
     ptr::Ptr{Void}
@@ -202,18 +202,21 @@ type Node
     end
 end
 
-node_name(node::Node) = ccall((:TF_NodeName), Cstring, (Ptr{Void},), node.ptr)
+node_name(node::Node) = ccall((:TF_NodeName), Cstring, (Ptr{Void},), node.ptr) |> String
 
 immutable Port
     node_ptr::Ptr{Void}
     index::Int
 end
 
-Port(node::Node, index) = Port(node.ptr, index-1)
+Port(node::Node, index=1) = Port(node.ptr, index-1)  # Convert between 1-based (Julia) and 0-based (Python) indexing of port numbers
+
 
 function add_input(desc::NodeDescription, input::Port)
     ccall((:TF_AddInput), Void, (Ptr{Void}, Port), desc.ptr, input)
 end
+
+add_input(desc::NodeDescription, node::Node) = add_input(desc, Port(node))
 
 function add_input(desc::NodeDescription, inputs::Vector{Port})
     ccall((:TF_AddInputList), Void, (Ptr{Void}, Ptr{Void}, Cint), desc.ptr, inputs, length(inputs))
@@ -236,7 +239,13 @@ function setindex!(desc::NodeDescription, value::Int, attr_name)
     nothing
 end
 
-function Base.run(sess::Session, inputs, input_values, outputs, targets)
+function setindex!(desc::NodeDescription, value::Tuple, attr_name)
+    dims = Int[value...]
+    ccall(:TF_SetAttrShape, Void, (Ptr{Void}, Cstring, Ptr{Int64}, Cint), desc.ptr, attr_name, dims, length(dims))
+    nothing
+end
+
+function run(sess::Session, inputs, input_values, outputs, targets)
     status = Status()
     output_values = fill(C_NULL, length(outputs))
     input_tensors = [Tensor(_) for _ in input_values]
@@ -258,16 +267,16 @@ function Base.run(sess::Session, inputs, input_values, outputs, targets)
     return [Tensor(_) for _ in output_values]
 end
 
-function Base.run(sess::Session, outputs::AbstractVector{Node}, input_dict)
+function run(sess::Session, outputs::AbstractVector{Node}, input_dict)
     inputs = map(input->Port(input, 1), keys(input_dict))
     input_values = collect(values(input_dict))
     output_ports = map(output->Port(output, 1), outputs)
     run(sess, inputs, input_values, output_ports, [])
 end
 
-Base.run(sess::Session, output::Node, input_dict) = run(sess, [output], input_dict)[1]
+run(sess::Session, output::Node, input_dict) = run(sess, [output], input_dict)[1]
 
-Base.run(sess::Session, outputs) = run(sess, outputs, Dict())
+run(sess::Session, outputs) = run(sess, outputs, Dict())
 
 function Base.eltype(t::Tensor)
     tf_type = ccall((:TF_TensorType), TF_DataType, (Ptr{Void},), t.ptr)

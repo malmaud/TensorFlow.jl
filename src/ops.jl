@@ -1,4 +1,4 @@
-import Base: log, exp
+import Base: log, exp, +, -, *, /
 
 const name_idx = Ref{Int}(1)
 
