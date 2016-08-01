@@ -21,6 +21,8 @@ type Variable
     end
 end
 
+Base.convert(::Type{Tensor}, v::Variable) = v.var_node
+
 function initialize_all_variables()
     return [var.assign_node for var in get_collection(:Variables)]
 end
