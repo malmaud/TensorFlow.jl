@@ -1,9 +1,9 @@
 import Base: setindex!, run
 
-const LIB_BASE = "/Users/malmaud/tensorflow"
+const LIB_BASE = joinpath(dirname(@__FILE__), "..", "deps")
 
-Libdl.dlopen(joinpath(LIB_BASE, "bazel-bin", "tensorflow", "libtensorflow.so"), Libdl.RTLD_GLOBAL)
-Libdl.dlopen(joinpath(LIB_BASE, "bazel-bin", "tensorflow", "c", "libc_api.so"), Libdl.RTLD_GLOBAL)
+Libdl.dlopen(joinpath(LIB_BASE, "bazel-out", "local-fastbuild", "bin", "tensorflow", "libtensorflow"), Libdl.RTLD_GLOBAL)
+Libdl.dlopen(joinpath(LIB_BASE, "bazel-out", "local-fastbuild", "bin", "tensorflow", "c", "libc_api"), Libdl.RTLD_GLOBAL)
 
 type Status
     ptr::Ptr{Void}

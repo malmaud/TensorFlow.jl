@@ -1,1 +1,2 @@
-*.so
+deps/bazel-out
+deps/downloads
