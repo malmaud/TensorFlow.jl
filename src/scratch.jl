@@ -15,3 +15,11 @@ sess=ArrayFlow.Session(g)
 # res=run(sess, [ArrayFlow.Port(x,0), ArrayFlow.Port(y,0)], [Float32(1), Float32(2)], [ArrayFlow.Port(z,0)], [])
 
 run(sess, z, Dict(x=>1, y=>2))
+
+sess=Session()
+
+x=placeholder(Float64)
+
+y=NN.relu(x)
+run(sess,NN.softmax(x),Dict(x=>[1.0 -3.0;1 5]))
+constant(Int32(1))

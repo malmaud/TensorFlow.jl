@@ -2,6 +2,12 @@ import Base: log, exp, +, -, *, /
 
 const name_idx = Ref{Int}(1)
 
+function capitalize(s)
+    string(uppercase(s[1]), s[2:end])
+end
+
+capitalize(s::Symbol) = capitalize(string(s))
+
 function get_name(name)
     if length(name) > 0
         return name
@@ -51,7 +57,15 @@ end
 for (jl_func_name, tf_func_name) in [
     (:log, "Log"),
     (:exp, "Exp"),
-    (:neg, "Neg")]
+    (:neg, "Neg"),
+    (:ceil, "Ceil"),
+    (:floor, "Floor"),
+    (:sqrt, "Sqrt"),
+    (:square, "Square"),
+    (:cos, "Cos"),
+    (:sin, "Sin"),
+    (:tan, "Tan"),
+    (:transpose, "Transpose")]
     @eval function $jl_func_name(n::Node, name="")
         name = get_name(name)
         desc = NodeDescription(get_def_graph(), $tf_func_name, name)
@@ -61,3 +75,24 @@ for (jl_func_name, tf_func_name) in [
 end
 
 -(n::Node) = neg(n)
+
+# Reductions
+
+function reduce_sum(n::Node, name="")
+    name = get_name(name)
+    range_start = constant(Int32(0))
+    range_delta = constant(Int32(1))
+    desc = NodeDescription(get_def_graph(), "Rank", "$name/rank")
+    rank = Node(desc)
+    desc = NodeDescription(get_def_graph(), "Range", "$name/range")
+    add_input(desc, range_start)
+    add_input(desc, rank)
+    add_input(desc, range_delta)
+    range = Node(desc)
+    desc = NodeDescription(get_def_graph(), "Sum", name)
+    add_input(desc, n)
+    add_inpnut(desc, range)
+    Node(desc)
+end
+
+include("nn.jl")
