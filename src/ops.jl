@@ -1,4 +1,4 @@
-import Base: log, exp, +, -, *, /
+import Base: log, exp, +, -, *, /, .*, .+, ./, .-, ^, .^
 
 const name_idx = Ref{Int}(1)
 
@@ -54,6 +54,8 @@ for (bin_op, jl_func_name, tf_func_name) in [
     @eval $bin_op(n1, n2::Node) = $jl_func_name(constant(n1), n2)
 end
 
+^(n::Node, x::Int) = invoke(^, (Node, Any), n, x)
+
 for (jl_func_name, tf_func_name) in [
     (:log, "Log"),
     (:exp, "Exp"),
@@ -78,21 +80,24 @@ end
 
 # Reductions
 
-function reduce_sum(n::Node, name="")
-    name = get_name(name)
-    range_start = constant(Int32(0))
-    range_delta = constant(Int32(1))
-    desc = NodeDescription(get_def_graph(), "Rank", "$name/rank")
-    rank = Node(desc)
-    desc = NodeDescription(get_def_graph(), "Range", "$name/range")
-    add_input(desc, range_start)
-    add_input(desc, rank)
-    add_input(desc, range_delta)
-    range = Node(desc)
-    desc = NodeDescription(get_def_graph(), "Sum", name)
-    add_input(desc, n)
-    add_inpnut(desc, range)
-    Node(desc)
+for reduction in [:sum, :prod, :min, :max, :all, :any, :mean]
+    @eval function $(symbol("reduce_", reduction))(n::Node, name="")
+        name = get_name(name)
+        range_start = constant(Int32(0))
+        range_delta = constant(Int32(1))
+        desc = NodeDescription(get_def_graph(), "Rank", "$name/rank")
+        add_input(desc, n)
+        rank = Node(desc)
+        desc = NodeDescription(get_def_graph(), "Range", "$name/range")
+        add_input(desc, range_start)
+        add_input(desc, rank)
+        add_input(desc, range_delta)
+        range = Node(desc)
+        desc = NodeDescription(get_def_graph(), $(capitalize(reduction)), name)
+        add_input(desc, n)
+        add_input(desc, range)
+        Node(desc)
+    end
 end
 
 include("nn.jl")

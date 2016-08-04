@@ -18,8 +18,6 @@ run(sess, z, Dict(x=>1, y=>2))
 
 sess=Session()
 
-x=placeholder(Float64)
+x=constant([3.0, 5.0])
 
-y=NN.relu(x)
-run(sess,NN.softmax(x),Dict(x=>[1.0 -3.0;1 5]))
-constant(Int32(1))
+run(sess, reduce_mean(x))
