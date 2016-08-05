@@ -81,7 +81,7 @@ end
 # Reductions
 
 for reduction in [:sum, :prod, :min, :max, :all, :any, :mean]
-    @eval function $(symbol("reduce_", reduction))(n::Node, name="")
+    @eval function $(Symbol("reduce_", reduction))(n::Node, name="")
         name = get_name(name)
         range_start = constant(Int32(0))
         range_delta = constant(Int32(1))

@@ -252,6 +252,11 @@ function setindex!(desc::NodeDescription, value::Tuple, attr_name)
     nothing
 end
 
+function setindex!(desc::NodeDescription, value::Bool, attr_name)
+    ccall(:TF_SetAttrBool, Void, (Ptr{Void}, Cstring, Cuchar), desc.ptr, attr_name, value)
+    nothing
+end
+
 function run(sess::Session, inputs, input_values, outputs, targets)
     status = Status()
     output_values = fill(C_NULL, length(outputs))
