@@ -1,4 +1,4 @@
-import Base: setindex!, run
+import Base: setindex!, getindex, run
 
 const LIB_BASE = joinpath(dirname(@__FILE__), "..", "deps")
 
@@ -11,6 +11,8 @@ end
     Libdl.dlopen(joinpath(LIB_BASE, "bazel-out", "local_linux-fastbuild", "bin", "tensorflow", "libtensorflow"), Libdl.RTLD_GLOBAL)
     Libdl.dlopen(joinpath(LIB_BASE, "bazel-out", "local_linux-fastbuild", "bin", "tensorflow", "c", "libc_api"), Libdl.RTLD_GLOBAL)
 end
+
+include("py.jl")
 
 type Status
     ptr::Ptr{Void}
@@ -84,28 +86,44 @@ type Session
         check_status(status)
         finalizer(this, self->begin
             status = Status()
-            ccall((:TF_DeleteSessionWithGraph), Void, (Ptr{Void}, Ptr{Void}), self.ptr, status)
+            ccall((:TF_DeleteSessionWithGraph), Void, (Ptr{Void}, Ptr{Void}), self.ptr, status.ptr)
         end)
         return this
     end
 end
 
-function extend_graph(sess::Session, proto::Vector{UInt8})
-    status = Status()
-    ccall((:TF_ExtendGraph), Void, (Ptr{Void}, Ptr{Void}, Csize_t, Ptr{Void}), sess.ptr, pointer(proto), sizeof(proto), status.ptr)
-    return status
-end
-
-extend_graph(sess::Session, proto::String) = extend_graph(sess, proto.data)
-
-
 type Buffer
     ptr::Ptr{Void}
+
+    function Buffer(s::Vector{UInt8})
+        ptr = ccall((:TF_NewBufferFromString), Ptr{Void}, (Ptr{Void}, Csize_t), pointer(s), sizeof(s))
+        return new(ptr)
+    end
+
+    function Buffer()
+        self = new()
+        self.ptr = ccall(:TF_NewBuffer, Ptr{Void}, ())
+        finalizer(self, self->begin
+            ccall(:TF_DeleteBuffer, Void, (Ptr{Void},), self.ptr)
+        end)
+        return self
+    end
 end
 
-function Buffer(s::Vector{UInt8})
-    ptr = ccall((:TF_NewBufferFromString), Ptr{Void}, (Ptr{Void}, Csize_t), pointer(s), sizeof(s))
-    return Buffer(ptr)
+type BufferStruct
+    data::Ptr{UInt8}
+    len::Csize_t
+    deallocator::Ptr{Void}
+end
+
+function getindex(b::Buffer)
+    ccall(:TF_GetBuffer, BufferStruct, (Ptr{Void},), b.ptr)
+end
+
+function Base.convert(::Type{Array}, buf::Buffer)
+    struct = buf[]
+    array = unsafe_wrap(Array, struct.data, (struct.len,))
+    copy(array)
 end
 
 function deallocator(data, len, arg)
@@ -207,6 +225,22 @@ type Node
         check_status(status)
         new(ptr)
     end
+
+    Node(ptr::Ptr) = new(ptr)
+end
+
+function Node(node_def::tensorflow.NodeDef)
+    graph = get_def_graph()
+    desc = NodeDescription(graph, node_def.op, node_def.name)
+    for input in node_def.input
+        input_node = get_node_by_name(graph, input)
+        add_input(desc, input_node |> get)
+    end
+    for (attr_name, attr) in desc.attr
+        
+    end
+
+    Node(desc)
 end
 
 node_name(node::Node) = ccall((:TF_NodeName), Cstring, (Ptr{Void},), node.ptr) |> String
@@ -315,4 +349,29 @@ end
 function Base.convert(::Type{Number}, t::Tensor)
     @assert ndims(t)==0
     return convert(Array, t)[]
+end
+
+function get_proto(graph::Graph)
+    output = Buffer()
+    status = Status()
+    ccall(:TF_GraphToGraphDef, Void, (Ptr{Void}, Ptr{Void}, Ptr{Void}), graph.ptr, output.ptr, status.ptr)
+    check_status(status)
+    convert(Array, output)
+end
+
+function get_proto(node::Node)
+    output = Buffer()
+    status = Status()
+    ccall(:TF_NodeToNodeDef, Void, (Ptr{Void}, Ptr{Void}, Ptr{Void}), node.ptr, output.ptr, status.ptr)
+    check_status(status)
+    convert(Array, output)
+end
+
+function get_node_by_name(graph::Graph, name::String)
+    node_ptr = ccall(:TF_GraphNodeByName, Ptr{Void}, (Ptr{Void}, Cstring), graph.ptr, name)
+    if node_ptr == C_NULL
+        return Nullable{Node}()
+    else
+        return Nullable(Node(node_ptr))
+    end
 end
