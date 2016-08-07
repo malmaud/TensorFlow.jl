@@ -28,4 +28,3 @@ res_array = convert(Array, res)
 
 * Only supports Linux and OS X
 * Included TensorBinaries do not support GPUs (fix coming soon)
-* No automatic gradients (Google has stated that support is eventually coming to the TensorFlow C API for automatic differentiation)
