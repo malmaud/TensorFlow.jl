@@ -229,10 +229,25 @@ type Node
     Node(ptr::Ptr) = new(ptr)
 end
 
+# Replace this entire function once we can import protobufs into a graph
 function Node(node_def::tensorflow.NodeDef)
     graph = get_def_graph()
     desc = NodeDescription(graph, node_def.op, node_def.name)
+    if node_def.op == "DynamicStitch"
+        inputs = []
+        for input in node_def.input
+            input, port = parse_port_name(input)
+            input_node = get_node_by_name(graph, input)|>get
+            push!(inputs, input_node)
+        end
+        add_input(desc, [Port(inputs[1], 1), Port(inputs[2], 1)])
+        add_input(desc, [Port(inputs[3], 1), Port(inputs[4], 1)])
+        return Node(desc)
+    end
     for input in node_def.input
+        if input[1] == '^'
+            continue
+        end
         input, port = parse_port_name(input)
         input_node = get_node_by_name(graph, input)
         if isnull(input_node)
@@ -246,9 +261,16 @@ function Node(node_def::tensorflow.NodeDef)
                 ccall(:TF_SetAttrType, Void, (Ptr{Void}, Cstring, Cint), desc.ptr, attr_name, attr._type)
             elseif attr_name == "value"
                 info("Got value ", attr.tensor)
-                desc["value"] = Tensor(attr.tensor.float_val[1])
+                dtype = attr.tensor.dtype
+                if dtype == tensorflow._DataType.DT_FLOAT
+                    desc["value"] = Tensor(attr.tensor.float_val[1])
+                elseif dtype == tensorflow._DataType.DT_INT32
+                    desc["value"] = Tensor(attr.tensor.int_val[1])
+                end
             elseif attr_name == "keep_dims"
                 desc["keep_dims"] = attr.b
+            elseif attr_name == "N"
+                desc["N"] = attr.i
             else
             end
         end
@@ -256,7 +278,7 @@ function Node(node_def::tensorflow.NodeDef)
     Node(desc)
 end
 
-node_name(node::Node) = ccall((:TF_NodeName), Cstring, (Ptr{Void},), node.ptr) |> String
+node_name(node::Node) = ccall((:TF_NodeName), Cstring, (Ptr{Void},), node.ptr) |> unsafe_string
 
 immutable Port
     node_ptr::Ptr{Void}
@@ -283,13 +305,20 @@ function setindex!(desc::NodeDescription, tensor::Tensor, attr_name)
     nothing
 end
 
+function setindex!(desc::NodeDescription, tensors::Vector{Tensor}, attr_name)
+    status = Status()
+    ccall(:TF_SetAttrTensorList, Void, (Ptr{Void}, Cstring, Ptr{Ptr{Void}}, Cint, Ptr{Void}), desc.ptr, attr_name, [_.ptr for _ in tensors], length(tensors), status.ptr)
+    check_status(status)
+    nothing
+end
+
 function setindex!(desc::NodeDescription, dtype::DataType, attr_name)
     ccall((:TF_SetAttrType), Void, (Ptr{Void}, Cstring, TF_DataType), desc.ptr, attr_name, dtype|>jl_to_df_type)
     nothing
 end
 
 function setindex!(desc::NodeDescription, value::Int, attr_name)
-    ccall((:TF_SetAttrType), Void, (Ptr{Void}, Cstring, Int64), desc.ptr, attr_name, value)
+    ccall((:TF_SetAttrInt), Void, (Ptr{Void}, Cstring, Int64), desc.ptr, attr_name, value)
     nothing
 end
 
