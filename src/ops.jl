@@ -34,6 +34,9 @@ function constant(tensor, name="")
     node = Node(desc)
 end
 
+Base.convert(::Type{Node}, x::Number) = constant(x)
+Base.convert{T<:Number}(::Type{Node}, x::Array{T}) = constant(x)
+
 for (bin_op, jl_func_name, tf_func_name) in [
     (:+, :add, "Add"),
     (:-, :sub, "Sub"),
@@ -41,20 +44,23 @@ for (bin_op, jl_func_name, tf_func_name) in [
     (:*, :matmul, "MatMul"),
     (:/, :div, "Div"),
     (:^, :pow, "Pow")]
-    @eval function $jl_func_name(n1::Node, n2::Node, name="")
+    @eval function $jl_func_name(n1::AbstractNode, n2::AbstractNode, name="")
+        n1 = Node(n1)
+        n2 = Node(n2)
         name = get_name(name)
         desc = NodeDescription(get_def_graph(), $tf_func_name, name)
-        add_input(desc, Port(n1, 1))
-        add_input(desc, Port(n2, 1))
+        add_input(desc, Port(Node(n1), 1))
+        add_input(desc, Port(Node(n2), 1))
         Node(desc)
     end
 
-    @eval $bin_op(n1::Node, n2::Node) = $jl_func_name(n1, n2)
-    @eval $bin_op(n1::Node, n2) = $jl_func_name(n1, constant(n2))
-    @eval $bin_op(n1, n2::Node) = $jl_func_name(constant(n1), n2)
+    @eval $bin_op(n1::AbstractNode, n2::AbstractNode) = $jl_func_name(n1, n2)
+    @eval $bin_op(n1::AbstractNode, n2) = $jl_func_name(n1, constant(eltype(n1)(n2)))
+    @eval $bin_op(n1, n2::AbstractNode) = $jl_func_name(constant(eltype(n2)(n1)), n2)
 end
 
-^(n::Node, x::Int) = invoke(^, (Node, Any), n, x)
+*(x::Number, n::AbstractNode) = x.*n  # For supporting notation like `2x`
+^(n::AbstractNode, x::Int) = invoke(^, (AbstractNode, Any), n, x)
 
 for (jl_func_name, tf_func_name) in [
     (:log, "Log"),
@@ -68,7 +74,8 @@ for (jl_func_name, tf_func_name) in [
     (:sin, "Sin"),
     (:tan, "Tan"),
     (:transpose, "Transpose")]
-    @eval function $jl_func_name(n::Node, name="")
+    @eval function $jl_func_name(n::AbstractNode, name="")
+        n = Node(n)
         name = get_name(name)
         desc = NodeDescription(get_def_graph(), $tf_func_name, name)
         add_input(desc, Port(n, 1))
@@ -81,7 +88,8 @@ end
 # Reductions
 
 for reduction in [:sum, :prod, :min, :max, :all, :any, :mean]
-    @eval function $(Symbol("reduce_", reduction))(n::Node, name="")
+    @eval function $(Symbol("reduce_", reduction))(n::AbstractNode, name="")
+        n = Node(n)
         name = get_name(name)
         range_start = constant(Int32(0))
         range_delta = constant(Int32(1))

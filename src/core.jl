@@ -216,7 +216,10 @@ type NodeDescription
 
 end
 
-type Node
+
+abstract AbstractNode
+
+type Node <: AbstractNode
     ptr::Ptr{Void}
 
     function Node(desc::NodeDescription)
@@ -227,6 +230,10 @@ type Node
     end
 
     Node(ptr::Ptr) = new(ptr)
+end
+
+function Base.show(io::IO, n::Node)
+    print(io, "Node<$(n.ptr)>")
 end
 
 # Replace this entire function once we can import protobufs into a graph
@@ -279,6 +286,30 @@ function Node(node_def::tensorflow.NodeDef)
 end
 
 node_name(node::Node) = ccall((:TF_NodeName), Cstring, (Ptr{Void},), node.ptr) |> unsafe_string
+
+function get_attr_value_proto(node::Node, attr_name)
+    buf = Buffer()
+    status = Status()
+    ccall(:TF_NodeGetAttrValueProto, Void, (Ptr{Void}, Cstring, Ptr{Void}, Ptr{Void}), node.ptr, attr_name, buf.ptr, status.ptr)
+    check_status(status)
+    proto = Array(buf)
+    b = IOBuffer()
+    write(b, proto)
+    seekstart(b)
+    val = tensorflow.AttrValue()
+    readproto(b, val)
+    return val
+end
+
+Base.getindex(node::Node, attr_name) = get_attr_value_proto(node, attr_name)
+
+function Base.eltype(node::AbstractNode)
+    node = Node(node)
+    dtype = node["dtype"]._type
+    dt = tensorflow._DataType
+    type_map = Dict(dt.DT_FLOAT=>Float32, dt.DT_INT32=>Int32, dt.DT_DOUBLE=>Float64, dt.DT_INT64=>Int64)
+    return type_map[dtype]
+end
 
 immutable Port
     node_ptr::Ptr{Void}
