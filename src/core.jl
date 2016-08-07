@@ -233,13 +233,26 @@ function Node(node_def::tensorflow.NodeDef)
     graph = get_def_graph()
     desc = NodeDescription(graph, node_def.op, node_def.name)
     for input in node_def.input
+        input, port = parse_port_name(input)
         input_node = get_node_by_name(graph, input)
-        add_input(desc, input_node |> get)
+        if isnull(input_node)
+            warn("Could not find name $input")
+        end
+        add_input(desc, Port(input_node |> get, port))
     end
-    for (attr_name, attr) in desc.attr
-        
+    if isdefined(node_def, :attr)  # TODO: complete this
+        for (attr_name, attr) in node_def.attr
+            if attr_name == "dtype"
+                ccall(:TF_SetAttrType, Void, (Ptr{Void}, Cstring, Cint), desc.ptr, attr_name, attr._type)
+            elseif attr_name == "value"
+                info("Got value ", attr.tensor)
+                desc["value"] = Tensor(attr.tensor.float_val[1])
+            elseif attr_name == "keep_dims"
+                desc["keep_dims"] = attr.b
+            else
+            end
+        end
     end
-
     Node(desc)
 end
 
@@ -367,7 +380,19 @@ function get_proto(node::Node)
     convert(Array, output)
 end
 
-function get_node_by_name(graph::Graph, name::String)
+function parse_port_name(name)
+    m = match(r"(.*):(.*)", name)
+    if m==nothing
+        return (name, 1)
+    else
+        port = parse(Int, m[2]) + 1
+        return (m[1], port)
+    end
+
+end
+
+function get_node_by_name(graph::Graph, name::AbstractString)
+    name, port = parse_port_name(name)
     node_ptr = ccall(:TF_GraphNodeByName, Ptr{Void}, (Ptr{Void}, Cstring), graph.ptr, name)
     if node_ptr == C_NULL
         return Nullable{Node}()

@@ -1,4 +1,5 @@
 using PyCall
+using ProtoBuf
 @pyimport tensorflow as py_tf
 
 function py_with(f, ctx_mngr)
@@ -46,7 +47,6 @@ function gradients(y, x)
     py_y = to_py_node(y)
     grad_node = py_tf.gradients(py_y, py_x)
     py_graph_def = py_graph[:as_graph_def]()
-    return extend_graph(get_def_graph(), py_graph_def)
-
-    get_node_by_name(grad_node[:name]) |> get
+    extend_graph(get_def_graph(), py_graph_def)
+    return [get_node_by_name(get_def_graph(), _[:name])|>get for _ in grad_node]
 end
