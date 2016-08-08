@@ -61,6 +61,7 @@ end
 
 *(x::Number, n::AbstractNode) = x.*n  # For supporting notation like `2x`
 ^(n::AbstractNode, x::Int) = invoke(^, (AbstractNode, Any), n, x)
+.^(n::AbstractNode, x::Number) = n^x
 
 for (jl_func_name, tf_func_name) in [
     (:log, "Log"),

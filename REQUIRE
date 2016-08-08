@@ -3,3 +3,5 @@ Requests
 BinDeps
 ProtoBuf
 PyCall
+Distributions
+Conda

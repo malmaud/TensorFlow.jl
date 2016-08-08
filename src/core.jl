@@ -272,7 +272,13 @@ function Node(node_def::tensorflow.NodeDef)
                 if dtype == tensorflow._DataType.DT_FLOAT
                     desc["value"] = Tensor(attr.tensor.float_val[1])
                 elseif dtype == tensorflow._DataType.DT_INT32
-                    desc["value"] = Tensor(attr.tensor.int_val[1])
+                    if length(attr.tensor.int_val) == 0
+                        desc["value"] = Tensor(Int32[])
+                    else
+                        desc["value"] = Tensor(attr.tensor.int_val[1])
+                    end
+                elseif dtype == tensorflow._DataType.DT_DOUBLE
+                    desc["value"] = Tensor(attr.tensor.double_val[1])
                 end
             elseif attr_name == "keep_dims"
                 desc["keep_dims"] = attr.b
@@ -285,7 +291,7 @@ function Node(node_def::tensorflow.NodeDef)
     Node(desc)
 end
 
-node_name(node::Node) = ccall((:TF_NodeName), Cstring, (Ptr{Void},), node.ptr) |> unsafe_string
+node_name(node::AbstractNode) = ccall((:TF_NodeName), Cstring, (Ptr{Void},), Node(node).ptr) |> unsafe_string
 
 function get_attr_value_proto(node::Node, attr_name)
     buf = Buffer()
@@ -305,7 +311,16 @@ Base.getindex(node::Node, attr_name) = get_attr_value_proto(node, attr_name)
 
 function Base.eltype(node::AbstractNode)
     node = Node(node)
-    dtype = node["dtype"]._type
+    dtype = nothing
+    try
+        dtype = node["dtype"]._type
+    catch
+        try
+            dtype = node["T"]._type
+        catch
+            error("eltype called on node with no type information")
+        end
+    end
     dt = tensorflow._DataType
     type_map = Dict(dt.DT_FLOAT=>Float32, dt.DT_INT32=>Int32, dt.DT_DOUBLE=>Float64, dt.DT_INT64=>Int64)
     return type_map[dtype]

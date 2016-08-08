@@ -1,4 +1,4 @@
-module NN
+module nn
 
 import ..TensorFlow: Node, NodeDescription, get_def_graph, capitalize, add_input, Port, get_name
 

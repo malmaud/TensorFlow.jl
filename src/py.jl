@@ -40,7 +40,7 @@ function extend_graph(graph, other::PyObject)
 end
 
 
-function gradients(y, x)
+function gradients(y, x::AbstractArray)
     py_graph = make_py_graph(get_def_graph())
     to_py_node = node->py_graph[:get_tensor_by_name](string(node_name(node), ":0"))
     py_x = [to_py_node(node) for node in x]
@@ -50,3 +50,5 @@ function gradients(y, x)
     extend_graph(get_def_graph(), py_graph_def)
     return [get_node_by_name(get_def_graph(), _[:name])|>get for _ in grad_node]
 end
+
+gradients(y, x) = gradients(y, [x])[1]
