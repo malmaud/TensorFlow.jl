@@ -132,13 +132,21 @@ end
 
 const c_deallocator = cfunction(deallocator, Void, (Ptr{Void}, Csize_t, Ptr{Void}))
 
+"""
+Convert from row-major to column-major or vice-versa
+"""
+function convert_major_order(array)
+    permutedims(array, length(size(array)):-1:1)
+end
+
+
 type Tensor
     ptr::Ptr{Void}
     data::Array  # To avoid underlying data being GCed
     function Tensor(data::Array)
         dims = [size(data)...]
         dt = jl_to_df_type(eltype(data))
-
+        data = convert_major_order(data)
         ptr = ccall((:TF_NewTensor), Ptr{Void}, (Cint, Ptr{Cint}, Cint, Ptr{Void}, Csize_t, Ptr{Void}, Ptr{Void}),
             Int(dt),
             pointer(dims),
@@ -215,7 +223,6 @@ type NodeDescription
     end
 
 end
-
 
 abstract AbstractNode
 
@@ -398,7 +405,14 @@ function run(sess::Session, inputs, input_values, outputs, targets)
         C_NULL,
         status.ptr)
     check_status(status)
-    return [Tensor(_) for _ in output_values]
+    as_native = tensor->begin
+        if ndims(tensor) == 0
+            Number(tensor)
+        else
+            Array(tensor)
+        end
+    end
+    return [as_native(Tensor(_)) for _ in output_values]
 end
 
 function run(sess::Session, outputs::AbstractVector{Node}, input_dict)
@@ -431,7 +445,11 @@ end
 function Base.convert(::Type{Array}, t::Tensor)
     dims = ndims(t)
     data = ccall((:TF_TensorData), Ptr{eltype(t)}, (Ptr{Void},), t.ptr)
-    unsafe_wrap(Array, data, size(t))
+    if dims > 0
+        convert_major_order(unsafe_wrap(Array, data, size(t)|>reverse))
+    else
+        unsafe_wrap(Array, data, size(t))
+    end
 end
 
 function Base.convert(::Type{Number}, t::Tensor)
