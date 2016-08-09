@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/malmaud/TensorFlow.jl.svg?branch=master)](https://travis-ci.org/malmaud/TensorFlow.jl)
 
-A wrapper around [Tensorflow](Tensorflow), a popular open source machine learning framework from Google.
+A wrapper around [TensorFlow](https://www.tensorflow.org/), a popular open source machine learning framework from Google.
 
 ## Usage
 
