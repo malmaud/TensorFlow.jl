@@ -25,6 +25,13 @@ function Variable(initial_value, name="")
     return self
 end
 
+function assign(v::Variable, value)
+    desc = NodeDescription(get_def_graph(), "Assign", get_name())
+    add_input(desc, v.var_node)
+    add_input(desc, convert(Node, value))
+    return Node(desc)
+end
+
 Base.convert(::Type{Tensor}, v::Variable) = v.var_node
 Base.convert(::Type{Node}, v::Variable) = convert(Tensor, v)
 

@@ -1,26 +1,36 @@
 using Distributions
 
-x = randn(100, 3)
+# Generate some synthetic data
+x = randn(100, 50)
+w = randn(50, 10)
+y_prob = exp(x*w)
+y_prob ./= sum(y_prob,2)
 
-w = randn(3, 10)
+function draw(probs)
+    y = zeros(size(probs))
+    for i in 1:size(probs, 1)
+        idx = rand(Categorical(probs[i, :]))
+        y[i, idx] = 1
+    end
+    return y
+end
 
-y = x*w
+y = draw(y_prob)
 
+# Build the model
 sess = Session()
-constant(1)
-run(sess, constant(1))
-
 X = placeholder(Float64)
-
 Y_obs = placeholder(Float64)
-
-W = Variable(randn(3,10))
-Y=X*W
-
-Loss = reduce_sum((Y-Y_obs)^2)
-run(sess, initialize_all_variables())
-run(sess, Loss, Dict(X=>x, Y_obs=>y))
-
+W = Variable(randn(50,10))
+Y=nn.softmax(X*W)
+Loss = -reduce_sum(log(Y).*Y_obs)
 grad = gradients(Loss, W)
 
-run(sess, grad, Dict(X=>x, Y_obs=>y))
+# Run training
+run(sess, initialize_all_variables())
+
+for epoch in 1:1000
+    cur_grad,cur_loss=run(sess, [grad,Loss], Dict(X=>x, Y_obs=>y))
+    println(@sprintf("Current loss is %.2f. Gradient norm is %.2f", cur_loss, sum(cur_grad)))
+    run(sess, assign(W, W-.0001*cur_grad))
+end

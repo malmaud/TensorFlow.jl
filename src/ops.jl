@@ -8,7 +8,7 @@ end
 
 capitalize(s::Symbol) = capitalize(string(s))
 
-function get_name(name)
+function get_name(name="")
     if length(name) > 0
         return name
     else
@@ -37,6 +37,12 @@ end
 Base.convert(::Type{Node}, x::Number) = constant(x)
 Base.convert{T<:Number}(::Type{Node}, x::Array{T}) = constant(x)
 
+function tf_promote(t, x::Number)
+    return Node(eltype(t)(x))
+end
+
+tf_promote(t, x) = Node(x)
+
 for (bin_op, jl_func_name, tf_func_name) in [
     (:+, :add, "Add"),
     (:-, :sub, "Sub"),
@@ -55,8 +61,8 @@ for (bin_op, jl_func_name, tf_func_name) in [
     end
 
     @eval $bin_op(n1::AbstractNode, n2::AbstractNode) = $jl_func_name(n1, n2)
-    @eval $bin_op(n1::AbstractNode, n2) = $jl_func_name(n1, constant(eltype(n1)(n2)))
-    @eval $bin_op(n1, n2::AbstractNode) = $jl_func_name(constant(eltype(n2)(n1)), n2)
+    @eval $bin_op(n1::AbstractNode, n2) = $jl_func_name(n1, tf_promote(n1, n2))
+    @eval $bin_op(n1, n2::AbstractNode) = $jl_func_name(tf_promote(n2, n1), n2)
 end
 
 *(x::Number, n::AbstractNode) = x.*n  # For supporting notation like `2x`
@@ -107,6 +113,21 @@ for reduction in [:sum, :prod, :min, :max, :all, :any, :mean]
         add_input(desc, range)
         Node(desc)
     end
+end
+
+function Base.reshape(n::Node, dims, name="")
+    dims = Int32[dims...]
+    desc = NodeDescription(get_def_graph(), "Reshape",  get_name(name))
+    add_input(desc, n)
+    add_input(desc, Node(dims))
+    Node(desc)
+end
+
+function Base.fill(n::Node, dims::Node, name="")
+    desc = NodeDescription(get_def_graph(), "Fill", get_name(name))
+    add_input(desc, dims)
+    add_input(desc, n)
+    Node(desc)
 end
 
 include("nn.jl")

@@ -258,40 +258,65 @@ function Node(node_def::tensorflow.NodeDef)
         add_input(desc, [Port(inputs[3], 1), Port(inputs[4], 1)])
         return Node(desc)
     end
-    for input in node_def.input
-        if input[1] == '^'
-            continue
+    if node_def.op == "AddN"
+        inputs = []
+        for input in node_def.input
+            input, port = parse_port_name(input)
+            input_node = get_node_by_name(graph, input)|>get
+            push!(inputs, input_node)
         end
-        input, port = parse_port_name(input)
-        input_node = get_node_by_name(graph, input)
-        if isnull(input_node)
-            warn("Could not find name $input")
+        add_input(desc, [Port(_, 1) for _ in inputs])
+    else
+        for (input_idx, input) in enumerate(node_def.input)
+            if input[1] == '^'
+                continue
+            end
+            input, port = parse_port_name(input)
+            input_node = get_node_by_name(graph, input)
+            if isnull(input_node)
+                warn("Could not find name $input")
+            end
+            add_input(desc, Port(input_node |> get, port))
         end
-        add_input(desc, Port(input_node |> get, port))
     end
     if isdefined(node_def, :attr)  # TODO: complete this
         for (attr_name, attr) in node_def.attr
-            if attr_name == "dtype"
+            if attr_name ∈ ("dtype", "T")
                 ccall(:TF_SetAttrType, Void, (Ptr{Void}, Cstring, Cint), desc.ptr, attr_name, attr._type)
             elseif attr_name == "value"
-                info("Got value ", attr.tensor)
                 dtype = attr.tensor.dtype
+                dim = (Int[_.size for _ in attr.tensor.tensor_shape.dim]...)
                 if dtype == tensorflow._DataType.DT_FLOAT
-                    desc["value"] = Tensor(attr.tensor.float_val[1])
+                    val = attr.tensor.float_val
                 elseif dtype == tensorflow._DataType.DT_INT32
-                    if length(attr.tensor.int_val) == 0
-                        desc["value"] = Tensor(Int32[])
-                    else
-                        desc["value"] = Tensor(attr.tensor.int_val[1])
-                    end
+                    val = attr.tensor.int_val
                 elseif dtype == tensorflow._DataType.DT_DOUBLE
-                    desc["value"] = Tensor(attr.tensor.double_val[1])
+                    val = attr.tensor.double_val
+                else
+                    warn("Unrecognized datatype $dtype")
+                end
+                # Sometimes Tensorflow stores the tensor content in the 'tensor_content' byte array,
+                # and sometimes in a typed field. Haven't figured out the rational yet.
+                if length(attr.tensor.tensor_content) > 0
+                    val = reinterpret(eltype(val), attr.tensor.tensor_content)
+                end
+                if length(val) == 0
+                    desc["value"] = Tensor(zeros(eltype(val),0))
+                elseif length(dim) == 0
+                    desc["value"] = Tensor(val[1])
+                else
+                    desc["value"] = Tensor(reshape(val, dim))
                 end
             elseif attr_name == "keep_dims"
                 desc["keep_dims"] = attr.b
             elseif attr_name == "N"
                 desc["N"] = attr.i
+            elseif attr_name == "transpose_a"
+                desc["transpose_a"] = attr.b
+            elseif attr_name == "transpose_b"
+                desc["transpose_b"] = attr.b
             else
+                warn("Unrecognized attribute $attr_name")
             end
         end
     end
