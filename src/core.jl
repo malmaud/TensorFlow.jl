@@ -73,12 +73,19 @@ end
 
 get_def_graph() = def_graph
 
+function set_def_graph(g)
+    global def_graph
+    def_graph = g
+end
+
+set_def_graph(Graph())
+
 type Session
     ptr::Ptr{Void}
     graph::Graph
 
-    function Session(graph=Graph())
-        global def_graph = graph
+    function Session(graph)
+        set_def_graph(graph)
         options = SessionOptions()
         status = Status()
         ptr = ccall((:TF_NewSessionWithGraph), Ptr{Void}, (Ptr{Void}, Ptr{Void}, Ptr{Void}), graph.ptr, options.ptr, status.ptr)
@@ -90,6 +97,8 @@ type Session
         end)
         return this
     end
+
+    Session() = Session(get_def_graph())
 end
 
 type Buffer
@@ -380,35 +389,38 @@ function setindex!(desc::NodeDescription, tensor::Tensor, attr_name)
     status = Status()
     ccall((:TF_SetAttrTensor), Void, (Ptr{Void}, Cstring, Ptr{Void}, Ptr{Void}), desc.ptr, attr_name, tensor.ptr, status.ptr)
     check_status(status)
-    nothing
 end
 
 function setindex!(desc::NodeDescription, tensors::Vector{Tensor}, attr_name)
     status = Status()
     ccall(:TF_SetAttrTensorList, Void, (Ptr{Void}, Cstring, Ptr{Ptr{Void}}, Cint, Ptr{Void}), desc.ptr, attr_name, [_.ptr for _ in tensors], length(tensors), status.ptr)
     check_status(status)
-    nothing
 end
 
 function setindex!(desc::NodeDescription, dtype::DataType, attr_name)
     ccall((:TF_SetAttrType), Void, (Ptr{Void}, Cstring, TF_DataType), desc.ptr, attr_name, dtype|>jl_to_df_type)
-    nothing
 end
 
 function setindex!(desc::NodeDescription, value::Int, attr_name)
     ccall((:TF_SetAttrInt), Void, (Ptr{Void}, Cstring, Int64), desc.ptr, attr_name, value)
-    nothing
 end
 
 function setindex!(desc::NodeDescription, value::Tuple, attr_name)
     dims = Int[value...]
     ccall(:TF_SetAttrShape, Void, (Ptr{Void}, Cstring, Ptr{Int64}, Cint), desc.ptr, attr_name, dims, length(dims))
-    nothing
 end
 
 function setindex!(desc::NodeDescription, value::Bool, attr_name)
     ccall(:TF_SetAttrBool, Void, (Ptr{Void}, Cstring, Cuchar), desc.ptr, attr_name, value)
-    nothing
+end
+
+function setindex!(desc::NodeDescription, value::AbstractString, attr_name)
+    value = String(value)
+    ccall(:TF_SetAttrString, Void, (Ptr{Void}, Cstring, Ptr{Void}, Cint), desc.ptr, attr_name, value.data, sizeof(value))
+end
+
+function set_attr_list(desc::NodeDescription, attr_name, list::Vector{Int})
+    ccall(:TF_SetAttrIntList, Void, (Ptr{Void}, Cstring, Ptr{Int64}, Cint), desc.ptr, attr_name, list, length(list))
 end
 
 function run(sess::Session, inputs, input_values, outputs, targets)
