@@ -152,6 +152,9 @@ end
 type Tensor
     ptr::Ptr{Void}
     data::Array  # To avoid underlying data being GCed
+
+    Tensor() = new()
+
     function Tensor(data::Array)
         dims = [size(data)...]
         dt = jl_to_df_type(eltype(data))
@@ -193,10 +196,67 @@ end
 
 Tensor(t::Tensor) = t
 
+function varint_encode(b::IO, n::Integer)
+    while n ≥ 2^7
+        write(b, UInt8(0b10000000 | (n & 0b1111111)))
+        n >>= 7
+    end
+    write(b, UInt8(n))
+end
+
+function varint_decode(b::IO)
+    n = 0
+    idx = 0
+    while true
+        x = read(b, UInt8)
+        if (x & 0b10000000) > 0
+            x = x & 0b01111111
+            n = n | (Int64(x)<<7idx)
+        else
+            n = n | (Int64(x)<<7idx)
+            break
+        end
+        idx += 1
+    end
+    return n
+end
+
+function Tensor(data::String)
+    # TODO: Get this working
+    b = IOBuffer()
+    write(b, UInt64(0))
+    varint_encode(b, sizeof(data))
+    write(b, data.data)
+    seekstart(b)
+    data_encoded = read(b)
+    dims = Cint[]
+    dt = jl_to_df_type(String)
+    ptr = ccall(:TF_NewTensor, Ptr{Void}, (Cint, Ptr{Int64}, Cint, Ptr{Void}, Csize_t, Ptr{Void}, Ptr{Void}),
+        Int(dt),
+        dims,
+        0,
+        data_encoded,
+        length(data_encoded),
+        c_deallocator,
+        C_NULL)
+    if ptr == C_NULL
+        error("Error creating tensor")
+    end
+    t = Tensor()
+    t.data = [data]
+    t.ptr = ptr
+    return t
+end
+
+
 function Base.show(io::IO, t::Tensor)
     print(io, "Tensor: ")
     if ndims(t) == 0
-        show(io, Number(t))
+        if eltype(t) == String
+            show(io, String(t))
+        else
+            show(io, Number(t))
+        end
     else
         show(io, Array(t))
     end
@@ -444,7 +504,11 @@ function run(sess::Session, inputs, input_values, outputs, targets)
     check_status(status)
     as_native = tensor->begin
         if ndims(tensor) == 0
-            Number(tensor)
+            if eltype(tensor) == String
+                String(tensor)
+            else
+                Number(tensor)
+            end
         else
             Array(tensor)
         end
@@ -468,7 +532,7 @@ function Base.eltype(t::Tensor)
     tf_to_jl_type(tf_type)
 end
 
-const type_map = Dict(TF_FLOAT=>Float32, TF_INT32=>Int32, TF_INT64=>Int64, TF_DOUBLE=>Float64)
+const type_map = Dict(TF_FLOAT=>Float32, TF_INT32=>Int32, TF_INT64=>Int64, TF_DOUBLE=>Float64, TF_STRING=>String)
 const inv_type_map = Dict(v=>k for (k, v) in type_map)
 
 function tf_to_jl_type(dt::TF_DataType)
@@ -481,15 +545,25 @@ end
 
 function Base.convert(::Type{Array}, t::Tensor)
     dims = ndims(t)
-    data = ccall((:TF_TensorData), Ptr{eltype(t)}, (Ptr{Void},), t.ptr)
-    if dims > 0
-        convert_major_order(unsafe_wrap(Array, data, size(t)|>reverse))
+    data = ccall(:TF_TensorData, Ptr{eltype(t)}, (Ptr{Void},), t.ptr)
+    if eltype(t) == String
+        array = unsafe_wrap(Array, convert(Ptr{UInt8}, data), sizeof(t))
+        b = IOBuffer(array)
+        seekstart(b)
+        offset = read(b, UInt64)
+        len = varint_decode(b)
+        raw_data = read(b, UInt8, len)
+        [String(raw_data)]
     else
-        unsafe_wrap(Array, data, size(t))
+        if dims > 0
+            convert_major_order(unsafe_wrap(Array, data, size(t)|>reverse))
+        else
+            unsafe_wrap(Array, data, size(t))
+        end
     end
 end
 
-function Base.convert(::Type{Number}, t::Tensor)
+function Base.convert{T<:Union{Number, String}}(::Type{T}, t::Tensor)
     @assert ndims(t)==0
     return convert(Array, t)[]
 end

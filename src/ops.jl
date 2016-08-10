@@ -34,8 +34,8 @@ function constant(tensor; name="")
     node = Node(desc)
 end
 
-Base.convert(::Type{Node}, x::Number) = constant(x)
-Base.convert{T<:Number}(::Type{Node}, x::Array{T}) = constant(x)
+Base.convert(::Type{Node}, x::Union{Number, String}) = constant(x)
+Base.convert{T<:Union{Number, String}}(::Type{Node}, x::Array{T}) = constant(x)
 
 function tf_promote(t, x::Number)
     return Node(eltype(t)(x))
@@ -97,7 +97,7 @@ end
 for reduction in [:sum, :prod, :min, :max, :all, :any, :mean]
     @eval function $(Symbol("reduce_", reduction))(n::AbstractNode; reduction_indices=nothing, keep_dims=false, name="")
         if reduction_indices == nothing
-            n = Node(n)
+            n = Node(n)  # TODO: rewrite this
             name = get_name(name)
             range_start = constant(Int32(0))
             range_delta = constant(Int32(1))
@@ -200,6 +200,14 @@ function concat(dim, values; name="")
 end
 
 Base.cat(::Type{Node}, dim, values) = concat(dim, values)
+
+function read_file(filename; name="")
+    desc = NodeDescription(get_def_graph(), "ReadFile", get_name(name))
+    add_input(desc, Node(filename))
+    Node(desc)
+end
+
+Base.read(::Type{Node}, filename) = read_file(filename)
 
 include("nn.jl")
 include("image.jl")
