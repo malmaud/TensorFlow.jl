@@ -474,6 +474,10 @@ function setindex!(desc::NodeDescription, value::Bool, attr_name)
     ccall(:TF_SetAttrBool, Void, (Ptr{Void}, Cstring, Cuchar), desc.ptr, attr_name, value)
 end
 
+function setindex!(desc::NodeDescription, value::Float32, attr_name)
+    ccall(:TF_SetAttrFloat, Void, (Ptr{Void}, Cstring, Cfloat), desc.ptr, attr_name, value)
+end
+
 function setindex!(desc::NodeDescription, value::AbstractString, attr_name)
     value = String(value)
     ccall(:TF_SetAttrString, Void, (Ptr{Void}, Cstring, Ptr{Void}, Cint), desc.ptr, attr_name, value.data, sizeof(value))
@@ -532,7 +536,7 @@ function Base.eltype(t::Tensor)
     tf_to_jl_type(tf_type)
 end
 
-const type_map = Dict(TF_FLOAT=>Float32, TF_INT32=>Int32, TF_INT64=>Int64, TF_DOUBLE=>Float64, TF_STRING=>String)
+const type_map = Dict(TF_UINT8=>UInt8, TF_FLOAT=>Float32, TF_INT32=>Int32, TF_INT64=>Int64, TF_DOUBLE=>Float64, TF_STRING=>String)
 const inv_type_map = Dict(v=>k for (k, v) in type_map)
 
 function tf_to_jl_type(dt::TF_DataType)

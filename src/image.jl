@@ -1,5 +1,7 @@
 module image
 
+import ..TensorFlow: NodeDescription, get_def_graph, get_name, add_input, Node
+
 function decode_jpeg(contents; channels=0, ratio=1, fancy_upscaling=true, try_recover_truncated=false, acceptable_fraction=1.0, name="")
     desc = NodeDescription(get_def_graph(), "DecodeJpeg", get_name(name))
     add_input(desc, contents)
