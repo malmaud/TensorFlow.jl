@@ -222,7 +222,7 @@ function varint_decode(b::IO)
 end
 
 function Tensor(data::String)
-    # TODO: Get this working
+    # TODO: Support arrays of strings
     b = IOBuffer()
     write(b, UInt64(0))
     varint_encode(b, sizeof(data))
