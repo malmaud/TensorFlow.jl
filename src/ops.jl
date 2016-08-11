@@ -117,7 +117,7 @@ for reduction in [:sum, :prod, :min, :max, :all, :any, :mean]
             if isa(reduction_indices, Number)
                 reduction_indices = [reduction_indices]
             end
-            reduction_indices = map(Int32, reduction_indices)
+            reduction_indices = [Int32(idx-1) for idx in reduction_indices]
             desc = NodeDescription(get_def_graph(), $(capitalize(reduction)), get_name(name))
             add_input(desc, Node(n))
             add_input(desc, Node(reduction_indices))
@@ -199,7 +199,7 @@ function concat(dim, values; name="")
     Node(desc)
 end
 
-Base.cat(::Type{Node}, dim, values) = concat(dim, values)
+Base.cat(::Type{Node}, dim, values) = concat(dim-1, values)
 
 function read_file(filename; name="")
     desc = NodeDescription(get_def_graph(), "ReadFile", get_name(name))
@@ -208,6 +208,42 @@ function read_file(filename; name="")
 end
 
 Base.read(::Type{Node}, filename) = read_file(filename)
+
+function pack(nodes; axis=0, name="")
+    desc = NodeDescription(get_def_graph(), "Pack", get_name(name))
+    add_input(desc, [Port(Node(_), 1) for _ in nodes])
+    desc["N"] = length(nodes)
+    desc["axis"] = axis
+    Node(desc)
+end
+
+function expand_dims(input, dim; name="")
+    desc = NodeDescription(get_def_graph(), "ExpandDims", get_name(name))
+    add_input(desc, Node(input))
+    add_input(desc, Node(convert_number(Int32,dim)))
+    Node(desc)
+end
+
+
+function argmin(n::AbstractNode, dim; name="")
+    desc = NodeDescription(get_def_graph(), "ArgMin", get_name(name))
+    add_input(desc, Node(n))
+    add_input(desc, Node(convert_number(Int32,dim)))
+    Node(desc)
+end
+
+Base.indmin(n::AbstractNode, dim) = argmin(n, dim-1)
+
+function argmax(n::AbstractNode, dim; name="")
+    desc = NodeDescription(get_def_graph(), "ArgMax", get_name(name))
+    add_input(desc, Node(n))
+    add_input(desc, Node(convert_number(Int32, dim)))
+    Node(desc)
+end
+
+Base.indmax(n::AbstractNode, dim) = argmax(n, dim-1)
+
+
 
 include("nn.jl")
 include("image.jl")

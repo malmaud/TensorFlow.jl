@@ -80,6 +80,13 @@ end
 
 set_def_graph(Graph())
 
+function as_default(f, g::Graph)
+    old_def = get_def_graph()
+    set_def_graph(g)
+    f()
+    set_def_graph(old_def)
+end
+
 type Session
     ptr::Ptr{Void}
     graph::Graph
@@ -211,9 +218,9 @@ function varint_decode(b::IO)
         x = read(b, UInt8)
         if (x & 0b10000000) > 0
             x = x & 0b01111111
-            n = n | (Int64(x)<<7idx)
+            n = n | (Int64(x) << 7idx)
         else
-            n = n | (Int64(x)<<7idx)
+            n = n | (Int64(x) << 7idx)
             break
         end
         idx += 1

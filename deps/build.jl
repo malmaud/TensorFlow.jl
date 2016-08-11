@@ -31,4 +31,4 @@ end
 end
 
 #Conda.install("numpy")
-run(`pip install tensorflow-0.10.0rc0-py2-none-any.whl`)
+run(`sudo pip install tensorflow-0.10.0rc0-py2-none-any.whl`)

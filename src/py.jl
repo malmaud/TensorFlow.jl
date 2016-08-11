@@ -8,12 +8,16 @@ function py_with(f, ctx_mngr)
     ctx_mngr[:__exit__](nothing, nothing, nothing)
 end
 
+function py_bytes(b::Vector{UInt8})
+    PyCall.PyObject(ccall(@PyCall.pysym(PyString_FromStringAndSize), PyCall.PyPtr, (Ptr{UInt8}, Int), b, sizeof(b)))
+end
+
 function make_py_graph(graph)
     proto = get_proto(graph)
     py_graph = py_tf.Graph()
     py_with(py_graph[:as_default]()) do
         graph_def = py_tf.GraphDef()
-        graph_def[:ParseFromString](proto|>String)
+        graph_def[:ParseFromString](proto|>py_bytes)
         py_tf.import_graph_def(graph_def, name="")
     end
     py_graph

@@ -29,7 +29,7 @@ grad = gradients(Loss, W)
 # Run training
 run(sess, initialize_all_variables())
 
-for epoch in 1:1000
+for epoch in 1:100
     cur_grad,cur_loss=run(sess, [grad,Loss], Dict(X=>x, Y_obs=>y))
     println(@sprintf("Current loss is %.2f. Gradient norm is %.2f", cur_loss, sum(cur_grad)))
     run(sess, assign(W, W-.0001*cur_grad))
