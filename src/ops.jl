@@ -65,7 +65,9 @@ for (bin_op, jl_func_name, tf_func_name) in [
     @eval $bin_op(n1, n2::AbstractNode) = $jl_func_name(tf_promote(n2, n1), n2)
 end
 
-*(x::Number, n::AbstractNode) = x.*n  # For supporting notation like `2x`
+*(x::Number, n::AbstractNode) = x.*n
+
+  # For supporting notation like `2x`
 ^(n::AbstractNode, x::Int) = invoke(^, (AbstractNode, Any), n, x)
 .^(n::AbstractNode, x::Number) = n^x
 
@@ -243,7 +245,17 @@ end
 
 Base.indmax(n::AbstractNode, dim) = argmax(n, dim-1)
 
+function Base.zeros(::Type{Node}, T, shape)
+    constant(zeros(T, shape))
+end
 
+Base.zeros(::Type{Node}, shape) = zeros(Node, Float32, shape)
+
+function Base.ones(::Type{Node}, T, shape)
+    constant(zeros(T, shape))
+end
+
+Base.ones(::Type{Node}, shape) = ones(Node, Float32, shape)
 
 include("nn.jl")
 include("image.jl")

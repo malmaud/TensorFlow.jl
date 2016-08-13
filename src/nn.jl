@@ -31,4 +31,6 @@ function max_pool(value, ksize, strides, padding; data_format="NHWC", name="")
     Node(desc)
 end
 
+include("rnn_cell.jl")
+
 end

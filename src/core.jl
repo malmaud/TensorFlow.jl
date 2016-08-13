@@ -1,3 +1,5 @@
+using ProtoBuf
+
 import Base: setindex!, getindex, run
 
 const LIB_BASE = joinpath(dirname(@__FILE__), "..", "deps")
@@ -292,31 +294,37 @@ end
 
 type NodeDescription
     ptr::Ptr{Void}
+    graph::Graph
 
     function NodeDescription(graph, op_type, node_name)
         desc = ccall((:TF_NewNode), Ptr{Void}, (Ptr{Void}, Cstring, Cstring), graph.ptr, op_type, node_name)
-        new(desc)
+        new(desc, graph)
     end
 
 end
+
+get_graph(desc::NodeDescription) = Nullable(desc.graph)
 
 abstract AbstractNode
 
 type Node <: AbstractNode
     ptr::Ptr{Void}
+    graph::Nullable{Graph}
 
     function Node(desc::NodeDescription)
         status = Status()
         ptr = ccall((:TF_FinishNode), Ptr{Void}, (Ptr{Void}, Ptr{Void}), desc.ptr, status.ptr)
         check_status(status)
-        new(ptr)
+        new(ptr, Nullable(desc.graph))
     end
 
-    Node(ptr::Ptr) = new(ptr)
+    Node(ptr::Ptr) = new(ptr, Nullable{Graph}())
 end
 
+get_graph(n::AbstractNode) = Node(n).graph
+
 function Base.show(io::IO, n::Node)
-    print(io, "Node<$(n.ptr)>")
+    print(io, "<Node '$(node_name(n))' dtype=$(eltype(n))>")
 end
 
 # Replace this entire function once we can import protobufs into a graph
@@ -417,6 +425,9 @@ end
 
 Base.getindex(node::Node, attr_name) = get_attr_value_proto(node, attr_name)
 
+const dt = tensorflow._DataType
+const proto_type_map = Dict(dt.DT_FLOAT=>Float32, dt.DT_INT32=>Int32, dt.DT_DOUBLE=>Float64, dt.DT_INT64=>Int64, dt.DT_STRING=>String)
+
 function Base.eltype(node::AbstractNode)
     node = Node(node)
     dtype = nothing
@@ -430,8 +441,8 @@ function Base.eltype(node::AbstractNode)
         end
     end
     dt = tensorflow._DataType
-    type_map = Dict(dt.DT_FLOAT=>Float32, dt.DT_INT32=>Int32, dt.DT_DOUBLE=>Float64, dt.DT_INT64=>Int64)
-    return type_map[dtype]
+    type_map = Dict(dt.DT_FLOAT=>Float32, dt.DT_INT32=>Int32, dt.DT_DOUBLE=>Float64, dt.DT_INT64=>Int64, dt.DT_STRING=>String)
+    return proto_type_map[dtype]
 end
 
 immutable Port
@@ -593,6 +604,50 @@ function get_proto(node::Node)
     ccall(:TF_NodeToNodeDef, Void, (Ptr{Void}, Ptr{Void}, Ptr{Void}), node.ptr, output.ptr, status.ptr)
     check_status(status)
     convert(Array, output)
+end
+
+get_def_type(::Type{Node}) = tensorflow.NodeDef
+get_def_type(::Type{Graph}) = tensorflow.GraphDef
+
+function get_def(n::Union{Node, Graph})
+    p = get_proto(n)
+    b = IOBuffer()
+    write(b, p)
+    seekstart(b)
+    desc = get_def_type(typeof(n))()
+    readproto(b, desc)
+    return desc
+end
+
+function Base.show(io::IO, desc::tensorflow.NodeDef)
+    # TODO: complete this
+    println(io, "name: ", desc.name)
+    println(io, "op: ", desc.op)
+    for input_name in desc.input
+        println(io, "input: ", input_name)
+    end
+    for (attr_name, attr_value) in desc.attr
+        println(io, "attr {")
+        println(io, "  key: ", attr_name)
+        println(io, "  value {")
+        print(io, "    ")
+        if has_field(attr_value, :_type)
+            println(io, "type: $(proto_type_map[attr_value._type])")
+        elseif has_field(attr_value, :s)
+            println(io, "string: $(String(attr_value.s))")
+        elseif has_field(attr_value, :i)
+            println(io, "int: $(attr_value.i)")
+        elseif has_field(attr_value, :b)
+            println(io, "bool: $(attr_value.b)")
+        elseif has_field(attr_value, :f)
+            println(io, "float: $(attr_value.f)")
+        elseif has_field(attr_value, :tensor)
+            t = attr_value.tensor
+            println(io, "dtype: $(proto_type_map[t.dtype])")
+        end
+        println(io, "  }")
+        println(io, "}")
+    end
 end
 
 function parse_port_name(name)

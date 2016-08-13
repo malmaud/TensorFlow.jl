@@ -25,12 +25,14 @@ W = Variable(randn(50,10))
 Y=nn.softmax(X*W)
 Loss = -reduce_sum(log(Y).*Y_obs)
 grad = gradients(Loss, W)
+Alpha = placeholder(Float64)
 
 # Run training
 run(sess, initialize_all_variables())
 
 for epoch in 1:100
+    alpha = .01/(1+epoch)
     cur_grad,cur_loss=run(sess, [grad,Loss], Dict(X=>x, Y_obs=>y))
     println(@sprintf("Current loss is %.2f. Gradient norm is %.2f", cur_loss, sum(cur_grad)))
-    run(sess, assign(W, W-.0001*cur_grad))
+    run(sess, assign(W, W-Alpha.*cur_grad), Dict(Alpha=>alpha))
 end

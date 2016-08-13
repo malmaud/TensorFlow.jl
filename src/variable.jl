@@ -3,8 +3,6 @@ type Variable <: AbstractNode
     assign_node::Node
 
     Variable() = new()
-
-
 end
 
 function Variable(initial_value, name="")
