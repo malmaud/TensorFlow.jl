@@ -38,16 +38,30 @@ end
 
 type Graph
     ptr::Ptr{Void}
+    collections::Dict{Symbol, Any}
 
     function Graph()
         ptr = ccall((:TF_NewGraph), Ptr{Void}, ())
-        self = new(ptr)
+        collections = Dict{Symbol, Any}()
+        collections[:Variables] = []
+        self = new(ptr, collections)
         finalizer(self, self->begin
             ccall((:TF_DeleteGraph), Void, (Ptr{Void},), self.ptr)
         end)
         self
     end
 end
+
+function add_to_collection(g::Graph, name, node)
+    push!(g.collections[name], node)
+end
+
+function get_collection(g::Graph, name)
+    g.collections[name]
+end
+
+add_to_collection(name, node) = add_to_collection(get_def_graph(), name, node)
+get_collection(name) = get_collection(get_def_graph(), name)
 
 type SessionOptions
     ptr::Ptr{Void}
@@ -644,6 +658,23 @@ function Base.show(io::IO, desc::tensorflow.NodeDef)
         elseif has_field(attr_value, :tensor)
             t = attr_value.tensor
             println(io, "dtype: $(proto_type_map[t.dtype])")
+            sep = "    "
+            print(io, sep, "shape: ")
+            println(io, [_.size for _ in t.tensor_shape.dim])
+            print(io, sep, "content: ")
+            show_tensor = k->begin
+                f = getfield(t, k)
+                if length(f) > 0
+                    println(io, f)
+                    return true
+                end
+                return false
+            end
+            for v in [:float_val, :double_val, :int_val, :int64_val, :bool_val, :half_val, :string_val, :tensor_content]
+                if show_tensor(v)
+                    break
+                end
+            end
         end
         println(io, "  }")
         println(io, "}")
@@ -670,3 +701,5 @@ function get_node_by_name(graph::Graph, name::AbstractString)
         return Nullable(Node(node_ptr))
     end
 end
+
+get_node_by_name(name) = get_node_by_name(get_def_graph(), name)
