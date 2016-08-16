@@ -15,8 +15,9 @@ run(`mkdir -p $base/downloads`)
 open("$base/downloads/tensorflow.zip", "w") do file
     write(file, r.data)
 end
-
-run(`unzip -o $base/downloads/tensorflow.zip`)
+cd(base) do
+    run(`unzip -o $base/downloads/tensorflow.zip`)
+end
 run(`sudo pip install $base/tensorflow-0.10.0rc0-py2-none-any.whl`)
 
 run(`rm -f $base/tensorflow-0.10.0rc0-py2-none-any.whl`)
