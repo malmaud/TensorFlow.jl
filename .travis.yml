@@ -10,6 +10,7 @@ julia:
 notifications:
   email: false
 script:
-    - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
-    - julia -e 'Pkg.clone(pwd()); Pkg.build("TensorFlow")'
+    - julia -e 'Pkg.clone(pwd())'
+    - julia build/build_pytensorflow.jl
+    - julia -e 'Pkg.build("TensorFlow")'
     - julia -e 'Pkg.test("TensorFlow")'

@@ -1,5 +1,4 @@
 import Requests
-#import Conda
 
 base = dirname(@__FILE__)
 download_dir = joinpath(base, "downloads")
@@ -29,6 +28,3 @@ end
     mv("libtensorflow.so", "$base/bazel-out/local_linux-fastbuild/bin/tensorflow/libtensorflow.so", remove_destination=true)
     mv("libc_api.so", "$base/bazel-out/local_linux-fastbuild/bin/tensorflow/c/libc_api.so", remove_destination=true)
 end
-
-#Conda.install("numpy")
-run(`sudo pip install tensorflow-0.10.0rc0-py2-none-any.whl`)
