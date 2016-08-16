@@ -18,21 +18,27 @@ end
 y = draw(y_prob)
 
 # Build the model
-sess = Session()
+sess = Session(Graph())
 X = placeholder(Float64)
 Y_obs = placeholder(Float64)
-W = Variable(randn(50,10))
-Y=nn.softmax(X*W)
+
+variable_scope("logisitic_model", initializer=Normal(0, .001)) do
+    global W = get_variable("weights", [50, 10], Float64)
+    global B = get_variable("bias", [10], Float64)
+end
+
+Y=nn.softmax(X*W + B)
 Loss = -reduce_sum(log(Y).*Y_obs)
-grad = gradients(Loss, W)
+gradW, gradB = gradients(Loss, [W, B])
 Alpha = placeholder(Float64)
+gradUpdate = [assign(W, W-Alpha*gradW), assign(B, B-Alpha*gradB)]
 
 # Run training
 run(sess, initialize_all_variables())
 
 for epoch in 1:100
     alpha = .01/(1+epoch)
-    cur_grad,cur_loss=run(sess, [grad,Loss], Dict(X=>x, Y_obs=>y))
-    println(@sprintf("Current loss is %.2f. Gradient norm is %.2f", cur_loss, sum(cur_grad)))
-    run(sess, assign(W, W-Alpha.*cur_grad), Dict(Alpha=>alpha))
+    cur_loss=run(sess, Loss, Dict(X=>x, Y_obs=>y))
+    println(@sprintf("Current loss is %.2f.", cur_loss))
+    run(sess, gradUpdate, Dict(X=>x, Y_obs=>y, Alpha=>alpha))
 end
