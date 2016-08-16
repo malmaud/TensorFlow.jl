@@ -11,7 +11,7 @@ base = dirname(@__FILE__)
 info("Downloading Python tensorflow wheel")
 r = Requests.get(url)
 info("Done downloading")
-run(`mkdir -p downloads`)
+run(`mkdir -p $base/edownloads`)
 open("$base/downloads/tensorflow.zip", "w") do file
     write(file, r.data)
 end
