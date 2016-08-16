@@ -11,6 +11,6 @@ notifications:
   email: false
 script:
     - julia -e 'Pkg.clone(pwd())'
-    - julia build/build_pytensorflow.jl
+    - julia deps/build_pytensorflow.jl
     - julia -e 'Pkg.build("TensorFlow")'
     - julia -e 'Pkg.test("TensorFlow")'
