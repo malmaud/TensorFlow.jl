@@ -552,7 +552,7 @@ function run(sess::Session, inputs, input_values, outputs, targets)
     return [as_native(Tensor(_)) for _ in output_values]
 end
 
-function run(sess::Session, outputs::AbstractVector{Node}, input_dict)
+function run(sess::Session, outputs::AbstractVector, input_dict)
     inputs = map(input->Port(input, 1), keys(input_dict))
     input_values = collect(values(input_dict))
     output_ports = map(output->Port(output, 1), outputs)

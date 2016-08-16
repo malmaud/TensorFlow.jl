@@ -38,7 +38,6 @@ run(sess, initialize_all_variables())
 
 for epoch in 1:100
     alpha = .01/(1+epoch)
-    cur_loss=run(sess, Loss, Dict(X=>x, Y_obs=>y))
+    cur_loss, _=run(sess, [Loss, gradUpdate], Dict(X=>x, Y_obs=>y, Alpha=>alpha))
     println(@sprintf("Current loss is %.2f.", cur_loss))
-    run(sess, gradUpdate, Dict(X=>x, Y_obs=>y, Alpha=>alpha))
 end
