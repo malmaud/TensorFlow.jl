@@ -31,7 +31,7 @@ Y=nn.softmax(X*W + B)
 Loss = -reduce_sum(log(Y).*Y_obs)
 gradW, gradB = gradients(Loss, [W, B])
 Alpha = placeholder(Float64)
-gradUpdate = [assign(W, W-Alpha*gradW), assign(B, B-Alpha*gradB)]
+gradUpdate = [assign(W, W-Alpha.*gradW), assign(B, B-Alpha.*gradB)]
 
 # Run training
 run(sess, initialize_all_variables())
