@@ -8,25 +8,23 @@ elseif is_unix()
 end
 
 if is_apple()
-    url = "https://malmaud.github.io/files/mac/tensorflow.zip"
+    url = "https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-0.10.0rc0-py2-none-any.whl"
+    wheel_name = "tensorflow-0.10.0rc0-py2-none-any.whl"
     run(`sudo $py_path/easy_install --upgrade six`)
 elseif is_unix()
-    url = "https://malmaud.github.io/files/linux/tensorflow.zip"
+    wheel_name = "tensorflow-0.10.0rc0-cp27-none-linux_x86_64.whl"
+    url = "https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-0.10.0rc0-cp27-none-linux_x86_64.whl"
 end
 
 base = dirname(@__FILE__)
 info("Downloading Python tensorflow wheel")
 r = Requests.get(url)
 info("Done downloading")
-run(`mkdir -p $base/downloads`)
-open("$base/downloads/tensorflow.zip", "w") do file
+open("$base/wheel_name", "w") do file
     write(file, r.data)
 end
-cd(base) do
-    run(`unzip -o $base/downloads/tensorflow.zip`)
-end
-run(`sudo $py_path/pip install $base/tensorflow-0.10.0rc0-py2-none-any.whl`)
+run(`sudo $py_path/pip install $base/$wheel_name`)
 
-run(`rm -f $base/tensorflow-0.10.0rc0-py2-none-any.whl`)
+run(`rm -f $base/$wheel_name`)
 run(`rm -f $base/libc_api.so`)
 run(`rm -f $base/libtensorflow.so`)
