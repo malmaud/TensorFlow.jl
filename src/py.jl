@@ -1,6 +1,10 @@
 using PyCall
 using ProtoBuf
-@pyimport tensorflow as py_tf
+try
+    @pyimport tensorflow as py_tf
+catch err
+    error("Error importing Python tensorflow: $err\n. Either install the tensorflow Python package manually or run deps/build_pytensorflow.jl")
+end
 
 function py_with(f, ctx_mngr)
     ctx_mngr[:__enter__]()
