@@ -703,3 +703,18 @@ function get_node_by_name(graph::Graph, name::AbstractString)
 end
 
 get_node_by_name(name) = get_node_by_name(get_def_graph(), name)
+
+function get_shape(n::AbstractNode)
+    n = Node(n)
+    local shape
+    try
+        shape = n["shape"]
+    catch
+        try
+            shape = n["value"].tensor.tensor_shape
+        catch
+            return -1
+        end
+    end
+    return [_.size for _ in shape.dim]
+end

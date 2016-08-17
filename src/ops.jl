@@ -201,7 +201,7 @@ function concat(dim, values; name="")
     Node(desc)
 end
 
-Base.cat(::Type{Node}, dim, values) = concat(dim-1, values)
+Base.cat(::Type{Node}, dim, values...) = concat(dim-1, values)
 
 function read_file(filename; name="")
     desc = NodeDescription(get_def_graph(), "ReadFile", get_name(name))

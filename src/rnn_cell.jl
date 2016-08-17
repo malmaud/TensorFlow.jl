@@ -1,6 +1,6 @@
 module rnn_cell
 
-import ...TensorFlow: Node
+import ...TensorFlow: Node, get_shape, get_variable
 
 abstract RNNCell
 
@@ -16,7 +16,14 @@ output_size(cell::BasicRNNCell) = cell.hidden_size
 state_size(cell::BasicRNNCell) = cell.hidden_size
 
 function (cell::BasicRNNCell)(input, state)
-    cell.hidden_size
+    shape = get_shape(input)
+    N = shape[2] + cell.hidden_size
+    batch_size = shape[1]
+    T = eltype(state)
+    W = get_variable("weights", [N, cell.hidden_size], T)
+    X = cat(Node, 2, input, state)
+    activity = X*W
+    return activity
 end
 
 
