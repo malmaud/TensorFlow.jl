@@ -1,4 +1,4 @@
-import Base: log, exp, +, -, *, /, .*, .+, ./, .-, ^, .^
+import Base: log, exp, +, -, *, /, .*, .+, ./, .-, ^, .^, sin, cos, tan, asin, acos, atan
 
 const name_idx = Ref{Int}(1)
 
@@ -18,10 +18,13 @@ function get_name(name="")
     end
 end
 
-function placeholder(dtype; name="")
+function placeholder(dtype; name="", shape=nothing)
     name = get_name(name)
     desc = NodeDescription(get_def_graph(), "Placeholder", name)
     desc["dtype"] = dtype
+    if shape !== nothing
+        desc["shape"] = (shape...)
+    end
     node = Node(desc)
 end
 
@@ -82,6 +85,9 @@ for (jl_func_name, tf_func_name) in [
     (:cos, "Cos"),
     (:sin, "Sin"),
     (:tan, "Tan"),
+    (:atan, "Atan"),
+    (:asin, "Asin"),
+    (:acos, "Acos"),
     (:transpose, "Transpose")]
     @eval function $jl_func_name(n::AbstractNode; name="")
         n = Node(n)

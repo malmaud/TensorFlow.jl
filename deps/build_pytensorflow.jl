@@ -27,6 +27,7 @@ open("$base/$wheel_name", "w") do file
 end
 
 py_path = joinpath(base, "miniconda", "bin")
+run(`$py_path/conda upgrade -y setuptools`)
 run(`$py_path/pip install --upgrade --ignore-installed $base/$wheel_name`)
 run(`rm -f $base/$wheel_name`)
 

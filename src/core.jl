@@ -317,6 +317,8 @@ type NodeDescription
 
 end
 
+NodeDescription(op_type, node_name) = NodeDescription(get_def_graph(), op_type, node_name)
+
 get_graph(desc::NodeDescription) = Nullable(desc.graph)
 
 abstract AbstractNode
@@ -675,6 +677,9 @@ function Base.show(io::IO, desc::tensorflow.NodeDef)
                     break
                 end
             end
+        elseif has_field(attr_value, :shape)
+            print(io, "shape: ")
+            println(io, [_.size for _ in attr_value.shape.dim])
         end
         println(io, "  }")
         println(io, "}")
@@ -708,10 +713,10 @@ function get_shape(n::AbstractNode)
     n = Node(n)
     local shape
     try
-        shape = n["shape"]
+        shape = n["shape"].shape
     catch
         try
-            shape = n["value"].tensor.tensor_shape
+            shape = n["value"].tensor.shape
         catch
             return -1
         end
