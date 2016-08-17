@@ -28,6 +28,7 @@ end
 
 py_path = joinpath(base, "miniconda", "bin")
 run(`$py_path/easy_install --upgrade pip`)
+run(`$py_path/pip install --upgrade setuptools`)
 run(`$py_path/easy_install --upgrade six`)
 run(`$py_path/pip install --upgrade $base/$wheel_name`)
 run(`rm -f $base/$wheel_name`)
