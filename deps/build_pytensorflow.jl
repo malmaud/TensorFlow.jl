@@ -27,6 +27,7 @@ open("$base/$wheel_name", "w") do file
 end
 
 py_path = joinpath(base, "miniconda", "bin")
+run(`touch $py_path/lib/python2.7/site-packages/setuptools-23.0.0-py2.7.egg`)
 run(`$py_path/easy_install --upgrade pip`)
 run(`$py_path/pip install --upgrade setuptools`)
 run(`$py_path/easy_install --upgrade six`)
