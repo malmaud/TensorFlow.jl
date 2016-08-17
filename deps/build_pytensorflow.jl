@@ -1,7 +1,11 @@
 using Requests
 
 # For Travis
-py_path = "/opt/python/2.7.10/bin"
+if is_apple()
+    py_path = "/usr/bin"
+elseif is_unix()
+    py_path = "/opt/python/2.7.10/bin"
+end
 
 if is_apple()
     url = "https://malmaud.github.io/files/mac/tensorflow.zip"
