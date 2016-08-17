@@ -20,11 +20,9 @@ base = dirname(@__FILE__)
 info("Downloading Python tensorflow wheel")
 r = Requests.get(url)
 info("Done downloading")
-open("$base/wheel_name", "w") do file
+open("$base/$wheel_name", "w") do file
     write(file, r.data)
 end
 run(`sudo $py_path/pip install $base/$wheel_name`)
 
 run(`rm -f $base/$wheel_name`)
-run(`rm -f $base/libc_api.so`)
-run(`rm -f $base/libtensorflow.so`)
