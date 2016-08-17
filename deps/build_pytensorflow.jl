@@ -27,10 +27,8 @@ open("$base/$wheel_name", "w") do file
 end
 
 py_path = joinpath(base, "miniconda", "bin")
-if is_apple()
-    run(`$py_path/easy_install --upgrade pip`)
-    run(`$py_path/easy_install --upgrade six`)
-end
+run(`$py_path/easy_install --upgrade pip`)
+run(`$py_path/easy_install --upgrade six`)
 run(`$py_path/pip install --upgrade $base/$wheel_name`)
 run(`rm -f $base/$wheel_name`)
 
