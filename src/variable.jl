@@ -74,7 +74,7 @@ function variable_scope(f, name; kwargs...)
 end
 
 function get_variable(var_name, shape, dtype; kwargs...)
-    scope = make_scope(var_name, kwargs...)
+    scope = make_scope(var_name; kwargs...)
     push!(scope_stack, scope)
     name = join([get(_.name) for _ in scope_stack], "/")
     local v
@@ -101,4 +101,12 @@ function get_variable(var_name, shape, dtype; kwargs...)
         pop!(scope_stack)
     end
     return v
+end
+
+type ConstantInitializer{T}
+    value::T
+end
+
+function Base.rand(c::ConstantInitializer, shape...)
+    fill(c.value, shape)
 end
