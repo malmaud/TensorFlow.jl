@@ -1,4 +1,4 @@
-import Base: log, exp, +, -, *, /, .*, .+, ./, .-, ^, .^, sin, cos, tan, asin, acos, atan, div
+import Base: log, exp, +, -, *, /, .*, .+, ./, .-, ^, .^, sin, cos, tan, asin, acos, atan, div, tanh
 
 const name_idx = Ref{Int}(1)
 
@@ -88,6 +88,7 @@ for (jl_func_name, tf_func_name) in [
     (:atan, "Atan"),
     (:asin, "Asin"),
     (:acos, "Acos"),
+    (:tanh, "Tanh"),
     (:transpose, "Transpose")]
     @eval function $jl_func_name(n::AbstractNode; name="")
         n = Node(n)
