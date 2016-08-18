@@ -264,5 +264,16 @@ end
 
 Base.ones(::Type{Node}, shape) = ones(Node, Float32, shape)
 
+function one_hot(indices, depth; on_value=Float32(1), off_value=Float32(0), axis=-1, dtype=Float32, name="")
+    desc = NodeDescription("OneHot", get_name(name))
+    add_input(desc, Node(indices))
+    add_input(desc, Node(Int32(depth)))
+    add_input(desc, Node(dtype(on_value)))
+    add_input(desc, Node(dtype(off_value)))
+    desc["axis"] = axis
+    desc["T"] = dtype
+    Node(desc)
+end
+
 include("nn.jl")
 include("image.jl")
