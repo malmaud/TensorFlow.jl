@@ -5,5 +5,6 @@ include("tensorflow_protos.jl")
 include("core.jl")
 include("variable.jl")
 include("ops.jl")
+include("train.jl")
 
 end

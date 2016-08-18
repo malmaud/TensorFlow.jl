@@ -29,15 +29,15 @@ end
 
 Y=nn.softmax(X*W + B)
 Loss = -reduce_sum(log(Y).*Y_obs)
-gradW, gradB = gradients(Loss, [W, B])
 Alpha = placeholder(Float64)
-gradUpdate = [assign(W, W-Alpha.*gradW), assign(B, B-Alpha.*gradB)]
+optimizer = train.GradientDescentOptimizer(Alpha)
+minimize_op = train.minimize(optimizer, Loss)
 
 # Run training
 run(sess, initialize_all_variables())
 
 for epoch in 1:100
     alpha = .01/(1+epoch)
-    cur_loss, _ = run(sess, vcat(Loss, gradUpdate), Dict(X=>x, Y_obs=>y, Alpha=>alpha))
+    cur_loss, _ = run(sess, vcat(Loss, minimize_op), Dict(X=>x, Y_obs=>y, Alpha=>alpha))
     println(@sprintf("Current loss is %.2f.", cur_loss))
 end
