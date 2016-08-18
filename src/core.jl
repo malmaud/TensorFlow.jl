@@ -358,7 +358,20 @@ function Node(node_def::tensorflow.NodeDef)
         add_input(desc, [Port(inputs[3], 1), Port(inputs[4], 1)])
         return Node(desc)
     end
-    if node_def.op == "AddN"
+    if node_def.op ∈ ("ConcatOffset", "Concat")
+        input, port = parse_port_name(node_def.input[1])
+        input_node = get_node_by_name(input) |> get
+        add_input(desc, Port(input_node, port))
+        inputs = Port[]
+        for idx in 2:length(node_def.input)
+            input, port = parse_port_name(node_def.input[2])
+            input_node = get_node_by_name(input) |> get
+            push!(inputs, Port(input_node, port))
+        end
+        add_input(desc, inputs)
+        return Node(desc)
+    end
+    if node_def.op ∈ ("AddN", "ShapeN")
         inputs = []
         for input in node_def.input
             input, port = parse_port_name(input)
