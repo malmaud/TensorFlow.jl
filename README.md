@@ -25,6 +25,8 @@ res = run(sess, w, Dict(z=>Float64[1,2]))
 
 ## Logistic regression example
 
+Realistic demonstration of using variable scopes and advanced optimizers
+
 ```julia
 using Distributions
 
