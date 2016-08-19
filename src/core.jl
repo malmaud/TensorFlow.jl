@@ -648,6 +648,20 @@ function get_def(n::Union{Node, Graph})
     return desc
 end
 
+type Operation
+    op_name
+    name
+    inputs
+    attrs
+end
+
+function Base.convert(::Type{Operation}, n::AbstractNode)
+    n = get_def(Node(n))
+    inputs = [(get_node_by_name(name)|>get) for name in n.input]
+    op = Operation(n.op, n.name, inputs, n.attr)
+    return op
+end
+
 function Base.show(io::IO, desc::tensorflow.NodeDef)
     # TODO: complete this
     println(io, "name: ", desc.name)
@@ -722,17 +736,13 @@ end
 
 get_node_by_name(name) = get_node_by_name(get_def_graph(), name)
 
+include("shape_inference.jl")
+
 function get_shape(n::AbstractNode)
-    n = Node(n)
-    local shape
-    try
-        shape = n["shape"].shape
-    catch
-        try
-            shape = n["value"].tensor.shape
-        catch
-            return -1
-        end
+    op = Operation(n)
+    if op.op_name ∈ keys(shape_inferer)
+        return shape_inferer[op.op_name](op)[1]
+    else
+        return -1
     end
-    return [_.size for _ in shape.dim]
 end
