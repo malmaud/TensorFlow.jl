@@ -29,15 +29,13 @@ end
 
 Y=nn.softmax(X*W + B)
 Loss = -reduce_sum(log(Y).*Y_obs)
-Alpha = placeholder(Float64)
-optimizer = train.GradientDescentOptimizer(Alpha)
+optimizer = train.AdamOptimizer()
 minimize_op = train.minimize(optimizer, Loss)
 
 # Run training
 run(sess, initialize_all_variables())
 
 for epoch in 1:100
-    alpha = .01/(1+epoch)
-    cur_loss, _ = run(sess, vcat(Loss, minimize_op), Dict(X=>x, Y_obs=>y, Alpha=>alpha))
+    cur_loss, _ = run(sess, vcat(Loss, minimize_op), Dict(X=>x, Y_obs=>y))
     println(@sprintf("Current loss is %.2f.", cur_loss))
 end

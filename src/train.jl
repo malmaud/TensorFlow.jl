@@ -68,5 +68,37 @@ function apply_gradients(optimizer::MomentumOptimizer, grads_and_vars; global_st
     return ops
 end
 
+type AdamOptimizer <: Optimizer
+    η::Float64
+    β1::Float64
+    β2::Float64
+    ϵ::Float64
+    name::String
+end
+
+AdamOptimizer(learning_rate=.01; name="adam") = AdamOptimizer(learning_rate, .9, .999, 1e-8, name)
+
+function apply_gradients(optimizer::AdamOptimizer, grads_and_vars; global_step=nothing, name="adam")
+    ops = Node[]
+    @advance_step
+    for (grad, var) in grads_and_vars
+        local m, v
+        variable_scope(name) do
+            variable_scope(node_name(var)) do
+                m = get_variable("m", get_shape(var), eltype(var), initializer=ConstantInitializer(0.0))
+                v = get_variable("v", get_shape(var), eltype(var), initializer=ConstantInitializer(0.0))
+            end
+        end
+        m_new = optimizer.β1 .* m + (1-optimizer.β1).*grad
+        v_new = optimizer.β2 .* v + (1-optimizer.β2).*(grad.^2)
+        # TODO use m_hat
+        push!(ops, assign(var, var - optimizer.η/(sqrt(v_new)+optimizer.ϵ) .* m_new))
+        push!(ops, assign(m, m_new))
+        push!(ops, assign(v, v_new))
+    end
+    return ops
+end
+
+
 
 end
