@@ -3,7 +3,6 @@ language: julia
 dist: trusty
 sudo: required
 os:
-  - linux
   - osx
 julia:
   - nightly
