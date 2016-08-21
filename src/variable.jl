@@ -25,6 +25,10 @@ function Variable(initial_value, name="")
     return self
 end
 
+function get_shape(v::Variable)
+    return get_shape(Operation(v.assign_node).inputs[2])
+end
+
 function assign(v::Variable, value)
     desc = NodeDescription(get_def_graph(), "Assign", get_name())
     add_input(desc, v.var_node)

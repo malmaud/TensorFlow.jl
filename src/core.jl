@@ -4,17 +4,19 @@ import Base: setindex!, getindex, run
 
 const LIB_BASE = joinpath(dirname(@__FILE__), "..", "deps")
 
-@static if is_apple()
-    Libdl.dlopen(joinpath(LIB_BASE, "bazel-out", "local-fastbuild", "bin", "tensorflow", "libtensorflow"), Libdl.RTLD_GLOBAL)
-    Libdl.dlopen(joinpath(LIB_BASE, "bazel-out", "local-fastbuild", "bin", "tensorflow", "c", "libc_api"), Libdl.RTLD_GLOBAL)
+if myid() == 1
+    if is_apple()
+        Libdl.dlopen(joinpath(LIB_BASE, "bazel-out", "local-fastbuild", "bin", "tensorflow", "libtensorflow"), Libdl.RTLD_GLOBAL)
+        Libdl.dlopen(joinpath(LIB_BASE, "bazel-out", "local-fastbuild", "bin", "tensorflow", "c", "libc_api"), Libdl.RTLD_GLOBAL)
+    end
+
+    if is_linux()
+        Libdl.dlopen(joinpath(LIB_BASE, "bazel-out", "local_linux-fastbuild", "bin", "tensorflow", "libtensorflow"), Libdl.RTLD_GLOBAL)
+        Libdl.dlopen(joinpath(LIB_BASE, "bazel-out", "local_linux-fastbuild", "bin", "tensorflow", "c", "libc_api"), Libdl.RTLD_GLOBAL)
+    end
 end
 
-@static if is_linux()
-    Libdl.dlopen(joinpath(LIB_BASE, "bazel-out", "local_linux-fastbuild", "bin", "tensorflow", "libtensorflow"), Libdl.RTLD_GLOBAL)
-    Libdl.dlopen(joinpath(LIB_BASE, "bazel-out", "local_linux-fastbuild", "bin", "tensorflow", "c", "libc_api"), Libdl.RTLD_GLOBAL)
-end
-
-include("py.jl")
+#include("py.jl")
 
 type Status
     ptr::Ptr{Void}
@@ -60,6 +62,25 @@ function get_collection(g::Graph, name)
     g.collections[name]
 end
 
+function extend_graph(graph::Graph, node_defs)
+    n_nodes = length(node_defs)
+    nodes = []
+    for node_idx in 1:n_nodes
+        proto = node_defs[node_idx]
+        b = IOBuffer()
+        write(b, proto)
+        seekstart(b)
+        node_def = tensorflow.NodeDef()
+        readproto(b, node_def)
+        if isnull(get_node_by_name(graph, node_def.name))
+            push!(nodes, node_def)
+        end
+    end
+    for node in nodes
+        Node(node)
+    end
+end
+
 add_to_collection(name, node) = add_to_collection(get_def_graph(), name, node)
 get_collection(name) = get_collection(get_def_graph(), name)
 
@@ -93,8 +114,6 @@ function set_def_graph(g)
     global def_graph
     def_graph = g
 end
-
-set_def_graph(Graph())
 
 function as_default(f, g::Graph)
     old_def = get_def_graph()
@@ -746,3 +765,31 @@ function get_shape(n::AbstractNode)
         return -1
     end
 end
+
+const py_proc = Ref{Int}()
+
+function spawn_py_process()
+    addprocs(1)
+    py_proc[] = nprocs()
+    eval(Main, :(@everywhere using TensorFlow))
+    path = joinpath(dirname(@__FILE__), "py.jl")
+    remotecall_wait(py_proc[]) do
+        eval(TensorFlow, quote
+            include($path)
+        end)
+    end
+    nothing
+end
+
+function gradients(y, x::AbstractArray)
+    x_names = [node_name(_) for _ in x]
+    y_name = node_name(y)
+    graph_proto = get_def_graph() |> get_proto
+    node_protos, grad_names = remotecall_fetch(py_proc[]) do
+        py_gradients(graph_proto, x_names, y_name)
+    end
+    extend_graph(get_def_graph(), node_protos)
+    return [get_node_by_name(_)|>get for _ in grad_names]
+end
+
+gradients(y, x) = gradients(y, [x])[1]
