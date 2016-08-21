@@ -1,6 +1,6 @@
 module nn
 
-import ..TensorFlow: Node, NodeDescription, get_def_graph, capitalize, add_input, Port, get_name, set_attr_list, get_shape, variable_scope
+import ..TensorFlow: Node, NodeDescription, get_def_graph, capitalize, add_input, Port, get_name, set_attr_list, get_shape, variable_scope, shape, random_uniform
 
 for f in [:relu, :relu6, :elu, :softplus, :softsign, :softmax, :sigmoid, :tanh]
     @eval function $f(n::Node; name="")
@@ -61,6 +61,16 @@ end
 
 function dynamic_rnn(cell, inputs; sequence_length=nothing, initial_state=nothing, dtype=nothing, parallel_iterations=nothing, swap_memory=false, time_major=false, scope="RNN")
     error("Not implemented yet")
+end
+
+function dropout(x, keep_prob; noise_shape=nothing, seed=0, name="")
+    keep_prob = Node(keep_prob)
+    x_scaled = x/keep_prob
+    if noise_shape == nothing
+        noise_shape = shape(x)
+    end
+    r = random_uniform(noise_shape, seed=seed, dtype=eltype(x))
+    y = x_scaled .* floor(keep_prob+r)
 end
 
 end

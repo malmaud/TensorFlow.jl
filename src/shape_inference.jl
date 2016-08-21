@@ -71,3 +71,8 @@ for func in ["Sum", "Prod", "Min", "Max", "All", "Any", "Mean"]
         return [Int[]]
     end)
 end
+
+register_shape("Shape", op->begin
+    s = get_shape(op.inputs[1])
+    return [[length(s)]]
+end)

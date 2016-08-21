@@ -1,4 +1,4 @@
-import Base: log, exp, +, -, *, /, .*, .+, ./, .-, ^, .^, sin, cos, tan, asin, acos, atan, div, tanh, sqrt
+import Base: log, exp, +, -, *, /, .*, .+, ./, .-, ^, .^, sin, cos, tan, asin, acos, atan, div, tanh, sqrt, floor
 
 const name_idx = Ref{Int}(1)
 
@@ -70,6 +70,8 @@ end
 
 *(x::Number, n::AbstractNode) = x.*n
 
+
+
   # For supporting notation like `2x`
 ^(n::AbstractNode, x::Int) = invoke(^, (AbstractNode, Any), n, x)
 .^(n::AbstractNode, x::Number) = n^x
@@ -89,6 +91,7 @@ for (jl_func_name, tf_func_name) in [
     (:asin, "Asin"),
     (:acos, "Acos"),
     (:tanh, "Tanh"),
+    (:shape, "Shape"),
     (:transpose, "Transpose")]
     @eval function $jl_func_name(n::AbstractNode; name="")
         n = Node(n)
@@ -274,6 +277,17 @@ function one_hot(indices, depth; on_value=Float32(1), off_value=Float32(0), axis
     desc["T"] = dtype
     Node(desc)
 end
+
+function random_uniform(shape; name="", seed=0, dtype=Float32)
+    desc = NodeDescription("RandomUniform", get_name(name))
+    add_input(desc, Node(shape))
+    desc["dtype"] = dtype
+    desc["seed2"] = seed
+    # TODO use global seed
+    desc["seed"] = 0
+    Node(desc)
+end
+
 
 include("nn.jl")
 include("image.jl")
