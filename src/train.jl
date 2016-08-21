@@ -1,5 +1,13 @@
 module train
 
+export
+minimize,
+compute_gradients,
+apply_gradients,
+GradientDescentOptimizer,
+MomentumOptimizer,
+AdamOptimizer
+
 import ..TensorFlow: Node, get_def_graph, gradients, assign, variable_scope, ConstantInitializer, node_name, get_variable, get_shape
 
 abstract Optimizer

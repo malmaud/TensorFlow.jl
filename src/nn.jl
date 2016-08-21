@@ -1,5 +1,23 @@
 module nn
 
+export
+conv2d,
+max_pool,
+zero_state,
+output_size,
+state_size,
+rnn,
+dynamic_rnn,
+dropout,
+relu,
+relu6,
+elu,
+softplus,
+softsign,
+softmax,
+sigmoid,
+tanh
+
 import ..TensorFlow: Node, NodeDescription, get_def_graph, capitalize, add_input, Port, get_name, set_attr_list, get_shape, variable_scope, shape, random_uniform
 
 for f in [:relu, :relu6, :elu, :softplus, :softsign, :softmax, :sigmoid, :tanh]

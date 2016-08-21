@@ -9,14 +9,11 @@ if myid() == 1
         Libdl.dlopen(joinpath(LIB_BASE, "bazel-out", "local-fastbuild", "bin", "tensorflow", "libtensorflow"), Libdl.RTLD_GLOBAL)
         Libdl.dlopen(joinpath(LIB_BASE, "bazel-out", "local-fastbuild", "bin", "tensorflow", "c", "libc_api"), Libdl.RTLD_GLOBAL)
     end
-
     if is_linux()
         Libdl.dlopen(joinpath(LIB_BASE, "bazel-out", "local_linux-fastbuild", "bin", "tensorflow", "libtensorflow"), Libdl.RTLD_GLOBAL)
         Libdl.dlopen(joinpath(LIB_BASE, "bazel-out", "local_linux-fastbuild", "bin", "tensorflow", "c", "libc_api"), Libdl.RTLD_GLOBAL)
     end
 end
-
-#include("py.jl")
 
 type Status
     ptr::Ptr{Void}
@@ -141,6 +138,10 @@ type Session
     end
 
     Session() = Session(get_def_graph())
+end
+
+function Base.show(io::IO, s::Session)
+    print(io, "Session($(pointer_from_objref(s)))")
 end
 
 type Buffer

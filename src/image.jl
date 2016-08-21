@@ -1,5 +1,10 @@
 module image
 
+export
+decode_jpeg,
+decode_png,
+resize_images
+
 import ..TensorFlow: NodeDescription, get_def_graph, get_name, add_input, Node, pack, convert_number, AbstractNode
 
 function decode_jpeg(contents; channels=0, ratio=1, fancy_upscaling=true, try_recover_truncated=false, acceptable_fraction=1.0, name="")

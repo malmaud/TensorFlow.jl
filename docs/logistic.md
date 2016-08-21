@@ -1,35 +1,5 @@
-# TensorFlow
+# Logistic regression
 
-[![Build Status](https://travis-ci.org/malmaud/TensorFlow.jl.svg?branch=master)](https://travis-ci.org/malmaud/TensorFlow.jl)
-
-A wrapper around [TensorFlow](https://www.tensorflow.org/), a popular open source machine learning framework from Google.
-
-## Documentation
-
-[Documentation available here](https://malmaud.github.io/tfdocs/index.html)
-
-## Basic usage
-
-```julia
-
-using TensorFlow
-
-sess = TensorFlow.Session()
-
-x = TensorFlow.constant(Float64[1,2])
-y = TensorFlow.Variable(Float64[3,4])
-z = TensorFlow.placeholder(Float64)
-
-w = exp(x + z + -y)
-
-run(sess, TensorFlow.initialize_all_variables())
-res = run(sess, w, Dict(z=>Float64[1,2]))
-@test res[1] ≈ exp(-1)
-```
-
-## Logistic regression example
-
-Realistic demonstration of using variable scopes and advanced optimizers
 
 ```julia
 using Distributions
@@ -73,4 +43,5 @@ for epoch in 1:100
     cur_loss, _ = run(sess, vcat(Loss, minimize_op), Dict(X=>x, Y_obs=>y))
     println(@sprintf("Current loss is %.2f.", cur_loss))
 end
+
 ```
