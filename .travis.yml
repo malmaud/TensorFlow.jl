@@ -4,6 +4,7 @@ dist: trusty
 sudo: required
 os:
   - osx
+  - linux
 julia:
   - nightly
 notifications:
