@@ -33,7 +33,14 @@ initialize_all_variables,
 variable_scope,
 get_variable,
 ConstantInitializer,
-train
+train,
+reduce_sum,
+reduce_prod,
+reduce_min,
+reduce_max,
+reduce_all,
+reduce_any,
+reduce_mean
 
 function __init__()
     if myid() == 1

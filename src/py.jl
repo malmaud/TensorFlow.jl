@@ -1,5 +1,10 @@
 using PyCall
-@pyimport tensorflow as py_tf
+try
+    global py_tf
+    @pyimport tensorflow as py_tf
+catch err
+    error("The Python TensorFlow package could not be imported. You must install Python TensorFlow before using this package.")
+end
 
 function py_with(f, ctx_mngr)
     ctx_mngr[:__enter__]()

@@ -25,6 +25,9 @@ end
     end
     run(`unzip -o $base/downloads/tensorflow.zip`)
     run(`mkdir -p $base/bazel-out/local_linux-fastbuild/bin/tensorflow/c`)
+    run(`mkdir -p $base/bazel-out/local_linux-opt/bin/tensorflow/c`)
     mv("libtensorflow.so", "$base/bazel-out/local_linux-fastbuild/bin/tensorflow/libtensorflow.so", remove_destination=true)
     mv("libc_api.so", "$base/bazel-out/local_linux-fastbuild/bin/tensorflow/c/libc_api.so", remove_destination=true)
+    mv("libtensorflow_gpu.so", "$base/bazel-out/local_linux-opt/bin/tensorflow/libtensorflow.so", remove_destination=true)
+    mv("libc_api_gpu.so", "$base/bazel-out/local_linux-opt/bin/tensorflow/c/libc_api.so", remove_destination=true)
 end
