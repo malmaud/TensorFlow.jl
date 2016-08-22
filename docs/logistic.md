@@ -3,6 +3,7 @@
 
 ```julia
 using Distributions
+using TensorFlow
 
 # Generate some synthetic data
 x = randn(100, 50)
@@ -22,11 +23,11 @@ end
 y = draw(y_prob)
 
 # Build the model
-sess = Session(Graph())
+sess = Session()
 X = placeholder(Float64)
 Y_obs = placeholder(Float64)
 
-variable_scope("logisitic_model", initializer=Normal(0, .001)) do
+variable_scope("logistic_model", initializer=Normal(0, .001)) do
     global W = get_variable("weights", [50, 10], Float64)
     global B = get_variable("bias", [10], Float64)
 end
