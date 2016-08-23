@@ -14,7 +14,7 @@ restore
 using JLD
 using FileIO
 
-import ..TensorFlow: Node, get_def_graph, gradients, assign, variable_scope, ConstantInitializer, node_name, get_variable, get_shape, get_collection, Session, placeholder
+import ..TensorFlow: Operation, get_def_graph, gradients, assign, variable_scope, ConstantInitializer, node_name, get_variable, get_shape, get_collection, Session, placeholder
 
 abstract Optimizer
 
@@ -42,14 +42,14 @@ macro advance_step()
 end
 
 type GradientDescentOptimizer <: Optimizer
-    learning_rate::Node
+    learning_rate::Operation
     name::String
 end
 
-GradientDescentOptimizer(learning_rate; name="descent") = GradientDescentOptimizer(Node(learning_rate), name)
+GradientDescentOptimizer(learning_rate; name="descent") = GradientDescentOptimizer(Operation(learning_rate), name)
 
 function apply_gradients(optimizer::GradientDescentOptimizer, grads_and_vars; global_step=nothing, name="descent")
-    ops = Node[]
+    ops = Operation[]
     for (grad, var) in grads_and_vars
         push!(ops, assign(var, var - optimizer.learning_rate.*grad))
     end
@@ -58,15 +58,15 @@ function apply_gradients(optimizer::GradientDescentOptimizer, grads_and_vars; gl
 end
 
 type MomentumOptimizer <: Optimizer
-    learning_rate::Node
-    momentum::Node
+    learning_rate::Operation
+    momentum::Operation
     name::String
 end
 
 MomentumOptimizer(learning_rate, momentum; name="momentum") = MomentumOptimizer(learning_rate, momentum, name)
 
 function apply_gradients(optimizer::MomentumOptimizer, grads_and_vars; global_step=nothing, name="momentum")
-    ops = Node[]
+    ops = Operation[]
     @advance_step
     for (grad, var) in grads_and_vars
         local momentum
@@ -93,7 +93,7 @@ end
 AdamOptimizer(learning_rate=.01; name="adam") = AdamOptimizer(learning_rate, .9, .999, 1e-8, name)
 
 function apply_gradients(optimizer::AdamOptimizer, grads_and_vars; global_step=nothing, name="adam")
-    ops = Node[]
+    ops = Operation[]
     @advance_step
     for (grad, var) in grads_and_vars
         local m, v
@@ -114,10 +114,10 @@ function apply_gradients(optimizer::AdamOptimizer, grads_and_vars; global_step=n
 end
 
 type Saver
-    var_list::Vector{Node}
+    var_list::Vector{Operation}
     max_to_keep::Int
-    placeholder_nodes::Dict{String, Node}
-    restore_ops::Vector{Node}
+    placeholder_nodes::Dict{String, Operation}
+    restore_ops::Vector{Operation}
 end
 
 function Saver(;var_list=nothing, max_to_keep=5)

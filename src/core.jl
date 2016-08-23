@@ -82,7 +82,7 @@ function extend_graph(graph::Graph, node_defs)
         end
     end
     for node in nodes
-        Node(node)
+        Operation(node)
     end
 end
 
@@ -349,30 +349,70 @@ NodeDescription(op_type, node_name) = NodeDescription(get_def_graph(), op_type, 
 
 get_graph(desc::NodeDescription) = Nullable(desc.graph)
 
-abstract AbstractNode
+abstract AbstractOperation
 
-type Node <: AbstractNode
+type Operation <: AbstractOperation
     ptr::Ptr{Void}
     graph::Nullable{Graph}
+    op_name::String
+    name::String
+    inputs::Vector{Operation}
+    attrs::Dict{String, Any}
 
-    function Node(desc::NodeDescription)
-        status = Status()
-        ptr = ccall((:TF_FinishNode), Ptr{Void}, (Ptr{Void}, Ptr{Void}), desc.ptr, status.ptr)
-        check_status(status)
-        new(ptr, Nullable(desc.graph))
-    end
+    Operation() = new()
 
-    Node(ptr::Ptr) = new(ptr, Nullable{Graph}())
+
 end
 
-get_graph(n::AbstractNode) = Node(n).graph
+function Operation(desc::NodeDescription)
+    self = Operation()
+    status = Status()
+    ptr = ccall((:TF_FinishNode), Ptr{Void}, (Ptr{Void}, Ptr{Void}), desc.ptr, status.ptr)
+    check_status(status)
+    self.ptr = ptr
+    self.graph = Nullable(desc.graph)
+    fillin_operation(self)
+    return self
+end
 
-function Base.show(io::IO, n::Node)
-    print(io, "<Node '$(node_name(n))' dtype=$(eltype(n))>")
+function Operation(ptr::Ptr)
+    self = Operation()
+    self.ptr = ptr
+    self.graph = Nullable{Graph}()
+    fillin_operation(self)
+    return self
+end
+
+function fillin_operation(op::Operation)
+    my_desc = get_def(op)
+    if has_field(my_desc, :op)
+        op.op_name = my_desc.op
+    end
+    if has_field(my_desc, :name)
+        op.name = my_desc.name
+    end
+    if has_field(my_desc, :attr)
+        op.attrs = my_desc.attr
+    end
+    if isnull(op.graph)
+        graph = get_def_graph()
+    else
+        graph = get(op.graph)
+    end
+    if has_field(my_desc, :input)
+        op.inputs = [(get_node_by_name(graph, name) |> get) for name in my_desc.input]
+    end
+    return op
+end
+
+get_graph(n::AbstractOperation) = Operation(n).graph
+
+function Base.show(io::IO, n::Operation)
+    print(io, "<Operation '$(node_name(n))' dtype=$(eltype(n))>")
 end
 
 # Replace this entire function once we can import protobufs into a graph
-function Node(node_def::tensorflow.NodeDef)
+function Operation(node_def::tensorflow.NodeDef)
     graph = get_def_graph()
     desc = NodeDescription(graph, node_def.op, node_def.name)
     if node_def.op == "DynamicStitch"
@@ -384,7 +424,7 @@ function Node(node_def::tensorflow.NodeDef)
         end
         add_input(desc, [Port(inputs[1], 1), Port(inputs[2], 1)])
         add_input(desc, [Port(inputs[3], 1), Port(inputs[4], 1)])
-        return Node(desc)
+        return Operation(desc)
     end
     if node_def.op ∈ ("ConcatOffset", "Concat")
         input, port = parse_port_name(node_def.input[1])
@@ -397,7 +437,7 @@ function Node(node_def::tensorflow.NodeDef)
             push!(inputs, Port(input_node, port))
         end
         add_input(desc, inputs)
-        return Node(desc)
+        return Operation(desc)
     end
     if node_def.op ∈ ("AddN", "ShapeN")
         inputs = []
@@ -461,12 +501,12 @@ function Node(node_def::tensorflow.NodeDef)
             end
         end
     end
-    Node(desc)
+    Operation(desc)
 end
 
-node_name(node::AbstractNode) = ccall((:TF_NodeName), Cstring, (Ptr{Void},), Node(node).ptr) |> unsafe_string
+node_name(node::AbstractOperation) = ccall((:TF_NodeName), Cstring, (Ptr{Void},), Operation(node).ptr) |> unsafe_string
 
-function get_attr_value_proto(node::Node, attr_name)
+function get_attr_value_proto(node::Operation, attr_name)
     buf = Buffer()
     status = Status()
     ccall(:TF_NodeGetAttrValueProto, Void, (Ptr{Void}, Cstring, Ptr{Void}, Ptr{Void}), node.ptr, attr_name, buf.ptr, status.ptr)
@@ -480,13 +520,13 @@ function get_attr_value_proto(node::Node, attr_name)
     return val
 end
 
-Base.getindex(node::Node, attr_name) = get_attr_value_proto(node, attr_name)
+Base.getindex(node::Operation, attr_name) = get_attr_value_proto(node, attr_name)
 
 const dt = tensorflow._DataType
 const proto_type_map = Dict(dt.DT_FLOAT=>Float32, dt.DT_INT32=>Int32, dt.DT_DOUBLE=>Float64, dt.DT_INT64=>Int64, dt.DT_STRING=>String)
 
-function Base.eltype(node::AbstractNode)
-    node = Node(node)
+function Base.eltype(node::AbstractOperation)
+    node = Operation(node)
     dtype = nothing
     try
         dtype = node["dtype"]._type
@@ -507,14 +547,14 @@ immutable Port
     index::Int
 end
 
-Port(node::Node, index=1) = Port(node.ptr, index-1)  # Convert between 1-based (Julia) and 0-based (Python) indexing of port numbers
+Port(node::Operation, index=1) = Port(node.ptr, index-1)  # Convert between 1-based (Julia) and 0-based (Python) indexing of port numbers
 
 
 function add_input(desc::NodeDescription, input::Port)
     ccall((:TF_AddInput), Void, (Ptr{Void}, Port), desc.ptr, input)
 end
 
-add_input(desc::NodeDescription, node::Node) = add_input(desc, Port(node))
+add_input(desc::NodeDescription, node::Operation) = add_input(desc, Port(node))
 
 function add_input(desc::NodeDescription, inputs::Vector{Port})
     ccall((:TF_AddInputList), Void, (Ptr{Void}, Ptr{Void}, Cint), desc.ptr, inputs, length(inputs))
@@ -602,7 +642,7 @@ function run(sess::Session, outputs::AbstractVector, input_dict)
     run(sess, inputs, input_values, output_ports, [])
 end
 
-run(sess::Session, output::Node, input_dict) = run(sess, [output], input_dict)[1]
+run(sess::Session, output::Operation, input_dict) = run(sess, [output], input_dict)[1]
 
 run(sess::Session, outputs) = run(sess, outputs, Dict())
 
@@ -655,7 +695,7 @@ function get_proto(graph::Graph)
     convert(Array, output)
 end
 
-function get_proto(node::Node)
+function get_proto(node::Operation)
     output = Buffer()
     status = Status()
     ccall(:TF_NodeToNodeDef, Void, (Ptr{Void}, Ptr{Void}, Ptr{Void}), node.ptr, output.ptr, status.ptr)
@@ -663,10 +703,10 @@ function get_proto(node::Node)
     convert(Array, output)
 end
 
-get_def_type(::Type{Node}) = tensorflow.NodeDef
+get_def_type(::Type{Operation}) = tensorflow.NodeDef
 get_def_type(::Type{Graph}) = tensorflow.GraphDef
 
-function get_def(n::Union{Node, Graph})
+function get_def(n::Union{Operation, Graph})
     p = get_proto(n)
     b = IOBuffer()
     write(b, p)
@@ -674,20 +714,6 @@ function get_def(n::Union{Node, Graph})
     desc = get_def_type(typeof(n))()
     readproto(b, desc)
     return desc
-end
-
-type Operation
-    op_name
-    name
-    inputs
-    attrs
-end
-
-function Base.convert(::Type{Operation}, n::AbstractNode)
-    n = get_def(Node(n))
-    inputs = [(get_node_by_name(name)|>get) for name in n.input]
-    op = Operation(n.op, n.name, inputs, n.attr)
-    return op
 end
 
 function Base.show(io::IO, desc::tensorflow.NodeDef)
@@ -756,9 +782,9 @@ function get_node_by_name(graph::Graph, name::AbstractString)
     name, port = parse_port_name(name)
     node_ptr = ccall(:TF_GraphNodeByName, Ptr{Void}, (Ptr{Void}, Cstring), graph.ptr, name)
     if node_ptr == C_NULL
-        return Nullable{Node}()
+        return Nullable{Operation}()
     else
-        return Nullable(Node(node_ptr))
+        return Nullable(Operation(node_ptr))
     end
 end
 
@@ -766,7 +792,7 @@ get_node_by_name(name) = get_node_by_name(get_def_graph(), name)
 
 include("shape_inference.jl")
 
-function get_shape(n::AbstractNode)
+function get_shape(n::AbstractOperation)
     op = Operation(n)
     if op.op_name ∈ keys(shape_inferer)
         return shape_inferer[op.op_name](op)[1]

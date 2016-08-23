@@ -14,7 +14,7 @@ Some differences:
 
 * When the Python API asks for a TensorFlow type such as `TensorFloat.float32`, instead pass in a native Julia type like `Float32`.
 
-* Many basic Julia mathematical functions are extended to take a TensorFlow node and return another node representing the delayed execution of that function. For example, `sqrt(constant(4.0))` will return a `Node` which, when evaluated, returns `2.0`.
+* Many basic Julia mathematical functions are extended to take a TensorFlow node and return another node representing the delayed execution of that function. For example, `sqrt(constant(4.0))` will return a `Operation` which, when evaluated, returns `2.0`.
 
 ## What functionality of TensorFlow is exposed
 

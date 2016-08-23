@@ -1,8 +1,8 @@
 using Distributions
 
-type Variable <: AbstractNode
-    var_node::Node
-    assign_node::Node
+type Variable <: AbstractOperation
+    var_node::Operation
+    assign_node::Operation
 
     Variable() = new()
 end
@@ -14,12 +14,12 @@ function Variable(initial_value; name="")
     desc = NodeDescription(get_def_graph(), "Variable", name)
     desc["dtype"] = eltype(initial_value)
     desc["shape"] = size(initial_value)
-    self.var_node = Node(desc)
+    self.var_node = Operation(desc)
 
     desc = NodeDescription(get_def_graph(), "Assign", "$name/Assign")
     add_input(desc, self.var_node)
-    add_input(desc, convert(Node, initial_value))
-    self.assign_node = Node(desc)
+    add_input(desc, convert(Operation, initial_value))
+    self.assign_node = Operation(desc)
 
     add_to_collection(:Variables, self)
     return self
@@ -32,14 +32,14 @@ end
 function assign(v::Variable, value)
     desc = NodeDescription(get_def_graph(), "Assign", get_name())
     add_input(desc, v.var_node)
-    add_input(desc, convert(Node, value))
-    return Node(desc)
+    add_input(desc, convert(Operation, value))
+    return Operation(desc)
 end
 
 Base.setindex!(v::Variable, value) = assign(v, value)
 
 Base.convert(::Type{Tensor}, v::Variable) = v.var_node
-Base.convert(::Type{Node}, v::Variable) = convert(Tensor, v)
+Base.convert(::Type{Operation}, v::Variable) = convert(Tensor, v)
 
 function initialize_all_variables()
     return [var.assign_node for var in get_collection(:Variables)]
@@ -99,7 +99,7 @@ function get_variable(var_name, shape, dtype; kwargs...)
             v.var_node = get_node_by_name(name) |> get
             v.assign_node = get_node_by_name("$name/Assign") |> get
         else
-            v = Variable(map(dtype, rand(initializer, shape...)), name)
+            v = Variable(map(dtype, rand(initializer, shape...)), name=name)
         end
     finally
         pop!(scope_stack)
