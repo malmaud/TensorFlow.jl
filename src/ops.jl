@@ -1,4 +1,4 @@
-import Base: log, exp, +, -, *, /, .*, .+, ./, .-, ^, .^, sin, cos, tan, asin, acos, atan, div, tanh, sqrt, floor
+import Base: log, exp, +, -, *, /, .*, .+, ./, .-, ^, .^, sin, cos, tan, asin, acos, atan, div, tanh, sqrt, floor, .==
 
 const name_idx = Ref{Int}(1)
 
@@ -52,7 +52,8 @@ for (bin_op, jl_func_name, tf_func_name) in [
     (:(.*), :mul, "Mul"),
     (:*, :matmul, "MatMul"),
     (:/, :div, "Div"),
-    (:^, :pow, "Pow")]
+    (:^, :pow, "Pow"),
+    (:(.==), :equal, "Equal")]
     @eval function $jl_func_name(n1::AbstractOperation, n2::AbstractOperation; name="")
         n1 = Operation(n1)
         n2 = Operation(n2)

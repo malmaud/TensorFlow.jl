@@ -56,7 +56,7 @@ sess = Session(Graph())
 X = placeholder(Float64)
 Y_obs = placeholder(Float64)
 
-variable_scope("logistic_model", initializer=Normal(0, .001)) do
+variable_scope("logisitic_model", initializer=Normal(0, .001)) do
     global W = get_variable("weights", [50, 10], Float64)
     global B = get_variable("bias", [10], Float64)
 end
@@ -65,12 +65,15 @@ Y=nn.softmax(X*W + B)
 Loss = -reduce_sum(log(Y).*Y_obs)
 optimizer = train.AdamOptimizer()
 minimize_op = train.minimize(optimizer, Loss)
-
+saver = train.Saver()
 # Run training
 run(sess, initialize_all_variables())
-
+checkpoint_path = mktempdir()
+info("Checkpoint files saved in $checkpoint_path")
 for epoch in 1:100
     cur_loss, _ = run(sess, vcat(Loss, minimize_op), Dict(X=>x, Y_obs=>y))
     println(@sprintf("Current loss is %.2f.", cur_loss))
+    train.save(saver, sess, joinpath(checkpoint_path, "logistic"), global_step=epoch)
 end
+
 ```

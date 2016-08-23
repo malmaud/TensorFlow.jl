@@ -40,7 +40,8 @@ reduce_min,
 reduce_max,
 reduce_all,
 reduce_any,
-reduce_mean
+reduce_mean,
+equal
 
 function __init__()
     if myid() == 1
