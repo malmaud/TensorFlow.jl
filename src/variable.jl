@@ -7,7 +7,7 @@ type Variable <: AbstractNode
     Variable() = new()
 end
 
-function Variable(initial_value, name="")
+function Variable(initial_value; name="")
     self = Variable()
 
     name = get_name(name)

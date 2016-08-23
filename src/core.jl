@@ -65,6 +65,8 @@ function get_collection(g::Graph, name)
     g.collections[name]
 end
 
+get_collection(name) = get_collection(get_def_graph(), name)
+
 function extend_graph(graph::Graph, node_defs)
     n_nodes = length(node_defs)
     nodes = []

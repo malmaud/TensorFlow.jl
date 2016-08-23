@@ -6,9 +6,15 @@ compute_gradients,
 apply_gradients,
 GradientDescentOptimizer,
 MomentumOptimizer,
-AdamOptimizer
+AdamOptimizer,
+Saver,
+save,
+restore
 
-import ..TensorFlow: Node, get_def_graph, gradients, assign, variable_scope, ConstantInitializer, node_name, get_variable, get_shape
+using JLD
+using FileIO
+
+import ..TensorFlow: Node, get_def_graph, gradients, assign, variable_scope, ConstantInitializer, node_name, get_variable, get_shape, get_collection, Session, placeholder
 
 abstract Optimizer
 
@@ -107,6 +113,62 @@ function apply_gradients(optimizer::AdamOptimizer, grads_and_vars; global_step=n
     return ops
 end
 
+type Saver
+    var_list::Vector{Node}
+    max_to_keep::Int
+    placeholder_nodes::Dict{String, Node}
+    restore_ops::Vector{Node}
+end
 
+function Saver(;var_list=nothing, max_to_keep=5)
+    if var_list === nothing
+        var_list = get_collection(:Variables)
+    end
+    placeholders = Dict()
+    restore_ops = []
+    for var in var_list
+        ph = placeholder(eltype(var))
+        placeholders[node_name(var)] = ph
+        restore_op = assign(var, ph)
+        push!(restore_ops, restore_op)
+    end
+    Saver(var_list, max_to_keep, placeholders, restore_ops)
+end
+
+function FileIO.save(saver::Saver, session::Session, path; global_step=nothing)
+    base_path = basename(path)
+    if global_step !== nothing
+        path = @sprintf("%s-%d", path, global_step)
+    end
+    jldopen(path, "w") do file
+        for var_node in saver.var_list
+            var_value = run(session, var_node)
+            write(file, node_name(var_node), var_value)
+        end
+    end
+    versions = Int[]
+    for file in readdir(dirname(path))
+        m = match(Regex("$(base_path)-(\\d+)"), file)
+        if m !== nothing
+            push!(versions, parse(Int, m[1]))
+        end
+    end
+    if length(versions) > saver.max_to_keep
+        to_delete = length(versions) - saver.max_to_keep
+        for i in 1:to_delete
+            rm(joinpath(dirname(path), "$base_path-$(versions[i])"), force=true)
+        end
+    end
+end
+
+function restore(saver::Saver, session::Session, save_path)
+    d = Dict()
+    checkpoint = load(save_path)
+    for (var_name, var_value) in checkpoint
+        placeholder = saver.placeholder_nodes[var_name]
+        d[placeholder] = var_value
+    end
+    run(session, saver.restore_ops, d)
+end
 
 end

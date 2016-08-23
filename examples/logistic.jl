@@ -31,11 +31,13 @@ Y=nn.softmax(X*W + B)
 Loss = -reduce_sum(log(Y).*Y_obs)
 optimizer = train.AdamOptimizer()
 minimize_op = train.minimize(optimizer, Loss)
-
+saver = train.Saver()
 # Run training
 run(sess, initialize_all_variables())
-
+checkpoint_path = mktempdir()
+info("Checkpoint files saved in $checkpoint_path")
 for epoch in 1:100
     cur_loss, _ = run(sess, vcat(Loss, minimize_op), Dict(X=>x, Y_obs=>y))
     println(@sprintf("Current loss is %.2f.", cur_loss))
+    train.save(saver, sess, joinpath(checkpoint_path, "logistic"), global_step=epoch)
 end
