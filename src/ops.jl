@@ -102,7 +102,7 @@ for (jl_func_name, tf_func_name) in [
     end
 end
 
--(n::Node) = neg(n)
+-(n::AbstractNode) = neg(n)
 
 # Reductions
 
