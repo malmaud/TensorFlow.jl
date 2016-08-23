@@ -34,8 +34,9 @@ Currently not wrapped, but planned for the near future:
 * Distributed graph execution
 * Control flow operations (`while` loops, etc)
 * PyBoard graph visualization
-* Saving and restoring variables during training
 
 ## Limitations
 
-Since the TensorFlow API is so large, not everything is currently wrapped. If you come across TensorFlow functionality provided by the Python API not available in the Julia API, please file an issue (or even better, submit a pull request).
+Since the TensorFlow API is so large, not everything is currently wrapped. If you come across TensorFlow functionality provided by the Python API not available in the Julia API, please file an issue (or even better, submit a pull request). Additionally:
+
+* The Python variable checkpointer and Julia checkpointer use different formats for the checkpoint file, since the Python format is proprietary. The TensorFlow developers have stated that they eventually settle on a format and document it, at which point Julia and Python-trained models can share parameters.
