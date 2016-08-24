@@ -297,6 +297,15 @@ function random_uniform(shape; name="", seed=0, dtype=Float32)
     Operation(desc)
 end
 
+function Base.split(split_dim, num_split, value::AbstractOperation; name="")
+    # TODO get this to return multiple tensors
+    desc = NodeDescription("Split", get_name(name))
+    add_input(desc, Operation(convert_number(Int32, split_dim))-1)
+    add_input(desc, value)
+    desc["num_split"] = Int64(num_split)
+    Operation(desc)
+end
+
 
 include("nn.jl")
 include("image.jl")

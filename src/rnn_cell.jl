@@ -1,5 +1,14 @@
 module rnn_cell
 
+export
+zero_state,
+output_size,
+state_size,
+LSTMCell,
+GRUCell,
+BasicRNNCell,
+RNNCell
+
 import ...TensorFlow: Operation, get_shape, get_variable, tanh
 import ..nn: sigmoid
 
@@ -9,8 +18,8 @@ type BasicRNNCell <: RNNCell
     hidden_size::Int
 end
 
-function zero_state(cell::BasicRNNCell, batch_size, T)
-    zeros(Operation, T, (batch_size, cell.hidden_size))
+function zero_state(cell::RNNCell, batch_size, T)
+    zeros(Operation, T, (batch_size, state_size(cell)))
 end
 
 output_size(cell::BasicRNNCell) = cell.hidden_size
@@ -28,20 +37,53 @@ function (cell::BasicRNNCell)(input, state)
     return [activity, activity]
 end
 
-type BasicLSTMCell <: RNNCell
+type LSTMCell <: RNNCell
     hidden_size::Int
 end
 
-output_size(cell::BasicLSTMCell) = div(cell.hidden_size, 2)
-state_size(cell::BasicLSTMCell) = cell.hidden_size
+output_size(cell::LSTMCell) = cell.hidden_size
 
-function zero_state(cell::BasicLSTMCell, batch_size, T)
-    zeros(Operation, T, (batch_size, cell.hidden_size))
+immutable LSTMStateTuple
+    c
+    h
 end
 
-function (cell::BasicLSTMCell)(input, state)
+function Base.show(io::IO, s::LSTMStateTuple)
+    print(io, "LSTMStateTuple(c=$(s.c), h=$(s.h))")
+end
+
+state_size(cell::LSTMCell) = LSTMStateTuple(cell.hidden_size, cell.hidden_size)
+
+function zero_state(cell::LSTMCell, batch_size, T)
+    LSTMStateTuple(zeros(Operation, T, (batch_size, cell.hidden_size)),
+        zeros(Operation, T, (batch_size, cell.hidden_size)))
+end
+
+function (cell::LSTMCell)(input, state)
     shape = get_shape(input)
-    # TODO finish this
+    N = shape[2] + cell.hidden_size
+    T = eltype(state)
+    X = cat(Operation, 2, input, state.h)
+
+    Wi = get_variable("Wi", [N, cell.hidden_size], T)
+    Wf = get_variable("Wf", [N, cell.hidden_size], T)
+    Wo = get_variable("Wo", [N, cell.hidden_size], T)
+    Wg = get_variable("Wg", [N, cell.hidden_size], T)
+
+    Bi = get_variable("Bi", [cell.hidden_size], T)
+    Bf = get_variable("Bf", [cell.hidden_size], T)
+    Bo = get_variable("Bo", [cell.hidden_size], T)
+    Bg = get_variable("Bg", [cell.hidden_size], T)
+
+    # TODO make this all one multiply
+    I = sigmoid(X*Wi + Bi)
+    F = sigmoid(X*Wf + Bf)
+    O = sigmoid(X*Wo + Bo)
+    G = tanh(X*Wg + Bg)
+    C = state.c.*F + G.*I
+    S = tanh(C).*O
+
+    return (S, LSTMStateTuple(C, S))
 end
 
 type GRUCell <: RNNCell
@@ -50,10 +92,6 @@ end
 
 output_size(cell::GRUCell) = cell.hidden_size
 state_size(cell::GRUCell) = cell.hidden_size
-
-function zero_state(cell::GRUCell, batch_size, T)
-    zeros(Operation, T, (batch_size, cell.hidden_size))
-end
 
 function (cell::GRUCell)(input, state)
     T = eltype(state)

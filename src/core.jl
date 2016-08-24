@@ -642,7 +642,14 @@ function run(sess::Session, outputs::AbstractVector, input_dict)
     run(sess, inputs, input_values, output_ports, [])
 end
 
-run(sess::Session, output::Operation, input_dict) = run(sess, [output], input_dict)[1]
+function run(sess::Session, output::Operation, input_dict)
+    res = run(sess, [output], input_dict)
+    if length(res)==1
+        return res[1]
+    else
+        return res
+    end
+end
 
 run(sess::Session, outputs) = run(sess, outputs, Dict())
 
