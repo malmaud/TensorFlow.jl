@@ -2,4 +2,5 @@ deps/bazel-out
 deps/downloads
 deps/miniconda
 src/scratch.jl
-site/
+doc_build/
+docs/build

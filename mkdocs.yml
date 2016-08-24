@@ -4,9 +4,14 @@ site_author: 'Jon Malmaud'
 repo_name: 'GitHub'
 repo_url: 'https://github.com/malmaud/TensorFlow.jl'
 copyright: 'Copyright (c) 2016 Jonathan Malmaud'
+docs_dir: 'docs/build'
+site_dir: 'doc_build'
 
 pages:
   - Home: index.md
+  - Manual:
+    - 'Core functions': core.md
+    - 'Operations': ops.md
   - Examples:
     - 'Basic usage': basic_usage.md
     - 'Logistic regression': logistic.md

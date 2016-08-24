@@ -40,7 +40,9 @@ function get_code(s::Status)
     return TF_Code(code)
 end
 
-
+"""
+A TensorFlow computation graph
+"""
 type Graph
     ptr::Ptr{Void}
     collections::Dict{Symbol, Any}
@@ -61,10 +63,16 @@ function add_to_collection(g::Graph, name, node)
     push!(g.collections[name], node)
 end
 
+"""
+Returns a collection attached to the graph `g` named `name`
+"""
 function get_collection(g::Graph, name)
     g.collections[name]
 end
 
+"""
+Returns a collection from the default graph
+"""
 get_collection(name) = get_collection(get_def_graph(), name)
 
 function extend_graph(graph::Graph, node_defs)
@@ -87,7 +95,6 @@ function extend_graph(graph::Graph, node_defs)
 end
 
 add_to_collection(name, node) = add_to_collection(get_def_graph(), name, node)
-get_collection(name) = get_collection(get_def_graph(), name)
 
 type SessionOptions
     ptr::Ptr{Void}
@@ -113,6 +120,9 @@ function check_status(status)
     nothing
 end
 
+"""
+Returns the default computation graph, an object of type `Graph`.
+"""
 get_def_graph() = def_graph
 
 function set_def_graph(g)
@@ -127,6 +137,9 @@ function as_default(f, g::Graph)
     set_def_graph(old_def)
 end
 
+"""
+A TensorFlow session.
+"""
 type Session
     ptr::Ptr{Void}
     graph::Graph
@@ -351,6 +364,9 @@ get_graph(desc::NodeDescription) = Nullable(desc.graph)
 
 abstract AbstractOperation
 
+"""
+An operation in the computation graph.
+"""
 type Operation <: AbstractOperation
     ptr::Ptr{Void}
     graph::Nullable{Graph}
@@ -504,6 +520,11 @@ function Operation(node_def::tensorflow.NodeDef)
     Operation(desc)
 end
 
+"""
+`node_name(node::AbstractOperation)`
+
+Returns the name of a node in the computation graph.
+"""
 node_name(node::AbstractOperation) = ccall((:TF_NodeName), Cstring, (Ptr{Void},), Operation(node).ptr) |> unsafe_string
 
 function get_attr_value_proto(node::Operation, attr_name)
@@ -525,6 +546,11 @@ Base.getindex(node::Operation, attr_name) = get_attr_value_proto(node, attr_name
 const dt = tensorflow._DataType
 const proto_type_map = Dict(dt.DT_FLOAT=>Float32, dt.DT_INT32=>Int32, dt.DT_DOUBLE=>Float64, dt.DT_INT64=>Int64, dt.DT_STRING=>String)
 
+"""
+`eltype(node::AbstractOperation)`
+
+Returns the type of the tensor the given operation will return when executed.
+"""
 function Base.eltype(node::AbstractOperation)
     node = Operation(node)
     dtype = nothing
@@ -642,6 +668,9 @@ function run(sess::Session, outputs::AbstractVector, input_dict)
     run(sess, inputs, input_values, output_ports, [])
 end
 
+"""
+Compute the result of one of more operations in the computation graph.
+"""
 function run(sess::Session, output::Operation, input_dict)
     res = run(sess, [output], input_dict)
     if length(res)==1
@@ -713,6 +742,10 @@ end
 get_def_type(::Type{Operation}) = tensorflow.NodeDef
 get_def_type(::Type{Graph}) = tensorflow.GraphDef
 
+"""
+Returns the definition of the given operation or graph, in returns of its properties
+with respect to the computation graph.
+"""
 function get_def(n::Union{Operation, Graph})
     p = get_proto(n)
     b = IOBuffer()
@@ -785,6 +818,9 @@ function parse_port_name(name)
 
 end
 
+"""
+Returns an operation by searching for its name in the given graph.
+"""
 function get_node_by_name(graph::Graph, name::AbstractString)
     name, port = parse_port_name(name)
     node_ptr = ccall(:TF_GraphNodeByName, Ptr{Void}, (Ptr{Void}, Cstring), graph.ptr, name)
@@ -799,6 +835,13 @@ get_node_by_name(name) = get_node_by_name(get_def_graph(), name)
 
 include("shape_inference.jl")
 
+"""
+Runs shape inference to return the shape of the tensor produced by the given operation.
+
+Returns -1 if shape inference cannot infer a shape.
+
+Note this runs *statically*. Use the `shape` operation to dynamically get the shape of an operation.
+"""
 function get_shape(n::AbstractOperation)
     op = Operation(n)
     if op.op_name ∈ keys(shape_inferer)
