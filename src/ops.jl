@@ -208,7 +208,7 @@ end
 
 function Base.split(split_dim, num_split, value::AbstractTensor; name="")
     desc = NodeDescription("Split", get_name(name))
-    add_input(desc, Tensor(convert_number(Int32, split_dim-1)))
+    add_input(desc, Tensor(convert_number(Int32, split_dim))-1)
     add_input(desc, Tensor(value))
     desc["num_split"] = num_split
     op = Operation(desc)
