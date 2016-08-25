@@ -203,6 +203,14 @@ function Base.slice(n::AbstractOperation, begin_, size_; name="")
     Operation(desc)
 end
 
+function Base.split(split_dim, num_split, value::AbstractOperation; name="")
+    desc = NodeDescription(get_def_graph(), "Split", get_name(name))
+    add_input(desc, Operation(convert_number(Int32, split_dim)))
+    add_input(desc, Operation(value))
+    desc["num_split"] = num_split
+    Operation(desc)
+end
+
 function concat(dim, values; name="")
     desc = NodeDescription(get_def_graph(), "Concat", get_name(name))
     add_input(desc, Operation(convert_number(Int32, dim)))
