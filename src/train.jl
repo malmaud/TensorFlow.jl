@@ -14,7 +14,7 @@ restore
 using JLD
 using FileIO
 
-import ..TensorFlow: Operation, get_def_graph, gradients, assign, variable_scope, ConstantInitializer, node_name, get_variable, get_shape, get_collection, Session, placeholder
+import ..TensorFlow: Operation, get_def_graph, gradients, assign, variable_scope, ConstantInitializer, node_name, get_variable, get_shape, get_collection, Session, placeholder, Tensor
 
 abstract Optimizer
 
@@ -93,7 +93,7 @@ end
 AdamOptimizer(learning_rate=.01; name="adam") = AdamOptimizer(learning_rate, .9, .999, 1e-8, name)
 
 function apply_gradients(optimizer::AdamOptimizer, grads_and_vars; global_step=nothing, name="adam")
-    ops = Operation[]
+    ops = Tensor[]
     @advance_step
     for (grad, var) in grads_and_vars
         local m, v
@@ -114,10 +114,10 @@ function apply_gradients(optimizer::AdamOptimizer, grads_and_vars; global_step=n
 end
 
 type Saver
-    var_list::Vector{Operation}
-    max_to_keep::Int
-    placeholder_nodes::Dict{String, Operation}
-    restore_ops::Vector{Operation}
+    var_list
+    max_to_keep
+    placeholder_nodes
+    restore_ops
 end
 
 function Saver(;var_list=nothing, max_to_keep=5)

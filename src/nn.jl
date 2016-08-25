@@ -18,35 +18,35 @@ softmax,
 sigmoid,
 tanh
 
-import ..TensorFlow: Operation, NodeDescription, get_def_graph, capitalize, add_input, Port, get_name, set_attr_list, get_shape, variable_scope, shape, random_uniform
+import ..TensorFlow: Operation, NodeDescription, get_def_graph, capitalize, add_input, Port, get_name, set_attr_list, get_shape, variable_scope, shape, random_uniform, AbstractTensor, Tensor
 
 for f in [:relu, :relu6, :elu, :softplus, :softsign, :softmax, :sigmoid, :tanh]
-    @eval function $f(n::Operation; name="")
+    @eval function $f(n::AbstractTensor; name="")
         name = get_name(name)
-        desc = NodeDescription(get_def_graph(), $(capitalize(f)), name)
-        add_input(desc, Port(n))
-        Operation(desc)
+        desc = NodeDescription($(capitalize(f)), name)
+        add_input(desc, Tensor(n))
+        Tensor(Operation(desc), 1)
     end
 end
 
 function conv2d(input, filter, strides, padding; data_format="NHWC", name="")
-    desc = NodeDescription(get_def_graph(), "Conv2D", get_name(name))
-    add_input(desc, Operation(input))
-    add_input(desc, Operation(filter))
+    desc = NodeDescription("Conv2D", get_name(name))
+    add_input(desc, Tensor(input))
+    add_input(desc, Tensor(filter))
     desc["padding"] = padding
     desc["data_format"] = data_format
     set_attr_list(desc, "strides", strides)
-    Operation(desc)
+    Tensor(Operation(desc), 1)
 end
 
 function max_pool(value, ksize, strides, padding; data_format="NHWC", name="")
-    desc = NodeDescription(get_def_graph(), "MaxPool", get_name(name))
+    desc = NodeDescription("MaxPool", get_name(name))
     add_input(desc, value)
     desc["data_format"] = data_format
     desc["padding"] = padding
     set_attr_list(desc, "ksize", ksize)
     set_attr_list(desc, "strides", strides)
-    Operation(desc)
+    Tensor(Operation(desc), 1)
 end
 
 include("rnn_cell.jl")
@@ -65,7 +65,7 @@ function rnn(cell, inputs; initial_state=nothing, dtype=nothing, sequence_length
         batch_size = shape[1]
         initial_state = zero_state(cell, batch_size, dtype)
     end
-    outputs = Operation[]
+    outputs = Tensor[]
     local output
     state = initial_state
     for (idx, input) in enumerate(inputs)
@@ -82,7 +82,7 @@ function dynamic_rnn(cell, inputs; sequence_length=nothing, initial_state=nothin
 end
 
 function dropout(x, keep_prob; noise_shape=nothing, seed=0, name="")
-    keep_prob = Operation(keep_prob)
+    keep_prob = Tensor(keep_prob)
     x_scaled = x/keep_prob
     if noise_shape == nothing
         noise_shape = shape(x)

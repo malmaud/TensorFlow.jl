@@ -213,13 +213,13 @@ function convert_major_order(array)
 end
 
 
-type Tensor
+type RawTensor
     ptr::Ptr{Void}
     data::Array  # To avoid underlying data being GCed
 
-    Tensor() = new()
+    RawTensor() = new()
 
-    function Tensor(data::Array)
+    function RawTensor(data::Array)
         dims = [size(data)...]
         dt = jl_to_df_type(eltype(data))
         data = convert_major_order(data)
@@ -234,7 +234,7 @@ type Tensor
         return new(ptr, data)
     end
 
-    function Tensor(data::Number)
+    function RawTensor(data::Number)
         dims = Cint[]
         dt = jl_to_df_type(eltype(data))
         data_boxed = [data]
@@ -249,7 +249,7 @@ type Tensor
         return new(ptr, data_boxed)
     end
 
-    function Tensor(ptr::Ptr)
+    function RawTensor(ptr::Ptr)
         this = new(ptr)
         finalizer(this, this->begin
             ccall((:TF_DeleteTensor), Void, (Ptr{Void},), this.ptr)
@@ -258,7 +258,7 @@ type Tensor
     end
 end
 
-Tensor(t::Tensor) = t
+RawTensor(t::RawTensor) = t
 
 function varint_encode(b::IO, n::Integer)
     while n ≥ 2^7
@@ -285,7 +285,7 @@ function varint_decode(b::IO)
     return n
 end
 
-function Tensor(data::String)
+function RawTensor(data::String)
     # TODO: Support arrays of strings
     b = IOBuffer()
     write(b, UInt64(0))
@@ -306,15 +306,15 @@ function Tensor(data::String)
     if ptr == C_NULL
         error("Error creating tensor")
     end
-    t = Tensor()
+    t = RawTensor()
     t.data = [data]
     t.ptr = ptr
     return t
 end
 
 
-function Base.show(io::IO, t::Tensor)
-    print(io, "Tensor: ")
+function Base.show(io::IO, t::RawTensor)
+    print(io, "RawTensor: ")
     if ndims(t) == 0
         if eltype(t) == String
             show(io, String(t))
@@ -326,23 +326,23 @@ function Base.show(io::IO, t::Tensor)
     end
 end
 
-function Base.ndims(t::Tensor)
+function Base.ndims(t::RawTensor)
     ccall((:TF_NumDims), Cint, (Ptr{Void},), t.ptr) |> Int
 end
 
-function Base.size(t::Tensor, dim::Integer)
+function Base.size(t::RawTensor, dim::Integer)
     n = ndims(t)
     dim -= 1
     @assert dim < n
     ccall((:TF_Dim), Clonglong, (Ptr{Void}, Cint), t.ptr, dim)
 end
 
-function Base.size(t::Tensor)
+function Base.size(t::RawTensor)
     d = (size(t,_) for _ in 1:ndims(t))
     (d...)
 end
 
-function Base.sizeof(t::Tensor)
+function Base.sizeof(t::RawTensor)
     ccall((:TF_TensorByteSize), Csize_t, (Ptr{Void},), t.ptr) |> Int
 end
 
@@ -372,7 +372,7 @@ type Operation <: AbstractOperation
     graph::Nullable{Graph}
     op_name::String
     name::String
-    inputs::Vector{Operation}
+    inputs::Vector  # Vector{Tensor}
     attrs::Dict{String, Any}
 
     Operation() = new()
@@ -416,7 +416,7 @@ function fillin_operation(op::Operation)
         graph = get(op.graph)
     end
     if has_field(my_desc, :input)
-        op.inputs = [(get_node_by_name(graph, name) |> get) for name in my_desc.input]
+        op.inputs = [Tensor((get_node_by_name(graph, name) |> get)) for name in my_desc.input]
     end
     return op
 end
@@ -438,31 +438,31 @@ function Operation(node_def::tensorflow.NodeDef)
             input_node = get_node_by_name(graph, input)|>get
             push!(inputs, input_node)
         end
-        add_input(desc, [Port(inputs[1], 1), Port(inputs[2], 1)])
-        add_input(desc, [Port(inputs[3], 1), Port(inputs[4], 1)])
+        add_input(desc, [Tensor(inputs[1], 1), Tensor(inputs[2], 1)])
+        add_input(desc, [Tensor(inputs[3], 1), Tensor(inputs[4], 1)])
         return Operation(desc)
     end
     if node_def.op ∈ ("ConcatOffset", "Concat")
         input, port = parse_port_name(node_def.input[1])
         input_node = get_node_by_name(input) |> get
-        add_input(desc, Port(input_node, port))
-        inputs = Port[]
+        add_input(desc, Tensor(input_node, port))
+        inputs = Tensor[]
         for idx in 2:length(node_def.input)
             input, port = parse_port_name(node_def.input[2])
             input_node = get_node_by_name(input) |> get
-            push!(inputs, Port(input_node, port))
+            push!(inputs, Tensor(input_node, port))
         end
         add_input(desc, inputs)
         return Operation(desc)
     end
     if node_def.op ∈ ("AddN", "ShapeN")
-        inputs = []
+        inputs = Tensor[]
         for input in node_def.input
             input, port = parse_port_name(input)
             input_node = get_node_by_name(graph, input)|>get
-            push!(inputs, input_node)
+            push!(inputs, Tensor(input_node, port))
         end
-        add_input(desc, [Port(_, 1) for _ in inputs])
+        add_input(desc, inputs)
     else
         for (input_idx, input) in enumerate(node_def.input)
             if input[1] == '^'
@@ -473,7 +473,7 @@ function Operation(node_def::tensorflow.NodeDef)
             if isnull(input_node)
                 warn("Could not find name $input")
             end
-            add_input(desc, Port(input_node |> get, port))
+            add_input(desc, Tensor(input_node |> get, port))
         end
     end
     if isdefined(node_def, :attr)  # TODO: complete this
@@ -498,11 +498,11 @@ function Operation(node_def::tensorflow.NodeDef)
                     val = reinterpret(eltype(val), attr.tensor.tensor_content)
                 end
                 if length(val) == 0
-                    desc["value"] = Tensor(zeros(eltype(val),0))
+                    desc["value"] = RawTensor(zeros(eltype(val),0))
                 elseif length(dim) == 0
-                    desc["value"] = Tensor(val[1])
+                    desc["value"] = RawTensor(val[1])
                 else
-                    desc["value"] = Tensor(reshape(val, dim))
+                    desc["value"] = RawTensor(reshape(val, dim))
                 end
             elseif attr_name == "keep_dims"
                 desc["keep_dims"] = attr.b
@@ -526,6 +526,7 @@ end
 Returns the name of a node in the computation graph.
 """
 node_name(node::AbstractOperation) = ccall((:TF_NodeName), Cstring, (Ptr{Void},), Operation(node).ptr) |> unsafe_string
+
 
 function get_attr_value_proto(node::Operation, attr_name)
     buf = Buffer()
@@ -568,31 +569,48 @@ function Base.eltype(node::AbstractOperation)
     return proto_type_map[dtype]
 end
 
+abstract AbstractTensor
+
+type Tensor <: AbstractTensor
+    op::Operation
+    value_index::Int
+end
+
+function Base.show(io::IO, t::Tensor)
+    print(io, "<Node $(node_name(t.op)):$(t.value_index) dtype=$(eltype(t))>")
+end
+
+node_name(t::AbstractTensor) = node_name(Tensor(t).op)
+
+Tensor(op::Operation) = Tensor(op, 1)
+
+Base.eltype(t::AbstractTensor) = eltype(Tensor(t).op)
+
 immutable Port
     node_ptr::Ptr{Void}
     index::Int
 end
 
-Port(node::Operation, index=1) = Port(node.ptr, index-1)  # Convert between 1-based (Julia) and 0-based (Python) indexing of port numbers
+Port(t::Tensor) = Port(t.op.ptr, t.value_index-1)
+Port(op::Operation) = Port(Tensor(op))
+Port(port::Port) = port
 
-
-function add_input(desc::NodeDescription, input::Port)
-    ccall((:TF_AddInput), Void, (Ptr{Void}, Port), desc.ptr, input)
+function add_input(desc::NodeDescription, input::Union{Tensor, Operation})
+    ccall((:TF_AddInput), Void, (Ptr{Void}, Port), desc.ptr, Port(input))
 end
 
-add_input(desc::NodeDescription, node::Operation) = add_input(desc, Port(node))
-
-function add_input(desc::NodeDescription, inputs::Vector{Port})
+function add_input(desc::NodeDescription, inputs::Vector{Tensor})
+    inputs = map(Port, inputs)
     ccall((:TF_AddInputList), Void, (Ptr{Void}, Ptr{Void}, Cint), desc.ptr, inputs, length(inputs))
 end
 
-function setindex!(desc::NodeDescription, tensor::Tensor, attr_name)
+function setindex!(desc::NodeDescription, tensor::RawTensor, attr_name)
     status = Status()
     ccall((:TF_SetAttrTensor), Void, (Ptr{Void}, Cstring, Ptr{Void}, Ptr{Void}), desc.ptr, attr_name, tensor.ptr, status.ptr)
     check_status(status)
 end
 
-function setindex!(desc::NodeDescription, tensors::Vector{Tensor}, attr_name)
+function setindex!(desc::NodeDescription, tensors::Vector{RawTensor}, attr_name)
     status = Status()
     ccall(:TF_SetAttrTensorList, Void, (Ptr{Void}, Cstring, Ptr{Ptr{Void}}, Cint, Ptr{Void}), desc.ptr, attr_name, [_.ptr for _ in tensors], length(tensors), status.ptr)
     check_status(status)
@@ -631,7 +649,7 @@ end
 function run(sess::Session, inputs, input_values, outputs, targets)
     status = Status()
     output_values = fill(C_NULL, length(outputs))
-    input_tensors = [Tensor(_) for _ in input_values]
+    input_tensors = [RawTensor(_) for _ in input_values]
     ccall((:TF_SessionRun), Void,
     (Ptr{Void}, Ptr{Void}, Ptr{Void}, Ptr{Void}, Cint, Ptr{Void}, Ptr{Ptr{Void}}, Cint, Ptr{Void}, Cint, Ptr{Void}, Ptr{Void}),
         sess.ptr,
@@ -658,20 +676,20 @@ function run(sess::Session, inputs, input_values, outputs, targets)
             Array(tensor)
         end
     end
-    return [as_native(Tensor(_)) for _ in output_values]
+    return [as_native(RawTensor(_)) for _ in output_values]
 end
 
 function run(sess::Session, outputs::AbstractVector, input_dict)
-    inputs = map(input->Port(input, 1), keys(input_dict))
+    inputs = map(Port, keys(input_dict))
     input_values = collect(values(input_dict))
-    output_ports = map(output->Port(output, 1), outputs)
+    output_ports = map(Port, outputs)
     run(sess, inputs, input_values, output_ports, [])
 end
 
 """
 Compute the result of one of more operations in the computation graph.
 """
-function run(sess::Session, output::Operation, input_dict)
+function run(sess::Session, output::Tensor, input_dict)
     res = run(sess, [output], input_dict)
     if length(res)==1
         return res[1]
@@ -682,7 +700,7 @@ end
 
 run(sess::Session, outputs) = run(sess, outputs, Dict())
 
-function Base.eltype(t::Tensor)
+function Base.eltype(t::RawTensor)
     tf_type = ccall((:TF_TensorType), TF_DataType, (Ptr{Void},), t.ptr)
     tf_to_jl_type(tf_type)
 end
@@ -698,7 +716,7 @@ function jl_to_df_type(dt)
     return inv_type_map[dt]
 end
 
-function Base.convert(::Type{Array}, t::Tensor)
+function Base.convert(::Type{Array}, t::RawTensor)
     dims = ndims(t)
     data = ccall(:TF_TensorData, Ptr{eltype(t)}, (Ptr{Void},), t.ptr)
     if eltype(t) == String
@@ -718,7 +736,7 @@ function Base.convert(::Type{Array}, t::Tensor)
     end
 end
 
-function Base.convert{T<:Union{Number, String}}(::Type{T}, t::Tensor)
+function Base.convert{T<:Union{Number, String}}(::Type{T}, t::RawTensor)
     @assert ndims(t)==0
     return convert(Array, t)[]
 end
@@ -755,6 +773,8 @@ function get_def(n::Union{Operation, Graph})
     readproto(b, desc)
     return desc
 end
+
+get_def(t::Tensor) = t.operation
 
 function Base.show(io::IO, desc::tensorflow.NodeDef)
     # TODO: complete this
@@ -842,10 +862,11 @@ Returns -1 if shape inference cannot infer a shape.
 
 Note this runs *statically*. Use the `shape` operation to dynamically get the shape of an operation.
 """
-function get_shape(n::AbstractOperation)
-    op = Operation(n)
+function get_shape(n::AbstractTensor)
+    t = Tensor(n)
+    op = t.op
     if op.op_name ∈ keys(shape_inferer)
-        return shape_inferer[op.op_name](op)[1]
+        return shape_inferer[op.op_name](op)[t.value_index]
     else
         return -1
     end
@@ -874,7 +895,7 @@ function gradients(y, x::AbstractArray)
         py_gradients(graph_proto, x_names, y_name)
     end
     extend_graph(get_def_graph(), node_protos)
-    return [get_node_by_name(_)|>get for _ in grad_names]
+    return [Tensor(get_node_by_name(_)|>get, 1) for _ in grad_names]
 end
 
 gradients(y, x) = gradients(y, [x])[1]

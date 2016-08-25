@@ -1,6 +1,6 @@
 using Distributions
 
-type Variable <: AbstractOperation
+type Variable <: AbstractTensor
     var_node::Operation
     assign_node::Operation
 
@@ -11,14 +11,14 @@ function Variable(initial_value; name="")
     self = Variable()
 
     name = get_name(name)
-    desc = NodeDescription(get_def_graph(), "Variable", name)
+    desc = NodeDescription("Variable", name)
     desc["dtype"] = eltype(initial_value)
     desc["shape"] = size(initial_value)
     self.var_node = Operation(desc)
 
-    desc = NodeDescription(get_def_graph(), "Assign", "$name/Assign")
+    desc = NodeDescription("Assign", "$name/Assign")
     add_input(desc, self.var_node)
-    add_input(desc, convert(Operation, initial_value))
+    add_input(desc, Tensor(initial_value))
     self.assign_node = Operation(desc)
 
     add_to_collection(:Variables, self)
@@ -26,27 +26,26 @@ function Variable(initial_value; name="")
 end
 
 function get_shape(v::Variable)
-    return get_shape(Operation(v.assign_node).inputs[2])
+    return get_shape(v.assign_node.inputs[2])
 end
 
 function assign(v::Variable, value)
     desc = NodeDescription(get_def_graph(), "Assign", get_name())
     add_input(desc, v.var_node)
-    add_input(desc, convert(Operation, value))
-    return Operation(desc)
+    add_input(desc, Tensor(value))
+    return Tensor(Operation(desc), 1)
 end
 
 Base.setindex!(v::Variable, value) = assign(v, value)
 
-Base.convert(::Type{Tensor}, v::Variable) = v.var_node
-Base.convert(::Type{Operation}, v::Variable) = convert(Tensor, v)
+Base.convert(::Type{Tensor}, v::Variable) = Tensor(v.var_node, 1)
 
 function initialize_all_variables()
     return [var.assign_node for var in get_collection(:Variables)]
 end
 
-run(sess::Session, var::Variable) = run(sess, [var])[1]
-run(sess::Session, vars::AbstractVector{Variable}) = run(sess, [var.var_node for var in vars])
+run(sess::Session, var::Variable) = run(sess, Tensor(var))
+run(sess::Session, vars::AbstractVector{Variable}) = run(sess, map(Tensor, vars))
 
 type Scope
     name::Nullable{String}

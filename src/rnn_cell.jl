@@ -9,7 +9,7 @@ GRUCell,
 BasicRNNCell,
 RNNCell
 
-import ...TensorFlow: Operation, get_shape, get_variable, tanh
+import ...TensorFlow: Operation, get_shape, get_variable, tanh, Tensor
 import ..nn: sigmoid
 
 abstract RNNCell

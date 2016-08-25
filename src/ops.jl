@@ -26,25 +26,27 @@ function placeholder(dtype; name="", shape=nothing)
         desc["shape"] = (shape...)
     end
     node = Operation(desc)
+    Tensor(node, 1)
 end
 
 function constant(tensor; name="")
     name = get_name(name)
     desc = NodeDescription(get_def_graph(), "Const", name)
-    tensor = Tensor(tensor)
+    tensor = RawTensor(tensor)
     desc["dtype"] = eltype(tensor)
     desc["value"] = tensor
     node = Operation(desc)
+    Tensor(node, 1)
 end
 
-Base.convert(::Type{Operation}, x::Union{Number, String}) = constant(x)
-Base.convert{T<:Union{Number, String}}(::Type{Operation}, x::Array{T}) = constant(x)
+Base.convert(::Type{Tensor}, x::Union{Number, String}) = constant(x)
+Base.convert{T<:Union{Number, String}}(::Type{Tensor}, x::Array{T}) = constant(x)
 
 function tf_promote(t, x::Number)
-    return Operation(eltype(t)(x))
+    return Tensor(eltype(t)(x))
 end
 
-tf_promote(t, x) = Operation(x)
+tf_promote(t, x) = Tensor(x)
 
 for (bin_op, jl_func_name, tf_func_name) in [
     (:+, :add, "Add"),
@@ -54,28 +56,28 @@ for (bin_op, jl_func_name, tf_func_name) in [
     (:/, :div, "Div"),
     (:^, :pow, "Pow"),
     (:(.==), :equal, "Equal")]
-    @eval function $jl_func_name(n1::AbstractOperation, n2::AbstractOperation; name="")
-        n1 = Operation(n1)
-        n2 = Operation(n2)
+    @eval function $jl_func_name(n1::AbstractTensor, n2::AbstractTensor; name="")
+        n1 = Tensor(n1)
+        n2 = Tensor(n2)
         name = get_name(name)
         desc = NodeDescription(get_def_graph(), $tf_func_name, name)
-        add_input(desc, Port(Operation(n1), 1))
-        add_input(desc, Port(Operation(n2), 1))
-        Operation(desc)
+        add_input(desc, n1)
+        add_input(desc, n2)
+        Tensor(Operation(desc), 1)
     end
 
-    @eval $bin_op(n1::AbstractOperation, n2::AbstractOperation) = $jl_func_name(n1, n2)
-    @eval $bin_op(n1::AbstractOperation, n2) = $jl_func_name(n1, tf_promote(n1, n2))
-    @eval $bin_op(n1, n2::AbstractOperation) = $jl_func_name(tf_promote(n2, n1), n2)
+    @eval $bin_op(n1::AbstractTensor, n2::AbstractTensor) = $jl_func_name(n1, n2)
+    @eval $bin_op(n1::AbstractTensor, n2) = $jl_func_name(n1, tf_promote(n1, n2))
+    @eval $bin_op(n1, n2::AbstractTensor) = $jl_func_name(tf_promote(n2, n1), n2)
 end
 
-*(x::Number, n::AbstractOperation) = x.*n
+*(x::Number, n::AbstractTensor) = x.*n
 
 
 
   # For supporting notation like `2x`
-^(n::AbstractOperation, x::Int) = invoke(^, (AbstractOperation, Any), n, x)
-.^(n::AbstractOperation, x::Number) = n^x
+^(n::AbstractTensor, x::Int) = invoke(^, (AbstractTensor, Any), n, x)
+.^(n::AbstractTensor, x::Number) = n^x
 
 for (jl_func_name, tf_func_name) in [
     (:log, "Log"),
@@ -94,207 +96,208 @@ for (jl_func_name, tf_func_name) in [
     (:tanh, "Tanh"),
     (:shape, "Shape"),
     (:transpose, "Transpose")]
-    @eval function $jl_func_name(n::AbstractOperation; name="")
-        n = Operation(n)
+    @eval function $jl_func_name(n::AbstractTensor; name="")
+        n = Tensor(n)
         name = get_name(name)
-        desc = NodeDescription(get_def_graph(), $tf_func_name, name)
-        add_input(desc, Port(n, 1))
-        Operation(desc)
+        desc = NodeDescription($tf_func_name, name)
+        add_input(desc, n)
+        Tensor(Operation(desc), 1)
     end
 end
 
--(n::AbstractOperation) = neg(n)
+-(n::AbstractTensor) = neg(n)
 
 # Reductions
 
 for reduction in [:sum, :prod, :min, :max, :all, :any, :mean]
-    @eval function $(Symbol("reduce_", reduction))(n::AbstractOperation; reduction_indices=nothing, keep_dims=false, name="")
+    @eval function $(Symbol("reduce_", reduction))(n::AbstractTensor; reduction_indices=nothing, keep_dims=false, name="")
         if reduction_indices == nothing
-            n = Operation(n)  # TODO: rewrite this
+            n = Tensor(n)  # TODO: rewrite this
             name = get_name(name)
             range_start = constant(Int32(0))
             range_delta = constant(Int32(1))
             desc = NodeDescription(get_def_graph(), "Rank", "$name/rank")
             add_input(desc, n)
-            rank = Operation(desc)
+            rank = Tensor(Operation(desc), 1)
             desc = NodeDescription(get_def_graph(), "Range", "$name/range")
             add_input(desc, range_start)
             add_input(desc, rank)
             add_input(desc, range_delta)
-            range = Operation(desc)
-            desc = NodeDescription(get_def_graph(), $(capitalize(reduction)), name)
+            range = Tensor(Operation(desc), 1)
+            desc = NodeDescription($(capitalize(reduction)), name)
             add_input(desc, n)
             add_input(desc, range)
-            Operation(desc)
+            Tensor(Operation(desc), 1)
         else
             if isa(reduction_indices, Number)
                 reduction_indices = [reduction_indices]
             end
             reduction_indices = [Int32(idx-1) for idx in reduction_indices]
-            desc = NodeDescription(get_def_graph(), $(capitalize(reduction)), get_name(name))
-            add_input(desc, Operation(n))
-            add_input(desc, Operation(reduction_indices))
+            desc = NodeDescription($(capitalize(reduction)), get_name(name))
+            add_input(desc, Tensor(Operation(n), 1))
+            add_input(desc, Tensor(Operation(reduction_indices), 1))
             desc["keep_dims"] = keep_dims
-            Operation(desc)
+            Tensor(Operation(desc), 1)
         end
     end
 end
 
-function Base.reshape(n::Operation, dims; name="")
+function Base.reshape(n::AbstractTensor, dims; name="")
     dims = Int32[dims...]
     desc = NodeDescription(get_def_graph(), "Reshape",  get_name(name))
     add_input(desc, n)
-    add_input(desc, Operation(dims))
+    add_input(desc, Tensor(dims))
     Operation(desc)
 end
 
-function Base.fill(n::Operation, dims::Operation; name="")
-    desc = NodeDescription(get_def_graph(), "Fill", get_name(name))
+function Base.fill(n::AbstractTensor, dims::AbstractTensor; name="")
+    desc = NodeDescription("Fill", get_name(name))
     add_input(desc, dims)
     add_input(desc, n)
-    Operation(desc)
+    Tensor(Operation(desc), 1)
 end
 
-function Base.fill(::Type{Operation}, n, dims; name="")
-    fill(Operation(n), Operation(dims); name=name)
+function Base.fill(::Type{Tensor}, n, dims; name="")
+    fill(Tensor(n), Tensor(dims); name=name)
 end
 
 convert_number(t, n) = n
 convert_number(t, x::Number) =  t(x)
 
-function Base.linspace(::Type{Operation}, start, stop, num; name="")
+function Base.linspace(::Type{Tensor}, start, stop, num; name="")
     desc = NodeDescription(get_def_graph(), "LinSpace", get_name(name))
-    add_input(desc, Operation(convert_number(Float32, start)))
-    add_input(desc, Operation(convert_number(Float32, stop)))
-    add_input(desc, Operation(convert_number(Int32, num)))
-    Operation(desc)
+    add_input(desc, Tensor(convert_number(Float32, start)))
+    add_input(desc, Tensor(convert_number(Float32, stop)))
+    add_input(desc, Tensor(convert_number(Int32, num)))
+    Tensor(Operation(desc), 1)
 end
 
-function Base.range(::Type{Operation}, start; limit=nothing, delta=1, name="")
+function Base.range(::Type{Tensor}, start; limit=nothing, delta=1, name="")
     if limit == nothing
         limit = start
         start = 0
     end
-    desc = NodeDescription(get_def_graph(), "Range", get_name(name))
+    desc = NodeDescription("Range", get_name(name))
     add_input(desc, start)
     add_input(desc, limit)
     add_input(desc, delta)
-    Operation(desc)
+    Tensor(Operation(desc), 1)
 end
 
-function Base.rank(n::AbstractOperation; name="")
-    desc = NodeDescription(get_def_graph(), "Rank", get_name(name))
-    add_input(desc, Operation(n))
-    Operation(desc)
+function Base.rank(n::AbstractTensor; name="")
+    desc = NodeDescription("Rank", get_name(name))
+    add_input(desc, Tensor(n))
+    Tensor(Operation(desc), 1)
 end
 
-function Base.size(n::AbstractOperation; name="")
+function Base.size(n::AbstractTensor; name="")
     desc = NodeDescription(get_def_graph(), "Size", get_name(name))
-    add_input(desc, Operation(n))
-    Operation(desc)
+    add_input(desc, Tensor(n))
+    Tensor(Operation(desc), 1)
 end
 
-Base.length(::Type{Operation}, n::AbstractOperation; name="") = size(n, name)
+Base.length(::Type{Tensor}, n::AbstractTensor; name="") = size(n, name)
 
-function Base.slice(n::AbstractOperation, begin_, size_; name="")
+function Base.slice(n::AbstractTensor, begin_, size_; name="")
     desc = NodeDescription(get_def_graph(), "Slice", get_name(name))
-    add_input(desc, Operation(n))
-    add_input(desc, Operation(begin_))
-    add_input(desc, Operation(size_))
-    Operation(desc)
+    add_input(desc, Tensor(n))
+    add_input(desc, Tensor(begin_))
+    add_input(desc, Tensor(size_))
+    Tensor(Operation(desc), 1)
 end
 
-function Base.split(split_dim, num_split, value::AbstractOperation; name="")
-    desc = NodeDescription(get_def_graph(), "Split", get_name(name))
-    add_input(desc, Operation(convert_number(Int32, split_dim)))
-    add_input(desc, Operation(value))
+function Base.split(split_dim, num_split, value::AbstractTensor; name="")
+    desc = NodeDescription("Split", get_name(name))
+    add_input(desc, Tensor(convert_number(Int32, split_dim-1)))
+    add_input(desc, Tensor(value))
     desc["num_split"] = num_split
-    Operation(desc)
+    op = Operation(desc)
+    [Tensor(op, _) for _ in 1:num_split]
 end
 
 function concat(dim, values; name="")
     desc = NodeDescription(get_def_graph(), "Concat", get_name(name))
-    add_input(desc, Operation(convert_number(Int32, dim)))
-    add_input(desc, [Port(_, 1) for _ in values])
+    add_input(desc, Tensor(convert_number(Int32, dim)))
+    add_input(desc, [Tensor(_, 1) for _ in values])
     desc["N"] = length(values)
-    Operation(desc)
+    Tensor(Operation(desc), 1)
 end
 
-Base.cat(::Type{Operation}, dim, values...) = concat(dim-1, values)
+Base.cat(::Type{Tensor}, dim, values...) = concat(dim-1, values)
 
 function read_file(filename; name="")
-    desc = NodeDescription(get_def_graph(), "ReadFile", get_name(name))
-    add_input(desc, Operation(filename))
-    Operation(desc)
+    desc = NodeDescription("ReadFile", get_name(name))
+    add_input(desc, Tensor(filename))
+    Tensor(Operation(desc), 1)
 end
 
-Base.read(::Type{Operation}, filename) = read_file(filename)
+Base.read(::Type{Tensor}, filename) = read_file(filename)
 
 function pack(nodes; axis=0, name="")
-    desc = NodeDescription(get_def_graph(), "Pack", get_name(name))
-    add_input(desc, [Port(Operation(_), 1) for _ in nodes])
+    desc = NodeDescription("Pack", get_name(name))
+    add_input(desc, [Tensor(Operation(_), 1) for _ in nodes])
     desc["N"] = length(nodes)
     desc["axis"] = axis
-    Operation(desc)
+    Tensor(Operation(desc), 1)
 end
 
 function expand_dims(input, dim; name="")
-    desc = NodeDescription(get_def_graph(), "ExpandDims", get_name(name))
-    add_input(desc, Operation(input))
-    add_input(desc, Operation(convert_number(Int32,dim)))
-    Operation(desc)
+    desc = NodeDescription("ExpandDims", get_name(name))
+    add_input(desc, Tensor(input))
+    add_input(desc, Tensor(convert_number(Int32,dim)))
+    Tensor(Operation(desc), 1)
 end
 
 
-function argmin(n::AbstractOperation, dim; name="")
-    desc = NodeDescription(get_def_graph(), "ArgMin", get_name(name))
-    add_input(desc, Operation(n))
-    add_input(desc, Operation(convert_number(Int32,dim)))
-    Operation(desc)
+function argmin(n::AbstractTensor, dim; name="")
+    desc = NodeDescription("ArgMin", get_name(name))
+    add_input(desc, Tensor(n))
+    add_input(desc, Tensor(convert_number(Int32,dim)))
+    Tensor(Operation(desc), 1)
 end
 
-Base.indmin(n::AbstractOperation, dim) = argmin(n, dim-1)
+Base.indmin(n::AbstractTensor, dim) = argmin(n, dim-1)
 
-function argmax(n::AbstractOperation, dim; name="")
-    desc = NodeDescription(get_def_graph(), "ArgMax", get_name(name))
-    add_input(desc, Operation(n))
-    add_input(desc, Operation(convert_number(Int32, dim)))
-    Operation(desc)
+function argmax(n::AbstractTensor, dim; name="")
+    desc = NodeDescription("ArgMax", get_name(name))
+    add_input(desc, Tensor(n))
+    add_input(desc, Tensor(convert_number(Int32, dim)))
+    Tensor(Operation(desc), 1)
 end
 
-Base.indmax(n::AbstractOperation, dim) = argmax(n, dim-1)
+Base.indmax(n::AbstractTensor, dim) = argmax(n, dim-1)
 
-function Base.zeros(::Type{Operation}, T, shape)
+function Base.zeros(::Type{Tensor}, T, shape)
     constant(zeros(T, shape))
 end
 
-Base.zeros(::Type{Operation}, shape) = zeros(Operation, Float32, shape)
+Base.zeros(::Type{Tensor}, shape) = zeros(Tensor, Float32, shape)
 
-function Base.ones(::Type{Operation}, T, shape)
+function Base.ones(::Type{Tensor}, T, shape)
     constant(zeros(T, shape))
 end
 
-Base.ones(::Type{Operation}, shape) = ones(Operation, Float32, shape)
+Base.ones(::Type{Tensor}, shape) = ones(Tensor, Float32, shape)
 
 function one_hot(indices, depth; on_value=Float32(1), off_value=Float32(0), axis=-1, dtype=Float32, name="")
     desc = NodeDescription("OneHot", get_name(name))
-    add_input(desc, Operation(indices))
-    add_input(desc, Operation(Int32(depth)))
-    add_input(desc, Operation(dtype(on_value)))
-    add_input(desc, Operation(dtype(off_value)))
+    add_input(desc, Tensor(indices))
+    add_input(desc, Tensor(Int32(depth)))
+    add_input(desc, Tensor(dtype(on_value)))
+    add_input(desc, Tensor(dtype(off_value)))
     desc["axis"] = axis
     desc["T"] = dtype
-    Operation(desc)
+    Tensor(Operation(desc), 1)
 end
 
 function random_uniform(shape; name="", seed=0, dtype=Float32)
     desc = NodeDescription("RandomUniform", get_name(name))
-    add_input(desc, Operation(shape))
+    add_input(desc, Tensor(shape))
     desc["dtype"] = dtype
     desc["seed2"] = seed
     # TODO use global seed
     desc["seed"] = 0
-    Operation(desc)
+    Tensor(Operation(desc), 1)
 end
 
 
