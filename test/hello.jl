@@ -5,7 +5,7 @@ using Base.Test
 # https://github.com/tensorflow/tensorflow#try-your-first-tensorflow-program
 
 hello = TensorFlow.constant("Hello, TensorFlow!")
-@test isa(hello, TensorFlow.Operation)
+@test isa(hello, TensorFlow.Tensor)
 
 sess = TensorFlow.Session()
 result = run(sess, hello)

@@ -9,6 +9,7 @@ placeholder
 constant
 concat
 pack
+split
 expand_dims
 argmin
 one_hot

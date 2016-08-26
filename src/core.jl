@@ -571,6 +571,9 @@ end
 
 abstract AbstractTensor
 
+"""
+Represents the output of an operation in the computation graph
+"""
 type Tensor <: AbstractTensor
     op::Operation
     value_index::Int
