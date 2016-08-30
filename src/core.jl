@@ -705,8 +705,12 @@ function run(sess::Session, inputs, input_values, outputs, targets)
 end
 
 function run(sess::Session, outputs::AbstractVector, input_dict)
-    inputs = map(Port, keys(input_dict))
-    input_values = collect(values(input_dict))
+    inputs = Port[]
+    input_values = []
+    for (input, value) in input_dict
+        push!(inputs, Port(input))
+        push!(input_values, map(eltype(input), value))
+    end
     output_ports = map(Port, outputs)
     run(sess, inputs, input_values, output_ports, [])
 end

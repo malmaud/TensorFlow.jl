@@ -51,7 +51,7 @@ GradientDescentOptimizer(learning_rate; name="descent") = GradientDescentOptimiz
 function apply_gradients(optimizer::GradientDescentOptimizer, grads_and_vars; global_step=nothing, name="descent")
     ops = Tensor[]
     for (grad, var) in grads_and_vars
-        push!(ops, assign(var, var - optimizer.learning_rate.*grad))
+        push!(ops, assign(var, var - cast(optimizer.learning_rate, eltype(var)).*grad))
     end
     @advance_step
     return ops
@@ -103,10 +103,14 @@ function apply_gradients(optimizer::AdamOptimizer, grads_and_vars; global_step=n
                 v = get_variable("v", get_shape(var), eltype(var), initializer=ConstantInitializer(0.0))
             end
         end
-        m_new = optimizer.β1 .* m + (1-optimizer.β1).*grad
-        v_new = optimizer.β2 .* v + (1-optimizer.β2).*(grad.^2)
+        β1 = eltype(var)(optimizer.β1)
+        β2 = eltype(var)(optimizer.β2)
+        ϵ = eltype(var)(optimizer.ϵ)
+        η = eltype(var)(optimizer.η)
+        m_new = β1 .* m + (1-β1).*grad
+        v_new = β2 .* v + (1-β2).*(grad.^2)
         # TODO use m_hat
-        push!(ops, assign(var, var - optimizer.η/(sqrt(v_new)+optimizer.ϵ) .* m_new))
+        push!(ops, assign(var, var - η/(sqrt(v_new)+ϵ) .* m_new))
         push!(ops, assign(m, m_new))
         push!(ops, assign(v, v_new))
     end
