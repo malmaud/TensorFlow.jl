@@ -60,7 +60,7 @@ for (bin_op, jl_func_name, tf_func_name) in [
         n1 = Tensor(n1)
         n2 = Tensor(n2)
         name = get_name(name)
-        desc = NodeDescription(get_def_graph(), $tf_func_name, name)
+        desc = NodeDescription($tf_func_name, name)
         add_input(desc, n1)
         add_input(desc, n2)
         Tensor(Operation(desc), 1)
@@ -134,8 +134,8 @@ for reduction in [:sum, :prod, :min, :max, :all, :any, :mean]
             end
             reduction_indices = [Int32(idx-1) for idx in reduction_indices]
             desc = NodeDescription($(capitalize(reduction)), get_name(name))
-            add_input(desc, Tensor(Operation(n), 1))
-            add_input(desc, Tensor(Operation(reduction_indices), 1))
+            add_input(desc, Tensor(n))
+            add_input(desc, Tensor(reduction_indices))
             desc["keep_dims"] = keep_dims
             Tensor(Operation(desc), 1)
         end
@@ -147,7 +147,7 @@ function Base.reshape(n::AbstractTensor, dims; name="")
     desc = NodeDescription(get_def_graph(), "Reshape",  get_name(name))
     add_input(desc, n)
     add_input(desc, Tensor(dims))
-    Operation(desc)
+    Tensor(Operation(desc), 1)
 end
 
 function Base.fill(n::AbstractTensor, dims::AbstractTensor; name="")
@@ -300,6 +300,13 @@ function random_uniform(shape; name="", seed=0, dtype=Float32)
     Tensor(Operation(desc), 1)
 end
 
+function cast(x::Tensor, dtype; name="")
+    desc = NodeDescription("Cast",get_name(name))
+    add_input(desc, x)
+    desc["DstT"] = dtype
+    # desc["SrcT"] = eltype(x)
+    Tensor(Operation(desc), 1)
+end
 
 include("nn.jl")
 include("image.jl")

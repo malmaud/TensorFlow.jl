@@ -42,14 +42,14 @@ macro advance_step()
 end
 
 type GradientDescentOptimizer <: Optimizer
-    learning_rate::Operation
+    learning_rate::Tensor
     name::String
 end
 
-GradientDescentOptimizer(learning_rate; name="descent") = GradientDescentOptimizer(Operation(learning_rate), name)
+GradientDescentOptimizer(learning_rate; name="descent") = GradientDescentOptimizer(Tensor(learning_rate), name)
 
 function apply_gradients(optimizer::GradientDescentOptimizer, grads_and_vars; global_step=nothing, name="descent")
-    ops = Operation[]
+    ops = Tensor[]
     for (grad, var) in grads_and_vars
         push!(ops, assign(var, var - optimizer.learning_rate.*grad))
     end
@@ -58,15 +58,15 @@ function apply_gradients(optimizer::GradientDescentOptimizer, grads_and_vars; gl
 end
 
 type MomentumOptimizer <: Optimizer
-    learning_rate::Operation
-    momentum::Operation
+    learning_rate::Tensor
+    momentum::Tensor
     name::String
 end
 
 MomentumOptimizer(learning_rate, momentum; name="momentum") = MomentumOptimizer(learning_rate, momentum, name)
 
 function apply_gradients(optimizer::MomentumOptimizer, grads_and_vars; global_step=nothing, name="momentum")
-    ops = Operation[]
+    ops = Tensor[]
     @advance_step
     for (grad, var) in grads_and_vars
         local momentum

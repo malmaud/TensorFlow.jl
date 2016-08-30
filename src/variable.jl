@@ -18,14 +18,15 @@ function Variable(initial_value; name="")
 
     desc = NodeDescription("Assign", "$name/Assign")
     add_input(desc, self.var_node)
-    add_input(desc, Tensor(initial_value))
+    t = Tensor(initial_value)
+    add_input(desc, t)
     self.assign_node = Operation(desc)
-
     add_to_collection(:Variables, self)
     return self
 end
 
 function get_shape(v::Variable)
+    fillin_operation(v.assign_node)
     return get_shape(v.assign_node.inputs[2])
 end
 
@@ -98,7 +99,12 @@ function get_variable(var_name, shape, dtype; kwargs...)
             v.var_node = get_node_by_name(name) |> get
             v.assign_node = get_node_by_name("$name/Assign") |> get
         else
-            v = Variable(map(dtype, rand(initializer, shape...)), name=name)
+            if length(shape) > 0
+                iv = rand(initializer, shape...)
+            else
+                iv = rand(initializer, 1)[1]
+            end
+            v = Variable(map(dtype, iv), name=name)
         end
     finally
         pop!(scope_stack)

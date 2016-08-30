@@ -89,7 +89,7 @@ function extend_graph(graph::Graph, node_defs)
             push!(nodes, node_def)
         end
     end
-    for node in nodes
+    for (node_idx, node) in enumerate(nodes)
         Operation(node)
     end
 end
@@ -374,6 +374,7 @@ type Operation <: AbstractOperation
     name::String
     inputs::Vector  # Vector{Tensor}
     attrs::Dict{String, Any}
+    filled_in::Bool
 
     Operation() = new()
 
@@ -382,24 +383,27 @@ end
 
 function Operation(desc::NodeDescription)
     self = Operation()
+    self.filled_in = false
     status = Status()
     ptr = ccall((:TF_FinishNode), Ptr{Void}, (Ptr{Void}, Ptr{Void}), desc.ptr, status.ptr)
     check_status(status)
     self.ptr = ptr
     self.graph = Nullable(desc.graph)
-    fillin_operation(self)
+    #fillin_operation(self)
     return self
 end
 
 function Operation(ptr::Ptr)
     self = Operation()
+    self.filled_in = false
     self.ptr = ptr
     self.graph = Nullable{Graph}()
-    fillin_operation(self)
+    # fillin_operation(self)
     return self
 end
 
 function fillin_operation(op::Operation)
+    op.filled_in && return
     my_desc = get_def(op)
     if has_field(my_desc, :op)
         op.op_name = my_desc.op
@@ -417,7 +421,11 @@ function fillin_operation(op::Operation)
     end
     if has_field(my_desc, :input)
         op.inputs = [Tensor((get_node_by_name(graph, name) |> get)) for name in my_desc.input]
+        for input in op.inputs
+            fillin_operation(input.op)
+        end
     end
+    op.filled_in = true
     return op
 end
 
@@ -478,7 +486,7 @@ function Operation(node_def::tensorflow.NodeDef)
     end
     if isdefined(node_def, :attr)  # TODO: complete this
         for (attr_name, attr) in node_def.attr
-            if attr_name ∈ ("dtype", "T")
+            if attr_name ∈ ("dtype", "T", "DstT", "SrcT")
                 ccall(:TF_SetAttrType, Void, (Ptr{Void}, Cstring, Cint), desc.ptr, attr_name, attr._type)
             elseif attr_name == "value"
                 dtype = attr.tensor.dtype
@@ -512,6 +520,16 @@ function Operation(node_def::tensorflow.NodeDef)
                 desc["transpose_a"] = attr.b
             elseif attr_name == "transpose_b"
                 desc["transpose_b"] = attr.b
+            elseif attr_name == "strides"
+                set_attr_list(desc, "strides", attr.list.i)
+            elseif attr_name == "padding"
+                desc["padding"] = String(attr.s)
+            elseif attr_name == "ksize"
+                set_attr_list(desc, "ksize", attr.list.i)
+            elseif attr_name == "data_format"
+                desc["data_format"] = String(attr.s)
+            elseif attr_name == "use_cudnn_on_gpu"
+                desc["use_cudnn_on_gpu"] = attr.b
             else
                 warn("Unrecognized attribute $attr_name")
             end
@@ -545,7 +563,7 @@ end
 Base.getindex(node::Operation, attr_name) = get_attr_value_proto(node, attr_name)
 
 const dt = tensorflow._DataType
-const proto_type_map = Dict(dt.DT_FLOAT=>Float32, dt.DT_INT32=>Int32, dt.DT_DOUBLE=>Float64, dt.DT_INT64=>Int64, dt.DT_STRING=>String)
+const proto_type_map = Dict(dt.DT_FLOAT=>Float32, dt.DT_INT32=>Int32, dt.DT_DOUBLE=>Float64, dt.DT_INT64=>Int64, dt.DT_STRING=>String, dt.DT_BOOL=>Bool)
 
 """
 `eltype(node::AbstractOperation)`
@@ -564,8 +582,6 @@ function Base.eltype(node::AbstractOperation)
             error("eltype called on node with no type information")
         end
     end
-    dt = tensorflow._DataType
-    type_map = Dict(dt.DT_FLOAT=>Float32, dt.DT_INT32=>Int32, dt.DT_DOUBLE=>Float64, dt.DT_INT64=>Int64, dt.DT_STRING=>String)
     return proto_type_map[dtype]
 end
 
@@ -580,7 +596,13 @@ type Tensor <: AbstractTensor
 end
 
 function Base.show(io::IO, t::Tensor)
-    print(io, "<Node $(node_name(t.op)):$(t.value_index) dtype=$(eltype(t))>")
+    local dtype
+    try
+        dtype = eltype(t)
+    catch
+        dtype = "?"
+    end
+    print(io, "<Tensor $(node_name(t.op)):$(t.value_index) dtype=$(dtype)>")
 end
 
 node_name(t::AbstractTensor) = node_name(Tensor(t).op)
@@ -777,7 +799,7 @@ function get_def(n::Union{Operation, Graph})
     return desc
 end
 
-get_def(t::Tensor) = t.operation
+get_def(t::Tensor) = get_def(t.op)
 
 function Base.show(io::IO, desc::tensorflow.NodeDef)
     # TODO: complete this
@@ -868,6 +890,7 @@ Note this runs *statically*. Use the `shape` operation to dynamically get the sh
 function get_shape(n::AbstractTensor)
     t = Tensor(n)
     op = t.op
+    fillin_operation(op)
     if op.op_name ∈ keys(shape_inferer)
         return shape_inferer[op.op_name](op)[t.value_index]
     else
@@ -902,3 +925,13 @@ function gradients(y, x::AbstractArray)
 end
 
 gradients(y, x) = gradients(y, [x])[1]
+
+function get_num_outputs(op::Operation)
+    ccall(:TF_OperationNumOutputs, Cint, (Ptr{Void},), op.ptr) |> Int
+end
+
+function get_device(op::Operation)
+    ccall(:TF_OperationDevice, Cstring, (Ptr{Void},), op.ptr) |> String
+end
+
+get_device(t::Tensor) = get_device(t.op)
