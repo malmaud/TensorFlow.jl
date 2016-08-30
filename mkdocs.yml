@@ -15,6 +15,7 @@ pages:
   - Examples:
     - 'Basic usage': basic_usage.md
     - 'Logistic regression': logistic.md
+    - 'MNIST tutorial': tutorial.md
 
 theme: 'material'
 extra:

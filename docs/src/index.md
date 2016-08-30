@@ -2,7 +2,7 @@
 
 ## Introduction
 
-TensorFlow.jl is a wrapper around [TensorFlow](https://www.tensorflow.org/), a powerful library from Google for implementing state-of-the-art deep-learning models. See [the intro tutorial](https://www.tensorflow.org/versions/r0.10/tutorials/mnist/beginners/index.html) from Google to get a sense of how TensorFlow works - TensorFlow.jl has a similar API to the Python TensorFlow API described in the tutorials.
+TensorFlow.jl is a wrapper around [TensorFlow](https://www.tensorflow.org/), a powerful library from Google for implementing state-of-the-art deep-learning models. See [the intro tutorial](https://www.tensorflow.org/versions/r0.10/tutorials/mnist/beginners/index.html) from Google to get a sense of how TensorFlow works - TensorFlow.jl has a similar API to the Python TensorFlow API described in the tutorials. Then see [the Julia equivalent of that tutorial](tutorial.md).
 
 ## Comparison to Python API
 

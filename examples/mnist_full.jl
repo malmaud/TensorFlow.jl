@@ -75,4 +75,5 @@ for i in 1:1000
 end
 
 testx, testy = load_test_set()
-info("test accuracy $(run(session, accuracy, Dict(x=>testx, y_=>testy, keep_prob=>1.0))))
+test_accuracy = run(session, accuracy, Dict(x=>testx, y_=>testy, keep_prob=>1.0))
+info("test accuracy $test_accuracy")
