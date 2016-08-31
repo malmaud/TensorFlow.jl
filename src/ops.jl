@@ -201,8 +201,8 @@ Base.length(::Type{Tensor}, n::AbstractTensor; name="") = size(n, name)
 function Base.slice(n::AbstractTensor, begin_, size_; name="")
     desc = NodeDescription(get_def_graph(), "Slice", get_name(name))
     add_input(desc, Tensor(n))
-    add_input(desc, Tensor(begin_))
-    add_input(desc, Tensor(size_))
+    add_input(desc, cast(Tensor(begin_), Int32))
+    add_input(desc, cast(Tensor(size_), Int32))
     Tensor(Operation(desc), 1)
 end
 

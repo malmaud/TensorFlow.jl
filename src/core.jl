@@ -465,18 +465,24 @@ function Operation(node_def::tensorflow.NodeDef)
         add_input(desc, Tensor(input_node, port))
         inputs = Tensor[]
         for idx in 2:length(node_def.input)
-            input, port = parse_port_name(node_def.input[2])
+            input, port = parse_port_name(node_def.input[idx])
             input_node = get_node_by_name(input) |> get
             push!(inputs, Tensor(input_node, port))
         end
         add_input(desc, inputs)
-        return Operation(desc)
-    end
-    if node_def.op ∈ ("AddN", "ShapeN")
+    elseif node_def.op ∈ ("AddN", "ShapeN")
         inputs = Tensor[]
         for input in node_def.input
             input, port = parse_port_name(input)
             input_node = get_node_by_name(graph, input)|>get
+            push!(inputs, Tensor(input_node, port))
+        end
+        add_input(desc, inputs)
+    elseif node_def.op == "Pack"
+        inputs = Tensor[]
+        for input in node_def.input
+            input, port = parse_port_name(input)
+            input_node = get_node_by_name(graph, input) |> get
             push!(inputs, Tensor(input_node, port))
         end
         add_input(desc, inputs)
@@ -539,6 +545,8 @@ function Operation(node_def::tensorflow.NodeDef)
                 desc["data_format"] = String(attr.s)
             elseif attr_name == "use_cudnn_on_gpu"
                 desc["use_cudnn_on_gpu"] = attr.b
+            elseif attr_name == "axis"
+                desc["axis"] = attr.i
             else
                 warn("Unrecognized attribute $attr_name")
             end
