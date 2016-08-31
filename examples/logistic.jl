@@ -41,3 +41,5 @@ for epoch in 1:100
     println(@sprintf("Current loss is %.2f.", cur_loss))
     train.save(saver, sess, joinpath(checkpoint_path, "logistic"), global_step=epoch)
 end
+
+get_device(Y)
