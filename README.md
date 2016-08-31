@@ -42,6 +42,8 @@ ENV["TF_USE_GPU"] = "1"
 Pkg.build("TensorFlow")
 ```
 
+CUDA 7.5 and cudnn are required for GPU usage.
+
 ## Logistic regression example
 
 Realistic demonstration of using variable scopes and advanced optimizers

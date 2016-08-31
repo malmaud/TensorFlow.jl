@@ -20,8 +20,10 @@ end
 
 @static if is_linux()
     if "TF_USE_GPU" ∈ keys(ENV) && ENV["TF_USE_GPU"] == "1"
+        info("Building TensorFlow.jl for use on the GPU")
         url = "https://storage.googleapis.com/malmaud-stuff/tensorflow-linux.zip"
     else
+        info("Building TensorFlow.jl for CPU use only. To enable the GPU, set the TF_USE_GPU environment variable to 1 and rebuild TensorFlow.jl").
         url = "https://storage.googleapis.com/malmaud-stuff/tensorflow_linux_cpu.zip"
     end
     r = Requests.get(url)

@@ -4,6 +4,23 @@
 
 TensorFlow.jl is a wrapper around [TensorFlow](https://www.tensorflow.org/), a powerful library from Google for implementing state-of-the-art deep-learning models. See [the intro tutorial](https://www.tensorflow.org/versions/r0.10/tutorials/mnist/beginners/index.html) from Google to get a sense of how TensorFlow works - TensorFlow.jl has a similar API to the Python TensorFlow API described in the tutorials. Then see [the Julia equivalent of that tutorial](tutorial.md).
 
+## Installation
+
+Install via
+
+```julia
+Pkg.add("TensorFlow")
+```
+
+To enable support for GPU usage (Linux only), set an environment variable `TF_USE_GPU` to "1" and then rebuild the package. eg
+
+```julia
+ENV["TF_USE_GPU"] = "1"
+Pkg.build("TensorFlow")
+```
+
+CUDA 7.5 and cudnn are required for GPU usage.
+
 ## Comparison to Python API
 
 The wrapper sticks closely to the Python API and so should be easy to pick up for anyone used to the Python API to pick up. Most function names and arguments are semantically the same.
