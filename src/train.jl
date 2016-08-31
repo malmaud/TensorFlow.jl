@@ -14,7 +14,7 @@ restore
 using JLD
 using FileIO
 
-import ..TensorFlow: Operation, get_def_graph, gradients, assign, variable_scope, ConstantInitializer, node_name, get_variable, get_shape, get_collection, Session, placeholder, Tensor
+import ..TensorFlow: Operation, get_def_graph, gradients, assign, variable_scope, ConstantInitializer, node_name, get_variable, get_shape, get_collection, Session, placeholder, Tensor, cast
 
 abstract Optimizer
 
