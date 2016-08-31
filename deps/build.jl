@@ -8,7 +8,7 @@ if !isdir(download_dir)
 end
 
 @static if is_apple()
-    r = Requests.get("https://malmaud.github.io/files/mac/tensorflow.zip")
+    r = Requests.get("https://storage.googleapis.com/malmaud-stuff/tensorflow-mac.zip")
     open(joinpath(base, "downloads/tensorflow.zip"), "w") do file
         write(file, r.data)
     end
@@ -19,15 +19,13 @@ end
 end
 
 @static if is_linux()
-    r = Requests.get("https://malmaud.github.io/files/linux/tensorflow.zip")
+    r = Requests.get("https://storage.googleapis.com/malmaud-stuff/tensorflow-linux.zip")
     open(joinpath(base, "downloads/tensorflow.zip"), "w") do file
         write(file, r.data)
     end
     run(`unzip -o $base/downloads/tensorflow.zip`)
-    run(`mkdir -p $base/bazel-out/local_linux-fastbuild/bin/tensorflow/c`)
     run(`mkdir -p $base/bazel-out/local_linux-opt/bin/tensorflow/c`)
-    mv("libtensorflow.so", "$base/bazel-out/local_linux-fastbuild/bin/tensorflow/libtensorflow.so", remove_destination=true)
-    mv("libc_api.so", "$base/bazel-out/local_linux-fastbuild/bin/tensorflow/c/libc_api.so", remove_destination=true)
-    mv("libtensorflow_gpu.so", "$base/bazel-out/local_linux-opt/bin/tensorflow/libtensorflow.so", remove_destination=true)
-    mv("libc_api_gpu.so", "$base/bazel-out/local_linux-opt/bin/tensorflow/c/libc_api.so", remove_destination=true)
+
+    mv("libtensorflow.so", "$base/bazel-out/local_linux-opt/bin/tensorflow/libtensorflow.so", remove_destination=true)
+    mv("libc_api.so", "$base/bazel-out/local_linux-opt/bin/tensorflow/c/libc_api.so", remove_destination=true)
 end

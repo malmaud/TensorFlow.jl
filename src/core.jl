@@ -11,13 +11,8 @@ if myid() == 1
         Libdl.dlopen(joinpath(LIB_BASE, "bazel-out", "local-fastbuild", "bin", "tensorflow", "c", "libc_api"), Libdl.RTLD_GLOBAL)
     end
     if is_linux()
-        if "TF_USE_CPU" ∈ keys(ENV)
-            Libdl.dlopen(joinpath(LIB_BASE, "bazel-out", "local_linux-fastbuild", "bin", "tensorflow", "libtensorflow"), Libdl.RTLD_GLOBAL)
-            Libdl.dlopen(joinpath(LIB_BASE, "bazel-out", "local_linux-fastbuild", "bin", "tensorflow", "c", "libc_api"), Libdl.RTLD_GLOBAL)
-        else
-            Libdl.dlopen(joinpath(LIB_BASE, "bazel-out", "local_linux-opt", "bin", "tensorflow", "libtensorflow"), Libdl.RTLD_GLOBAL)
-            Libdl.dlopen(joinpath(LIB_BASE, "bazel-out", "local_linux-opt", "bin", "tensorflow", "c", "libc_api"), Libdl.RTLD_GLOBAL)
-        end
+        Libdl.dlopen(joinpath(LIB_BASE, "bazel-out", "local_linux-opt", "bin", "tensorflow", "libtensorflow"), Libdl.RTLD_GLOBAL)
+        Libdl.dlopen(joinpath(LIB_BASE, "bazel-out", "local_linux-opt", "bin", "tensorflow", "c", "libc_api"), Libdl.RTLD_GLOBAL)
     end
 end
 
