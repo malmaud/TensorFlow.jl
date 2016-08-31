@@ -144,9 +144,18 @@ type Session
     ptr::Ptr{Void}
     graph::Graph
 
-    function Session(graph)
+    function Session(graph, config=nothing)
         set_def_graph(graph)
         options = SessionOptions()
+        if config !== nothing
+            b = IOBuffer()
+            writeproto(b, config)
+            seekstart(b)
+            proto = read(b)
+            config_status = Status()
+            ccall(:TF_SetConfig, Void, (Ptr{Void}, Ptr{Void}, Csize_t, Ptr{Void}), options.ptr, proto, sizeof(proto), config_status.ptr)
+            check_status(config_status)
+        end
         status = Status()
         ptr = ccall((:TF_NewSessionWithGraph), Ptr{Void}, (Ptr{Void}, Ptr{Void}, Ptr{Void}), graph.ptr, options.ptr, status.ptr)
         this = new(ptr, graph)

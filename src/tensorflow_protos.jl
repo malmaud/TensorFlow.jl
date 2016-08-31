@@ -1,10 +1,16 @@
 module tensorflow
+  include("protobufs/cost_graph_pb.jl")
   include("protobufs/tensor_shape_pb.jl")
   include("protobufs/types_pb.jl")
   include("protobufs/tensor_pb.jl")
   include("protobufs/attr_value_pb.jl")
+  include("protobufs/node_def_pb.jl")
   include("protobufs/op_def_pb.jl")
   include("protobufs/function_pb.jl")
   include("protobufs/versions_pb.jl")
   include("protobufs/graph_pb.jl")
+  include("protobufs/allocation_description_pb.jl")
+  include("protobufs/tensor_description_pb.jl")
+  include("protobufs/step_stats_pb.jl")
+  include("protobufs/config_pb.jl")
 end

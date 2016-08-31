@@ -25,9 +25,20 @@ hash(v::FunctionDef_Node) = ProtoBuf.protohash(v)
 isequal(v1::FunctionDef_Node, v2::FunctionDef_Node) = ProtoBuf.protoisequal(v1, v2)
 ==(v1::FunctionDef_Node, v2::FunctionDef_Node) = ProtoBuf.protoeq(v1, v2)
 
+type FunctionDef_RetEntry
+    key::AbstractString
+    value::AbstractString
+    FunctionDef_RetEntry(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
+end #type FunctionDef_RetEntry (mapentry)
+hash(v::FunctionDef_RetEntry) = ProtoBuf.protohash(v)
+isequal(v1::FunctionDef_RetEntry, v2::FunctionDef_RetEntry) = ProtoBuf.protoisequal(v1, v2)
+==(v1::FunctionDef_RetEntry, v2::FunctionDef_RetEntry) = ProtoBuf.protoeq(v1, v2)
+
 type FunctionDef
     signature::OpDef
     node::Array{FunctionDef_Node,1}
+    node_def::Array{NodeDef,1}
+    ret::Dict{AbstractString,AbstractString} # map entry
     FunctionDef(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
 end #type FunctionDef
 hash(v::FunctionDef) = ProtoBuf.protohash(v)
@@ -52,5 +63,5 @@ hash(v::FunctionDefLibrary) = ProtoBuf.protohash(v)
 isequal(v1::FunctionDefLibrary, v2::FunctionDefLibrary) = ProtoBuf.protoisequal(v1, v2)
 ==(v1::FunctionDefLibrary, v2::FunctionDefLibrary) = ProtoBuf.protoeq(v1, v2)
 
-export FunctionDefLibrary, FunctionDef_Node_AttrEntry, FunctionDef_Node, FunctionDef, GradientDef
-# mapentries: Pair{AbstractString,Tuple{AbstractString,AbstractString}}("FunctionDef_Node_AttrEntry",("AbstractString","AttrValue"))
+export FunctionDefLibrary, FunctionDef_Node_AttrEntry, FunctionDef_Node, FunctionDef_RetEntry, FunctionDef, GradientDef
+# mapentries: Pair{AbstractString,Tuple{AbstractString,AbstractString}}("FunctionDef_RetEntry",("AbstractString","AbstractString")), Pair{AbstractString,Tuple{AbstractString,AbstractString}}("FunctionDef_Node_AttrEntry",("AbstractString","AttrValue"))
