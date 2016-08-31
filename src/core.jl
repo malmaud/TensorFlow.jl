@@ -352,7 +352,7 @@ type NodeDescription
     graph::Graph
 
     function NodeDescription(graph, op_type, node_name)
-        desc = ccall((:TF_NewNode), Ptr{Void}, (Ptr{Void}, Cstring, Cstring), graph.ptr, op_type, node_name)
+        desc = ccall((:TF_NewOperation), Ptr{Void}, (Ptr{Void}, Cstring, Cstring), graph.ptr, op_type, node_name)
         new(desc, graph)
     end
 
@@ -385,7 +385,7 @@ function Operation(desc::NodeDescription)
     self = Operation()
     self.filled_in = false
     status = Status()
-    ptr = ccall((:TF_FinishNode), Ptr{Void}, (Ptr{Void}, Ptr{Void}), desc.ptr, status.ptr)
+    ptr = ccall((:TF_FinishOperation), Ptr{Void}, (Ptr{Void}, Ptr{Void}), desc.ptr, status.ptr)
     check_status(status)
     self.ptr = ptr
     self.graph = Nullable(desc.graph)
@@ -543,13 +543,13 @@ end
 
 Returns the name of a node in the computation graph.
 """
-node_name(node::AbstractOperation) = ccall((:TF_NodeName), Cstring, (Ptr{Void},), Operation(node).ptr) |> unsafe_string
+node_name(node::AbstractOperation) = ccall((:TF_OperationName), Cstring, (Ptr{Void},), Operation(node).ptr) |> unsafe_string
 
 
 function get_attr_value_proto(node::Operation, attr_name)
     buf = Buffer()
     status = Status()
-    ccall(:TF_NodeGetAttrValueProto, Void, (Ptr{Void}, Cstring, Ptr{Void}, Ptr{Void}), node.ptr, attr_name, buf.ptr, status.ptr)
+    ccall(:TF_OperationGetAttrValueProto, Void, (Ptr{Void}, Cstring, Ptr{Void}, Ptr{Void}), node.ptr, attr_name, buf.ptr, status.ptr)
     check_status(status)
     proto = Array(buf)
     b = IOBuffer()
@@ -781,7 +781,7 @@ end
 function get_proto(node::Operation)
     output = Buffer()
     status = Status()
-    ccall(:TF_NodeToNodeDef, Void, (Ptr{Void}, Ptr{Void}, Ptr{Void}), node.ptr, output.ptr, status.ptr)
+    ccall(:TF_OperationToNodeDef, Void, (Ptr{Void}, Ptr{Void}, Ptr{Void}), node.ptr, output.ptr, status.ptr)
     check_status(status)
     convert(Array, output)
 end
@@ -872,7 +872,7 @@ Returns an operation by searching for its name in the given graph.
 """
 function get_node_by_name(graph::Graph, name::AbstractString)
     name, port = parse_port_name(name)
-    node_ptr = ccall(:TF_GraphNodeByName, Ptr{Void}, (Ptr{Void}, Cstring), graph.ptr, name)
+    node_ptr = ccall(:TF_GraphOperationByName, Ptr{Void}, (Ptr{Void}, Cstring), graph.ptr, name)
     if node_ptr == C_NULL
         return Nullable{Operation}()
     else
