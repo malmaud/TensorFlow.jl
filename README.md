@@ -27,6 +27,21 @@ res = run(sess, w, Dict(z=>Float64[1,2]))
 @test res[1] ≈ exp(-1)
 ```
 
+## Installation
+
+Install via
+
+```julia
+Pkg.add("TensorFlow")
+```
+
+To enable support for GPU usage (Linux only), set an environment variable `TF_USE_GPU` to "1" and then rebuild the package. eg
+
+```julia
+ENV["TF_USE_GPU"] = "1"
+Pkg.build("TensorFlow")
+```
+
 ## Logistic regression example
 
 Realistic demonstration of using variable scopes and advanced optimizers

@@ -19,7 +19,12 @@ end
 end
 
 @static if is_linux()
-    r = Requests.get("https://storage.googleapis.com/malmaud-stuff/tensorflow-linux.zip")
+    if "TF_USE_GPU" ∈ keys(ENV) && ENV["TF_USE_GPU"] == "1"
+        url = "https://storage.googleapis.com/malmaud-stuff/tensorflow-linux.zip"
+    else
+        url = "https://storage.googleapis.com/malmaud-stuff/tensorflow_linux_cpu.zip"
+    end
+    r = Requests.get(url)
     open(joinpath(base, "downloads/tensorflow.zip"), "w") do file
         write(file, r.data)
     end
