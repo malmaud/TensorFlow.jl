@@ -19,7 +19,7 @@ type BasicRNNCell <: RNNCell
 end
 
 function zero_state(cell::RNNCell, batch_size, T)
-    zeros(Operation, T, (batch_size, state_size(cell)))
+    zeros(Tensor, T, (batch_size, state_size(cell)))
 end
 
 output_size(cell::BasicRNNCell) = cell.hidden_size
@@ -32,7 +32,7 @@ function (cell::BasicRNNCell)(input, state)
     T = eltype(state)
     W = get_variable("weights", [N, cell.hidden_size], T)
     B = get_variable("bias", [cell.hidden_size], T)
-    X = cat(Operation, 2, input, state)
+    X = cat(Tensor, 2, input, state)
     activity = tanh(X*W + B)
     return [activity, activity]
 end
@@ -55,15 +55,15 @@ end
 state_size(cell::LSTMCell) = LSTMStateTuple(cell.hidden_size, cell.hidden_size)
 
 function zero_state(cell::LSTMCell, batch_size, T)
-    LSTMStateTuple(zeros(Operation, T, (batch_size, cell.hidden_size)),
-        zeros(Operation, T, (batch_size, cell.hidden_size)))
+    LSTMStateTuple(zeros(Tensor, T, (batch_size, cell.hidden_size)),
+        zeros(Tensor, T, (batch_size, cell.hidden_size)))
 end
 
 function (cell::LSTMCell)(input, state)
     shape = get_shape(input)
     N = shape[2] + cell.hidden_size
     T = eltype(state)
-    X = cat(Operation, 2, input, state.h)
+    X = cat(Tensor, 2, input, state.h)
 
     Wi = get_variable("Wi", [N, cell.hidden_size], T)
     Wf = get_variable("Wf", [N, cell.hidden_size], T)
@@ -97,7 +97,7 @@ function (cell::GRUCell)(input, state)
     T = eltype(state)
     shape = get_shape(input)
     N = shape[2] + cell.hidden_size
-    X = cat(Operation, 2, input, state)
+    X = cat(Tensor, 2, input, state)
     Wz = get_variable("Wz", [N, cell.hidden_size], T)
     Wr = get_variable("Wr", [N, cell.hidden_size], T)
     Wh = get_variable("Wh", [N, cell.hidden_size], T)
@@ -106,7 +106,7 @@ function (cell::GRUCell)(input, state)
     Bh = get_variable("Bh", [cell.hidden_size], T)
     z = sigmoid(X*Wz + Bz)
     r = sigmoid(X*Wr + Br)
-    X2 = cat(Operation, 2, input, state.*r)
+    X2 = cat(Tensor, 2, input, state.*r)
     h = sigmoid(X2*Wh + Bh)
     s2 = (1-z).*h + z.*state
     return [s2, s2]

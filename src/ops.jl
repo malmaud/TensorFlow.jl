@@ -218,7 +218,7 @@ end
 function concat(dim, values; name="")
     desc = NodeDescription(get_def_graph(), "Concat", get_name(name))
     add_input(desc, Tensor(convert_number(Int32, dim)))
-    add_input(desc, [Tensor(_, 1) for _ in values])
+    add_input(desc, [Tensor(_) for _ in values])
     desc["N"] = length(values)
     Tensor(Operation(desc), 1)
 end
