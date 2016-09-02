@@ -54,8 +54,7 @@ for (bin_op, jl_func_name, tf_func_name) in [
     (:(.*), :mul, "Mul"),
     (:*, :matmul, "MatMul"),
     (:/, :div, "Div"),
-    (:^, :pow, "Pow"),
-    (:(.==), :equal, "Equal")]
+    (:^, :pow, "Pow")]
     @eval function $jl_func_name(n1::AbstractTensor, n2::AbstractTensor; name="")
         n1 = Tensor(n1)
         n2 = Tensor(n2)
@@ -312,3 +311,4 @@ include("nn.jl")
 include("image.jl")
 include("ops/control_flow.jl")
 include("ops/logical.jl")
+include("ops/comparison.jl")
