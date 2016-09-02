@@ -18,7 +18,7 @@ softmax,
 sigmoid,
 tanh
 
-import ..TensorFlow: Operation, NodeDescription, get_def_graph, capitalize, add_input, Port, get_name, set_attr_list, get_shape, variable_scope, shape, random_uniform, AbstractTensor, Tensor, @not_implemented
+import ..TensorFlow: Operation, NodeDescription, get_def_graph, capitalize, add_input, Port, get_name, set_attr_list, get_shape, variable_scope, shape, random_uniform, AbstractTensor, Tensor, reduce_sum, @not_implemented
 
 for f in [:relu, :relu6, :elu, :softplus, :softsign, :softmax, :sigmoid, :tanh]
     @eval function $f(n::AbstractTensor; name="")
@@ -104,6 +104,9 @@ end
 
 end
 
+@not_implemented function log_softmax()
+end
+
 function embedding_lookup(params, ids; partition_strategy="mod", name="", validate_indices=true)
     if ndims(params) > 0
         error("Embedding lookup across multiple parameter tensors not supported yet")
@@ -118,6 +121,23 @@ end
 end
 
 @not_implemented function in_top_k()
+end
+
+function l2_loss(t, name="")
+    reduce_sum(t.*t)
+end
+
+@not_implemented function log_poisson_loss()
+
+end
+
+@not_implemented function nce_loss()
+end
+
+@not_implemented function sampled_softmax_loss()
+end
+
+@not_implemented function batch_normalization()
 end
 
 end
