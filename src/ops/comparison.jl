@@ -30,3 +30,17 @@ for (func, sym) in [
     @eval $sym(t1::AbstractTensor, t2::AbstractTensor) = $func(t1, t2)
 
 end
+
+function Base.select(condition::AbstractTensor, t, e; name="")
+    desc = NodeDescription("Select", get_name(name))
+    add_input(desc, Tensor(condition))
+    add_input(desc, Tensor(t))
+    add_input(desc, Tensor(e))
+    Node(Operation(desc))
+end
+
+function where(input; name="")
+    desc = NodeDescription("Where", get_name(name))
+    add_input(desc, Tensor(input))
+    Tensor(Operation(desc))
+end
