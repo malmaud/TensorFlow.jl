@@ -44,3 +44,5 @@ function where(input; name="")
     add_input(desc, Tensor(input))
     Tensor(Operation(desc))
 end
+
+Base.ifelse(input::AbstractTensor) = where(input)

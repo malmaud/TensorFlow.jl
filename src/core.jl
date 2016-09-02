@@ -483,15 +483,20 @@ function Operation(node_def::tensorflow.NodeDef)
         add_input(desc, inputs)
     else
         for (input_idx, input) in enumerate(node_def.input)
+            input_kind = :normal
             if input[1] == '^'
-                continue
+                input_kind = :control
             end
             input, port = parse_port_name(input)
             input_node = get_node_by_name(graph, input)
             if isnull(input_node)
                 warn("Could not find name $input")
             end
-            add_input(desc, Tensor(input_node |> get, port))
+            if input_kind == :normal
+                add_input(desc, Tensor(input_node |> get, port))
+            elseif input_kind == :control
+                add_input(desc, input_node |> get)
+            end
         end
     end
     if isdefined(node_def, :attr)  # TODO: complete this
@@ -640,6 +645,12 @@ function add_input(desc::NodeDescription, inputs::Vector{Tensor})
     inputs = map(Port, inputs)
     ccall((:TF_AddInputList), Void, (Ptr{Void}, Ptr{Void}, Cint), desc.ptr, inputs, length(inputs))
 end
+
+function add_control_input(desc::NodeDescription, op::Operation)
+    ccall(:TF_AddControlInput, Void, (Ptr{Void}, Ptr{Void}), desc.ptr, op.ptr)
+end
+
+add_control_input(desc::NodeDescription, t::Tensor) = add_control_input(desc, t.op)
 
 function setindex!(desc::NodeDescription, tensor::RawTensor, attr_name)
     status = Status()

@@ -1,5 +1,17 @@
 import Base: log, exp, +, -, *, /, .*, .+, ./, .-, ^, .^, sin, cos, tan, asin, acos, atan, div, tanh, sqrt, floor, .==
 
+macro not_implemented(f)
+    if f.head != :function
+        error("Invalid use of not_implemented")
+    end
+    func_name = f.args[1].args[1]
+    quote
+        function $func_name(args...; kwargs...)
+            error("Not implemented yet")
+        end
+    end
+end
+
 const name_idx = Ref{Int}(1)
 
 function capitalize(s)

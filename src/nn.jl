@@ -18,7 +18,7 @@ softmax,
 sigmoid,
 tanh
 
-import ..TensorFlow: Operation, NodeDescription, get_def_graph, capitalize, add_input, Port, get_name, set_attr_list, get_shape, variable_scope, shape, random_uniform, AbstractTensor, Tensor
+import ..TensorFlow: Operation, NodeDescription, get_def_graph, capitalize, add_input, Port, get_name, set_attr_list, get_shape, variable_scope, shape, random_uniform, AbstractTensor, Tensor, @not_implemented
 
 for f in [:relu, :relu6, :elu, :softplus, :softsign, :softmax, :sigmoid, :tanh]
     @eval function $f(n::AbstractTensor; name="")
@@ -77,8 +77,8 @@ function rnn(cell, inputs; initial_state=nothing, dtype=nothing, sequence_length
     return outputs, state
 end
 
-function dynamic_rnn(cell, inputs; sequence_length=nothing, initial_state=nothing, dtype=nothing, parallel_iterations=nothing, swap_memory=false, time_major=false, scope="RNN")
-    error("Not implemented yet")
+@not_implemented function dynamic_rnn(cell, inputs; sequence_length=nothing, initial_state=nothing, dtype=nothing, parallel_iterations=nothing, swap_memory=false, time_major=false, scope="RNN")
+
 end
 
 function dropout(x, keep_prob; noise_shape=nothing, seed=0, name="")
