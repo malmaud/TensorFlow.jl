@@ -120,3 +120,11 @@ logical_xor
 ```
 
 ## Control flow
+
+```@docs
+identity
+make_tuple
+group
+no_op
+cond
+```
