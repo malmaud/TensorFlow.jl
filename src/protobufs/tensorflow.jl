@@ -13,4 +13,6 @@ module tensorflow
   include("tensor_description_pb.jl")
   include("step_stats_pb.jl")
   include("config_pb.jl")
+  include("summary_pb.jl")
+  include("event_pb.jl")
 end
