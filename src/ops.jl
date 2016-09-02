@@ -153,13 +153,7 @@ for reduction in [:sum, :prod, :min, :max, :all, :any, :mean]
     end
 end
 
-function Base.reshape(n::AbstractTensor, dims; name="")
-    dims = Int32[dims...]
-    desc = NodeDescription(get_def_graph(), "Reshape",  get_name(name))
-    add_input(desc, n)
-    add_input(desc, Tensor(dims))
-    Tensor(Operation(desc), 1)
-end
+
 
 function Base.fill(n::AbstractTensor, dims::AbstractTensor; name="")
     desc = NodeDescription("Fill", get_name(name))
@@ -195,46 +189,8 @@ function Base.range(::Type{Tensor}, start; limit=nothing, delta=1, name="")
     Tensor(Operation(desc), 1)
 end
 
-function Base.rank(n::AbstractTensor; name="")
-    desc = NodeDescription("Rank", get_name(name))
-    add_input(desc, Tensor(n))
-    Tensor(Operation(desc), 1)
-end
+f
 
-function Base.size(n::AbstractTensor; name="")
-    desc = NodeDescription(get_def_graph(), "Size", get_name(name))
-    add_input(desc, Tensor(n))
-    Tensor(Operation(desc), 1)
-end
-
-Base.length(::Type{Tensor}, n::AbstractTensor; name="") = size(n, name)
-
-function Base.slice(n::AbstractTensor, begin_, size_; name="")
-    desc = NodeDescription(get_def_graph(), "Slice", get_name(name))
-    add_input(desc, Tensor(n))
-    add_input(desc, cast(Tensor(begin_), Int32))
-    add_input(desc, cast(Tensor(size_), Int32))
-    Tensor(Operation(desc), 1)
-end
-
-function Base.split(split_dim, num_split, value::AbstractTensor; name="")
-    desc = NodeDescription("Split", get_name(name))
-    add_input(desc, Tensor(convert_number(Int32, split_dim))-1)
-    add_input(desc, Tensor(value))
-    desc["num_split"] = num_split
-    op = Operation(desc)
-    [Tensor(op, _) for _ in 1:num_split]
-end
-
-function concat(dim, values; name="")
-    desc = NodeDescription(get_def_graph(), "Concat", get_name(name))
-    add_input(desc, Tensor(convert_number(Int32, dim)))
-    add_input(desc, [Tensor(_) for _ in values])
-    desc["N"] = length(values)
-    Tensor(Operation(desc), 1)
-end
-
-Base.cat(::Type{Tensor}, dim, values...) = concat(dim-1, values)
 
 function read_file(filename; name="")
     desc = NodeDescription("ReadFile", get_name(name))
@@ -244,20 +200,6 @@ end
 
 Base.read(::Type{Tensor}, filename) = read_file(filename)
 
-function pack(nodes; axis=0, name="")
-    desc = NodeDescription("Pack", get_name(name))
-    add_input(desc, [Tensor(Operation(_), 1) for _ in nodes])
-    desc["N"] = length(nodes)
-    desc["axis"] = axis
-    Tensor(Operation(desc), 1)
-end
-
-function expand_dims(input, dim; name="")
-    desc = NodeDescription("ExpandDims", get_name(name))
-    add_input(desc, Tensor(input))
-    add_input(desc, Tensor(convert_number(Int32,dim)))
-    Tensor(Operation(desc), 1)
-end
 
 
 function argmin(n::AbstractTensor, dim; name="")
@@ -290,16 +232,7 @@ end
 
 Base.ones(::Type{Tensor}, shape) = ones(Tensor, Float32, shape)
 
-function one_hot(indices, depth; on_value=Float32(1), off_value=Float32(0), axis=-1, dtype=Float32, name="")
-    desc = NodeDescription("OneHot", get_name(name))
-    add_input(desc, Tensor(indices))
-    add_input(desc, Tensor(Int32(depth)))
-    add_input(desc, Tensor(dtype(on_value)))
-    add_input(desc, Tensor(dtype(off_value)))
-    desc["axis"] = axis
-    desc["T"] = dtype
-    Tensor(Operation(desc), 1)
-end
+
 
 function random_uniform(shape; name="", seed=0, dtype=Float32)
     desc = NodeDescription("RandomUniform", get_name(name))
@@ -311,16 +244,11 @@ function random_uniform(shape; name="", seed=0, dtype=Float32)
     Tensor(Operation(desc), 1)
 end
 
-function cast(x::Tensor, dtype; name="")
-    desc = NodeDescription("Cast",get_name(name))
-    add_input(desc, x)
-    desc["DstT"] = dtype
-    # desc["SrcT"] = eltype(x)
-    Tensor(Operation(desc), 1)
-end
 
-include("nn.jl")
-include("image.jl")
+
+include("ops/nn.jl")
+include("ops/image.jl")
 include("ops/control_flow.jl")
 include("ops/logical.jl")
 include("ops/comparison.jl")
+include("ops/transformations.jl")

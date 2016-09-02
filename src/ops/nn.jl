@@ -81,6 +81,12 @@ end
 
 end
 
+@not_implemented function state_saving_rnn()
+end
+
+@not_implemented function bidirectional_rnn()
+end
+
 function dropout(x, keep_prob; noise_shape=nothing, seed=0, name="")
     keep_prob = Tensor(keep_prob)
     x_scaled = x/keep_prob
@@ -89,6 +95,29 @@ function dropout(x, keep_prob; noise_shape=nothing, seed=0, name="")
     end
     r = random_uniform(noise_shape, seed=seed, dtype=eltype(x))
     y = x_scaled .* floor(keep_prob+r)
+end
+
+@not_implemented function sigmoid_cross_entropy_with_logits()
+end
+
+@not_implemented function sparse_softmax_cross_entropy_with_logits()
+
+end
+
+function embedding_lookup(params, ids; partition_strategy="mod", name="", validate_indices=true)
+    if ndims(params) > 0
+        error("Embedding lookup across multiple parameter tensors not supported yet")
+    end
+    gather(params, id; name=name)
+end
+
+@not_implemented function embedding_lookup_sparse()
+end
+
+@not_implemented function top_k()
+end
+
+@not_implemented function in_top_k()
 end
 
 end
