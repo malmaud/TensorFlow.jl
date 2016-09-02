@@ -486,6 +486,7 @@ function Operation(node_def::tensorflow.NodeDef)
             input_kind = :normal
             if input[1] == '^'
                 input_kind = :control
+                input = input[2:end]
             end
             input, port = parse_port_name(input)
             input_node = get_node_by_name(graph, input)
@@ -495,7 +496,7 @@ function Operation(node_def::tensorflow.NodeDef)
             if input_kind == :normal
                 add_input(desc, Tensor(input_node |> get, port))
             elseif input_kind == :control
-                add_input(desc, input_node |> get)
+                add_control_input(desc, input_node |> get)
             end
         end
     end
