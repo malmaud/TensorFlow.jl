@@ -46,6 +46,7 @@ type Graph
         ptr = ccall((:TF_NewGraph), Ptr{Void}, ())
         collections = Dict{Symbol, Any}()
         collections[:Variables] = []
+        collections[:TrainableVariables] = []
         self = new(ptr, collections)
         finalizer(self, self->begin
             ccall((:TF_DeleteGraph), Void, (Ptr{Void},), self.ptr)
@@ -381,8 +382,6 @@ type Operation <: AbstractOperation
     filled_in::Bool
 
     Operation() = new()
-
-
 end
 
 function Operation(desc::NodeDescription)

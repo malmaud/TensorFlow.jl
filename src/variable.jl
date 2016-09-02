@@ -7,7 +7,7 @@ type Variable <: AbstractTensor
     Variable() = new()
 end
 
-function Variable(initial_value; name="")
+function Variable(initial_value; name="", trainable=true)
     self = Variable()
 
     name = get_name(name)
@@ -22,6 +22,9 @@ function Variable(initial_value; name="")
     add_input(desc, t)
     self.assign_node = Operation(desc)
     add_to_collection(:Variables, self)
+    if trainable
+        add_to_collection(:TrainableVariables, self)
+    end
     return self
 end
 
@@ -77,7 +80,7 @@ function variable_scope(f, name; kwargs...)
     end
 end
 
-function get_variable(var_name, shape, dtype; kwargs...)
+function get_variable(var_name, shape, dtype; trainable=true, kwargs...)
     scope = make_scope(var_name; kwargs...)
     push!(scope_stack, scope)
     name = join([get(_.name) for _ in scope_stack], "/")
@@ -104,7 +107,7 @@ function get_variable(var_name, shape, dtype; kwargs...)
             else
                 iv = rand(initializer, 1)[1]
             end
-            v = Variable(map(dtype, iv), name=name)
+            v = Variable(map(dtype, iv), name=name, trainable=trainable)
         end
     finally
         pop!(scope_stack)

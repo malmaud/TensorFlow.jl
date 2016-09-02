@@ -28,7 +28,7 @@ end
 
 function compute_gradients(optimizer::Optimizer, loss, var_list=nothing)
     if var_list === nothing
-        var_list = get_def_graph().collections[:Variables]
+        var_list = get_def_graph().collections[:TrainableVariables]
     end
     zip(gradients(loss, var_list), var_list) |> collect
 end
@@ -72,7 +72,7 @@ function apply_gradients(optimizer::MomentumOptimizer, grads_and_vars; global_st
         local momentum
         variable_scope(name) do
             variable_scope(node_name(var)) do
-                momentum = get_variable("momentum", get_shape(var), eltype(var), initializer=ConstantInitializer(0.0))
+                momentum = get_variable("momentum", get_shape(var), eltype(var), initializer=ConstantInitializer(0.0), trainable=false)
             end
         end
         step = -optimizer.learning_rate .* grad + optimizer.momentum .* momentum
@@ -99,8 +99,8 @@ function apply_gradients(optimizer::AdamOptimizer, grads_and_vars; global_step=n
         local m, v
         variable_scope(name) do
             variable_scope(node_name(var)) do
-                m = get_variable("m", get_shape(var), eltype(var), initializer=ConstantInitializer(0.0))
-                v = get_variable("v", get_shape(var), eltype(var), initializer=ConstantInitializer(0.0))
+                m = get_variable("m", get_shape(var), eltype(var), initializer=ConstantInitializer(0.0), trainable=false)
+                v = get_variable("v", get_shape(var), eltype(var), initializer=ConstantInitializer(0.0), trainable=false)
             end
         end
         β1 = eltype(var)(optimizer.β1)
@@ -126,7 +126,7 @@ end
 
 function Saver(;var_list=nothing, max_to_keep=5)
     if var_list === nothing
-        var_list = get_collection(:Variables)
+        var_list = get_collection(:TrainableVariables)
     end
     placeholders = Dict()
     restore_ops = []
