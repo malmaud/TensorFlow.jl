@@ -310,3 +310,5 @@ end
 
 include("nn.jl")
 include("image.jl")
+include("ops/control_flow.jl")
+include("ops/logical.jl")
