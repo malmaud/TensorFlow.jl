@@ -1,7 +1,9 @@
 using PyCall
 try
     global py_tf
+    global pywrap_tensorflow
     @pyimport tensorflow as py_tf
+    @pyimport tensorflow.python.pywrap_tensorflow as pywrap_tensorflow
 catch err
     error("The Python TensorFlow package could not be imported. You must install Python TensorFlow before using this package.")
 end
@@ -46,4 +48,23 @@ function py_gradients(jl_graph_proto, x_names, y_name)
     py_graph_def = py_graph[:as_graph_def]()
     grad_names = [_[:name] for _ in grad_node]
     return to_protos(py_graph_def), grad_names
+end
+
+const events_writer = Ref{PyObject}()
+
+function open_events_file(path)
+    events_writer[] = pywrap_tensorflow.EventsWriter(path)
+end
+
+function write_event(event_proto)
+    event = py_tf.Event()
+    event[:ParseFromString](py_bytes(event_proto))
+    writer = events_writer[]
+    writer[:WriteEvent](event)
+    writer[:Flush]()
+end
+
+function close_events_file()
+    writer = events_writer[]
+    writer[:Close]()
 end

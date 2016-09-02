@@ -13,4 +13,6 @@ module tensorflow
   include("protobufs/tensor_description_pb.jl")
   include("protobufs/step_stats_pb.jl")
   include("protobufs/config_pb.jl")
+  include("protobufs/summary_pb.jl")
+  include("protobufs/event_pb.jl")
 end
