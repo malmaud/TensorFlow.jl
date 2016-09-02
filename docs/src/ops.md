@@ -38,10 +38,17 @@ reduce_any
 reduce_mean
 ```
 
-## Control flow
+## Comparisons
 
 ```@docs
 equal
+not_equal
+less
+less_equal
+greater
+greater_equal
+select
+where
 ```
 
 ## Images
@@ -59,6 +66,12 @@ image.resize_images
 ```@docs
 nn.conv2d
 nn.max_pool
+```
+
+### Embeddings
+
+```@docs
+embedding_lookup
 ```
 
 ### Recurrent neural nets
@@ -83,3 +96,27 @@ nn.softmax
 nn.sigmoid
 nn.tanh
 ```
+
+### Losses
+
+```@docs
+nn.l2_loss
+```
+
+### Regularizations
+
+```@docs
+nn.dropout
+```
+
+
+## Logic
+
+```@docs
+logical_and
+logical_not
+logical_or
+logical_xor
+```
+
+## Control flow

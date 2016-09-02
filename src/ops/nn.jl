@@ -16,7 +16,21 @@ softplus,
 softsign,
 softmax,
 sigmoid,
-tanh
+tanh,
+state_saving_rnn,
+bidirectional_rnn,
+sigmoid_cross_entropy_with_logits,
+sparse_softmax_cross_entropy_with_logits,
+log_softmax,
+embedding_lookup,
+top_k,
+in_top_k,
+l2_loss,
+log_poisson_loss,
+nce_loss,
+sampled_softmax_loss,
+batch_normalization
+
 
 import ..TensorFlow: Operation, NodeDescription, get_def_graph, capitalize, add_input, Port, get_name, set_attr_list, get_shape, variable_scope, shape, random_uniform, AbstractTensor, Tensor, reduce_sum, @not_implemented
 
@@ -124,7 +138,7 @@ end
 end
 
 function l2_loss(t, name="")
-    reduce_sum(t.*t)
+    reduce_sum(t.*t; name=name)
 end
 
 @not_implemented function log_poisson_loss()

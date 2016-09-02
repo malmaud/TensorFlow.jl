@@ -42,7 +42,26 @@ reduce_max,
 reduce_all,
 reduce_any,
 reduce_mean,
-equal
+equal,
+not_equal,
+less_equal,
+greater,
+greater_equal,
+logical_and,
+logical_not,
+logical_or,
+logical_xor,
+strided_slice,
+unpack,
+tile,
+pad,
+gather,
+gather_nd,
+dynamic_partition,
+dynamic_stitch,
+boolean_mask,
+where
+
 
 function __init__()
     if myid() == 1
