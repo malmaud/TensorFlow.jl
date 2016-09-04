@@ -47,6 +47,7 @@ type Graph
         collections = Dict{Symbol, Any}()
         collections[:Variables] = []
         collections[:TrainableVariables] = []
+        collections[:Summaries] = []
         self = new(ptr, collections)
         finalizer(self, self->begin
             ccall((:TF_DeleteGraph), Void, (Ptr{Void},), self.ptr)

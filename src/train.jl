@@ -175,4 +175,6 @@ function restore(saver::Saver, session::Session, save_path)
     run(session, saver.restore_ops, d)
 end
 
+include("summary_writer.jl")
+
 end
