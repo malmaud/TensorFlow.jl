@@ -728,6 +728,7 @@ function run(sess::Session, inputs, input_values, outputs, targets)
 end
 
 function run(sess::Session, outputs::AbstractVector, input_dict)
+    isempty(outputs) && return []
     inputs = Port[]
     input_values = []
     for (input, value) in input_dict
