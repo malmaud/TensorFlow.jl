@@ -612,6 +612,14 @@ type Tensor <: AbstractTensor
     value_index::Int
 end
 
+function Base.isequal(t1::Tensor, t2::Tensor)
+    t1.op.ptr == t2.op.ptr && t1.value_index==t2.value_index
+end
+
+function Base.hash(t::Tensor, h::UInt64)
+    hash(t.op.ptr, hash(t.value_index, h))
+end
+
 function Base.show(io::IO, t::Tensor)
     local dtype
     try
@@ -735,8 +743,33 @@ function run(sess::Session, outputs::AbstractVector, input_dict)
         push!(inputs, Port(input))
         push!(input_values, map(eltype(input), value))
     end
-    output_ports = map(Port, outputs)
-    run(sess, inputs, input_values, output_ports, [])
+    real_outputs = Tensor[]
+    targets = Ptr{Void}[]
+    output_map = Dict{Tensor, Tuple{Symbol, Int}}()
+    for output in outputs
+        if haskey(output_map, output)
+            continue
+        elseif num_outputs(output.op) == 0
+            push!(targets, output.op.ptr)
+            output_map[output] = (:target, length(targets))
+        else
+            push!(real_outputs, output)
+            output_map[output] = (:output, length(real_outputs))
+        end
+    end
+    output_ports = map(Port, real_outputs)
+    result = run(sess, inputs, input_values, output_ports, targets)
+    result_vec = Any[]
+    for i in 1:length(outputs)
+        push!(result_vec, [])
+    end
+    for (idx, output) in enumerate(outputs)
+        kind, pos = output_map[output]
+        if kind == :output
+            result_vec[idx] =  result[pos]
+        end
+    end
+    return result_vec
 end
 
 """
@@ -963,3 +996,7 @@ function get_device(op::Operation)
 end
 
 get_device(t::Tensor) = get_device(t.op)
+
+function num_outputs(op::Operation)
+    ccall(:TF_OperationNumOutputs, Cint, (Ptr{Void},), op.ptr) |> Int
+end
