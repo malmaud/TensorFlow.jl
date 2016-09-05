@@ -45,7 +45,7 @@ Base.setindex!(v::Variable, value) = assign(v, value)
 Base.convert(::Type{Tensor}, v::Variable) = Tensor(v.var_node, 1)
 
 function initialize_all_variables()
-    return [var.assign_node for var in get_collection(:Variables)]
+    return group([Tensor(var.assign_node) for var in get_collection(:Variables)]...)
 end
 
 run(sess::Session, var::Variable) = run(sess, Tensor(var))

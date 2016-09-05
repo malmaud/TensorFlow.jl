@@ -749,8 +749,8 @@ function run(sess::Session, outputs::AbstractVector, input_dict)
     for output in outputs
         if haskey(output_map, output)
             continue
-        elseif num_outputs(output.op) == 0
-            push!(targets, output.op.ptr)
+        elseif num_outputs(get_op(output)) == 0
+            push!(targets, get_op(output).ptr)
             output_map[output] = (:target, length(targets))
         else
             push!(real_outputs, output)
@@ -1000,3 +1000,6 @@ get_device(t::Tensor) = get_device(t.op)
 function num_outputs(op::Operation)
     ccall(:TF_OperationNumOutputs, Cint, (Ptr{Void},), op.ptr) |> Int
 end
+
+get_op(op::Operation) = op
+get_op(t::AbstractTensor) = Tensor(t).op

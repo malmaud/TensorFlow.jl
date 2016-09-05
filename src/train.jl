@@ -14,7 +14,7 @@ restore
 using JLD
 using FileIO
 
-import ..TensorFlow: Operation, get_def_graph, gradients, assign, variable_scope, ConstantInitializer, node_name, get_variable, get_shape, get_collection, Session, placeholder, Tensor, cast
+import ..TensorFlow: Operation, get_def_graph, gradients, assign, variable_scope, ConstantInitializer, node_name, get_variable, get_shape, get_collection, Session, placeholder, Tensor, cast, group
 
 abstract Optimizer
 
@@ -54,7 +54,7 @@ function apply_gradients(optimizer::GradientDescentOptimizer, grads_and_vars; gl
         push!(ops, assign(var, var - cast(optimizer.learning_rate, eltype(var)).*grad))
     end
     @advance_step
-    return ops
+    return group(ops...)
 end
 
 type MomentumOptimizer <: Optimizer
@@ -79,7 +79,7 @@ function apply_gradients(optimizer::MomentumOptimizer, grads_and_vars; global_st
         push!(ops, assign(var, var + step))
         push!(ops, assign(momentum, step))
     end
-    return ops
+    return group(ops...)
 end
 
 type AdamOptimizer <: Optimizer
@@ -114,7 +114,7 @@ function apply_gradients(optimizer::AdamOptimizer, grads_and_vars; global_step=n
         push!(ops, assign(m, m_new))
         push!(ops, assign(v, v_new))
     end
-    return ops
+    return group(ops...)
 end
 
 type Saver
