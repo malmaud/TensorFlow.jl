@@ -12,7 +12,13 @@ end
 @not_implemented function audio_summary()
 end
 
-@not_implemented function histogram_summary()
+function histogram_summary(tag, values; collections=[:Summaries], name="")
+    desc = NodeDescription("HistogramSummary", get_name(name))
+    add_input(desc, Tensor(tag))
+    add_input(desc, Tensor(values))
+    t = Tensor(Operation(desc))
+    foreach(c->add_to_collection(c, t), collections)
+    t
 end
 
 function merge_summary(inputs; collections=[:Summaries], name="")
@@ -29,5 +35,10 @@ function merge_all_summaries(key=:Summaries)
     merge_summary(get_collection(:Summaries), collections=[])
 end
 
-@not_implemented function image_summary()
+function image_summary(tag, tensor; max_images=3, collections=[:Summaries], name="")
+    desc = NodeDescription("ImageSummary")
+    add_input(desc, tag)
+    add_input(desc, tensor)
+    desc["max_images"] = Int64(max_images)
+    
 end
