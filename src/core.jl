@@ -291,20 +291,31 @@ function varint_decode(b::IO)
     return n
 end
 
-function RawTensor(data::String)
-    # TODO: Support arrays of strings
+function RawTensor(data::Array{String}, is_scalar=false)
+    if is_scalar
+        dims = Cint[]
+    else
+        dims = Cint[size(data)...]
+    end
+    data = convert_major_order(data)
+    b_data = IOBuffer()
     b = IOBuffer()
-    write(b, UInt64(0))
-    varint_encode(b, sizeof(data))
-    write(b, data.data)
+    cur_pos = 0
+    for str in data
+        write(b, UInt64(length(b_data.data)))
+        varint_encode(b_data, sizeof(str))
+        write(b_data, str.data)
+    end
+    seekstart(b_data)
+    write(b, read(b_data))
     seekstart(b)
     data_encoded = read(b)
-    dims = Cint[]
+    info(data_encoded)
     dt = jl_to_df_type(String)
-    ptr = ccall(:TF_NewTensor, Ptr{Void}, (Cint, Ptr{Int64}, Cint, Ptr{Void}, Csize_t, Ptr{Void}, Ptr{Void}),
+    ptr = ccall(:TF_NewTensor, Ptr{Void}, (Cint, Ptr{Cint}, Cint, Ptr{Void}, Csize_t, Ptr{Void}, Ptr{Void}),
         Int(dt),
         dims,
-        0,
+        length(dims),
         data_encoded,
         length(data_encoded),
         c_deallocator,
@@ -318,6 +329,9 @@ function RawTensor(data::String)
     return t
 end
 
+function RawTensor(data::String)
+    RawTensor([data], true)
+end
 
 function Base.show(io::IO, t::RawTensor)
     print(io, "RawTensor: ")
@@ -807,13 +821,18 @@ function Base.convert(::Type{Array}, t::RawTensor)
     dims = ndims(t)
     data = ccall(:TF_TensorData, Ptr{eltype(t)}, (Ptr{Void},), t.ptr)
     if eltype(t) == String
+        d = size(t) |> reverse
+        out = String[]
         array = unsafe_wrap(Array, convert(Ptr{UInt8}, data), sizeof(t))
         b = IOBuffer(array)
         seekstart(b)
-        offset = read(b, UInt64)
-        len = varint_decode(b)
-        raw_data = read(b, UInt8, len)
-        [String(raw_data)]
+        read(b, UInt64, prod(d))  # The offsets
+        for i in 1:prod(d)
+            len = varint_decode(b)
+            raw_data = read(b, UInt8, len)
+            push!(out, String(raw_data))
+        end
+        convert_major_order(reshape(out, d))
     else
         if dims > 0
             convert_major_order(unsafe_wrap(Array, data, size(t)|>reverse))

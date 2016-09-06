@@ -1,3 +1,5 @@
+import ..TensorFlow: tensorflow, Graph
+
 type SummaryWriter
     log_dir::String
     SummaryWriter() = new()
