@@ -40,5 +40,7 @@ function image_summary(tag, tensor; max_images=3, collections=[:Summaries], name
     add_input(desc, tag)
     add_input(desc, tensor)
     desc["max_images"] = Int64(max_images)
-    
+    t = Tensor(Operation(desc))
+    foreach(c->add_to_collection(c, t), collections)
+    t
 end
