@@ -292,6 +292,8 @@ function varint_decode(b::IO)
 end
 
 function RawTensor(data::Array{String}, is_scalar=false)
+    # TODO make work for multidimensional arrays
+    # Currently only works for vectors and scalars
     if is_scalar
         dims = Cint[]
     else
