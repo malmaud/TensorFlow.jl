@@ -1,4 +1,5 @@
-import ..TensorFlow: tensorflow, Graph
+using ProtoBuf
+import ..TensorFlow: tensorflow, Graph, py_proc
 
 type SummaryWriter
     log_dir::String
@@ -10,7 +11,9 @@ function SummaryWriter(log_dir; graph=nothing)
     self.log_dir = log_dir
     proc = py_proc[]
     remotecall_wait(proc, joinpath(log_dir, "events")) do path
-        open_events_file(path)
+        eval(Main, quote
+            TensorFlow.open_events_file($path)
+        end)
     end
     if graph !== nothing
         write(self, graph)
@@ -24,7 +27,9 @@ function Base.write(writer::SummaryWriter, event::tensorflow.Event)
     seekstart(b)
     proto = read(b)
     remotecall_wait(py_proc[], proto) do proto
-        write_event(proto)
+        eval(Main, quote
+            TensorFlow.write_event($proto)
+        end)
     end
     nothing
 end
@@ -54,7 +59,9 @@ end
 
 function Base.close(writer::SummaryWriter)
     remotecall_wait(py_proc[]) do
-        close_events_file()
+        eval(Main, quote
+            TensorFlow.close_events_file()
+        end)
     end
     nothing
 end

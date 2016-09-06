@@ -294,15 +294,16 @@ end
 function RawTensor(data::Array{String}, is_scalar=false)
     # TODO make work for multidimensional arrays
     # Currently only works for vectors and scalars
+    t = RawTensor()
+    t.data = data
     if is_scalar
         dims = Cint[]
     else
-        dims = Cint[size(data)...]
+        dims = [size(data)...]
     end
     data = convert_major_order(data)
     b_data = IOBuffer()
     b = IOBuffer()
-    cur_pos = 0
     for str in data
         write(b, UInt64(length(b_data.data)))
         varint_encode(b_data, sizeof(str))
@@ -312,9 +313,8 @@ function RawTensor(data::Array{String}, is_scalar=false)
     write(b, read(b_data))
     seekstart(b)
     data_encoded = read(b)
-    info(data_encoded)
     dt = jl_to_df_type(String)
-    ptr = ccall(:TF_NewTensor, Ptr{Void}, (Cint, Ptr{Cint}, Cint, Ptr{Void}, Csize_t, Ptr{Void}, Ptr{Void}),
+    ptr = ccall(:TF_NewTensor, Ptr{Void}, (Cint, Ptr{Int64}, Cint, Ptr{Void}, Csize_t, Ptr{Void}, Ptr{Void}),
         Int(dt),
         dims,
         length(dims),
@@ -325,8 +325,7 @@ function RawTensor(data::Array{String}, is_scalar=false)
     if ptr == C_NULL
         error("Error creating tensor")
     end
-    t = RawTensor()
-    t.data = [data]
+
     t.ptr = ptr
     return t
 end
@@ -666,7 +665,7 @@ function add_input(desc::NodeDescription, input::Union{Tensor, Operation})
     ccall((:TF_AddInput), Void, (Ptr{Void}, Port), desc.ptr, Port(input))
 end
 
-function add_input(desc::NodeDescription, inputs::Vector{Tensor})
+function add_input(desc::NodeDescription, inputs::Vector)
     inputs = map(Port, inputs)
     ccall((:TF_AddInputList), Void, (Ptr{Void}, Ptr{Void}, Cint), desc.ptr, inputs, length(inputs))
 end
@@ -823,7 +822,7 @@ function Base.convert(::Type{Array}, t::RawTensor)
     dims = ndims(t)
     data = ccall(:TF_TensorData, Ptr{eltype(t)}, (Ptr{Void},), t.ptr)
     if eltype(t) == String
-        d = size(t) |> reverse
+        d = size(t)
         out = String[]
         array = unsafe_wrap(Array, convert(Ptr{UInt8}, data), sizeof(t))
         b = IOBuffer(array)
@@ -834,7 +833,7 @@ function Base.convert(::Type{Array}, t::RawTensor)
             raw_data = read(b, UInt8, len)
             push!(out, String(raw_data))
         end
-        convert_major_order(reshape(out, d))
+        out
     else
         if dims > 0
             convert_major_order(unsafe_wrap(Array, data, size(t)|>reverse))
@@ -869,8 +868,7 @@ get_def_type(::Type{Operation}) = tensorflow.NodeDef
 get_def_type(::Type{Graph}) = tensorflow.GraphDef
 
 """
-Returns the definition of the given operation or graph, in returns of its properties
-with respect to the computation graph.
+Returns the definition of the given operation or graph
 """
 function get_def(n::Union{Operation, Graph})
     p = get_proto(n)

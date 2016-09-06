@@ -15,10 +15,18 @@ end
 @not_implemented function histogram_summary()
 end
 
-@not_implemented function merge_summary()
+function merge_summary(inputs; collections=[:Summaries], name="")
+    desc = NodeDescription("MergeSummary", get_name(name))
+    add_input(desc, inputs)
+    t = Tensor(Operation(desc))
+    for collection in collections
+        add_to_collection(collection, t)
+    end
+    return t
 end
 
-@not_implemented function merge_all_summaries()
+function merge_all_summaries(key=:Summaries)
+    merge_summary(get_collection(:Summaries), collections=[])
 end
 
 @not_implemented function image_summary()

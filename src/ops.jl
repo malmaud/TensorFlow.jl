@@ -6,7 +6,7 @@ macro not_implemented(f)
     end
     func_name = f.args[1].args[1]
     quote
-        function $func_name(args...; kwargs...)
+        function $(esc(func_name))(args...; kwargs...)
             error("Not implemented yet")
         end
     end

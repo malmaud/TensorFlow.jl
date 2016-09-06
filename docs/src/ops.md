@@ -128,3 +128,9 @@ group
 no_op
 cond
 ```
+
+## Tensorboard summaries
+
+```@docs
+scalar_summary
+```
