@@ -60,8 +60,12 @@ gather_nd,
 dynamic_partition,
 dynamic_stitch,
 boolean_mask,
-where
-
+where,
+scalar_summary,
+histogram_summary,
+merge_summary,
+merge_all_summaries,
+image_summary
 
 function __init__()
     if myid() == 1

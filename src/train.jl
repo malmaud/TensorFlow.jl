@@ -9,7 +9,8 @@ MomentumOptimizer,
 AdamOptimizer,
 Saver,
 save,
-restore
+restore,
+SummaryWriter
 
 using JLD
 using FileIO

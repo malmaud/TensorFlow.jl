@@ -5,7 +5,7 @@ repo_name: 'GitHub'
 repo_url: 'https://github.com/malmaud/TensorFlow.jl'
 copyright: 'Copyright (c) 2016 Jonathan Malmaud'
 docs_dir: 'docs/build'
-site_dir: 'doc_build'
+site_dir: 'tfdocs'
 
 pages:
   - Home: index.md
