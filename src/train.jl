@@ -166,12 +166,22 @@ function FileIO.save(saver::Saver, session::Session, path; global_step=nothing)
     end
 end
 
+function restore_helper!(feed_dict::Dict, saver::Saver, prefix::String, namespace_dict::Dict)
+    for (var_name, var_value) in namespace_dict
+        restore_helper!(feed_dict, saver, prefix*"/"*var_name, var_value)
+    end
+end
+
+function restore_helper!(feed_dict::Dict, saver::Saver, var_name::String, var_value)
+    placeholder = saver.placeholder_nodes[var_name]
+    feed_dict[placeholder] = var_value
+end
+
 function restore(saver::Saver, session::Session, save_path)
     d = Dict()
     checkpoint = load(save_path)
     for (var_name, var_value) in checkpoint
-        placeholder = saver.placeholder_nodes[var_name]
-        d[placeholder] = var_value
+        restore_helper!(d, saver, var_name, var_value)
     end
     run(session, saver.restore_ops, d)
 end
