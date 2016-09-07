@@ -21,7 +21,7 @@ session = Session()
 
 alpha = placeholder(Float32)
 weights = Variable(...)
-# Set up the rest of your model...
+... # Set up the rest of your model
 
 # Generate some summary operations
 alpha_summmary = scalar_summary("Learning rate", alpha)
