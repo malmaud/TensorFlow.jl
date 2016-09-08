@@ -80,6 +80,5 @@ include("core.jl")
 include("variable.jl")
 include("ops.jl")
 include("train.jl")
-include("queues.jl")
 
 end

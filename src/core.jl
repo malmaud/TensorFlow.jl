@@ -723,6 +723,19 @@ function set_attr_list{T<:DataType}(desc::NodeDescription, attr_name, list::Vect
     ccall(:TF_SetAttrTypeList, Void, (Ptr{Void}, Cstring, Ptr{Void}, Cint), desc.ptr, attr_name, list, length(list))
 end
 
+function set_attr_shape_list(desc::NodeDescription, attr_name, list::Vector)
+    dims = Vector{Int}[]
+    for shape in list
+        push!(dims, [shape...])
+    end
+    ccall(:TF_SetAttrShapeList, Void, (Ptr{Void}, Cstring, Ptr{Ptr{Int64}}, Ptr{Cint}, Cint),
+        desc.ptr,
+        attr_name,
+        dims,
+        [length(_) for _ in dims],
+        length(dims))
+end
+
 function run(sess::Session, inputs, input_values, outputs, targets)
     status = Status()
     output_values = fill(C_NULL, length(outputs))
