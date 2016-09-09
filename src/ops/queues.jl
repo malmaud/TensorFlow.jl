@@ -18,9 +18,7 @@ end
 
 function FIFOQueue(capacity, dtypes; name="", shapes=nothing)
     self = FIFOQueue()
-    if !isa(dtypes, AbstractVector)
-        dtypes = [dtypes]
-    end
+    dtypes = to_list(dtypes)
     desc = NodeDescription("FIFOQueue", get_name(name))
     desc["capacity"] = Int64(capacity)
     set_attr_list(desc, "component_types", dtypes)
@@ -48,17 +46,23 @@ function RandomShuffleQueue(capacity, dtypes; name="", shapes=nothing)
     self
 end
 
-function enqueue(queue::AbstractQueue, value; name="")
+function enqueue(queue::AbstractQueue, values; name="")
+    values = to_list(values)
     desc = NodeDescription("QueueEnqueue", get_name(name))
     add_input(desc, queue.op)
-    add_input(desc, values)
+    add_input(desc, map(to_tensor, values))
+    set_attr_list(desc, "Tcomponents", queue.dtypes)
     Tensor(Operation(desc))
 end
 
 function enqueue_many(queue::AbstractQueue, values; name="")
     desc = NodeDescription("QueueEnqueueMany", get_name(name))
     add_input(desc, queue.op)
-    add_input(desc, values)
+    if isa(values, AbstractVector) || isa(values, Tuple)
+        add_input(desc, [values...])
+    else
+        add_input(desc, [values])
+    end
     Tensor(Operation(desc))
 end
 
@@ -66,7 +70,8 @@ function dequeue(queue::AbstractQueue; name="")
     desc = NodeDescription("QueueDequeue", get_name(name))
     add_input(desc, queue.op)
     set_attr_list(desc, "component_types", queue.dtypes)
-    Tensor(Operation(desc))
+    op = Operation(desc)
+    [Tensor(op, i) for i in 1:length(queue.dtypes)]
 end
 
 function dequeue_many(queue::AbstractQueue, n; name="")
@@ -74,7 +79,8 @@ function dequeue_many(queue::AbstractQueue, n; name="")
     add_input(desc, queue.op)
     add_input(desc, Tensor(Int32(n)))
     set_attr_list(desc, "component_types", queue.dtypes)
-    Tensor(Operation(desc))
+    op = Operation(desc)
+    [Tensor(op, i) for i in 1:length(queue.dtypes)]
 end
 
 function Base.size(queue::AbstractQueue; name="")
@@ -84,7 +90,7 @@ function Base.size(queue::AbstractQueue; name="")
 end
 
 function Base.close(queue::AbstractQueue; name="")
-    desc = NodeDescription("Close", get_name(name))
+    desc = NodeDescription("QueueClose", get_name(name))
     add_input(desc, queue.op)
     Tensor(Operation(desc))
 end

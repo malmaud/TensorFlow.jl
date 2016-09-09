@@ -34,6 +34,13 @@ function random_uniform(shape; name="", seed=0, dtype=Float32)
     Tensor(Operation(desc), 1)
 end
 
+function Base.shuffle(t::Tensor; seed=0, name="")
+    desc = NodeDescription("RandomShuffle", get_name(name))
+    add_input(desc, t)
+    desc["seed2"] = Int64(seed)
+    Tensor(Operation(desc))
+end
+
 function Base.linspace(::Type{Tensor}, start, stop, num; name="")
     desc = NodeDescription(get_def_graph(), "LinSpace", get_name(name))
     add_input(desc, Tensor(convert_number(Float32, start)))
@@ -48,9 +55,9 @@ function Base.range(::Type{Tensor}, start; limit=nothing, delta=1, name="")
         start = 0
     end
     desc = NodeDescription("Range", get_name(name))
-    add_input(desc, start)
-    add_input(desc, limit)
-    add_input(desc, delta)
+    add_input(desc, cast(Tensor(start), Int32))
+    add_input(desc, cast(Tensor(limit), Int32))
+    add_input(desc, cast(Tensor(delta), Int32))
     Tensor(Operation(desc), 1)
 end
 

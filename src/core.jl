@@ -48,6 +48,7 @@ type Graph
         collections[:Variables] = []
         collections[:TrainableVariables] = []
         collections[:Summaries] = []
+        collections[:QueueRunners] = []
         self = new(ptr, collections)
         finalizer(self, self->begin
             ccall((:TF_DeleteGraph), Void, (Ptr{Void},), self.ptr)
@@ -451,7 +452,7 @@ end
 get_graph(n::AbstractOperation) = Operation(n).graph
 
 function Base.show(io::IO, n::Operation)
-    print(io, "<Operation '$(node_name(n))' dtype=$(eltype(n))>")
+    print(io, "<Operation '$(node_name(n))'>")
 end
 
 # Replace this entire function once we can import protobufs into a graph
@@ -598,26 +599,6 @@ Base.getindex(node::Operation, attr_name) = get_attr_value_proto(node, attr_name
 const dt = tensorflow._DataType
 const proto_type_map = Dict(dt.DT_FLOAT=>Float32, dt.DT_INT32=>Int32, dt.DT_DOUBLE=>Float64, dt.DT_INT64=>Int64, dt.DT_STRING=>String, dt.DT_BOOL=>Bool)
 
-"""
-`eltype(node::AbstractOperation)`
-
-Returns the type of the tensor the given operation will return when executed.
-"""
-function Base.eltype(node::AbstractOperation)
-    node = Operation(node)
-    dtype = nothing
-    try
-        dtype = node["dtype"]._type
-    catch
-        try
-            dtype = node["T"]._type
-        catch
-            error("eltype called on node with no type information")
-        end
-    end
-    return proto_type_map[dtype]
-end
-
 abstract AbstractTensor
 
 """
@@ -650,7 +631,10 @@ node_name(t::AbstractTensor) = node_name(Tensor(t).op)
 
 Tensor(op::Operation) = Tensor(op, 1)
 
-Base.eltype(t::AbstractTensor) = eltype(Tensor(t).op)
+function Base.eltype(t::AbstractTensor)
+    tf_type = ccall(:TF_OperationOutputType, TF_DataType, (Port,), Port(Tensor(t)))
+    tf_to_jl_type(tf_type)
+end
 
 immutable Port
     node_ptr::Ptr{Void}
