@@ -10,7 +10,16 @@ AdamOptimizer,
 Saver,
 save,
 restore,
-SummaryWriter
+SummaryWriter,
+add_queue_runner,
+start_queue_runners,
+clear_queue_runners,
+range_input_producer,
+input_producer,
+string_input_producer,
+shuffle_batch,
+QueueRunner,
+create_threads
 
 using JLD
 using FileIO

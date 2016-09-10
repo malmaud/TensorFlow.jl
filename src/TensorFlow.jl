@@ -65,7 +65,8 @@ scalar_summary,
 histogram_summary,
 merge_summary,
 merge_all_summaries,
-image_summary
+image_summary,
+io
 
 function __init__()
     if myid() == 1
@@ -80,5 +81,6 @@ include("core.jl")
 include("variable.jl")
 include("ops.jl")
 include("train.jl")
+include("io.jl")
 
 end
