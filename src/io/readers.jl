@@ -20,7 +20,7 @@ function WholeFileReader(; name="")
     return WholeFileReader(op)
 end
 
-function TextLineReader(skip_header_lines=0; name="")
+function TextLineReader(skip_header_lines::Int=0; name="")
     desc = tf.NodeDescription("TextLineReader", tf.get_name(name))
     desc["skip_header_lines"] = Int64(skip_header_lines)
     op = tf.Operation(desc)
