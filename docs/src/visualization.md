@@ -35,7 +35,7 @@ summary_writer = train.SummaryWriter("/my_log_dir")
 for epoch in 1:num_epochs
   ... # Run training
   summaries = run(session, merged_summary_op)
-  write(summary_writer, summaries, global_step = epoch)
+  write(summary_writer, summaries, epoch)
 end
 ```
 
