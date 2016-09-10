@@ -31,7 +31,8 @@ nce_loss,
 sampled_softmax_loss,
 batch_normalization
 
-
+import TensorFlow
+const tf = TensorFlow
 import ..TensorFlow: Operation, NodeDescription, get_def_graph, capitalize, add_input, Port, get_name, set_attr_list, get_shape, variable_scope, shape, random_uniform, AbstractTensor, Tensor, reduce_sum, @not_implemented
 
 for f in [:relu, :relu6, :elu, :softplus, :softsign, :softmax, :sigmoid, :tanh]
@@ -118,7 +119,10 @@ end
 
 end
 
-@not_implemented function log_softmax()
+function log_softmax(logits; name="")
+    desc = NodeDescription("LogSoftmax", get_name(name))
+    add_input(desc, logits)
+    Tensor(Operation(desc))
 end
 
 function embedding_lookup(params, ids; partition_strategy="mod", name="", validate_indices=true)
@@ -131,10 +135,21 @@ end
 @not_implemented function embedding_lookup_sparse()
 end
 
-@not_implemented function top_k()
+function top_k(input, k=1; sorted=true, name="")
+    desc = NodeDescription("TopKV2", get_name(name))
+    add_input(desc, Tensor(input))
+    add_input(desc, tf.cast(Tensor(k), Int32))
+    desc["sorted"] = sorted
+    op = Operation(desc)
+    Tensor(op, 1), Tensor(op, 2)+1
 end
 
-@not_implemented function in_top_k()
+function in_top_k(predictions, targets, k; name="")
+    desc = NodeDescription("InTopK", get_name(name))
+    add_input(desc, tf.cast(Tensor(predictions), Float32))
+    add_input(desc, Tensor(targets)-1)
+    desc["k"] = Int64(k)
+    Tensor(Operation(desc))
 end
 
 function l2_loss(t, name="")
@@ -151,7 +166,8 @@ end
 @not_implemented function sampled_softmax_loss()
 end
 
-@not_implemented function batch_normalization()
+@not_implemented function batch_normalization(x, mean, variance, offset, scale, variable_epislon; name="")
+
 end
 
 end
