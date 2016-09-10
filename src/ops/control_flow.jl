@@ -30,7 +30,11 @@ function no_op(name="")
     Tensor(Operation(desc))
 end
 
-@not_implemented function count_up_to()
+function count_up_to(ref, limit; name="")
+    desc = NodeDescription("CountUpTo", get_name(name))
+    add_input(desc, Tensor(ref))
+    desc["limit"] = Int64(limit)
+    Tensor(Operation(desc))
 end
 
 function Base.cond(pred::AbstractTensor, fn1, fn2; name="")

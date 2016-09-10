@@ -1,5 +1,21 @@
 import Base: log, exp, +, -, *, /, .*, .+, ./, .-, ^, .^, sin, cos, tan, asin, acos, atan, div, tanh, sqrt, floor, .==
 
+function tf_promote(t, x::Number)
+    return Tensor(eltype(t)(x))
+end
+
+tf_promote(t, x) = Tensor(x)
+
+
+convert_number(t, n) = n
+convert_number(t, x::Number) =  t(x)
+
+to_tensor(x::Union{Number, String, AbstractTensor}) = Tensor(x)
+to_tensor(x::AbstractArray) = Tensor(x)
+
+to_list(x::AbstractArray) = x
+to_list(x) = [x]
+
 macro not_implemented(f)
     if f.head != :function
         error("Invalid use of not_implemented")
@@ -41,11 +57,6 @@ function placeholder(dtype; name="", shape=nothing)
     Tensor(node, 1)
 end
 
-function tf_promote(t, x::Number)
-    return Tensor(eltype(t)(x))
-end
-
-tf_promote(t, x) = Tensor(x)
 
 for (bin_op, jl_func_name, tf_func_name) in [
     (:+, :add, "Add"),
@@ -138,9 +149,6 @@ for reduction in [:sum, :prod, :min, :max, :all, :any, :mean]
     end
 end
 
-convert_number(t, n) = n
-convert_number(t, x::Number) =  t(x)
-
 function read_file(filename; name="")
     desc = NodeDescription("ReadFile", get_name(name))
     add_input(desc, Tensor(filename))
@@ -148,7 +156,6 @@ function read_file(filename; name="")
 end
 
 Base.read(::Type{Tensor}, filename) = read_file(filename)
-
 
 function argmin(n::AbstractTensor, dim; name="")
     desc = NodeDescription("ArgMin", get_name(name))
@@ -176,3 +183,4 @@ include("ops/transformations.jl")
 include("ops/nn.jl")
 include("ops/image.jl")
 include("ops/summaries.jl")
+include("ops/queues.jl")

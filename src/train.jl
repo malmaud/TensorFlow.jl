@@ -10,12 +10,24 @@ AdamOptimizer,
 Saver,
 save,
 restore,
-SummaryWriter
+SummaryWriter,
+add_queue_runner,
+start_queue_runners,
+clear_queue_runners,
+range_input_producer,
+input_producer,
+string_input_producer,
+shuffle_batch,
+QueueRunner,
+create_threads
 
 using JLD
 using FileIO
 
-import ..TensorFlow: Operation, get_def_graph, gradients, assign, variable_scope, ConstantInitializer, node_name, get_variable, get_shape, get_collection, Session, placeholder, Tensor, cast, group
+import ..TensorFlow: Operation, get_def_graph, gradients, assign, variable_scope, ConstantInitializer, node_name, get_variable, get_shape, get_collection, Session, placeholder, Tensor, cast, group, @not_implemented, AbstractQueue
+
+import TensorFlow
+const tf = TensorFlow
 
 abstract Optimizer
 
@@ -186,6 +198,7 @@ function restore(saver::Saver, session::Session, save_path)
     run(session, saver.restore_ops, d)
 end
 
-include("summary_writer.jl")
+include("train/summary_writer.jl")
+include("train/pipeline.jl")
 
 end

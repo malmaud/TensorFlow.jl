@@ -1,3 +1,4 @@
 using Documenter, TensorFlow
 
-makedocs(modules=[TensorFlow])
+# makedocs(modules=[TensorFlow])
+makedocs()
