@@ -633,7 +633,17 @@ Tensor(op::Operation) = Tensor(op, 1)
 
 function Base.eltype(t::AbstractTensor)
     tf_type = ccall(:TF_OperationOutputType, TF_DataType, (Port,), Port(Tensor(t)))
-    tf_to_jl_type(tf_type)
+    if !haskey(type_map, tf_type)
+        local dtype
+        try
+            dtype = get_op(t)["T"]._type
+        catch
+            dtype = get_op(t)["dtype"]._type
+        end
+        return proto_type_map[dtype]
+    else
+        return tf_to_jl_type(tf_type)
+    end
 end
 
 immutable Port
