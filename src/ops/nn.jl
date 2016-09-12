@@ -112,11 +112,16 @@ function dropout(x, keep_prob; noise_shape=nothing, seed=0, name="")
     y = x_scaled .* floor(keep_prob+r)
 end
 
-@not_implemented function sigmoid_cross_entropy_with_logits()
+function sigmoid_cross_entropy_with_logits(logits, targets; name="")
+    #  TODO make numerically stable
+    -logits.*targets + log(1+ exp(logits))
 end
 
-@not_implemented function sparse_softmax_cross_entropy_with_logits()
-
+function sparse_softmax_cross_entropy_with_logits(logits, labels; name="")
+    desc = NodeDescription("SparseSoftmaxCrossEntropyWithLogits", get_name(name))
+    add_input(desc, Tensor(logits))
+    add_input(desc, Tensor(labels)-1)
+    Tensor(Operation(desc))
 end
 
 function log_softmax(logits; name="")
@@ -156,18 +161,74 @@ function l2_loss(t, name="")
     reduce_sum(t.*t; name=name)
 end
 
-@not_implemented function log_poisson_loss()
-
-end
-
 @not_implemented function nce_loss()
 end
 
 @not_implemented function sampled_softmax_loss()
 end
 
-@not_implemented function batch_normalization(x, mean, variance, offset, scale, variable_epislon; name="")
+@not_implemented function batch_normalization(x, mean, variance, offset, scale, variable_epsilon; name="")
 
 end
+
+function local_response_normalization(input; depth_radius=5, bias=1.0, alpha=1.0, beta=0.5, name="")
+    desc = NodeDescription("LRN", get_name(name))
+    desc["depth_radius"] = Int64(depth_radius)
+    desc["bias"] = Float32(bias)
+    desc["alpha"] = Float32(alpha)
+    desc["beta"] = Float32(beta)
+    add_input(desc, input)
+    Tensor(Operation(desc))
+end
+
+@not_implemented function log_uniform_candidate_sampler()
+end
+
+@not_implemented function all_candidate_sampler()
+end
+
+@not_implemented function atrous_conv2d()
+end
+
+@not_implemented function avg_pool()
+end
+
+@not_implemented function batch_norm_with_global_normalization()
+end
+
+@not_implemented function bias_add()
+end
+
+@not_implemented function conv1d()
+end
+
+@not_implemented function conv3d()
+end
+
+@not_implemented function depthwise_conv2d()
+end
+
+@not_implemented function dilation2d()
+end
+
+@not_implemented function erosion2d()
+end
+
+@not_implemented function fixed_unigram_candidate_sampler()
+end
+
+function l2_normalize(x, dim; epsilon=1e-12, name="")
+    # TODO take into account epsilon
+    sums = tf.reduce_sum(x.*x, reduction_indices=[dim], keep_dims=true)
+    norm = sqrt(sums)
+    return x/norm
+end
+
+@not_implemented function max_pool3d()
+end
+
+@not_implemented function weighted_cross_entropy_with_logits()
+end
+
 
 end
