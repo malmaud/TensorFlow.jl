@@ -13,7 +13,7 @@ pages:
     - 'MNIST tutorial': tutorial.md
     - 'Visualizing with Tensorboard': visualization.md
     - 'Using queues for loading your data': io.md
-    - 'Shape inference": shape_inference.md
+    - 'Shape inference': shape_inference.md
   - Reference:
     - 'Core functions': core.md
     - 'Operations': ops.md
