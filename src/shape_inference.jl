@@ -380,7 +380,18 @@ register_shape("Pack", op->begin
 end)
 
 register_shape("Slice", op->begin
-
+    slices = op.inputs[3]
+    slice_value = load_const(slices)
+    if isnull(slice_value)
+        slice_shape = get_shape(slices)
+        if slice_shape.unknown_rank
+            return [TensorShape(nothing)]
+        else
+            return [TensorShape([Nullable{Int}() for i in 1:length(slice_shape.dims)])]
+        end
+    else
+        return [TensorShape(slice_value)]
+    end
 end)
 
 register_shape("Tile", op->begin
