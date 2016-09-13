@@ -66,7 +66,11 @@ histogram_summary,
 merge_summary,
 merge_all_summaries,
 image_summary,
-io
+io,
+AbstractTensor,
+Tensor
+
+using Reexport
 
 function __init__()
     if myid() == 1
@@ -75,10 +79,16 @@ function __init__()
     end
 end
 
+abstract AbstractTensorShape
 include("constants.jl")
 include("tensorflow_protos.jl")
 include("core.jl")
 include("variable.jl")
+include("shape_inference.jl")
+using .ShapeInference
+export get_shape
+
+
 include("ops.jl")
 include("train.jl")
 include("io.jl")

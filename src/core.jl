@@ -41,6 +41,7 @@ A TensorFlow computation graph
 type Graph
     ptr::Ptr{Void}
     collections::Dict{Symbol, Any}
+    shapes::Dict{String, AbstractTensorShape}
 
     function Graph()
         ptr = ccall((:TF_NewGraph), Ptr{Void}, ())
@@ -49,7 +50,7 @@ type Graph
         collections[:TrainableVariables] = []
         collections[:Summaries] = []
         collections[:QueueRunners] = []
-        self = new(ptr, collections)
+        self = new(ptr, collections, Dict{String, AbstractTensorShape}())
         finalizer(self, self->begin
             ccall((:TF_DeleteGraph), Void, (Ptr{Void},), self.ptr)
         end)
@@ -455,6 +456,78 @@ function Base.show(io::IO, n::Operation)
     print(io, "<Operation '$(node_name(n))'>")
 end
 
+function load_proto(tensor::tensorflow.TensorProto)
+    dtype = tensor.dtype
+    dim = (Int[_.size for _ in tensor.tensor_shape.dim]...)
+    if dtype == tensorflow._DataType.DT_FLOAT
+        val = tensor.float_val
+    elseif dtype == tensorflow._DataType.DT_INT32
+        val = tensor.int_val
+    elseif dtype == tensorflow._DataType.DT_INT64
+        val = tensor.int64_val
+    elseif dtype == tensorflow._DataType.DT_DOUBLE
+        val = tensor.double_val
+    else
+        warn("Unrecognized datatype $dtype")
+    end
+    # Sometimes Tensorflow store the tensor content in the 'tensor_content' byte array,
+    # and sometimes in a typed field. Haven't figured out the rational yet.
+    if length(tensor.tensor_content) > 0
+        val = reinterpret(eltype(val), tensor.tensor_content)
+    end
+    if length(val) == 0
+        zeros(eltype(val),0)
+    elseif length(dim) == 0
+        val[1]
+    else
+        reshape(val, dim)
+    end
+end
+
+function load_proto(shape::tensorflow.TensorShapeProto)
+    dims = Nullable{Int}[]
+    if shape.unknown_rank
+        ShapeInference.TensorShape(nothing)
+    else
+        for dim in shape.dim
+            if dim == -1
+                push!(dims, Nullable{Int}())
+            else
+                push!(dims, Nullable(dim))
+            end
+        end
+        ShapeInference.TensorShape(dims)
+    end
+end
+
+function load_proto(list::tensorflow.AttrValue_ListValue)
+    if has_field(list, :i)
+        list.i
+    elseif has_field(list, :b)
+        list.b
+    elseif has_field(list, :f)
+        list.f
+    elseif has_field(list, :s)
+        list.s
+    end
+end
+
+function load_proto(value::tensorflow.AttrValue)
+    if has_field(value, :tensor)
+        load_proto(value.tensor)
+    elseif has_field(value, :s)
+        String(value.s)
+    elseif has_field(value, :i)
+        value.i
+    elseif has_field(value, :b)
+        value.b
+    elseif has_field(value, :shape)
+        load_proto(value.shape)
+    elseif has_field(value, :list)
+        load_proto(value.list)
+    end
+end
+
 # Replace this entire function once we can import protobufs into a graph
 function Operation(node_def::tensorflow.NodeDef)
     graph = get_def_graph()
@@ -521,29 +594,7 @@ function Operation(node_def::tensorflow.NodeDef)
             if attr_name ∈ ("dtype", "T", "DstT", "SrcT")
                 ccall(:TF_SetAttrType, Void, (Ptr{Void}, Cstring, Cint), desc.ptr, attr_name, attr._type)
             elseif attr_name == "value"
-                dtype = attr.tensor.dtype
-                dim = (Int[_.size for _ in attr.tensor.tensor_shape.dim]...)
-                if dtype == tensorflow._DataType.DT_FLOAT
-                    val = attr.tensor.float_val
-                elseif dtype == tensorflow._DataType.DT_INT32
-                    val = attr.tensor.int_val
-                elseif dtype == tensorflow._DataType.DT_DOUBLE
-                    val = attr.tensor.double_val
-                else
-                    warn("Unrecognized datatype $dtype")
-                end
-                # Sometimes Tensorflow stores the tensor content in the 'tensor_content' byte array,
-                # and sometimes in a typed field. Haven't figured out the rational yet.
-                if length(attr.tensor.tensor_content) > 0
-                    val = reinterpret(eltype(val), attr.tensor.tensor_content)
-                end
-                if length(val) == 0
-                    desc["value"] = RawTensor(zeros(eltype(val),0))
-                elseif length(dim) == 0
-                    desc["value"] = RawTensor(val[1])
-                else
-                    desc["value"] = RawTensor(reshape(val, dim))
-                end
+                desc["value"] = RawTensor(load_proto(attr.tensor))
             elseif attr_name == "keep_dims"
                 desc["keep_dims"] = attr.b
             elseif attr_name == "N"
@@ -970,26 +1021,6 @@ function get_node_by_name(graph::Graph, name::AbstractString)
 end
 
 get_node_by_name(name) = get_node_by_name(get_def_graph(), name)
-
-include("shape_inference.jl")
-
-"""
-Runs shape inference to return the shape of the tensor produced by the given operation.
-
-Returns -1 if shape inference cannot infer a shape.
-
-Note this runs *statically*. Use the `shape` operation to dynamically get the shape of an operation.
-"""
-function get_shape(n::AbstractTensor)
-    t = Tensor(n)
-    op = t.op
-    fillin_operation(op)
-    if op.op_name ∈ keys(shape_inferer)
-        return shape_inferer[op.op_name](op)[t.value_index]
-    else
-        return -1
-    end
-end
 
 const py_proc = Ref{Int}()
 
