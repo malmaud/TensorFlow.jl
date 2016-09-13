@@ -89,7 +89,7 @@ function pad(tensor, paddings; mode="CONSTANT", name="")
     desc = NodeDescription("Pad",get_name(name))
     add_input(desc, Tensor(tensor))
     add_input(desc, cast(Tensor(paddings), Int32))
-    # TODO ay attention to mode
+    # TODO pay attention to mode
     Tensor(Operation(desc))
 end
 

@@ -1,4 +1,4 @@
-import Base: log, exp, +, -, *, /, .*, .+, ./, .-, ^, .^, sin, cos, tan, asin, acos, atan, div, tanh, sqrt, floor, .==
+import Base: log, exp, +, -, *, /, .*, .+, ./, .-, ^, .^, sin, cos, tan, asin, acos, atan, div, tanh, sqrt, floor, .==, ceil, floor
 
 function tf_promote(t, x::Number)
     return Tensor(eltype(t)(x))
@@ -48,12 +48,23 @@ end
 
 function placeholder(dtype; name="", shape=nothing)
     name = get_name(name)
-    desc = NodeDescription(get_def_graph(), "Placeholder", name)
+    graph = get_def_graph()
+    desc = NodeDescription(graph, "Placeholder", name)
     desc["dtype"] = dtype
-    if shape !== nothing
-        desc["shape"] = (shape...)
-    end
     node = Operation(desc)
+    if shape===nothing
+        graph.shapes[name] = ShapeInference.TensorShape(nothing)
+    else
+        dims = Nullable{Int}[]
+        for dim in shape
+            if dim==-1 || dim==nothing
+                push!(dims, Nullable{Int}())
+            else
+                push!(dims, Nullable(dim))
+            end
+        end
+        graph.shapes[name] = ShapeInference.TensorShape(dims)
+    end
     Tensor(node, 1)
 end
 

@@ -19,8 +19,8 @@ y = draw(y_prob)
 
 # Build the model
 sess = Session(Graph())
-X = placeholder(Float64)
-Y_obs = placeholder(Float64)
+X = placeholder(Float64, shape=[nothing, 10])
+Y_obs = placeholder(Float64, shape=[100])
 
 variable_scope("logisitic_model", initializer=Normal(0, .001)) do
     global W = get_variable("weights", [50, 10], Float64)
@@ -28,6 +28,7 @@ variable_scope("logisitic_model", initializer=Normal(0, .001)) do
 end
 
 Y=nn.softmax(X*W + B)
+
 Loss = -reduce_sum(log(Y).*Y_obs)
 optimizer = train.AdamOptimizer()
 minimize_op = train.minimize(optimizer, Loss)

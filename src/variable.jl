@@ -28,11 +28,6 @@ function Variable(initial_value; name="", trainable=true)
     return self
 end
 
-function get_shape(v::Variable)
-    fillin_operation(v.assign_node)
-    return get_shape(v.assign_node.inputs[2])
-end
-
 function assign(v::Variable, value)
     desc = NodeDescription(get_def_graph(), "Assign", get_name())
     add_input(desc, v.var_node)
@@ -80,7 +75,11 @@ function variable_scope(f, name; kwargs...)
     end
 end
 
+get_dims(t::AbstractTensorShape) = map(get, t.dims)
+get_dims(x) = x
+
 function get_variable(var_name, shape, dtype; trainable=true, kwargs...)
+    shape = get_dims(shape)
     scope = make_scope(var_name; kwargs...)
     push!(scope_stack, scope)
     name = join([get(_.name) for _ in scope_stack], "/")
