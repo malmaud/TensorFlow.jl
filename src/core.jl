@@ -971,26 +971,6 @@ end
 
 get_node_by_name(name) = get_node_by_name(get_def_graph(), name)
 
-include("shape_inference.jl")
-
-"""
-Runs shape inference to return the shape of the tensor produced by the given operation.
-
-Returns -1 if shape inference cannot infer a shape.
-
-Note this runs *statically*. Use the `shape` operation to dynamically get the shape of an operation.
-"""
-function get_shape(n::AbstractTensor)
-    t = Tensor(n)
-    op = t.op
-    fillin_operation(op)
-    if op.op_name ∈ keys(shape_inferer)
-        return shape_inferer[op.op_name](op)[t.value_index]
-    else
-        return -1
-    end
-end
-
 const py_proc = Ref{Int}()
 
 function spawn_py_process()

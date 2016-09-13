@@ -78,6 +78,7 @@ end
 include("constants.jl")
 include("tensorflow_protos.jl")
 include("core.jl")
+include("shape_inference.jl")
 include("variable.jl")
 include("ops.jl")
 include("train.jl")
