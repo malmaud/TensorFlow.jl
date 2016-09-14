@@ -103,13 +103,17 @@ end
 end
 
 function dropout(x, keep_prob; noise_shape=nothing, seed=0, name="")
-    keep_prob = Tensor(keep_prob)
-    x_scaled = x/keep_prob
-    if noise_shape == nothing
-        noise_shape = shape(x)
+    local y
+    tf.with_op_name(get_name(name)) do
+        keep_prob = Tensor(keep_prob)
+        x_scaled = x/keep_prob
+        if noise_shape == nothing
+            noise_shape = shape(x)
+        end
+        r = random_uniform(noise_shape, seed=seed, dtype=eltype(x))
+        y = x_scaled .* floor(keep_prob+r)
     end
-    r = random_uniform(noise_shape, seed=seed, dtype=eltype(x))
-    y = x_scaled .* floor(keep_prob+r)
+    y
 end
 
 function sigmoid_cross_entropy_with_logits(logits, targets; name="")
@@ -219,9 +223,13 @@ end
 
 function l2_normalize(x, dim; epsilon=1e-12, name="")
     # TODO take into account epsilon
-    sums = tf.reduce_sum(x.*x, reduction_indices=[dim], keep_dims=true)
-    norm = sqrt(sums)
-    return x/norm
+    local out
+    tf.with_op_name(get_name(name)) do
+        sums = tf.reduce_sum(x.*x, reduction_indices=[dim], keep_dims=true)
+        norm = sqrt(sums)
+        out = x/norm
+    end
+    out
 end
 
 @not_implemented function max_pool3d()

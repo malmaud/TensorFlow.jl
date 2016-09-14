@@ -365,8 +365,13 @@ type NodeDescription
     graph::Graph
 
     function NodeDescription(graph, op_type, node_name)
-        desc = ccall((:TF_NewOperation, LIBTF), Ptr{Void}, (Ptr{Void}, Cstring, Cstring), graph.ptr, op_type, node_name)
-        new(desc, graph)
+        full_name = join(vcat(op_context.names, node_name), "/")
+        desc = ccall((:TF_NewOperation, LIBTF), Ptr{Void}, (Ptr{Void}, Cstring, Cstring), graph.ptr, op_type, full_name)
+        self = new(desc, graph)
+        for control_op in vcat(op_context.control_ops)
+            add_control_input(self, control_op)
+        end
+        self
     end
 
 end
@@ -391,6 +396,26 @@ type Operation <: AbstractOperation
 
     Operation() = new()
 end
+
+type OperationContext
+    control_ops::Vector{Vector{Operation}}
+    names::Vector{String}
+end
+
+const op_context = OperationContext(Vector{Operation}[], String[])
+
+function with_op_name(f, name)
+    push!(op_context.names, name)
+    f()
+    pop!(op_context.names)
+end
+
+function with_op_control(f, control_ops)
+    push!(op_context.control_ops, control_ops)
+    f()
+    pop!(op_context.control_ops)
+end
+
 
 function Operation(desc::NodeDescription)
     self = Operation()
