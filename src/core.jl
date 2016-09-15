@@ -675,7 +675,21 @@ function Base.show(io::IO, t::Tensor)
     catch
         dtype = "?"
     end
-    print(io, "<Tensor $(node_name(t.op)):$(t.value_index) dtype=$(dtype)>")
+    s = get_shape(t)
+    if s.rank_unknown
+        shape = "unknown"
+    else
+        dims = String[]
+        for dim in s.dims
+            if isnull(dim)
+                push!(dims, "?")
+            else
+                push!(dims, string(get(dim)))
+            end
+        end
+        shape = string("(", join(dims, ", "), ")")
+    end
+    print(io, "<Tensor $(node_name(t.op)):$(t.value_index) shape=$(shape) dtype=$(dtype)>")
 end
 
 node_name(t::AbstractTensor) = node_name(Tensor(t).op)

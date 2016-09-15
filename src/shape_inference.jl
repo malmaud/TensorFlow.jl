@@ -31,13 +31,13 @@ Base.getindex(t::TensorShape, idx) = t.dims[idx]
 function Base.show(io::IO, shape::TensorShape)
     get_dim_name = x->begin
         if isnull(x)
-            return "Unknown"
+            return "?"
         else
             return string(get(x))
         end
     end
     if shape.rank_unknown
-        print(io, "TensorShape[Unknown rank]")
+        print(io, "TensorShape[unknown]")
     else
         print(io, "TensorShape[")
         print(io, join([get_dim_name(_) for _ in shape.dims], ", "))
@@ -130,6 +130,9 @@ for func in ["Add", "Sub", "Mul", "Div", "Pow"]
     register_shape(func, op->begin
         s1 = get_shape(op.inputs[1])
         s2 = get_shape(op.inputs[2])
+        if s1.rank_unknown || s2.rank_unknown
+            return TensorShape(nothing)
+        end
         broadcast!(s1, s2)
         dims = Nullable{Int}[]
         for (d1, d2) in zip(s1.dims, s2.dims)
