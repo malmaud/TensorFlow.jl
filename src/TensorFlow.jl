@@ -70,7 +70,6 @@ io,
 AbstractTensor,
 Tensor
 
-using Reexport
 
 function __init__()
     if myid() == 1
