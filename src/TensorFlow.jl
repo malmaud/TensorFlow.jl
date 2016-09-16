@@ -1,3 +1,7 @@
+# Hack until ProtoBuf.jl is fixed
+module google
+end
+
 __precompile__(true)
 module TensorFlow
 
