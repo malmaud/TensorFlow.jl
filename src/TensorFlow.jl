@@ -1,3 +1,8 @@
+# Hack until ProtoBuf.jl is fixed
+module google
+end
+
+__precompile__(true)
 module TensorFlow
 
 export
@@ -72,6 +77,7 @@ Tensor
 
 
 function __init__()
+    c_deallocator[] = cfunction(deallocator, Void, (Ptr{Void}, Csize_t, Ptr{Void}))
     if myid() == 1
         set_def_graph(Graph())
         spawn_py_process()

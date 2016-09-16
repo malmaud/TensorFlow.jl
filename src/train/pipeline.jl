@@ -156,7 +156,7 @@ function create_threads(runner::QueueRunner, sess)
             status = tf.Status()
             while true
                 try
-                    @threadcall(:TF_SessionRun, Void, (Ptr{Void}, Ptr{Void}, Ptr{Void}, Ptr{Void}, Cint, Ptr{Void}, Ptr{Ptr{Void}}, Cint, Ptr{Void}, Cint, Ptr{Void}, Ptr{Void}),
+                    @threadcall((:TF_SessionRun, tf.LIBTF), Void, (Ptr{Void}, Ptr{Void}, Ptr{Void}, Ptr{Void}, Cint, Ptr{Void}, Ptr{Ptr{Void}}, Cint, Ptr{Void}, Cint, Ptr{Void}, Ptr{Void}),
                         sess.ptr,
                         C_NULL,
                         C_NULL,
