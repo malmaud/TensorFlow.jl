@@ -45,6 +45,8 @@ function Base.show(io::IO, shape::TensorShape)
     end
 end
 
+Base.copy(shape::TensorShape) = TensorShape(copy(shape.dims), shape.rank_unknown)
+
 function Base.broadcast!(s1::TensorShape, s2::TensorShape)
     while length(s1.dims) < length(s2.dims)
         unshift!(s1.dims, Nullable(1))
@@ -215,7 +217,34 @@ end)
 for func in ["Sum", "Prod", "Min", "Max", "All", "Any", "Mean"]
     register_shape(func, op->begin
         # TODO handle case of partial reduction
-        return [TensorShape(Int[])]
+        keep_dims = tf.load_proto(op.attrs["keep_dims"])
+        value_shape = copy(get_shape(op.inputs[1]))
+        reduction_dims = op.inputs[2]
+        if value_shape.rank_unknown
+            return [TensorShape[nothing]]
+        end
+        reduction_dim_values = load_const(reduction_dims)
+        if isnull(reduction_dim_values)
+            if keep_dims
+                return [TensorShape([Nullable{Int}() for _ in 1:length(value_shape.dims)])]
+            else
+                return [TensorShape(nothing)]
+            end
+        else
+            dims = get(reduction_dim_values)+1
+            if keep_dims
+                for dim in dims
+                    value_shape.dims[dim] = Nullable(1)
+                end
+            else
+                to_keep = fill(true, length(value_shape.dims))
+                for dim in dims
+                    to_keep[dim] = false
+                end
+                value_shape.dims = value_shape.dims[to_keep]
+            end
+            return [value_shape]
+        end
     end)
 end
 
@@ -231,7 +260,7 @@ register_shape("Concat", op->begin
     end
     dim = dim_op.op.attrs["value"].tensor.int_val[1] + 1
     tensors = op.inputs[2:end]
-    base_shape = get_shape(tensors[1])
+    base_shape = copy(get_shape(tensors[1]))
     base_shape.dims[dim] = Nullable(0)
     for tensor in tensors
         shape = get_shape(tensor)
@@ -368,7 +397,7 @@ register_shape("Split", op->begin
         return [TensorShape(nothing)]
     end
     split_dim_value = split_dim.op.attrs["value"].tensor.int_val[1]
-    value_shape = get_shape(op.inputs[2])
+    value_shape = copy(get_shape(op.inputs[2]))
     if isnull(value_shape.dims[split_dim_value])
         split_value = Nullable{Int}()
     else
@@ -401,7 +430,7 @@ register_shape("Tile", op->begin
 end)
 
 register_shape("Pad", op->begin
-    tensor_shape = get_shape(op.inputs[1])
+    tensor_shape = copy(get_shape(op.inputs[1]))
     paddings = op.inputs[2]
     if paddings.op.op_name != "Const"
         return [TensorShape([Nullable{Int}() for dim in 1:length(tensor_shape.dims)])]
