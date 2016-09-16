@@ -201,7 +201,7 @@ function deallocator(data, len, arg)
 
 end
 
-const c_deallocator = cfunction(deallocator, Void, (Ptr{Void}, Csize_t, Ptr{Void}))
+const c_deallocator = Ref{Ptr}()
 
 """
 Convert from row-major to column-major or vice-versa
@@ -227,7 +227,7 @@ type RawTensor
             length(dims),
             pointer(data),
             sizeof(data),
-            c_deallocator,
+            c_deallocator[],
             C_NULL)
         return new(ptr, data)
     end
@@ -242,7 +242,7 @@ type RawTensor
             length(dims),
             pointer(data_boxed),
             sizeof(data_boxed),
-            c_deallocator,
+            c_deallocator[],
             C_NULL)
         return new(ptr, data_boxed)
     end
@@ -312,7 +312,7 @@ function RawTensor(data::Array{String}, is_scalar=false)
         length(dims),
         data_encoded,
         length(data_encoded),
-        c_deallocator,
+        c_deallocator[],
         C_NULL)
     if ptr == C_NULL
         error("Error creating tensor")
