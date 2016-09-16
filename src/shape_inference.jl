@@ -425,4 +425,16 @@ end)
 register_shape("DynamicStitch", op->begin
 end)
 
+for func in ["RandomStandardNormal", "RandomUniform"]
+    register_shape(func, op->begin
+        shape = op.inputs[1]
+        shape_value = load_const(shape)
+        if isnull(shape_value)
+            [TensorShape(nothing)]
+        else
+            [TensorShape(get(shape_value))]
+        end
+    end)
+end
+
 end

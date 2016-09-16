@@ -34,6 +34,18 @@ function random_uniform(shape; name="", seed=0, dtype=Float32)
     Tensor(Operation(desc), 1)
 end
 
+function random_normal(shape; mean=0.0, stddev=1.0, dtype=Float32, seed=0, name="")
+    local out
+    with_op_name(get_name(name)) do
+        desc = NodeDescription("RandomStandardNormal", "RandomStandard")
+        add_input(desc, Tensor(shape))
+        desc["dtype"] = dtype
+        var = Tensor(Operation(desc))
+        out = stddev.*var + mean
+    end
+    out
+end
+    
 function Base.shuffle(t::Tensor; seed=0, name="")
     desc = NodeDescription("RandomShuffle", get_name(name))
     add_input(desc, t)
