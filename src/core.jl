@@ -416,7 +416,6 @@ function with_op_control(f, control_ops)
     pop!(op_context.control_ops)
 end
 
-
 function Operation(desc::NodeDescription)
     self = Operation()
     self.filled_in = false
