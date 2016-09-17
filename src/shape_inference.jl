@@ -109,7 +109,6 @@ register_shape("Placeholder", op->begin
     if haskey(graph.shapes, op.name)
         return [graph.shapes[op.name]]
     else
-        info("no shape for $op")
         [to_shape([_.size for _ in op.attrs["shape"].shape.dim])]
     end
 end)
@@ -179,6 +178,25 @@ function load_const(op)
             end
         end
     end
+    if op.op_name == "Rank"
+        x = get_shape(op.inputs[1])
+        if x.rank_unknown
+            return Nullable()
+        else
+            return Nullable(length(x.dims))
+        end
+    end
+    if op.op_name == "Range"
+        start = load_const(op.inputs[1])
+        limit = load_const(op.inputs[2])
+        delta = load_const(op.inputs[3])
+        if any(map(isnull, [start, limit, delta]))
+            return Nullable()
+        else
+            return Nullable(collect(get(start):get(delta):(get(limit)-1)))
+        end
+    end
+
     Nullable()
 end
 
