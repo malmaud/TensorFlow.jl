@@ -31,7 +31,7 @@ for (func, sym) in [
 
 end
 
-function Base.select(condition::AbstractTensor, t, e; name="")
+function Base.select(condition::AbstractTensor, t, e; name="Select")
     desc = NodeDescription("Select", get_name(name))
     add_input(desc, Tensor(condition))
     add_input(desc, Tensor(t))

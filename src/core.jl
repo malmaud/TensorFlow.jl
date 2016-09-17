@@ -364,14 +364,27 @@ type NodeDescription
     ptr::Ptr{Void}
     graph::Graph
 
-    function NodeDescription(graph, op_type, node_name)
-        desc = ccall((:TF_NewOperation, LIBTF), Ptr{Void}, (Ptr{Void}, Cstring, Cstring), graph.ptr, op_type, node_name)
-        new(desc, graph)
+    function NodeDescription(graph, op_type, full_name)
+        desc = ccall((:TF_NewOperation, LIBTF), Ptr{Void}, (Ptr{Void}, Cstring, Cstring), graph.ptr, op_type, full_name)
+        self = new(desc, graph)
+        for control_op in vcat(op_context.control_ops)
+            add_control_input(self, control_op)
+        end
+        self
     end
 
 end
 
 NodeDescription(op_type, node_name) = NodeDescription(get_def_graph(), op_type, node_name)
+
+function get_cur_node_name()
+    join(op_context.names, "/")
+end
+
+function NodeDescription(op_type)
+    name = get_cur_node_name()
+    NodeDescription(op_type, name)
+end
 
 get_graph(desc::NodeDescription) = Nullable(desc.graph)
 
@@ -390,6 +403,25 @@ type Operation <: AbstractOperation
     filled_in::Bool
 
     Operation() = new()
+end
+
+type OperationContext
+    control_ops::Vector{Vector{Operation}}
+    names::Vector{String}
+end
+
+const op_context = OperationContext(Vector{Operation}[], String[])
+
+function with_op_name(f, name)
+    push!(op_context.names, get_name(name))
+    f()
+    pop!(op_context.names)
+end
+
+function with_op_control(f, control_ops)
+    push!(op_context.control_ops, control_ops)
+    f()
+    pop!(op_context.control_ops)
 end
 
 function Operation(desc::NodeDescription)
