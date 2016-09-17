@@ -364,8 +364,7 @@ type NodeDescription
     ptr::Ptr{Void}
     graph::Graph
 
-    function NodeDescription(graph, op_type, node_name)
-        full_name = join(vcat(op_context.names, node_name), "/")
+    function NodeDescription(graph, op_type, full_name)
         desc = ccall((:TF_NewOperation, LIBTF), Ptr{Void}, (Ptr{Void}, Cstring, Cstring), graph.ptr, op_type, full_name)
         self = new(desc, graph)
         for control_op in vcat(op_context.control_ops)
@@ -377,6 +376,15 @@ type NodeDescription
 end
 
 NodeDescription(op_type, node_name) = NodeDescription(get_def_graph(), op_type, node_name)
+
+function get_cur_node_name()
+    join(op_context.names, "/")
+end
+
+function NodeDescription(op_type)
+    name = get_cur_node_name()
+    NodeDescription(op_type, name)
+end
 
 get_graph(desc::NodeDescription) = Nullable(desc.graph)
 
@@ -405,7 +413,7 @@ end
 const op_context = OperationContext(Vector{Operation}[], String[])
 
 function with_op_name(f, name)
-    push!(op_context.names, name)
+    push!(op_context.names, get_name(name))
     f()
     pop!(op_context.names)
 end

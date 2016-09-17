@@ -102,9 +102,9 @@ end
 @not_implemented function bidirectional_rnn()
 end
 
-function dropout(x, keep_prob; noise_shape=nothing, seed=0, name="")
+function dropout(x, keep_prob; noise_shape=nothing, seed=0, name="Dropout")
     local y
-    tf.with_op_name(get_name(name)) do
+    tf.with_op_name(name) do
         keep_prob = Tensor(keep_prob)
         x_scaled = x/keep_prob
         if noise_shape == nothing
@@ -221,10 +221,10 @@ end
 @not_implemented function fixed_unigram_candidate_sampler()
 end
 
-function l2_normalize(x, dim; epsilon=1e-12, name="")
+function l2_normalize(x, dim; epsilon=1e-12, name="L2Normalize")
     # TODO take into account epsilon
     local out
-    tf.with_op_name(get_name(name)) do
+    tf.with_op_name(name) do
         sums = tf.reduce_sum(x.*x, reduction_indices=[dim], keep_dims=true)
         norm = sqrt(sums)
         out = x/norm
