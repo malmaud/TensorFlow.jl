@@ -445,6 +445,10 @@ function Operation(ptr::Ptr)
     return self
 end
 
+type NodeNameNotFound <: Exception
+    name::String
+end
+
 function fillin_operation(op::Operation)
     op.filled_in && return
     my_desc = get_def(op)
@@ -463,6 +467,11 @@ function fillin_operation(op::Operation)
         graph = get(op.graph)
     end
     if has_field(my_desc, :input)
+        for name in my_desc.input
+            if isnull(get_node_by_name(graph, name))
+                throw(NodeNameNotFound(name))
+            end
+        end
         op.inputs = [Tensor((get_node_by_name(graph, name) |> get)) for name in my_desc.input]
         for input in op.inputs
             fillin_operation(input.op)

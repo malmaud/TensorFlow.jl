@@ -65,7 +65,13 @@ Note this runs *statically*. Use the `shape` operation to dynamically get the sh
 function get_shape(n::TensorFlow.AbstractTensor)
     t = Tensor(n)
     op = t.op
-    fillin_operation(op)
+    try
+        fillin_operation(op)
+    catch err
+        if isa(err, tf.NodeNameNotFound)
+            return TensorShape(nothing)
+        end
+    end
     if op.op_name == "Variable"
         maybe_node = get_node_by_name("$(op.name)/Assign")
         if !isnull(maybe_node)
