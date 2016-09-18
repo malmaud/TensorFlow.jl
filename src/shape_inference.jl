@@ -204,7 +204,7 @@ load_const(x::Tensor) = load_const(x.op)
 
 register_shape("Reshape", op->begin
     n = op.inputs[2]
-    op = get_op(n)
+    op = tf.get_op(n)
     maybe = load_const(op)
     if isnull(maybe)
         return [TensorShape(nothing)]
