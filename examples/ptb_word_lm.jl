@@ -265,7 +265,9 @@ function main(datapath, _config::Config)
     println("Test Perplexity: %.3f" % test_perplexity)
 end
 
-
-filename = datapath = "/work/fredrikb/deeplearning/simple-examples/data/"
+# Download data
+# wget http://www.fit.vutbr.cz/~imikolov/rnnlm/simple-examples.tgz
+# tar xvf simple-examples.tgz
+filename = datapath = "simple-examples/data/"
 config = smallConfig
 main(datapath,config)
