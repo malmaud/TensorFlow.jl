@@ -135,10 +135,15 @@ function log_softmax(logits; name="")
 end
 
 function embedding_lookup(params, ids; partition_strategy="mod", name="", validate_indices=true)
-    if ndims(params) > 0
-        error("Embedding lookup across multiple parameter tensors not supported yet")
+    ids = Tensor(ids)
+    if isa(params, AbstractArray)
+        if length(params) > 1
+            error("Embedding lookup across multiple parameter tensors not supported yet")
+        else
+            params = params[1]
+        end
     end
-    gather(params, id; name=name)
+    tf.gather(params, ids; name=name)
 end
 
 @not_implemented function embedding_lookup_sparse()

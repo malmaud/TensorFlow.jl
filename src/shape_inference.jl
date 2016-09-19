@@ -431,9 +431,7 @@ register_shape("Split", op->begin
     [value_shape for i in 1:num_split]
 end)
 
-register_shape("Pack", op->begin
 
-end)
 
 register_shape("Slice", op->begin
     slices = op.inputs[3]
@@ -450,8 +448,7 @@ register_shape("Slice", op->begin
     end
 end)
 
-register_shape("Tile", op->begin
-end)
+
 
 register_shape("Pad", op->begin
     tensor_shape = copy(get_shape(op.inputs[1]))
@@ -469,14 +466,15 @@ register_shape("Pad", op->begin
     [tensor_shape]
 end)
 
-register_shape("Gather", op->begin
-end)
+function todo_register_shape(name)
+end
 
-register_shape("DynamicPartition", op->begin
-end)
+todo_register_shape("Gather")
+todo_register_shape("DynamicPartition")
+todo_register_shape("DynamicStitch")
+todo_register_shape("Tile")
+todo_register_shape("Pack")
 
-register_shape("DynamicStitch", op->begin
-end)
 
 for func in ["RandomStandardNormal", "RandomUniform"]
     register_shape(func, op->begin

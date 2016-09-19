@@ -14,7 +14,7 @@ function SummaryWriter(log_dir; graph=nothing)
         eval(Main, quote
             TensorFlow.open_events_file($path)
         end)
-    end
+    end    
     if graph !== nothing
         write(self, graph)
     end
@@ -53,7 +53,7 @@ end
 
 function Base.write(writer::SummaryWriter, graph::Graph)
     event = tensorflow.Event()
-    set_field!(event, :graph_def, get_proto(graph))
+    set_field!(event, :graph_def, tf.get_proto(graph))
     write(writer, event)
 end
 

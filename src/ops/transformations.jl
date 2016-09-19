@@ -96,7 +96,7 @@ end
 function gather(params, indices; validate_indices=true, name="")
     desc = NodeDescription("Gather", get_name(name))
     add_input(desc, Tensor(params))
-    add_input(desc, Tensor(indices))
+    add_input(desc, Tensor(indices)-1)
     desc["validate_indices"] = validate_indices
     Tensor(Operation(desc))
 end
