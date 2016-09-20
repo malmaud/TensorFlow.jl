@@ -79,9 +79,12 @@ Tensor
 
 function __init__()
     c_deallocator[] = cfunction(deallocator, Void, (Ptr{Void}, Csize_t, Ptr{Void}))
-    if myid() == 1
-        set_def_graph(Graph())
-        spawn_py_process()
+    set_def_graph(Graph())
+    try
+        py_tf[] = pyimport("tensorflow")
+        pywrap_tensorflow[] = pyimport("tensorflow.python.pywrap_tensorflow")
+    catch err
+        error("The Python TensorFlow package could not be imported. You must install Python TensorFlow before using this package.")
     end
 end
 
