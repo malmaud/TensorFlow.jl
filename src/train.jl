@@ -137,6 +137,10 @@ type Saver
     restore_ops
 end
 
+function Base.show(io::IO, saver::Saver)
+    print(io, "<Saver>")
+end
+
 function Saver(;var_list=nothing, max_to_keep=5)
     if var_list === nothing
         var_list = get_collection(:TrainableVariables)
@@ -196,6 +200,7 @@ function restore(saver::Saver, session::Session, save_path)
         restore_helper!(d, saver, var_name, var_value)
     end
     run(session, saver.restore_ops, d)
+    nothing
 end
 
 include("train/summary_writer.jl")

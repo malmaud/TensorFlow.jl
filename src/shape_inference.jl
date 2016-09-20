@@ -25,9 +25,6 @@ function TensorShape(dim::Void)
     TensorShape(Nullable{Int}[], true)
 end
 
-Base.length(t::TensorShape) = length(t.dims)
-Base.getindex(t::TensorShape, idx) = t.dims[idx]
-
 function Base.show(io::IO, shape::TensorShape)
     get_dim_name = x->begin
         if isnull(x)
@@ -138,7 +135,7 @@ for func in ["Add", "Sub", "Mul", "Div", "Pow"]
         s1 = get_shape(op.inputs[1])
         s2 = get_shape(op.inputs[2])
         if s1.rank_unknown || s2.rank_unknown
-            return TensorShape(nothing)
+            return [TensorShape(nothing)]
         end
         broadcast!(s1, s2)
         dims = Nullable{Int}[]
@@ -215,7 +212,7 @@ register_shape("Reshape", op->begin
     if isnull(maybe)
         return [TensorShape(nothing)]
     else
-        return get(maybe)
+        return [get(maybe)]
     end
 end)
 
@@ -245,7 +242,7 @@ for func in ["Sum", "Prod", "Min", "Max", "All", "Any", "Mean"]
         value_shape = copy(get_shape(op.inputs[1]))
         reduction_dims = op.inputs[2]
         if value_shape.rank_unknown
-            return [TensorShape[nothing]]
+            return [TensorShape(nothing)]
         end
         reduction_dim_values = load_const(reduction_dims)
         if isnull(reduction_dim_values)
