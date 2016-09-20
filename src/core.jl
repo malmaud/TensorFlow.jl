@@ -6,6 +6,8 @@ import Base: setindex!, getindex, run
 const LIB_BASE = joinpath(dirname(@__FILE__), "..", "deps")
 const LIBTF = joinpath(LIB_BASE, "usr", "bin", "libtensorflow_c")
 
+include("py.jl")
+
 type Status
     ptr::Ptr{Void}
     function Status()
@@ -1067,28 +1069,11 @@ end
 
 get_node_by_name(name) = get_node_by_name(get_def_graph(), name)
 
-const py_proc = Ref{Int}()
-
-function spawn_py_process()
-    addprocs(1)
-    py_proc[] = nprocs()
-    eval(Main, :(@everywhere using TensorFlow))
-    path = joinpath(dirname(@__FILE__), "py.jl")
-    remotecall_wait(py_proc[]) do
-        eval(TensorFlow, quote
-            include($path)
-        end)
-    end
-    nothing
-end
-
 function gradients(y, x::AbstractArray)
     x_names = [node_name(_) for _ in x]
     y_name = node_name(y)
     graph_proto = get_def_graph() |> get_proto
-    node_protos, grad_names = remotecall_fetch(py_proc[]) do
-        py_gradients(graph_proto, x_names, y_name)
-    end
+    node_protos, grad_names = py_gradients(graph_proto, x_names, y_name)
     extend_graph(get_def_graph(), node_protos)
     return [Tensor(get_node_by_name(_)|>get, 1) for _ in grad_names]
 end
