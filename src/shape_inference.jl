@@ -107,7 +107,7 @@ function register_shape(func, op_name)
     shape_inferer[op_name] = func
 end
 
-register_shape("Placeholder") do
+register_shape("Placeholder") do op
     graph = tf.get_def_graph()
     if haskey(graph.shapes, op.name)
         return [graph.shapes[op.name]]
@@ -116,7 +116,7 @@ register_shape("Placeholder") do
     end
 end
 
-register_shape("Const") do
+register_shape("Const") do op
     [to_shape([_.size for _ in op.attrs["value"].tensor.tensor_shape.dim])]
 end
 
@@ -125,13 +125,13 @@ for func in ["Log", "Exp", "Neg", "Ceil", "Floor", "Sqrt", "Square",
     "Cast", "Relu", "Relu6", "Elu", "Softplus", "Softsign",
     "Softmax", "Sigmoid", "Tanh", "SparseSoftmaxCrossEntropyWithLogits",
     "LogSoftmax", "LRN", "LogicalAnd", "LogicalNot", "LogicalOr", "LogicalXor"]
-    register_shape(func) do
+    register_shape(func) do op
         [get_shape(op.inputs[1])]
     end
 end
 
 for func in ["Add", "Sub", "Mul", "Div", "Pow"]
-    register_shape(func) do
+    register_shape(func) do op
         s1 = get_shape(op.inputs[1])
         s2 = get_shape(op.inputs[2])
         if s1.rank_unknown || s2.rank_unknown
@@ -150,7 +150,7 @@ for func in ["Add", "Sub", "Mul", "Div", "Pow"]
     end
 end
 
-register_shape("Transpose") do
+register_shape("Transpose") do op
     [TensorShape(reverse(get_shape(op.inputs[1]).dims))]
 end
 
@@ -205,7 +205,7 @@ end
 
 load_const(x::Tensor) = load_const(x.op)
 
-register_shape("Reshape") do
+register_shape("Reshape") do op
     n = op.inputs[2]
     op = tf.get_op(n)
     maybe = load_const(op)
@@ -216,7 +216,7 @@ register_shape("Reshape") do
     end
 end
 
-register_shape("MatMul") do
+register_shape("MatMul") do op
     shape1 = get_shape(op.inputs[1])
     shape2 = get_shape(op.inputs[2])
     if shape1.rank_unknown || shape2.rank_unknown
@@ -236,7 +236,7 @@ register_shape("MatMul") do
 end
 
 for func in ["Sum", "Prod", "Min", "Max", "All", "Any", "Mean"]
-    register_shape(func) do
+    register_shape(func) do op
         # TODO handle case of partial reduction
         keep_dims = tf.load_proto(op.attrs["keep_dims"])
         value_shape = copy(get_shape(op.inputs[1]))
@@ -269,12 +269,12 @@ for func in ["Sum", "Prod", "Min", "Max", "All", "Any", "Mean"]
     end
 end
 
-register_shape("Shape") do
+register_shape("Shape") do op
     s = get_shape(op.inputs[1])
     return [TensorShape([length(s)])]
 end
 
-register_shape("Concat") do
+register_shape("Concat") do op
     dim_op = op.inputs[1]
     if dim_op.op.op_name != "Const"
         return [TensorShape(nothing)]
@@ -290,11 +290,11 @@ register_shape("Concat") do
     [base_shape]
 end
 
-register_shape("Rank") do
+register_shape("Rank") do op
     return [TensorShape([])]
 end
 
-register_shape("OneHot") do
+register_shape("OneHot") do op
     indices = op.inputs[1]
     depth = op.indices[2]
     if depth.op.op_name != "Const"
@@ -305,7 +305,7 @@ register_shape("OneHot") do
     return [TensorShape([indices_shape.dims[1], Nullable(depth_value)])]
 end
 
-register_shape("ExpandDims") do
+register_shape("ExpandDims") do op
     x = op.inputs[1]
     x_shape = get_shape(x)
     dim = op.inputs[2]
@@ -340,7 +340,7 @@ function conv_sizer(widths, strides, filter_shape)
     return div(pos-1, strides)+1
 end
 
-register_shape("Conv2D") do
+register_shape("Conv2D") do op
     #  TODO: this is sometimes off by one when padding is VALID
     input_shape = get_shape(op.inputs[1])
     filter_shape = get_shape(op.inputs[2])
@@ -375,7 +375,7 @@ register_shape("Conv2D") do
     [TensorShape(dims)]
 end
 
-register_shape("MaxPool") do
+register_shape("MaxPool") do op
     # TODO: also can be off by one when padding is VALID
     input_shape = get_shape(op.inputs[1])
     padding = tf.load_proto(op.attrs["padding"])
@@ -411,7 +411,7 @@ register_shape("MaxPool") do
 
 end
 
-register_shape("Split") do
+register_shape("Split") do op
     num_split = op.attrs["num_split"].i
     split_dim = op.inputs[1]
     if split_dim.op.op_name != "Const"
@@ -430,7 +430,7 @@ end
 
 
 
-register_shape("Slice") do
+register_shape("Slice") do op
     slices = op.inputs[3]
     slice_value = load_const(slices)
     if isnull(slice_value)
@@ -447,7 +447,7 @@ end
 
 
 
-register_shape("Pad") do
+register_shape("Pad") do op
     tensor_shape = copy(get_shape(op.inputs[1]))
     paddings = op.inputs[2]
     if paddings.op.op_name != "Const"
@@ -463,8 +463,9 @@ register_shape("Pad") do
     [tensor_shape]
 end
 
-register_shape("Gather") do
-    s = TensorShape([get_shape(indices).dims; get_shape(params).dims[2:end]])
+register_shape("Gather") do op
+    tensor_shape = TensorShape([get_shape(op.inputs[1]).dims; get_shape(op.inputs[2]).dims[2:end]])
+    [tensor_shape]
 end
 
 function todo_register_shape(name)
@@ -477,7 +478,7 @@ todo_register_shape("Pack")
 
 
 for func in ["RandomStandardNormal", "RandomUniform"]
-    register_shape(func) do
+    register_shape(func) do op
         shape = op.inputs[1]
         shape_value = load_const(shape)
         if isnull(shape_value)

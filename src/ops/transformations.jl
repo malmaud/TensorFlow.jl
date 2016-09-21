@@ -3,11 +3,11 @@
 cast(x::Tensor, dtype; name="")
 """
 function cast(x::Tensor, dtype; name="")
-desc = NodeDescription("Cast",get_name(name))
-add_input(desc, x)
-desc["DstT"] = dtype
-# desc["SrcT"] = eltype(x)
-Tensor(Operation(desc), 1)
+    desc = NodeDescription("Cast",get_name(name))
+    add_input(desc, x)
+    desc["DstT"] = dtype
+    # desc["SrcT"] = eltype(x)
+    Tensor(Operation(desc), 1)
 end
 
 """
