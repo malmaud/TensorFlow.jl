@@ -74,7 +74,13 @@ merge_all_summaries,
 image_summary,
 io,
 AbstractTensor,
-Tensor
+Tensor,
+add_n,
+clip_by_value,
+clip_by_norm,
+clip_by_average_norm,
+clip_by_global_norm,
+global_norm
 
 
 function __init__()

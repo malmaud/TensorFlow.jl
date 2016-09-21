@@ -166,8 +166,12 @@ function in_top_k(predictions, targets, k; name="")
     Tensor(Operation(desc))
 end
 
-function l2_loss(t, name="")
-    reduce_sum(t.*t; name=name)
+function l2_loss(t; name="L2_Loss")
+    local out
+    with_op_name(name) do
+        out = sqrt(reduce_sum(t.*t; name=name))
+    end
+    out
 end
 
 @not_implemented function nce_loss()
