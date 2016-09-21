@@ -2,6 +2,7 @@ type PTBiterator
     data
     num_steps
 end
+
 Base.start(iter::PTBiterator) = 1
 
 function Base.next(iter::PTBiterator, i)
@@ -12,7 +13,6 @@ end
 
 Base.done(iter::PTBiterator, i) =  i > iter.length(data)
 
-
 function _read_words(filename)
     s = readstring(filename)
     replace(s,"\n", "<eos>") |> split
@@ -20,7 +20,7 @@ end
 
 function _build_vocab(filename)
     words = _read_words(filename)
-    word_to_id = Dict(zip(words, 1:length(words)))
+    word_to_id = build_rank_dict(words)
     return word_to_id
 end
 
@@ -77,7 +77,7 @@ The second element of the tuple is the same data time-shifted to the
 right by one.
 
 Raises:
-ValueError: if batch_size or num_steps are too high.
+Error: if batch_size or num_steps are too high.
 """
 function PTBiterator(raw_data, batch_size, num_steps)
     raw_data = Array(Int32,raw_data)
@@ -86,12 +86,39 @@ function PTBiterator(raw_data, batch_size, num_steps)
     batch_len = data_len ÷ batch_size
     data = zeros(Int32,batch_size, batch_len)
     for i in 1:batch_size
-        data[i] = raw_data[(batch_len*i+1):(batch_len*(i + 1))]
+        data[i,:] = raw_data[(batch_len*i+1):(batch_len*(i + 1))]
     end
     epoch_size = (batch_len - 1) ÷ num_steps
+    epoch_size == 0 && error("epoch_size == 0, decrease batch_size or num_steps")
 
-    if epoch_size == 0
-        error("epoch_size == 0, decrease batch_size or num_steps")
-    end
     PTBiterator(data,num_steps)
 end
+
+
+"""
+    build_rank_dict(provider, f::Function = identity)
+    build_rank_dictf(f::Function, provider)
+Takes an iterable collection, i.e., an array or whatever and creates a `Dict` with pairs `k => rank`
+where the keys `k` are the entries in `provider` and `rank` is based on the number of times `k` occured in `provider`
+
+`f::Function(l::Vector{Pair{eltype(provider),Int}})` can optionally be supplied. `f` is a function applied to a Vector of pairs, sorted after number of occurances, in descending order. This can be used to filter some entries with to many/few occurances or truncate the length of the dict based on occurances etc. Example:
+```
+a = round(randn(10000));
+build_rank_dict(a)
+build_rank_dict(a, x-> filter(y->y.first>0,x))
+build_rank_dictf(a) do x # This style is equivalent to the row above
+    filter(y->y.first>0,x)
+end
+
+```
+"""
+function build_rank_dict(provider, f::Function = identity)
+  d = Dict{eltype(provider),Int}()
+  for element in provider
+    d[element] = get(d, element, 0) + 1
+  end
+  a = sort(collect(d), by=x->-x.second) |> f
+  return Dict(x.first => i for (i,x) in enumerate(a))
+end
+
+build_rank_dictf(f::Function, provider) = build_rank_dict(provider, f)

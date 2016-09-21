@@ -135,11 +135,11 @@ vocab_size = 10000)
 
 
 
-function PTBModel(is_training, config)
+function PTBModel(is_training=true, config=smallConfig)
 
     batch_size = config.batch_size
     num_steps = config.num_steps
-    size = config.hidden_size
+    hidden_size = config.hidden_size
     vocab_size = config.vocab_size
     input_data = placeholder(Int32, shape=[batch_size, num_steps])
     targets = placeholder(Int32, shape=[batch_size, num_steps])
@@ -147,7 +147,7 @@ function PTBModel(is_training, config)
     # Slightly better results can be obtained with forget gate biases
     # initialized to 1 but the hyperparameters of the model would need to be
     # different than reported in the paper.
-    lstm_cell = nn.rnn_cell.LSTMCell(size)# TODO: nn.rnn_cell.BasicLSTMCell(size, forget_bias=0.0, state_is_tuple=true)
+    lstm_cell = nn.rnn_cell.LSTMCell(hidden_size)# TODO: nn.rnn_cell.BasicLSTMCell(hidden_size, forget_bias=0.0, state_is_tuple=true)
     if is_training && config.keep_prob < 1
         # TODO: lstm_cell = nn.rnn_cell.DropoutWrapper(lstm_cell, output_keep_prob = config.keep_prob)
     end
@@ -155,40 +155,38 @@ function PTBModel(is_training, config)
 
     initial_state = nn.zero_state(cell, batch_size, Float32)
 
-    embedding = get_variable("embedding", [vocab_size, size], Float32)
-    inputs = gather(embedding, input_data);
-    # TODO: replace line above with this, when working: inputs = nn.embedding_lookup(embedding, input_data)
+    embedding = get_variable("embedding", [vocab_size, hidden_size], Float32)
+    inputs = nn.embedding_lookup(embedding, input_data)
 
     if is_training && config.keep_prob < 1
         inputs = nn.dropout(inputs, config.keep_prob)
     end
 
-    inputs = TensorFlow.split(1, num_steps, inputs);
-    outputs, state = nn.rnn(cell, inputs, initial_state=initial_state);
+    inputs = TensorFlow.split(1, num_steps, inputs)
+    outputs, state = nn.rnn(cell, inputs, initial_state=initial_state)
 
-    output = reshape(concat(1, outputs), [-1, size])
-    softmax_w = get_variable("softmax_w", [size, vocab_size], Float32)
+    output = reshape(concat(1, outputs), [-1, hidden_size])
+    softmax_w = get_variable("softmax_w", [hidden_size, vocab_size], Float32)
     softmax_b = get_variable("softmax_b", [vocab_size], Float32)
-    logits = matmul(output, softmax_w) + softmax_b
+    logits = output * softmax_w + softmax_b
     loss = nn.seq2seq.sequence_loss_by_example([logits],[reshape(targets, [-1])],[ones([batch_size * num_steps], Float32)])
     cost = reduce_sum(loss) / batch_size
     final_state = state
 
-    if !is_training
-        return
-    end
+    is_training || return
 
 
     lr = Variable(0.0, trainable=false)
     tvars = trainable_variables()
-    grads, _ = clip_by_global_norm(gradients(cost,tvars), config.max_grad_norm)
+    # grads, _ = clip_by_global_norm(gradients(cost,tvars), config.max_grad_norm) # TODO: use when implemented
     optimizer = train.GradientDescentOptimizer(lr)
-    train_op = optimizer.apply_gradients(zip(grads, tvars))
+    train_op = train.minimize(optimizer, cost)
+    # train_op = optimizer.apply_gradients(zip(grads, tvars)) # TODO: use when implemented
 
     new_lr = placeholder(Float32, shape=[], name="new_learning_rate")
     lr_update = assign(lr, new_lr)
 
-    PTBModel(batch_size,num_steps,size,vocab_size,input_data,targets,initial_state,final_state,cost,lr,train_op,new_lr,lr_update)
+    PTBModel(batch_size,num_steps,hidden_size,vocab_size,input_data,targets,initial_state,final_state,cost,lr,train_op,new_lr,lr_update)
 
 end
 
@@ -208,8 +206,7 @@ function run_epoch(session, model::PTBModel, data, eval_op, verbose=false)
         feed_dict = Dict()
         feed_dict[model.input_data] = x
         feed_dict[model.targets] = y
-        for (i, ch) in enumerate(model.initial_state)
-            c,h = ch
+        for (i, (c,h)) in enumerate(model.initial_state)
             feed_dict[c] = state[i].c
             feed_dict[h] = state[i].h
         end
@@ -226,9 +223,6 @@ end
 
 assign_lr(model, session, lr_value) = run(session,model.lr_update,feed_dict=Dict(model.new_lr => lr_value))
 
-
-
-
 function main(datapath, _config::Config)
     traindata, validdata, testdata, _ = ptb_raw_data(datapath)
 
@@ -237,8 +231,7 @@ function main(datapath, _config::Config)
     eval_config.batch_size = 1
     eval_config.num_steps = 1
 
-    initializer = Uniform(-config.init_scale,
-    config.init_scale)
+    initializer = Uniform(-config.init_scale,config.init_scale)
     variable_scope("model", reuse=false, initializer=initializer) do
         m = PTBModel(true, config)
     end
@@ -270,4 +263,8 @@ end
 # tar xvf simple-examples.tgz
 filename = datapath = "simple-examples/data/"
 config = smallConfig
-main(datapath,config)
+
+
+PTBModel(true, config)
+
+# TODO: make this work: main(datapath,config)

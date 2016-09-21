@@ -25,9 +25,6 @@ function TensorShape(dim::Void)
     TensorShape(Nullable{Int}[], true)
 end
 
-Base.length(t::TensorShape) = length(t.dims)
-Base.getindex(t::TensorShape, idx) = t.dims[idx]
-
 function Base.show(io::IO, shape::TensorShape)
     get_dim_name = x->begin
         if isnull(x)
@@ -65,7 +62,13 @@ Note this runs *statically*. Use the `shape` operation to dynamically get the sh
 function get_shape(n::TensorFlow.AbstractTensor)
     t = Tensor(n)
     op = t.op
-    fillin_operation(op)
+    try
+        fillin_operation(op)
+    catch err
+        if isa(err, tf.NodeNameNotFound)
+            return TensorShape(nothing)
+        end
+    end
     if op.op_name == "Variable"
         maybe_node = get_node_by_name("$(op.name)/Assign")
         if !isnull(maybe_node)
@@ -109,7 +112,6 @@ register_shape("Placeholder", op->begin
     if haskey(graph.shapes, op.name)
         return [graph.shapes[op.name]]
     else
-        info("no shape for $op")
         [to_shape([_.size for _ in op.attrs["shape"].shape.dim])]
     end
 end)
@@ -133,7 +135,7 @@ for func in ["Add", "Sub", "Mul", "Div", "Pow"]
         s1 = get_shape(op.inputs[1])
         s2 = get_shape(op.inputs[2])
         if s1.rank_unknown || s2.rank_unknown
-            return TensorShape(nothing)
+            return [TensorShape(nothing)]
         end
         broadcast!(s1, s2)
         dims = Nullable{Int}[]
@@ -179,6 +181,25 @@ function load_const(op)
             end
         end
     end
+    if op.op_name == "Rank"
+        x = get_shape(op.inputs[1])
+        if x.rank_unknown
+            return Nullable()
+        else
+            return Nullable(length(x.dims))
+        end
+    end
+    if op.op_name == "Range"
+        start = load_const(op.inputs[1])
+        limit = load_const(op.inputs[2])
+        delta = load_const(op.inputs[3])
+        if any(map(isnull, [start, limit, delta]))
+            return Nullable()
+        else
+            return Nullable(collect(get(start):get(delta):(get(limit)-1)))
+        end
+    end
+
     Nullable()
 end
 
@@ -186,12 +207,12 @@ load_const(x::Tensor) = load_const(x.op)
 
 register_shape("Reshape", op->begin
     n = op.inputs[2]
-    op = get_op(n)
+    op = tf.get_op(n)
     maybe = load_const(op)
     if isnull(maybe)
         return [TensorShape(nothing)]
     else
-        return get(maybe)
+        return [get(maybe)]
     end
 end)
 
@@ -221,7 +242,7 @@ for func in ["Sum", "Prod", "Min", "Max", "All", "Any", "Mean"]
         value_shape = copy(get_shape(op.inputs[1]))
         reduction_dims = op.inputs[2]
         if value_shape.rank_unknown
-            return [TensorShape[nothing]]
+            return [TensorShape(nothing)]
         end
         reduction_dim_values = load_const(reduction_dims)
         if isnull(reduction_dim_values)
@@ -407,9 +428,7 @@ register_shape("Split", op->begin
     [value_shape for i in 1:num_split]
 end)
 
-register_shape("Pack", op->begin
 
-end)
 
 register_shape("Slice", op->begin
     slices = op.inputs[3]
@@ -426,8 +445,7 @@ register_shape("Slice", op->begin
     end
 end)
 
-register_shape("Tile", op->begin
-end)
+
 
 register_shape("Pad", op->begin
     tensor_shape = copy(get_shape(op.inputs[1]))
@@ -445,14 +463,15 @@ register_shape("Pad", op->begin
     [tensor_shape]
 end)
 
-register_shape("Gather", op->begin
-end)
+function todo_register_shape(name)
+end
 
-register_shape("DynamicPartition", op->begin
-end)
+todo_register_shape("Gather")
+todo_register_shape("DynamicPartition")
+todo_register_shape("DynamicStitch")
+todo_register_shape("Tile")
+todo_register_shape("Pack")
 
-register_shape("DynamicStitch", op->begin
-end)
 
 for func in ["RandomStandardNormal", "RandomUniform"]
     register_shape(func, op->begin

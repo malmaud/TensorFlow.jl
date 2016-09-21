@@ -1,12 +1,7 @@
 using PyCall
-try
-    global py_tf
-    global pywrap_tensorflow
-    @pyimport tensorflow as py_tf
-    @pyimport tensorflow.python.pywrap_tensorflow as pywrap_tensorflow
-catch err
-    error("The Python TensorFlow package could not be imported. You must install Python TensorFlow before using this package.")
-end
+
+const py_tf = Ref{PyObject}()
+const pywrap_tensorflow = Ref{PyObject}()
 
 function py_with(f, ctx_mngr)
     ctx_mngr[:__enter__]()
@@ -19,11 +14,11 @@ function py_bytes(b::Vector{UInt8})
 end
 
 function make_py_graph(graph_proto)
-    py_graph = py_tf.Graph()
+    py_graph = py_tf[][:Graph]()
     py_with(py_graph[:as_default]()) do
-        graph_def = py_tf.GraphDef()
+        graph_def = py_tf[][:GraphDef]()
         graph_def[:ParseFromString](graph_proto|>py_bytes)
-        py_tf.import_graph_def(graph_def, name="")
+        py_tf[][:import_graph_def](graph_def, name="")
     end
     py_graph
 end
@@ -44,7 +39,7 @@ function py_gradients(jl_graph_proto, x_names, y_name)
     to_py_node = node_name->py_graph[:get_tensor_by_name](string(node_name, ":0"))
     py_x = [to_py_node(node) for node in x_names]
     py_y = to_py_node(y_name)
-    grad_node = py_tf.gradients(py_y, py_x)
+    grad_node = py_tf[][:gradients](py_y, py_x)
     py_graph_def = py_graph[:as_graph_def]()
     grad_names = [_[:name] for _ in grad_node]
     return to_protos(py_graph_def), grad_names
@@ -53,11 +48,11 @@ end
 const events_writer = Ref{PyObject}()
 
 function open_events_file(path)
-    events_writer[] = pywrap_tensorflow.EventsWriter(path)
+    events_writer[] = pywrap_tensorflow[][:EventsWriter](path)
 end
 
 function write_event(event_proto)
-    event = py_tf.Event()
+    event = py_tf[][:Event]()
     event[:ParseFromString](py_bytes(event_proto))
     writer = events_writer[]
     writer[:WriteEvent](event)

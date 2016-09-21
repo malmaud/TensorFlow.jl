@@ -6,6 +6,8 @@ import Base: setindex!, getindex, run
 const LIB_BASE = joinpath(dirname(@__FILE__), "..", "deps")
 const LIBTF = joinpath(LIB_BASE, "usr", "bin", "libtensorflow_c")
 
+include("py.jl")
+
 type Status
     ptr::Ptr{Void}
     function Status()
@@ -364,14 +366,27 @@ type NodeDescription
     ptr::Ptr{Void}
     graph::Graph
 
-    function NodeDescription(graph, op_type, node_name)
-        desc = ccall((:TF_NewOperation, LIBTF), Ptr{Void}, (Ptr{Void}, Cstring, Cstring), graph.ptr, op_type, node_name)
-        new(desc, graph)
+    function NodeDescription(graph, op_type, full_name)
+        desc = ccall((:TF_NewOperation, LIBTF), Ptr{Void}, (Ptr{Void}, Cstring, Cstring), graph.ptr, op_type, full_name)
+        self = new(desc, graph)
+        for control_op in vcat(op_context.control_ops)
+            add_control_input(self, control_op)
+        end
+        self
     end
 
 end
 
 NodeDescription(op_type, node_name) = NodeDescription(get_def_graph(), op_type, node_name)
+
+function get_cur_node_name()
+    join(op_context.names, "/")
+end
+
+function NodeDescription(op_type)
+    name = get_cur_node_name()
+    NodeDescription(op_type, name)
+end
 
 get_graph(desc::NodeDescription) = Nullable(desc.graph)
 
@@ -390,6 +405,25 @@ type Operation <: AbstractOperation
     filled_in::Bool
 
     Operation() = new()
+end
+
+type OperationContext
+    control_ops::Vector{Vector{Operation}}
+    names::Vector{String}
+end
+
+const op_context = OperationContext(Vector{Operation}[], String[])
+
+function with_op_name(f, name)
+    push!(op_context.names, get_name(name))
+    f()
+    pop!(op_context.names)
+end
+
+function with_op_control(f, control_ops)
+    push!(op_context.control_ops, control_ops)
+    f()
+    pop!(op_context.control_ops)
 end
 
 function Operation(desc::NodeDescription)
@@ -413,6 +447,10 @@ function Operation(ptr::Ptr)
     return self
 end
 
+type NodeNameNotFound <: Exception
+    name::String
+end
+
 function fillin_operation(op::Operation)
     op.filled_in && return
     my_desc = get_def(op)
@@ -431,6 +469,11 @@ function fillin_operation(op::Operation)
         graph = get(op.graph)
     end
     if has_field(my_desc, :input)
+        for name in my_desc.input
+            if isnull(get_node_by_name(graph, name))
+                throw(NodeNameNotFound(name))
+            end
+        end
         op.inputs = [Tensor((get_node_by_name(graph, name) |> get)) for name in my_desc.input]
         for input in op.inputs
             fillin_operation(input.op)
@@ -1026,28 +1069,11 @@ end
 
 get_node_by_name(name) = get_node_by_name(get_def_graph(), name)
 
-const py_proc = Ref{Int}()
-
-function spawn_py_process()
-    addprocs(1)
-    py_proc[] = nprocs()
-    eval(Main, :(@everywhere using TensorFlow))
-    path = joinpath(dirname(@__FILE__), "py.jl")
-    remotecall_wait(py_proc[]) do
-        eval(TensorFlow, quote
-            include($path)
-        end)
-    end
-    nothing
-end
-
 function gradients(y, x::AbstractArray)
     x_names = [node_name(_) for _ in x]
     y_name = node_name(y)
     graph_proto = get_def_graph() |> get_proto
-    node_protos, grad_names = remotecall_fetch(py_proc[]) do
-        py_gradients(graph_proto, x_names, y_name)
-    end
+    node_protos, grad_names = py_gradients(graph_proto, x_names, y_name)
     extend_graph(get_def_graph(), node_protos)
     return [Tensor(get_node_by_name(_)|>get, 1) for _ in grad_names]
 end

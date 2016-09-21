@@ -28,7 +28,7 @@ macro not_implemented(f)
     end
 end
 
-const name_idx = Ref{Int}(1)
+const name_idx = Dict{String,Int}()
 
 function capitalize(s)
     string(uppercase(s[1]), s[2:end])
@@ -36,34 +36,39 @@ end
 
 capitalize(s::Symbol) = capitalize(string(s))
 
-function get_name(name="")
-    if length(name) > 0
-        return name
+function get_name(name="node")
+    if name == ""
+        name = "node"
+    end
+    cur_idx = get(name_idx, name, 1)
+    name_idx[name] = cur_idx + 1
+    if cur_idx == 1
+        name
     else
-        name = "node$(name_idx[])"
-        name_idx[] += 1
-        return name
+        string(name, "_", cur_idx)
     end
 end
 
-function placeholder(dtype; name="", shape=nothing)
-    name = get_name(name)
-    graph = get_def_graph()
-    desc = NodeDescription(graph, "Placeholder", name)
-    desc["dtype"] = dtype
-    node = Operation(desc)
-    if shape===nothing
-        graph.shapes[name] = ShapeInference.TensorShape(nothing)
-    else
-        dims = Nullable{Int}[]
-        for dim in shape
-            if dim==-1 || dim==nothing
-                push!(dims, Nullable{Int}())
-            else
-                push!(dims, Nullable(dim))
+function placeholder(dtype; name="placeholder", shape=nothing)
+    local node
+    with_op_name(name) do
+        graph = get_def_graph()
+        desc = NodeDescription("Placeholder")
+        desc["dtype"] = dtype
+        node = Operation(desc)
+        if shape===nothing
+            graph.shapes[name] = ShapeInference.TensorShape(nothing)
+        else
+            dims = Nullable{Int}[]
+            for dim in shape
+                if dim==-1 || dim==nothing
+                    push!(dims, Nullable{Int}())
+                else
+                    push!(dims, Nullable(dim))
+                end
             end
+            graph.shapes[get_cur_node_name()] = ShapeInference.TensorShape(dims)
         end
-        graph.shapes[name] = ShapeInference.TensorShape(dims)
     end
     Tensor(node, 1)
 end
@@ -76,13 +81,16 @@ for (bin_op, jl_func_name, tf_func_name) in [
     (:*, :matmul, "MatMul"),
     (:/, :div, "Div"),
     (:^, :pow, "Pow")]
-    @eval function $jl_func_name(n1::AbstractTensor, n2::AbstractTensor; name="")
-        n1 = Tensor(n1)
-        n2 = Tensor(n2)
-        name = get_name(name)
-        desc = NodeDescription($tf_func_name, name)
-        add_input(desc, n1)
-        add_input(desc, n2)
+    @eval function $jl_func_name(n1::AbstractTensor, n2::AbstractTensor; name=$tf_func_name)
+        local desc
+        with_op_name(name) do
+            n1 = Tensor(n1)
+            n2 = Tensor(n2)
+            name = get_name(name)
+            desc = NodeDescription($tf_func_name)
+            add_input(desc, n1)
+            add_input(desc, n2)
+        end
         Tensor(Operation(desc), 1)
     end
 
@@ -114,11 +122,14 @@ for (jl_func_name, tf_func_name) in [
     (:tanh, "Tanh"),
     (:shape, "Shape"),
     (:transpose, "Transpose")]
-    @eval function $jl_func_name(n::AbstractTensor; name="")
-        n = Tensor(n)
-        name = get_name(name)
-        desc = NodeDescription($tf_func_name, name)
-        add_input(desc, n)
+    @eval function $jl_func_name(n::AbstractTensor; name=$tf_func_name)
+        local desc
+        with_op_name(name) do
+            n = Tensor(n)
+            name = get_name(name)
+            desc = NodeDescription($tf_func_name, name)
+            add_input(desc, n)
+        end
         Tensor(Operation(desc), 1)
     end
 end
@@ -160,27 +171,36 @@ for reduction in [:sum, :prod, :min, :max, :all, :any, :mean]
     end
 end
 
-function read_file(filename; name="")
-    desc = NodeDescription("ReadFile", get_name(name))
-    add_input(desc, Tensor(filename))
+function read_file(filename; name="ReadFile")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("ReadFile")
+        add_input(desc, Tensor(filename))
+    end
     Tensor(Operation(desc), 1)
 end
 
 Base.read(::Type{Tensor}, filename) = read_file(filename)
 
-function argmin(n::AbstractTensor, dim; name="")
-    desc = NodeDescription("ArgMin", get_name(name))
-    add_input(desc, Tensor(n))
-    add_input(desc, Tensor(convert_number(Int32,dim)))
+function argmin(n::AbstractTensor, dim; name="ArgMin")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("ArgMin", get_name(name))
+        add_input(desc, Tensor(n))
+        add_input(desc, Tensor(convert_number(Int32,dim)))
+    end
     Tensor(Operation(desc), 1)
 end
 
 Base.indmin(n::AbstractTensor, dim) = argmin(n, dim-1)
 
-function argmax(n::AbstractTensor, dim; name="")
-    desc = NodeDescription("ArgMax", get_name(name))
-    add_input(desc, Tensor(n))
-    add_input(desc, Tensor(convert_number(Int32, dim)))
+function argmax(n::AbstractTensor, dim; name="ArgMax")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("ArgMax", get_name(name))
+        add_input(desc, Tensor(n))
+        add_input(desc, Tensor(convert_number(Int32, dim)))
+    end
     Tensor(Operation(desc), 1)
 end
 
