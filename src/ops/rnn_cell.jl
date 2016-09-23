@@ -120,5 +120,28 @@ function (cell::GRUCell)(input, state)
     return [s2, s2]
 end
 
+type MultiRNNCell <: RNNCell
+    cells::Vector
+    state_is_tuple::Bool
+end
+
+function output_size(cell::MultiRNNCell)
+    output_size(cell.cells[end])
+end
+
+function state_size(cell::MultiRNNCell)
+    # TODO
+end
+
+function zero_state(cell::MultiRNNCell, batch_size, T)
+    # TODO
+end
+
+function (cell::MultiRNNCell)(input, state)
+    for subcell in cell.cells
+        input, state = subcell(input, state)
+    end
+    input, state
+end
 
 end

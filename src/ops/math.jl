@@ -1,3 +1,19 @@
+"""
+`function add_n(inputs; name="AddN")`
+
+Adds all input tensors element-wise.
+
+Args:
+  inputs: A list of `Tensor` objects, each with same shape and type.
+  name: A name for the operation (optional).
+
+Returns:
+  A `Tensor` of same shape and type as the elements of `inputs`.
+
+Raises:
+  ValueError: If `inputs` don't all have same shape and dtype or the shape
+  cannot be inferred.
+"""
 function add_n(inputs; name="AddN")
     local desc
     with_op_name(name) do

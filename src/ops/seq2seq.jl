@@ -58,12 +58,24 @@ end
 @not_implemented function model_with_buckets()
 end
 
-@not_implemented function rnn_decoder(decoder_inputs, initial_state, cell; scope="")
-    tf.with_op_name(scope) do
-        for input in decoder_inputs
 
+function rnn_decoder(decoder_inputs, initial_state, cell; scope="", loop_function=nothing)
+    state = initial_state
+    outputs = tf.Tensor[]
+    prev = nothing
+    for (i, input) in enumerate(decoder_inputs)
+        tf.variable_scope(scope, reuse=i>1) do
+            if prev !== nothing && loop_function !== nothing
+                tf.variable_scope("loop_function", reuse=true) do
+                    input = loop_function(prev, i)
+                end
+            end
+            output, state = cell(input, state)
+            push!(outputs, output)
+            prev = output
         end
     end
+    outputs, state
 end
 
 end

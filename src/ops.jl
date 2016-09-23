@@ -49,6 +49,34 @@ function get_name(name="node")
     end
 end
 
+"""
+Inserts a placeholder for a tensor that will be always fed.
+
+**Important**: This tensor will produce an error if evaluated. Its value must
+be fed using the third argument argument to `run(::Session, ...`.
+
+For example:
+
+```julia
+x = placeholder(Float32, shape=[1024, 1024])
+y = x*x
+sess = Session()
+print(run(sess, y))  # ERROR: will fail because x was not fed.
+
+rand_array = rand(1024, 1024)
+print(run(sess, y, Dict(x=>rand_array)))  # Will succeed.
+```
+
+Args:
+  * dtype: The type of elements in the tensor to be fed.
+  * shape: The shape of the tensor to be fed (optional). If the shape is not
+    specified, you can feed a tensor of any shape.
+  * name: A name for the operation (optional).
+
+Returns:
+  A `Tensor` that may be used as a handle for feeding a value, but not
+  evaluated directly.
+"""
 function placeholder(dtype; name="placeholder", shape=nothing)
     local node
     with_op_name(name) do
@@ -73,6 +101,16 @@ function placeholder(dtype; name="placeholder", shape=nothing)
     Tensor(node, 1)
 end
 
+"""
+Reads and outputs the entire contents of the input filename.
+
+Args:
+  * filename: A `Tensor` of type `string`.
+  * name: A name for the operation (optional).
+
+Returns:
+  A `Tensor` of type `string`.
+"""
 function read_file(filename; name="ReadFile")
     local desc
     with_op_name(name) do

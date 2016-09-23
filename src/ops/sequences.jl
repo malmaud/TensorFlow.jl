@@ -70,6 +70,7 @@ function Base.linspace(::Type{Tensor}, start, stop, num; name="LinSpace")
     Tensor(Operation(desc), 1)
 end
 
+
 function Base.range(::Type{Tensor}, start; limit=nothing, delta=1, name="Range")
     if limit == nothing
         limit = start
@@ -85,7 +86,30 @@ function Base.range(::Type{Tensor}, start; limit=nothing, delta=1, name="Range")
     Tensor(Operation(desc), 1)
 end
 
+"""
+`function fill(n::AbstractTensor, dims::AbstractTensor)`
 
+Creates a tensor filled with a scalar value.
+
+This operation creates a tensor of shape `dims` and fills it with `value`.
+
+For example:
+
+```prettyprint
+# Output tensor has shape [2, 3].
+fill([2, 3], 9) ==> [[9, 9, 9]
+                     [9, 9, 9]]
+```
+
+Args:
+  dims: A `Tensor` of type `int32`.
+    1-D. Represents the shape of the output tensor.
+  value: A `Tensor`. 0-D (scalar). Value to fill the returned tensor.
+  name: A name for the operation (optional).
+
+Returns:
+  A `Tensor`. Has the same type as `value`.
+"""
 function Base.fill(n::AbstractTensor, dims::AbstractTensor; name="Fill")
     local desc
     with_op_name(name) do
