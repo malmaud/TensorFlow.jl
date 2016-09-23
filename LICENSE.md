@@ -20,3 +20,10 @@ The TensorFlow.jl package is licensed under the MIT "Expat" License:
 > CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 > TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 > SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+The TensorFlow library that is installed as a consequence of installing this library
+ is separately licensed under the "Apache License", version 2.0. Its source code can be obtained at
+ https://github.com/tensorflow/tensorflow. The text of the Apache license is available at as in https://raw.githubusercontent.com/tensorflow/tensorflow/master/LICENSE.  
+
+Certain sections of the documentation are copied mostly or totally verbatim from the documentation of Google's TensorFlow library,
+which is permitted under the terms of the Apache version 2.0 license. 

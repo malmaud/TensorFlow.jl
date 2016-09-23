@@ -29,7 +29,8 @@ l2_loss,
 log_poisson_loss,
 nce_loss,
 sampled_softmax_loss,
-batch_normalization
+batch_normalization,
+seq2seq
 
 import TensorFlow
 const tf = TensorFlow
@@ -247,5 +248,6 @@ end
 @not_implemented function weighted_cross_entropy_with_logits()
 end
 
+include("seq2seq.jl")
 
 end
