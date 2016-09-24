@@ -75,10 +75,13 @@ function rnn(cell, inputs; initial_state=nothing, dtype=nothing, sequence_length
             error("dtype must be set if initial_state is not provided")
         end
         shape = get_shape(inputs[1])
-        if shape == -1
+        if shape.rank_unknown
             error("Shape of input is unknown")
         end
-        batch_size = shape[1]
+        if isnull(shape.dims[1])
+            error("Batch size of input is unknown")
+        end
+        batch_size = get(shape.dims[1])
         initial_state = zero_state(cell, batch_size, dtype)
     end
     outputs = Tensor[]

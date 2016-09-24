@@ -7,10 +7,11 @@ type Variable <: AbstractTensor
     Variable() = new()
 end
 
-function Variable(initial_value; name="", trainable=true)
+function Variable(initial_value; name="", trainable=true, literal_name=false)
     self = Variable()
-
-    name = get_name(name)
+    if !literal_name
+        name = get_name(name)
+    end
     desc = NodeDescription("Variable", name)
     desc["dtype"] = eltype(initial_value)
     desc["shape"] = size(initial_value)
@@ -106,7 +107,7 @@ function get_variable(var_name, shape, dtype; trainable=true, kwargs...)
             else
                 iv = rand(initializer, 1)[1]
             end
-            v = Variable(map(dtype, iv), name=name, trainable=trainable)
+            v = Variable(map(dtype, iv), name=name, trainable=trainable, literal_name=true)
         end
     finally
         pop!(scope_stack)

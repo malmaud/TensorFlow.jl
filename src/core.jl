@@ -647,7 +647,7 @@ function Operation(node_def::tensorflow.NodeDef)
             elseif attr_name == "use_cudnn_on_gpu"
                 desc["use_cudnn_on_gpu"] = attr.b
             elseif attr_name == "axis"
-                desc["axis"] = attr.i
+                desc["axis"] = attr.i            
             else
                 warn("Unrecognized attribute $attr_name")
             end

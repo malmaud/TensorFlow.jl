@@ -296,12 +296,16 @@ end
 
 register_shape("OneHot") do op
     indices = op.inputs[1]
-    depth = op.indices[2]
-    if depth.op.op_name != "Const"
+    depth = op.inputs[2]
+    maybe_depth_value = load_const(depth)
+    if isnull(maybe_depth_value)
         return [TensorShape(nothing)]
     end
-    depth_value = depth.attrs["value"].tensor.int_val[1]
+    depth_value = get(maybe_depth_value)
     indices_shape = get_shape(indices)
+    if indices_shape.rank_unknown
+        return [TensorShape(nothing)]
+    end
     return [TensorShape([indices_shape.dims[1], Nullable(depth_value)])]
 end
 
