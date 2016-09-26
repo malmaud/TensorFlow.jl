@@ -1094,7 +1094,15 @@ function gradients(y, x::AbstractArray)
     graph_proto = get_def_graph() |> get_proto
     node_protos, grad_names = py_gradients(graph_proto, x_names, y_name)
     extend_graph(get_def_graph(), node_protos)
-    return [Tensor(get_node_by_name(_)|>get, 1) for _ in grad_names]
+    out = []
+    for name in grad_names
+        if isa(name, String)
+            push!(out, Tensor(get_node_by_name(name)|>get, 1))
+        else
+            push!(out, IndexedSlices(Tensor(get_node_by_name(name[1])|>get,1), Tensor(get_node_by_name(name[2])|>get,1)))
+        end
+    end
+    return out
 end
 
 gradients(y, x) = gradients(y, [x])[1]
@@ -1115,3 +1123,8 @@ end
 
 get_op(op::Operation) = op
 get_op(t::AbstractTensor) = Tensor(t).op
+
+type IndexedSlices
+    values::Tensor
+    indices::Tensor
+end

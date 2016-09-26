@@ -41,7 +41,15 @@ function py_gradients(jl_graph_proto, x_names, y_name)
     py_y = to_py_node(y_name)
     grad_node = py_tf[][:gradients](py_y, py_x)
     py_graph_def = py_graph[:as_graph_def]()
-    grad_names = [_[:name] for _ in grad_node]
+    grad_names = []
+    for node in grad_node
+        try
+            push!(grad_names, (node[:values][:name], node[:indices][:name]))
+        catch
+            push!(grad_names, node[:name])
+        end
+    end
+    # grad_names = [_[:name] for _ in grad_node]
     # grad_names = []
     return to_protos(py_graph_def), grad_names
 end
