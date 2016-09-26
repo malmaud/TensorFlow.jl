@@ -665,6 +665,8 @@ function Operation(node_def::tensorflow.NodeDef)
                 desc["use_cudnn_on_gpu"] = attr.b
             elseif attr_name == "axis"
                 desc["axis"] = attr.i
+            elseif attr_name ∈ ("begin_mask", "ellipsis_mask", "shrink_axis_mask", "new_axis_mask", "end_mask")
+                desc[attr_name] = attr.i
             else
                 warn("Unrecognized attribute $attr_name")
             end
@@ -742,7 +744,7 @@ function Base.show(io::IO, t::Tensor)
     print(io, "<Tensor $(node_name(t.op)):$(t.value_index) shape=$(shape) dtype=$(dtype)>")
 end
 
-node_name(t::AbstractTensor) = (node_name(Tensor(t).op), t.value_index)
+node_name(t::AbstractTensor) = (node_name(Tensor(t).op), Tensor(t).value_index)
 
 Tensor(op::Operation) = Tensor(op, 1)
 

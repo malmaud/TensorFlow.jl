@@ -84,7 +84,7 @@ function apply_gradients(optimizer::MomentumOptimizer, grads_and_vars; global_st
     for (grad, var) in grads_and_vars
         local momentum
         variable_scope(name) do
-            variable_scope(node_name(var)) do
+            variable_scope(node_name(var)[1]) do
                 momentum = get_variable("momentum", get_shape(var), eltype(var), initializer=ConstantInitializer(0.0), trainable=false)
             end
         end
@@ -111,7 +111,7 @@ function apply_gradients(optimizer::AdamOptimizer, grads_and_vars; global_step=n
     for (grad, var) in grads_and_vars
         local m, v
         variable_scope(name) do
-            variable_scope(node_name(var)) do
+            variable_scope(node_name(var)[1]) do
                 m = get_variable("m", get_shape(var), eltype(var), initializer=ConstantInitializer(0.0), trainable=false)
                 v = get_variable("v", get_shape(var), eltype(var), initializer=ConstantInitializer(0.0), trainable=false)
             end
@@ -149,7 +149,7 @@ function Saver(;var_list=nothing, max_to_keep=5)
     restore_ops = []
     for var in var_list
         ph = placeholder(eltype(var))
-        placeholders[node_name(var)] = ph
+        placeholders[node_name(var)[1]] = ph
         restore_op = assign(var, ph)
         push!(restore_ops, restore_op)
     end
@@ -164,7 +164,7 @@ function FileIO.save(saver::Saver, session::Session, path; global_step=nothing)
     jldopen(path, "w") do file
         for var_node in saver.var_list
             var_value = run(session, var_node)
-            write(file, node_name(var_node), var_value)
+            write(file, node_name(var_node)[1], var_value)
         end
     end
     versions = Int[]
