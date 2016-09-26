@@ -565,15 +565,32 @@ end
 function Operation(node_def::tensorflow.NodeDef)
     graph = get_def_graph()
     desc = NodeDescription(graph, node_def.op, node_def.name)
+    # This is a weird hack to deal with the fact that gradients/Gather_grad/concat/values_0 is 0 when it should be -1
+    # Maybe a bug in ProtoBuf.jl?
+    if node_def.op == "Const"
+        if false#ismatch(r"concat/values_\d+$", node_def.name) || ismatch(r"Slice/concat", node_def.name) #|| ismatch(r"ExpandDims/dim$", node_def.name)
+            info("op match found")
+            if load_proto(node_def.attr["value"]) == Int32[0]
+                info("Performing hack replacement")
+                node_def.attr["value"].tensor.int_val = Int32[-1]
+            elseif load_proto(node_def.attr["value"]) == Int32(0)
+                info("hack 2")
+                node_def.attr["value"].tensor.int_val = Int32[-1]
+            end
+
+        end
+    end
     if node_def.op == "DynamicStitch"
         inputs = []
+        ports = []
         for input in node_def.input
             input, port = parse_port_name(input)
             input_node = get_node_by_name(graph, input)|>get
             push!(inputs, input_node)
+            push!(ports, port)
         end
-        add_input(desc, [Tensor(inputs[1], 1), Tensor(inputs[2], 1)])
-        add_input(desc, [Tensor(inputs[3], 1), Tensor(inputs[4], 1)])
+        add_input(desc, [Tensor(inputs[1], ports[1]), Tensor(inputs[2], ports[2])])
+        add_input(desc, [Tensor(inputs[3], ports[3]), Tensor(inputs[4], ports[4])])
         return Operation(desc)
     end
     if node_def.op ∈ ("ConcatOffset", "Concat")
@@ -624,7 +641,7 @@ function Operation(node_def::tensorflow.NodeDef)
     end
     if isdefined(node_def, :attr)  # TODO: complete this
         for (attr_name, attr) in node_def.attr
-            if attr_name ∈ ("dtype", "T", "DstT", "SrcT")
+            if attr_name ∈ ("dtype", "T", "DstT", "SrcT", "Index")
                 ccall((:TF_SetAttrType, LIBTF), Void, (Ptr{Void}, Cstring, Cint), desc.ptr, attr_name, attr._type)
             elseif attr_name == "value"
                 desc["value"] = RawTensor(load_proto(attr.tensor))
@@ -647,7 +664,7 @@ function Operation(node_def::tensorflow.NodeDef)
             elseif attr_name == "use_cudnn_on_gpu"
                 desc["use_cudnn_on_gpu"] = attr.b
             elseif attr_name == "axis"
-                desc["axis"] = attr.i            
+                desc["axis"] = attr.i
             else
                 warn("Unrecognized attribute $attr_name")
             end
@@ -725,7 +742,7 @@ function Base.show(io::IO, t::Tensor)
     print(io, "<Tensor $(node_name(t.op)):$(t.value_index) shape=$(shape) dtype=$(dtype)>")
 end
 
-node_name(t::AbstractTensor) = node_name(Tensor(t).op)
+node_name(t::AbstractTensor) = (node_name(Tensor(t).op), t.value_index)
 
 Tensor(op::Operation) = Tensor(op, 1)
 

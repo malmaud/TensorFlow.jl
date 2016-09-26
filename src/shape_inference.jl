@@ -310,6 +310,7 @@ register_shape("OneHot") do op
 end
 
 register_shape("ExpandDims") do op
+    return [TensorShape(nothing)]
     x = op.inputs[1]
     x_shape = get_shape(x)
     dim = op.inputs[2]
@@ -320,7 +321,7 @@ register_shape("ExpandDims") do op
             return [TensorShape([Nullable{Int}() for dim in 1:(length(x_shape.dims)+1)])]
         end
     end
-    dim_value = load_proto(dim.op.attrs["value"])[1]
+    dim_value = tf.load_proto(dim.op.attrs["value"])[1]
     insert!(x_shape.dims, dim_value, Nullable(1))
     return [x_shape]
 end

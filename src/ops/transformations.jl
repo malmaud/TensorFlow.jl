@@ -350,7 +350,7 @@ https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#gather
 function gather(params, indices; validate_indices=true, name="")
     desc = NodeDescription("Gather", get_name(name))
     add_input(desc, Tensor(params))
-    add_input(desc, Tensor(indices)-1)
+    add_input(desc, Tensor(indices))
     desc["validate_indices"] = validate_indices
     Tensor(Operation(desc))
 end
