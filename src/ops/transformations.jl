@@ -350,7 +350,7 @@ https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#gather
 function gather(params, indices; validate_indices=true, name="")
     desc = NodeDescription("Gather", get_name(name))
     add_input(desc, Tensor(params))
-    add_input(desc, Tensor(indices))
+    add_input(desc, Tensor(indices)-1)
     desc["validate_indices"] = validate_indices
     Tensor(Operation(desc))
 end
@@ -388,7 +388,7 @@ https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#one_hot
 """
 function one_hot(indices, depth; on_value=Float32(1), off_value=Float32(0), axis=-1, dtype=Float32, name="")
     desc = NodeDescription("OneHot", get_name(name))
-    add_input(desc, Tensor(indices))
+    add_input(desc, Tensor(indices)-1)
     add_input(desc, Tensor(Int32(depth)))
     add_input(desc, Tensor(dtype(on_value)))
     add_input(desc, Tensor(dtype(off_value)))

@@ -36,6 +36,35 @@ function assign(v::Variable, value)
     return Tensor(Operation(desc), 1)
 end
 
+function assign_sub(v::Variable, value)
+    desc = NodeDescription("AssignSub", get_name())
+    add_input(desc, v.var_node)
+    add_input(desc, Tensor(value))
+    return Tensor(Operation(desc), 1)
+end
+
+function scatter_update(ref, indices, updates; name="ScatterUpdate")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("ScatterUpdate")
+        add_input(desc, Tensor(ref))
+        add_input(desc, Tensor(indices))
+        add_input(desc, Tensor(updates))
+    end
+    Tensor(Operation(desc))
+end
+
+function scatter_sub(ref, indices, updates; name="ScatterSub")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("ScatterSub")
+        add_input(desc, Tensor(ref))
+        add_input(desc, Tensor(indices))
+        add_input(desc, Tensor(updates))
+    end
+    Tensor(Operation(desc))
+end
+
 Base.setindex!(v::Variable, value) = assign(v, value)
 
 Base.convert(::Type{Tensor}, v::Variable) = Tensor(v.var_node, 1)

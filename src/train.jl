@@ -61,10 +61,18 @@ end
 
 GradientDescentOptimizer(learning_rate; name="descent") = GradientDescentOptimizer(Tensor(learning_rate), name)
 
+function general_assign_sub(var, learning_rate, grad::Tensor)
+    tf.assign_sub(var, cast(learning_rate, eltype(var)) .* grad)
+end
+
+function general_assign_sub(var, learning_rate, grad::tf.IndexedSlices)
+    tf.scatter_sub(var.var_node, grad.indices, cast(learning_rate, eltype(var)) .* grad.values)
+end
+
 function apply_gradients(optimizer::GradientDescentOptimizer, grads_and_vars; global_step=nothing, name="descent")
     ops = Tensor[]
     for (grad, var) in grads_and_vars
-        push!(ops, assign(var, var - cast(optimizer.learning_rate, eltype(var)).*grad))
+        push!(ops, general_assign_sub(var, optimizer.learning_rate, grad))
     end
     @advance_step
     return group(ops...)
@@ -88,9 +96,17 @@ function apply_gradients(optimizer::MomentumOptimizer, grads_and_vars; global_st
                 momentum = get_variable("momentum", get_shape(var), eltype(var), initializer=ConstantInitializer(0.0), trainable=false)
             end
         end
-        step = -optimizer.learning_rate .* grad + optimizer.momentum .* momentum
-        push!(ops, assign(var, var + step))
-        push!(ops, assign(momentum, step))
+        if isa(grad, tf.IndexedSlices)
+            momentum_slice = tf.gather(momentum, grad.indices)
+            step = -optimizer.learning_rate .* grad.values + optimizer.momentum .* momentum_slice
+            push!(ops, tf.scatter_sub(var.var_node, grad.indices, -step))
+            push!(ops, tf.scatter_update(momentum, grad.indices, step))
+        else
+            step = -optimizer.learning_rate .* grad + optimizer.momentum .* momentum
+            push!(ops, assign(var, var + step))
+            push!(ops, assign(momentum, step))
+        end
+
     end
     return group(ops...)
 end
@@ -120,12 +136,22 @@ function apply_gradients(optimizer::AdamOptimizer, grads_and_vars; global_step=n
         β2 = eltype(var)(optimizer.β2)
         ϵ = eltype(var)(optimizer.ϵ)
         η = eltype(var)(optimizer.η)
-        m_new = β1 .* m + (1-β1).*grad
-        v_new = β2 .* v + (1-β2).*(grad.^2)
-        # TODO use m_hat
-        push!(ops, assign(var, var - η/(sqrt(v_new)+ϵ) .* m_new))
-        push!(ops, assign(m, m_new))
-        push!(ops, assign(v, v_new))
+        if isa(grad, tf.IndexedSlices)
+            m_slice = tf.gather(m, grad.indices)
+            v_slice = tf.gather(v, grad.indices)
+            m_new = β1 .* m_slice + (1-β1) .* grad.values
+            v_new = β2 .* v_slice + (1-β2) .* (grad.values .^ 2)
+            push!(ops, tf.scatter_sub(var.var_node, grad.indices, η/(sqrt(v_new)+ϵ) .* m_new))
+            push!(ops, tf.scatter_update(m.var_node, grad.indices, m_new))
+            push!(ops, tf.scatter_update(m.var_node, grad.indices, v_new))
+        else
+            m_new = β1 .* m + (1-β1).*grad
+            v_new = β2 .* v + (1-β2).*(grad.^2)
+            # TODO use m_hat
+            push!(ops, tf.assign_sub(var, η/(sqrt(v_new)+ϵ) .* m_new))
+            push!(ops, assign(m, m_new))
+            push!(ops, assign(v, v_new))
+        end
     end
     return group(ops...)
 end
