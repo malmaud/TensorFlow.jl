@@ -82,15 +82,21 @@ clip_by_average_norm,
 clip_by_global_norm,
 global_norm
 
+const pyproc = Ref{Int}()
 
 function __init__()
     c_deallocator[] = cfunction(deallocator, Void, (Ptr{Void}, Csize_t, Ptr{Void}))
-    set_def_graph(Graph())
-    try
-        py_tf[] = pyimport("tensorflow")
-        pywrap_tensorflow[] = pyimport("tensorflow.python.pywrap_tensorflow")
-    catch err
-        error("The Python TensorFlow package could not be imported. You must install Python TensorFlow before using this package.")
+    if myid() == 1
+        set_def_graph(Graph())
+        addprocs(1)
+        pyproc[] = nprocs()
+        py_file = joinpath(dirname(@__FILE__), "py.jl")
+        eval(Main, quote
+            remotecall_wait($(pyproc[]), $py_file) do py_file
+                include(py_file)
+                init()
+            end
+        end)
     end
 end
 

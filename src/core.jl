@@ -1092,7 +1092,13 @@ function gradients(y, x::AbstractArray)
     x_names = [node_name(_) for _ in x]
     y_name = node_name(y)
     graph_proto = get_def_graph() |> get_proto
-    node_protos, grad_names = py_gradients(graph_proto, x_names, y_name)
+    eval(Main, quote
+        node_protos, grad_names = remotecall_fetch(($pyproc[])) do
+            py_gradients($graph_proto, $x_names, $y_name)
+        end
+    end)
+    node_protos = Main.node_protos
+    grad_names = Main.grad_names
     extend_graph(get_def_graph(), node_protos)
     out = []
     for name in grad_names

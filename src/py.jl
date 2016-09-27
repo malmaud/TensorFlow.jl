@@ -1,7 +1,17 @@
+
 using PyCall
 
 const py_tf = Ref{PyObject}()
 const pywrap_tensorflow = Ref{PyObject}()
+
+function init()
+    try
+        py_tf[] = pyimport("tensorflow")
+        pywrap_tensorflow[] = pyimport("tensorflow.python.pywrap_tensorflow")
+    catch err
+        error("The Python TensorFlow package could not be imported. You must install Python TensorFlow before using this package.")
+    end
+end
 
 function py_with(f, ctx_mngr)
     ctx_mngr[:__enter__]()
