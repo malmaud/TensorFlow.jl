@@ -13,7 +13,7 @@ if !isdir(bin_dir)
 end
 
 @static if is_apple()
-    r = Requests.get("https://storage.googleapis.com/malmaud-stuff/tensorflow_mac_v2.zip")
+    r = Requests.get("https://storage.googleapis.com/malmaud-stuff/tensorflow_mac_v3.zip")
     open(joinpath(base, "downloads/tensorflow.zip"), "w") do file
         write(file, r.data)
     end
@@ -24,10 +24,10 @@ end
 @static if is_linux()
     if "TF_USE_GPU" ∈ keys(ENV) && ENV["TF_USE_GPU"] == "1"
         info("Building TensorFlow.jl for use on the GPU")
-        url = "https://storage.googleapis.com/malmaud-stuff/tensorflow_linux_v2.zip"
+        url = "https://storage.googleapis.com/malmaud-stuff/tensorflow_linux_v3.zip"
     else
         info("Building TensorFlow.jl for CPU use only. To enable the GPU, set the TF_USE_GPU environment variable to 1 and rebuild TensorFlow.jl")
-        url = "https://storage.googleapis.com/malmaud-stuff/tensorflow_linux_cpu_v2.zip"
+        url = "https://storage.googleapis.com/malmaud-stuff/tensorflow_linux_cpu_v3.zip"
     end
     r = Requests.get(url)
     open(joinpath(base, "downloads/tensorflow.zip"), "w") do file
