@@ -96,13 +96,3 @@ function fully_connected(inputs,
     return layer
 
 end
-
-
-# inputs = x_pl
-# num_outputs=128
-# activation_fn=nn.relu
-# normalizer_fn=nothing
-# normalizer_params=nothing
-# reuse=false
-# trainable=true
-# initializer = weights_initializer
