@@ -108,6 +108,7 @@ for (jl_func_name, tf_func_name) in [
     (:floor, "Floor"),
     (:sqrt, "Sqrt"),
     (:square, "Square"),
+    (:abs, "Abs"),
     (:cos, "Cos"),
     (:sin, "Sin"),
     (:tan, "Tan"),
