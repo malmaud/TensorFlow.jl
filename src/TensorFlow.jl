@@ -108,4 +108,6 @@ include("ops.jl")
 include("train.jl")
 include("io.jl")
 
+include("layers/fully_connected.jl")
+export fully_connected
 end
