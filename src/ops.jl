@@ -1,4 +1,4 @@
-import Base: log, exp, +, -, *, /, .*, .+, ./, .-, ^, .^, sin, cos, tan, asin, acos, atan, div, tanh, sqrt, floor, .==, ceil, floor
+import Base: log, exp, abs, +, -, *, /, .*, .+, ./, .-, ^, .^, sin, cos, tan, asin, acos, atan, div, tanh, sqrt, floor, .==, ceil, floor
 
 function tf_promote(t, x::Number)
     return Tensor(eltype(t)(x))
@@ -108,6 +108,7 @@ end
 for (jl_func_name, tf_func_name) in [
     (:log, "Log"),
     (:exp, "Exp"),
+    (:abs, "Abs"),
     (:neg, "Neg"),
     (:ceil, "Ceil"),
     (:floor, "Floor"),
