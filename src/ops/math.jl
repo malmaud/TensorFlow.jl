@@ -116,8 +116,7 @@ for (jl_func_name, tf_func_name) in [
     (:asin, "Asin"),
     (:acos, "Acos"),
     (:tanh, "Tanh"),
-    (:shape, "Shape"),
-    (:transpose, "Transpose")]
+    (:shape, "Shape")]
     @eval function $jl_func_name(n::AbstractTensor; name=$tf_func_name)
         local desc
         with_op_name(name) do
@@ -131,6 +130,9 @@ for (jl_func_name, tf_func_name) in [
 end
 
 -(n::AbstractTensor) = neg(n)
+
+
+
 
 # Reductions
 
