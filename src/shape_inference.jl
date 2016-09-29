@@ -61,6 +61,9 @@ Note this runs *statically*. Use the `shape` operation to dynamically get the sh
 """
 function get_shape(n::TensorFlow.AbstractTensor)
     t = Tensor(n)
+    if !isnull(t.shape)
+        return get(t.shape)
+    end
     op = t.op
     try
         fillin_operation(op)
@@ -78,10 +81,12 @@ function get_shape(n::TensorFlow.AbstractTensor)
         end
     end
     if op.op_name ∈ keys(shape_inferer)
-        return shape_inferer[op.op_name](op)[t.value_index]
+        shape = shape_inferer[op.op_name](op)[t.value_index]
     else
-        return TensorShape(nothing)
+        shape = TensorShape(nothing)
     end
+    t.shape = Nullable(shape)
+    return shape
 end
 
 function get_shape(v::Variable)

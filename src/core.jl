@@ -710,7 +710,10 @@ Represents the output of an operation in the computation graph
 type Tensor <: AbstractTensor
     op::Operation
     value_index::Int
+    shape::Nullable{AbstractTensorShape}
 end
+
+Tensor(op, value_index) = Tensor(op, value_index, Nullable{AbstractTensorShape}())
 
 function Base.isequal(t1::Tensor, t2::Tensor)
     t1.op.ptr == t2.op.ptr && t1.value_index==t2.value_index
