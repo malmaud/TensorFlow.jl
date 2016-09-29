@@ -469,8 +469,9 @@ register_shape("Pad") do op
 end
 
 register_shape("Gather") do op
-    tensor_shape = TensorShape([get_shape(op.inputs[1]).dims; get_shape(op.inputs[2]).dims[2:end]])
-    [tensor_shape]
+    # tensor_shape = TensorShape([get_shape(op.inputs[1]).dims; get_shape(op.inputs[2]).dims[2:end]])
+    # [tensor_shape]
+    [TensorShape([get_shape(op.inputs[2]).dims[1], get_shape(op.inputs[1]).dims[2]])] # TODO Generalize to scalar case
 end
 
 function todo_register_shape(name)

@@ -172,7 +172,7 @@ end
 
 function l2_loss(t; name="L2_Loss")
     local out
-    with_op_name(name) do
+    tf.with_op_name(name) do
         out = sqrt(reduce_sum(t.*t; name=name))
     end
     out
