@@ -20,6 +20,10 @@ function clip_by_norm(t, clip_norm; axes=nothing, name="ClipByNorm")
     out
 end
 
+function clip_by_norm(t::IndexedSlices, clip_norm)
+    IndexedSlices(clip_by_norm(t.values, clip_norm), t.indices)
+end
+
 @not_implemented function clip_by_average_norm(t, clip_norm; name="")
 end
 
