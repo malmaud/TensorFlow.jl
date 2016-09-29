@@ -17,11 +17,6 @@ type Status
     end
 end
 
-function Base.show(io::IO, s::Status)
-    msg = ccall((:TF_Message, LIBTF), Cstring, (Ptr{Void},), s.ptr) |> unsafe_string
-    print(io, @sprintf("Status: %s", msg))
-end
-
 function get_code(s::Status)
     code = ccall((:TF_GetCode, LIBTF), Cint, (Ptr{Void},), s.ptr)
     return TF_Code(code)
@@ -100,9 +95,6 @@ immutable TFException <: Exception
     status::Status
 end
 
-function Base.show(io::IO, err::TFException)
-    println(io, @sprintf("Tensorflow error: %s", string(err.status)))
-end
 
 function check_status(status)
     if get_code(status) ≠ TF_OK
@@ -161,9 +153,6 @@ type Session
     Session() = Session(get_def_graph())
 end
 
-function Base.show(io::IO, s::Session)
-    print(io, "Session($(pointer_from_objref(s)))")
-end
 
 type Buffer
     ptr::Ptr{Void}
@@ -328,18 +317,6 @@ function RawTensor(data::String)
     RawTensor([data], true)
 end
 
-function Base.show(io::IO, t::RawTensor)
-    print(io, "RawTensor: ")
-    if ndims(t) == 0
-        if eltype(t) == String
-            show(io, String(t))
-        else
-            show(io, Number(t))
-        end
-    else
-        show(io, Array(t))
-    end
-end
 
 function Base.ndims(t::RawTensor)
     ccall((:TF_NumDims, LIBTF), Cint, (Ptr{Void},), t.ptr) |> Int
@@ -484,10 +461,6 @@ function fillin_operation(op::Operation)
 end
 
 get_graph(n::AbstractOperation) = Operation(n).graph
-
-function Base.show(io::IO, n::Operation)
-    print(io, "<Operation '$(node_name(n))'>")
-end
 
 function load_proto(tensor::tensorflow.TensorProto)
     dtype = tensor.dtype
@@ -723,29 +696,7 @@ function Base.hash(t::Tensor, h::UInt64)
     hash(t.op.ptr, hash(t.value_index, h))
 end
 
-function Base.show(io::IO, t::Tensor)
-    local dtype
-    try
-        dtype = eltype(t)
-    catch
-        dtype = "?"
-    end
-    s = get_shape(t)
-    if s.rank_unknown
-        shape = "unknown"
-    else
-        dims = String[]
-        for dim in s.dims
-            if isnull(dim)
-                push!(dims, "?")
-            else
-                push!(dims, string(get(dim)))
-            end
-        end
-        shape = string("(", join(dims, ", "), ")")
-    end
-    print(io, "<Tensor $(node_name(t.op)):$(t.value_index) shape=$(shape) dtype=$(dtype)>")
-end
+
 
 node_name(t::AbstractTensor) = (node_name(Tensor(t).op), Tensor(t).value_index)
 
@@ -1013,57 +964,6 @@ function get_def(n::Union{Operation, Graph})
 end
 
 get_def(t::Tensor) = get_def(t.op)
-
-function Base.show(io::IO, desc::tensorflow.NodeDef)
-    # TODO: complete this
-    println(io, "name: ", desc.name)
-    println(io, "op: ", desc.op)
-    for input_name in desc.input
-        println(io, "input: ", input_name)
-    end
-    for (attr_name, attr_value) in desc.attr
-        println(io, "attr {")
-        println(io, "  key: ", attr_name)
-        println(io, "  value {")
-        print(io, "    ")
-        if has_field(attr_value, :_type)
-            println(io, "type: $(proto_type_map[attr_value._type])")
-        elseif has_field(attr_value, :s)
-            println(io, "string: $(String(attr_value.s))")
-        elseif has_field(attr_value, :i)
-            println(io, "int: $(attr_value.i)")
-        elseif has_field(attr_value, :b)
-            println(io, "bool: $(attr_value.b)")
-        elseif has_field(attr_value, :f)
-            println(io, "float: $(attr_value.f)")
-        elseif has_field(attr_value, :tensor)
-            t = attr_value.tensor
-            println(io, "dtype: $(proto_type_map[t.dtype])")
-            sep = "    "
-            print(io, sep, "shape: ")
-            println(io, [_.size for _ in t.tensor_shape.dim])
-            print(io, sep, "content: ")
-            show_tensor = k->begin
-                f = getfield(t, k)
-                if length(f) > 0
-                    println(io, f)
-                    return true
-                end
-                return false
-            end
-            for v in [:float_val, :double_val, :int_val, :int64_val, :bool_val, :half_val, :string_val, :tensor_content]
-                if show_tensor(v)
-                    break
-                end
-            end
-        elseif has_field(attr_value, :shape)
-            print(io, "shape: ")
-            println(io, [_.size for _ in attr_value.shape.dim])
-        end
-        println(io, "  }")
-        println(io, "}")
-    end
-end
 
 function parse_port_name(name)
     m = match(r"(.*):(.*)", name)
