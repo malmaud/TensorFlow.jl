@@ -108,10 +108,9 @@ include("variable.jl")
 include("shape_inference.jl")
 using .ShapeInference
 export get_shape
-
-
 include("ops.jl")
 include("train.jl")
 include("io.jl")
+include("show.jl")
 
 end
