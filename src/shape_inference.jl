@@ -116,7 +116,6 @@ register_shape("Placeholder") do op
 end
 
 register_shape("Const") do op
-    info("getting shape for $op")
     value = get(load_const(op))
     [TensorShape([size(value)...])]
 end
