@@ -1,6 +1,4 @@
-deps/downloads
-deps/miniconda
+deps
 src/scratch.jl
 tfdocs
 docs/build
-deps/usr
