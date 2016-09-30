@@ -1,9 +1,15 @@
 using Juno
-using Media
+import Juno: Tree, Row, fade, interleave
 
-Media.@render Juno.Inline t::Tensor begin
-    s = sprint(show, t)
-    Text(s)
+@render Juno.Inline t::Tensor begin
+  s = get_shape(t)
+  shape = s.rank_unknown ? [fade("unknown")] :
+    interleave(map(dim -> get(dim, fade("?")), s.dims), fade("×"))
+  Tree(Row(fade(try string(eltype(t)," ") catch e "" end),
+           Juno.span(".constant.support.type", "Tensor "),
+           shape...),
+       [Text("name: $(node_name(t.op))"),
+        Text("index: $(t.value_index)")])
 end
 
 function Base.show(io::IO, s::Status)
