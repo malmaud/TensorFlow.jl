@@ -503,7 +503,7 @@ for func in ["RandomStandardNormal", "RandomUniform"]
 end
 
 register_shape("AddN") do op
-    inputs = [get_input(i) for i in 1:tf.get_input_list_length(op)]
+    inputs = [get_input(op, i) for i in 1:tf.get_input_list_length(op, "inputs")]
     if length(inputs) == 0
         [TensorShape(nothing)]
     elseif length(inputs) == 1
