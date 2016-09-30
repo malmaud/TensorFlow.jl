@@ -54,6 +54,7 @@ function Base.broadcast!(s1::TensorShape, s2::TensorShape)
     end
 end
 
+const shape_cache = Dict{Tuple{String, Int}, TensorShape}()
 
 """
 Runs shape inference to return the shape of the tensor produced by the given operation.
@@ -62,8 +63,9 @@ Note this runs *statically*. Use the `shape` operation to dynamically get the sh
 """
 function get_shape(n::TensorFlow.AbstractTensor)
     t = Tensor(n)
-    if !isnull(t.shape)
-        return get(t.shape)
+    cache_key = (t.op.name, t.value_index)
+    if haskey(shape_cache, cache_key)
+        return shape_cache[cache_key]
     end
     op = t.op
     if op.op_name == "Variable"
@@ -78,7 +80,7 @@ function get_shape(n::TensorFlow.AbstractTensor)
     else
         shape = TensorShape(nothing)
     end
-    t.shape = Nullable(shape)
+    shape_cache[cache_key] = shape
     return shape
 end
 
@@ -114,7 +116,9 @@ register_shape("Placeholder") do op
 end
 
 register_shape("Const") do op
-    [TensorShape([size(get_attr(op, "value", Array))...])]
+    info("getting shape for $op")
+    value = get(load_const(op))
+    [TensorShape([size(value)...])]
 end
 
 for func in ["Log", "Exp", "Neg", "Ceil", "Floor", "Sqrt", "Square",
@@ -123,7 +127,7 @@ for func in ["Log", "Exp", "Neg", "Ceil", "Floor", "Sqrt", "Square",
     "Softmax", "Sigmoid", "Tanh", "SparseSoftmaxCrossEntropyWithLogits",
     "LogSoftmax", "LRN", "LogicalAnd", "LogicalNot", "LogicalOr", "LogicalXor"]
     register_shape(func) do op
-        [get_shape(get_input(op,1))]
+        [get_shape(get_input(op, 1))]
     end
 end
 
@@ -151,6 +155,8 @@ register_shape("Transpose") do op
     [TensorShape(reverse(get_shape(get_input(op, 1)).dims))]
 end
 
+const_cache = Dict{String, Any}()
+
 """
 `load_const(op::Operation)`
 
@@ -158,45 +164,46 @@ Load an op which is literally a constant or evaluated to a constant after
 a small amount of constant propogation.
 """
 function load_const(op)
+    if haskey(const_cache, op.name)
+        return const_cache[op.name]
+    end
     if op.op_name == "Const"
-        return Nullable(get_attr(op, "value", Array))
-    end
-    if op.op_name == "Cast"
-        return load_const(get_input(op, 1))
-    end
-    if op.op_name ∈ ("Sub", "Add")
+        value = Nullable(get_attr(op, "value", Array))
+    elseif op.op_name == "Cast"
+        value = load_const(get_input(op, 1))
+    elseif op.op_name ∈ ("Sub", "Add")
         x1 = load_const(get_input(op, 1))
         x2 = load_const(get_input(op, 2))
         if isnull(x1) || isnull(x2)
             return Nullable()
         else
             if op.op_name == "Sub"
-                return Nullable(get(x1) - get(x2))
+                value = Nullable(get(x1) - get(x2))
             elseif op.op_name == "Add"
-                return Nullable(get(x1) + get(x2))
+                value = Nullable(get(x1) + get(x2))
             end
         end
-    end
-    if op.op_name == "Rank"
+    elseif op.op_name == "Rank"
         x = get_shape(get_input(op, 1))
         if x.rank_unknown
-            return Nullable()
+            value = Nullable()
         else
-            return Nullable(length(x.dims))
+            value = Nullable(length(x.dims))
         end
-    end
-    if op.op_name == "Range"
+    elseif op.op_name == "Range"
         start = load_const(get_input(op, 1))
         limit = load_const(get_input(op, 2))
         delta = load_const(get_input(op, 3))
         if any(map(isnull, [start, limit, delta]))
-            return Nullable()
+            value = Nullable()
         else
-            return Nullable(collect(get(start)[]:get(delta)[]:(get(limit)[]-1)))
+            value = Nullable(collect(get(start)[]:get(delta)[]:(get(limit)[]-1)))
         end
+    else
+        value = Nullable()
     end
-
-    Nullable()
+    const_cache[op.name] = value
+    return value
 end
 
 load_const(x::Tensor) = load_const(x.op)
@@ -272,10 +279,12 @@ register_shape("Concat") do op
     if isnull(dim_op)
         return [TensorShape(nothing)]
     end
-    dim = get(dim_op)[] + 1#dim_op.op.attrs["value"].tensor.int_val[1] + 1
+    dim = get(dim_op)[] + 1
+
     n_tensors = tf.get_input_list_length(op, "values")
     tensors = [get_input(op, i) for i in 2:(n_tensors+1)]
     base_shape = copy(get_shape(tensors[1]))
+
     if base_shape.rank_unknown
         return [TensorShape(nothing)]
     end
@@ -298,7 +307,7 @@ register_shape("OneHot") do op
     if isnull(maybe_depth_value)
         return [TensorShape(nothing)]
     end
-    depth_value = get(maybe_depth_value)
+    depth_value = get(maybe_depth_value)[]
     indices_shape = get_shape(indices)
     if indices_shape.rank_unknown
         return [TensorShape(nothing)]

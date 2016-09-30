@@ -710,10 +710,7 @@ Represents the output of an operation in the computation graph
 type Tensor <: AbstractTensor
     op::Operation
     value_index::Int
-    shape::Nullable{AbstractTensorShape}
 end
-
-Tensor(op, value_index) = Tensor(op, value_index, Nullable{AbstractTensorShape}())
 
 function Base.isequal(t1::Tensor, t2::Tensor)
     t1.op.ptr == t2.op.ptr && t1.value_index==t2.value_index
@@ -722,8 +719,6 @@ end
 function Base.hash(t::Tensor, h::UInt64)
     hash(t.op.ptr, hash(t.value_index, h))
 end
-
-
 
 node_name(t::AbstractTensor) = (node_name(Tensor(t).op), Tensor(t).value_index)
 
@@ -950,7 +945,7 @@ function Base.convert(::Type{Array}, t::RawTensor)
         if dims > 0
             convert_major_order(unsafe_wrap(Array, data, size(t)|>reverse))
         else
-            unsafe_wrap(Array, data, size(t))
+            copy(unsafe_wrap(Array, data, size(t)))
         end
     end
 end
