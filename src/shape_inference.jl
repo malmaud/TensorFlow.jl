@@ -503,8 +503,6 @@ for func in ["RandomStandardNormal", "RandomUniform"]
     end
 end
 
-end
-
 register_shape("AddN") do op
     inputs = [get_input(i) for i in 1:tf.get_input_list_length(op)]
     if length(inputs) == 0
@@ -515,4 +513,6 @@ register_shape("AddN") do op
         # TODO handle broadcasting
         [get_shape(inputs[1])]
     end
+end
+
 end
