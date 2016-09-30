@@ -377,11 +377,72 @@ type Operation <: AbstractOperation
     graph::Nullable{Graph}
     op_name::String
     name::String
-    inputs::Vector  # Vector{Tensor}
-    attrs::Dict{String, Any}
-    filled_in::Bool
-
     Operation() = new()
+end
+
+function get_input(op::Operation, idx)
+    port = Port(op.ptr, idx-1)
+    in_port = ccall((:TF_OperationInput, LIBTF), Port, (Port,), port)
+    Tensor(in_port)
+end
+
+function get_input_list_length(op::Operation, arg_name)
+    status = Status()
+    out = ccall((:TF_OperationInputListLength, LIBTF), Cint, (Ptr{Void}, Cstring, Ptr{Void}), op.ptr, arg_name, status.ptr)
+    check_status(status)
+    Int(out)
+end
+
+immutable AttrMetadata
+    is_list::Bool
+    list_size::Int64
+    _type::Int32
+    total_size::Int64
+end
+
+function get_attr_metadata(op::Operation, attr)
+    status = Status()
+    out = ccall((:TF_OperationGetAttrMetadata, LIBTF), AttrMetadata, (Ptr{Void}, Cstring, Ptr{Void}), op.ptr, attr, status.ptr)
+    check_status(status)
+    out
+end
+
+function get_attr(op::Operation, attr, ::Type{Int})
+    out = Ref{Int}()
+    status = Status()
+    ccall((:TF_OperationGetAttrInt, LIBTF), Void, (Ptr{Void}, Cstring, Ref{Int}, Ptr{Void}), op.ptr, attr, out, status.ptr)
+    check_status(status)
+    out[]
+end
+
+function get_attr(op::Operation, attr, ::Type{Array})
+    out = Ref{Ptr{Void}}()
+    status = Status()
+    ccall((:TF_OperationGetAttrTensor, LIBTF), Void, (Ptr{Void}, Cstring, Ptr{Ptr{Void}}, Ptr{Void}), op.ptr, attr, out, status.ptr)
+    check_status(status)
+    Array(RawTensor(out[]))
+end
+
+function get_attr(op::Operation, attr, ::Type{Bool})
+    out = Ref{Bool}()
+    status = Status()
+    ccall((:TF_OperationGetAttrBool, LIBTF), Void, (Ptr{Void}, Cstring, Ref{Bool}, Ptr{Void}), op.ptr, attr, out, status.ptr)
+    check_status(status)
+    out[]
+end
+
+function get_attr(op::Operation, attr, ::Type{Vector{Int}})
+    meta = get_attr_metadata(op, attr)
+    out = Vector{Int}(meta.list_size)
+    status = Status()
+    ccall((:TF_OperationGetAttrIntList, LIBTF), Void, (Ptr{Void}, Cstring, Ptr{Int}, Cint, Ptr{Void}), op.ptr, attr, out, length(out), status.ptr)
+    check_status(status)
+    out
+end
+
+function fillin(op::Operation)
+    op.name = ccall((:TF_OperationName, LIBTF), Cstring, (Ptr{Void},), op.ptr) |> unsafe_string
+    op.op_name = ccall((:TF_OperationOpType, LIBTF), Cstring, (Ptr{Void},), op.ptr) |> unsafe_string
 end
 
 type OperationContext
@@ -405,59 +466,25 @@ end
 
 function Operation(desc::NodeDescription)
     self = Operation()
-    self.filled_in = false
     status = Status()
     ptr = ccall((:TF_FinishOperation, LIBTF), Ptr{Void}, (Ptr{Void}, Ptr{Void}), desc.ptr, status.ptr)
     check_status(status)
     self.ptr = ptr
     self.graph = Nullable(desc.graph)
-    #fillin_operation(self)
+    fillin(self)
     return self
 end
 
 function Operation(ptr::Ptr)
     self = Operation()
-    self.filled_in = false
     self.ptr = ptr
     self.graph = Nullable{Graph}()
-    # fillin_operation(self)
+    fillin(self)
     return self
 end
 
 type NodeNameNotFound <: Exception
     name::String
-end
-
-function fillin_operation(op::Operation)
-    op.filled_in && return
-    my_desc = get_def(op)
-    if has_field(my_desc, :op)
-        op.op_name = my_desc.op
-    end
-    if has_field(my_desc, :name)
-        op.name = my_desc.name
-    end
-    if has_field(my_desc, :attr)
-        op.attrs = my_desc.attr
-    end
-    if isnull(op.graph)
-        graph = get_def_graph()
-    else
-        graph = get(op.graph)
-    end
-    if has_field(my_desc, :input)
-        for name in my_desc.input
-            if isnull(get_node_by_name(graph, name))
-                throw(NodeNameNotFound(name))
-            end
-        end
-        op.inputs = [Tensor((get_node_by_name(graph, name) |> get)) for name in my_desc.input]
-        for input in op.inputs
-            fillin_operation(input.op)
-        end
-    end
-    op.filled_in = true
-    return op
 end
 
 get_graph(n::AbstractOperation) = Operation(n).graph
@@ -683,10 +710,7 @@ Represents the output of an operation in the computation graph
 type Tensor <: AbstractTensor
     op::Operation
     value_index::Int
-    shape::Nullable{AbstractTensorShape}
 end
-
-Tensor(op, value_index) = Tensor(op, value_index, Nullable{AbstractTensorShape}())
 
 function Base.isequal(t1::Tensor, t2::Tensor)
     t1.op.ptr == t2.op.ptr && t1.value_index==t2.value_index
@@ -695,8 +719,6 @@ end
 function Base.hash(t::Tensor, h::UInt64)
     hash(t.op.ptr, hash(t.value_index, h))
 end
-
-
 
 node_name(t::AbstractTensor) = (node_name(Tensor(t).op), Tensor(t).value_index)
 
@@ -725,6 +747,8 @@ end
 Port(t::Tensor) = Port(t.op.ptr, t.value_index-1)
 Port(op::Operation) = Port(Tensor(op))
 Port(port::Port) = port
+
+Tensor(p::Port) = Tensor(Operation(p.node_ptr), p.index+1)
 
 function add_input(desc::NodeDescription, input::Union{Tensor, Operation})
     ccall((:TF_AddInput, LIBTF), Void, (Ptr{Void}, Port), desc.ptr, Port(input))
@@ -921,7 +945,7 @@ function Base.convert(::Type{Array}, t::RawTensor)
         if dims > 0
             convert_major_order(unsafe_wrap(Array, data, size(t)|>reverse))
         else
-            unsafe_wrap(Array, data, size(t))
+            copy(unsafe_wrap(Array, data, size(t)))
         end
     end
 end
