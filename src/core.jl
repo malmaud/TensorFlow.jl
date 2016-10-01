@@ -501,7 +501,7 @@ function load_proto(tensor::tensorflow.TensorProto)
     elseif dtype == tensorflow._DataType.DT_DOUBLE
         val = tensor.double_val
     else
-        warn("Unrecognized datatype $dtype")
+        # warn("Unrecognized datatype $dtype")
     end
     # Sometimes Tensorflow store the tensor content in the 'tensor_content' byte array,
     # and sometimes in a typed field. Haven't figured out the rational yet.
@@ -565,7 +565,7 @@ end
 function Operation(node_def::tensorflow.NodeDef)
     graph = get_def_graph()
     desc = NodeDescription(graph, node_def.op, node_def.name)
-    
+
     if node_def.op == "DynamicStitch"
         inputs = []
         ports = []
