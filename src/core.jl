@@ -565,21 +565,7 @@ end
 function Operation(node_def::tensorflow.NodeDef)
     graph = get_def_graph()
     desc = NodeDescription(graph, node_def.op, node_def.name)
-    # This is a weird hack to deal with the fact that gradients/Gather_grad/concat/values_0 is 0 when it should be -1
-    # Maybe a bug in ProtoBuf.jl?
-    if node_def.op == "Const"
-        if false#ismatch(r"concat/values_\d+$", node_def.name) || ismatch(r"Slice/concat", node_def.name) #|| ismatch(r"ExpandDims/dim$", node_def.name)
-            info("op match found")
-            if load_proto(node_def.attr["value"]) == Int32[0]
-                info("Performing hack replacement")
-                node_def.attr["value"].tensor.int_val = Int32[-1]
-            elseif load_proto(node_def.attr["value"]) == Int32(0)
-                info("hack 2")
-                node_def.attr["value"].tensor.int_val = Int32[-1]
-            end
-
-        end
-    end
+    
     if node_def.op == "DynamicStitch"
         inputs = []
         ports = []
