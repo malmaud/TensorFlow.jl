@@ -112,7 +112,7 @@ function (cell::GRUCell)(input, state)
     Wr = get_variable("Wr", [N, cell.hidden_size], T)
     Wh = get_variable("Wh", [N, cell.hidden_size], T)
     local Bz, Br, Bh
-    tf.var_scope("Bias", initializer=tf.ConstantInitializer(1.0)) do
+    tf.variable_scope("Bias", initializer=tf.ConstantInitializer(1.0)) do
         Bz = get_variable("Bz", [cell.hidden_size], T)
         Br = get_variable("Br", [cell.hidden_size], T)
         Bh = get_variable("Bh", [cell.hidden_size], T)
