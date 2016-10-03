@@ -9,8 +9,10 @@ GRUCell,
 BasicRNNCell,
 RNNCell
 
-import ...TensorFlow: Operation, get_shape, get_variable, tanh, Tensor
-import ..nn: sigmoid
+import ....Main: TensorFlow
+import .TensorFlow: Operation, get_shape, get_variable, tanh, Tensor, nn
+import .nn: sigmoid
+const tf = TensorFlow
 
 abstract RNNCell
 
@@ -121,8 +123,7 @@ function (cell::GRUCell)(input, state)
 end
 
 type MultiRNNCell <: RNNCell
-    cells::Vector
-    state_is_tuple::Bool
+    cells::Vector{RNNCell}
 end
 
 function output_size(cell::MultiRNNCell)
@@ -130,18 +131,22 @@ function output_size(cell::MultiRNNCell)
 end
 
 function state_size(cell::MultiRNNCell)
-    # TODO
+    map(state_size, cell.cells)
 end
 
 function zero_state(cell::MultiRNNCell, batch_size, T)
-    # TODO
+    [zero_state(subcell, batch_size, T) for subcell in cell.cells]
 end
 
 function (cell::MultiRNNCell)(input, state)
-    for subcell in cell.cells
-        input, state = subcell(input, state)
+    states = []
+    for (i, (subcell, substate)) in enumerate(zip(cell.cells, state))
+        tf.variable_scope("cell$i") do
+            input, state = subcell(input, substate)
+        end
+        push!(states, state)
     end
-    input, state
+    input, states
 end
 
 end
