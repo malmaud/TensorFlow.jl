@@ -111,13 +111,16 @@ function (cell::GRUCell)(input, state)
     Wz = get_variable("Wz", [N, cell.hidden_size], T)
     Wr = get_variable("Wr", [N, cell.hidden_size], T)
     Wh = get_variable("Wh", [N, cell.hidden_size], T)
-    Bz = get_variable("Bz", [cell.hidden_size], T)
-    Br = get_variable("Br", [cell.hidden_size], T)
-    Bh = get_variable("Bh", [cell.hidden_size], T)
+    local Bz, Br, Bh
+    tf.var_scope("Bias", initializer=tf.ConstantInitializer(1.0)) do
+        Bz = get_variable("Bz", [cell.hidden_size], T)
+        Br = get_variable("Br", [cell.hidden_size], T)
+        Bh = get_variable("Bh", [cell.hidden_size], T)
+    end
     z = sigmoid(X*Wz + Bz)
     r = sigmoid(X*Wr + Br)
     X2 = cat(Tensor, 2, input, state.*r)
-    h = sigmoid(X2*Wh + Bh)
+    h = nn.tanh(sigmoid(X2*Wh + Bh))
     s2 = (1-z).*h + z.*state
     return [s2, s2]
 end
