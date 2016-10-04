@@ -99,15 +99,27 @@ end
 ^(n::AbstractTensor, x::Int) = invoke(^, (AbstractTensor, Any), n, x)
 .^(n::AbstractTensor, x::Number) = n^x
 
+for (jl_func_name, tf_func_name) in [
+    (:neg, "Neg"),
+    (:square, "Square"),
+    (:shape, "Shape")]
+    @eval function $jl_func_name(n::AbstractTensor; name=$tf_func_name)
+        local desc
+        with_op_name(name) do
+            n = Tensor(n)
+            desc = NodeDescription($tf_func_name, name)
+            add_input(desc, n)
+        end
+        Tensor(Operation(desc), 1)
+    end
+end
 
 for (jl_func_name, tf_func_name) in [
     (:log, "Log"),
     (:exp, "Exp"),
-    (:neg, "Neg"),
     (:ceil, "Ceil"),
     (:floor, "Floor"),
     (:sqrt, "Sqrt"),
-    (:square, "Square"),
     (:abs, "Abs"),
     (:cos, "Cos"),
     (:sin, "Sin"),
@@ -116,16 +128,17 @@ for (jl_func_name, tf_func_name) in [
     (:asin, "Asin"),
     (:acos, "Acos"),
     (:tanh, "Tanh"),
-    (:shape, "Shape"),
-    (:lbeta, "Lbeta"),
-    (:lgamma, "LGamma"),
+    #(:lbeta, "Lbeta"), #not working for now
+    (:lgamma, "Lgamma"),
     (:erf, "Erf"),
-    (:erfc, "Erfc")]
-    @eval function $jl_func_name(n::AbstractTensor; name=$tf_func_name)
+    (:erfc, "Erfc"),
+    (:real, "Real"),
+    (:imag, "Imag"),
+    (:conj, "Conj")]
+    @eval function Base.$jl_func_name(n::AbstractTensor; name=$tf_func_name)
         local desc
         with_op_name(name) do
             n = Tensor(n)
-            name = get_name(name)
             desc = NodeDescription($tf_func_name, name)
             add_input(desc, n)
         end
@@ -137,12 +150,11 @@ end
 for (jl_func_name, tf_func_name) in [
     (:zeta, "Zeta"),
     (:polygamma, "Polygamma")]
-    @eval function $jl_func_name(x::AbstractTensor, q::AbstractTensor; name=$tf_func_name)
+    @eval function Base.$jl_func_name(x::AbstractTensor, q::AbstractTensor; name=$tf_func_name)
         local desc
         with_op_name(name) do
             x = Tensor(x)
             q = Tensor(q)
-            name = get_name(name)
             desc = NodeDescription($tf_func_name, name)
             add_input(desc, x, q)
         end
@@ -152,8 +164,6 @@ for (jl_func_name, tf_func_name) in [
 end
 
 -(n::AbstractTensor) = neg(n)
-
-
 
 
 # Reductions
