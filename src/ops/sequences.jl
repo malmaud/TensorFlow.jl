@@ -19,7 +19,7 @@ end
 Base.zeros(::Type{Tensor}, shape) = zeros(Tensor, Float32, shape)
 
 function Base.ones(::Type{Tensor}, T, shape)
-    constant(zeros(T, shape))
+    constant(ones(T, shape))
 end
 
 Base.ones(::Type{Tensor}, shape) = ones(Tensor, Float32, shape)
