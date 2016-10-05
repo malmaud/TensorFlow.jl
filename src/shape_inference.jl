@@ -214,7 +214,7 @@ register_shape("Reshape") do op
     if isnull(maybe)
         return [TensorShape(nothing)]
     else
-        return [get(maybe)]
+        return [TensorShape(get(maybe))]
     end
 end
 

@@ -116,7 +116,11 @@ for (jl_func_name, tf_func_name) in [
     (:asin, "Asin"),
     (:acos, "Acos"),
     (:tanh, "Tanh"),
-    (:shape, "Shape")]
+    (:shape, "Shape"),
+    (:lbeta, "Lbeta"),
+    (:lgamma, "LGamma"),
+    (:erf, "Erf"),
+    (:erfc, "Erfc")]
     @eval function $jl_func_name(n::AbstractTensor; name=$tf_func_name)
         local desc
         with_op_name(name) do
@@ -127,6 +131,24 @@ for (jl_func_name, tf_func_name) in [
         end
         Tensor(Operation(desc), 1)
     end
+end
+
+#two arg special functions
+for (jl_func_name, tf_func_name) in [
+    (:zeta, "Zeta"),
+    (:polygamma, "Polygamma")]
+    @eval function $jl_func_name(x::AbstractTensor, q::AbstractTensor; name=$tf_func_name)
+        local desc
+        with_op_name(name) do
+            x = Tensor(x)
+            q = Tensor(q)
+            name = get_name(name)
+            desc = NodeDescription($tf_func_name, name)
+            add_input(desc, x, q)
+        end
+        Tensor(Operation(desc), 1)
+    end
+    @eval $jl_func_name(x::AbstractTensor, q) = $jl_func_name(x, tf_promote(x, q))
 end
 
 -(n::AbstractTensor) = neg(n)
