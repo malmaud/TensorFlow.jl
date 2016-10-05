@@ -107,7 +107,7 @@ for (jl_func_name, tf_func_name) in [
         local desc
         with_op_name(name) do
             n = Tensor(n)
-            desc = NodeDescription($tf_func_name, name)
+            desc = NodeDescription($tf_func_name)
             add_input(desc, n)
         end
         Tensor(Operation(desc), 1)
@@ -139,7 +139,7 @@ for (jl_func_name, tf_func_name) in [
         local desc
         with_op_name(name) do
             n = Tensor(n)
-            desc = NodeDescription($tf_func_name, name)
+            desc = NodeDescription($tf_func_name)
             add_input(desc, n)
         end
         Tensor(Operation(desc), 1)
