@@ -33,9 +33,23 @@ end
 result = run(sess, -d)
 @test -d_raw == result
 
-f_raw = randn(10)./2
+f_raw = rand(10)./2
 f = TensorFlow.constant(f_raw)
 for func in [acos, asin, atan]
     result = run(sess, func(f))
     @test func.(f_raw) ≈ result
 end
+
+mat_raw = rand(10, 10)
+mat = TensorFlow.constant(mat_raw)
+result = run(sess, inv(mat))
+@test inv(mat_raw) ≈ result
+result = run(sess, det(mat))
+@test det(mat_raw) ≈ result
+result = run(sess, diag(mat))
+@test diag(mat_raw) ≈ result
+
+diag_raw = rand(5)
+diag_mat = TensorFlow.constant(diag_raw)
+result = run(sess, det(diagm(diag_mat)))
+@test prod(diag_raw) ≈ result

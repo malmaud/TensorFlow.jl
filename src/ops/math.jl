@@ -165,6 +165,22 @@ end
 
 -(n::AbstractTensor) = neg(n)
 
+# Matrix math
+for (jl_func_name, tf_func_name) in [
+    (:inv, "MatrixInverse"),
+    (:det, "MatrixDeterminant"),
+    (:diagm, "Diag"),
+    (:diag, "MatrixDiagPart")]
+    @eval function Base.$jl_func_name(n::AbstractTensor; name=$tf_func_name)
+        local desc
+        with_op_name(name) do
+            n = Tensor(n)
+            desc = NodeDescription($tf_func_name)
+            add_input(desc, n)
+        end
+        Tensor(Operation(desc), 1)
+    end
+end
 
 # Reductions
 
