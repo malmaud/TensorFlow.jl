@@ -94,3 +94,15 @@ for epoch in 1:100
 end
 
 ```
+
+## Troubleshooting
+
+If you see issues from the ccall or python interop, try updating TensorFlow both in Julia and in the global python install:
+
+```julia
+Pkg.build("TensorFlow")
+```
+```bash
+export TF_BINARY_URL = ... # see https://www.tensorflow.org/versions/r0.11/get_started/os_setup.html
+sudo pip3 install --upgrade $TF_BINARY_URL
+```
