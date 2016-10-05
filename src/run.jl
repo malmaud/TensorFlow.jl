@@ -1,3 +1,4 @@
+as_tf_array(x) = x
 
 function run(sess::Session, inputs, input_values, outputs, targets)
     status = Status()
@@ -35,7 +36,7 @@ end
 function build_key_map{T}(elems::AbstractVector, output_map::Dict{T, Int})
     out = []
     for elem in elems
-        push!(out, build_key_map(elem, output_map))
+        push!(out, build_key_map(as_tf_array(elem), output_map))
     end
     out
 end
@@ -52,7 +53,7 @@ end
 
 function build_key_map(elems)
     d = Dict{Tensor, Int}()
-    out = build_key_map(elems, d)
+    out = build_key_map(as_tf_array(elems), d)
     out, d
 end
 
@@ -77,7 +78,7 @@ end
 
 function build_input_map(key::AbstractVector, value, d_out)
     for (key_elem, value_elem) in zip(key, value)
-        build_input_map(key_elem, value_elem, d_out)
+        build_input_map(as_tf_array(key_elem), as_tf_array(value_elem), d_out)
     end
     d_out
 end
@@ -87,7 +88,7 @@ function build_input_map(key, value, d_out)
     d_out
 end
 
-build_input_map(d_in) = build_input_map(d_in, Dict())
+build_input_map(d_in) = build_input_map(as_tf_array(d_in), Dict())
 
 function run(sess::Session, outputs::AbstractVector, input_dict)
     isempty(outputs) && return []
