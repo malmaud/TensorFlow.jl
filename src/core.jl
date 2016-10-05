@@ -654,7 +654,7 @@ function Operation(node_def::tensorflow.NodeDef)
             elseif attr_name ∈ ("begin_mask", "ellipsis_mask", "shrink_axis_mask", "new_axis_mask", "end_mask")
                 desc[attr_name] = attr.i
             else
-                warn("Unrecognized attribute $attr_name")
+                #warn("Unrecognized attribute $attr_name")
             end
         end
     end
