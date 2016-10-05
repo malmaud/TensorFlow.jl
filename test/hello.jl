@@ -63,3 +63,32 @@ diag_raw = rand(5)
 diag_mat = TensorFlow.constant(diag_raw)
 result = run(sess, det(diagm(diag_mat)))
 @test prod(diag_raw) ≈ result
+
+a_raw = rand(3)
+b_raw = rand(3)
+a = TensorFlow.constant(a_raw)
+b = TensorFlow.constant(b_raw)
+result = run(sess, a+b)
+@test a_raw + b_raw ≈ result
+result = run(sess, a-b)
+@test a_raw - b_raw ≈ result
+result = run(sess, a.*b)
+@test a_raw.*b_raw ≈ result
+result = run(sess, a × b)
+@test a_raw × b_raw ≈ result
+
+a_raw = rand(10)
+b_raw = rand(10)
+a = TensorFlow.constant(a_raw)
+b = TensorFlow.constant(b_raw)
+result = run(sess, max(a,b))
+@test max(a_raw, b_raw) == result
+result = run(sess, min(a,b))
+@test min(a_raw, b_raw) == result
+
+a_raw = rand(10)
+a = TensorFlow.constant(a_raw)
+result = run(sess, indmin(a, 1))
+@test indmin(a_raw) == result+1
+result = run(sess, indmax(a, 1))
+@test indmax(a_raw) == result+1
