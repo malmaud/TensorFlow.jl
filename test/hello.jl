@@ -40,6 +40,7 @@ for func in [acos, asin, atan]
     @test func.(f_raw) ≈ result
 end
 
+
 x_r_raw = Vector{Float32}(rand(10))
 x_i_raw = Vector{Float32}(rand(10))
 x_r = Tensor(x_r_raw)
@@ -47,3 +48,18 @@ x_i = Tensor(x_i_raw)
 
 result = run(sess, complex(x_r, x_i))
 @test complex(x_r_raw, x_i_raw) == result
+
+
+mat_raw = rand(10, 10)
+mat = TensorFlow.constant(mat_raw)
+result = run(sess, inv(mat))
+@test inv(mat_raw) ≈ result
+result = run(sess, det(mat))
+@test det(mat_raw) ≈ result
+result = run(sess, diag(mat))
+@test diag(mat_raw) ≈ result
+
+diag_raw = rand(5)
+diag_mat = TensorFlow.constant(diag_raw)
+result = run(sess, det(diagm(diag_mat)))
+@test prod(diag_raw) ≈ result
