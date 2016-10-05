@@ -165,6 +165,18 @@ end
 
 -(n::AbstractTensor) = neg(n)
 
+function Base.complex(x_r::AbstractTensor, x_i::AbstractTensor; name="Complex")
+    local desc
+    with_op_name(name) do
+        x_r = Tensor(x_r)
+        x_i = Tensor(x_i)
+        desc = NodeDescription("Complex")
+        add_input(desc, x_r)
+        #desc = NodeDescription(get_def_graph(), "Imag", "$name/imag")
+        add_input(desc, x_i)
+    end
+    Tensor(Operation(desc), 1)
+end
 
 # Reductions
 
