@@ -6,6 +6,9 @@ include("math.jl")
 include("debug.jl")
 include("comp.jl")
 include("clipping.jl")
+include("image.jl")
+
+>>>>>>> Wrapped more image functions, added tests
 include(joinpath(dirname(@__FILE__), "..", "examples", "logistic.jl"))
 
 # RNNs
