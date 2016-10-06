@@ -204,22 +204,28 @@ end
 @not_implemented function all_candidate_sampler()
 end
 
-@not_implemented function atrous_conv2d(value, filters, rate, padding; name="")
-    desc = NodeDescription("AtrousConv2D", get_name(name))
-    add_input(desc, Tensor(value))
-    add_input(desc, Tensor(filter))
-    desc["padding"] = padding
-    desc["rate"]    = rate
+function atrous_conv2d(value, filters, rate, padding; name="AtrousConv2D")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("AtrousConv2D")
+        add_input(desc, Tensor(value))
+        add_input(desc, Tensor(filter))
+        desc["padding"] = padding
+        desc["rate"]    = rate
+    end
     Tensor(Operation(desc), 1)
 end
 
-function avg_pool(value, ksize, strides, padding; data_format="NHWC", name="")
-    desc = NodeDescription("AvgPool", get_name(name))
-    add_input(desc, value)
-    desc["data_format"] = data_format
-    desc["padding"] = padding
-    set_attr_list(desc, "ksize", ksize)
-    set_attr_list(desc, "strides", strides)
+function avg_pool(value, ksize, strides, padding; data_format="NHWC", name="AvgPool")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("AvgPool")
+        add_input(desc, value)
+        desc["data_format"] = data_format
+        desc["padding"] = padding
+        set_attr_list(desc, "ksize", ksize)
+        set_attr_list(desc, "strides", strides)
+    end
     Tensor(Operation(desc), 1)
 end
 
@@ -229,51 +235,66 @@ end
 @not_implemented function bias_add()
 end
 
-function conv1d(value, filters, strides, padding; data_format="NHWC", name="")
-    desc = NodeDescription("Conv1D", get_name(name))
-    add_input(desc, Tensor(value))
-    add_input(desc, Tensor(filters))
-    desc["padding"] = padding
-    desc["data_format"] = data_format
-    set_attr_list(desc, "strides", strides)
+function conv1d(value, filters, strides, padding; data_format="NHWC", name="Conv1D")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("Conv1D")
+        add_input(desc, Tensor(value))
+        add_input(desc, Tensor(filters))
+        desc["padding"] = padding
+        desc["data_format"] = data_format
+        set_attr_list(desc, "strides", strides)
+    end
     Tensor(Operation(desc), 1)
 end
 
-function conv3d(input, filter, strides, padding; name="")
-    desc = NodeDescription("Conv3D", get_name(name))
-    add_input(desc, Tensor(input))
-    add_input(desc, Tensor(filter))
-    desc["padding"] = padding
-    set_attr_list(desc, "strides", strides)
+function conv3d(input, filter, strides, padding; name="Conv3D")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("Conv3D")
+        add_input(desc, Tensor(input))
+        add_input(desc, Tensor(filter))
+        desc["padding"] = padding
+        set_attr_list(desc, "strides", strides)
+    end
     Tensor(Operation(desc), 1)
 end
 
-function depthwise_conv2d(input, filter, strides, padding; name="")
-    desc = NodeDescription("DepthwiseConv2D", get_name(name))
-    add_input(desc, Tensor(input))
-    add_input(desc, Tensor(filter))
-    desc["padding"] = padding
-    set_attr_list(desc, "strides", strides)
+function depthwise_conv2d(input, filter, strides, padding; name="DepthwiseConv2D")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("DepthwiseConv2D")
+        add_input(desc, Tensor(input))
+        add_input(desc, Tensor(filter))
+        desc["padding"] = padding
+        set_attr_list(desc, "strides", strides)
+    end
     Tensor(Operation(desc), 1)
 end
 
-function dilation2d(input, filter, strides, rates, padding; name="")
-    desc = NodeDescription("Dilation2D", get_name(name))
-    add_input(desc, Tensor(input))
-    add_input(desc, Tensor(filter))
-    desc["padding"] = padding
-    set_attr_list(desc, "rates", rates)
-    set_attr_list(desc, "strides", strides)
+function dilation2d(input, filter, strides, rates, padding; name="Dilation2D")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("Dilation2D")
+        add_input(desc, Tensor(input))
+        add_input(desc, Tensor(filter))
+        desc["padding"] = padding
+        set_attr_list(desc, "rates", rates)
+        set_attr_list(desc, "strides", strides)
+    end
     Tensor(Operation(desc), 1)
 end
 
-function erosion2d(value, kernel, strides, rates, padding; name="")
-    desc = NodeDescription("Erosion2D", get_name(name))
-    add_input(desc, Tensor(value))
-    add_input(desc, Tensor(kernel))
-    desc["padding"] = padding
-    set_attr_list(desc, "rates", rates)
-    set_attr_list(desc, "strides", strides)
+function erosion2d(value, kernel, strides, rates, padding; name="Erosion2D")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("Erosion2D")
+        add_input(desc, Tensor(value))
+        add_input(desc, Tensor(kernel))
+        desc["padding"] = padding
+        set_attr_list(desc, "rates", rates)
+        set_attr_list(desc, "strides", strides)
+    end
     Tensor(Operation(desc), 1)
 end
 
@@ -291,29 +312,38 @@ function l2_normalize(x, dim; epsilon=1e-12, name="L2Normalize")
     out
 end
 
-function max_pool3d(input, ksize, strides, padding; name="")
-    desc = NodeDescription("MaxPool3D", get_name(name))
-    add_input(desc, input)
-    desc["padding"] = padding
-    set_attr_list(desc, "ksize", ksize)
-    set_attr_list(desc, "strides", strides)
+function max_pool3d(input, ksize, strides, padding; name="MaxPool3D")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("MaxPool3D")
+        add_input(desc, input)
+        desc["padding"] = padding
+        set_attr_list(desc, "ksize", ksize)
+        set_attr_list(desc, "strides", strides)
+    end
     Tensor(Operation(desc), 1)
 end
 
-function avg_pool3d(input, ksize, strides, padding; name="")
-    desc = NodeDescription("AvgPool3D", get_name(name))
-    add_input(desc, input)
-    desc["padding"] = padding
-    set_attr_list(desc, "ksize", ksize)
-    set_attr_list(desc, "strides", strides)
+function avg_pool3d(input, ksize, strides, padding; name="AvgPool3D")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("AvgPool3D")
+        add_input(desc, input)
+        desc["padding"] = padding
+        set_attr_list(desc, "ksize", ksize)
+        set_attr_list(desc, "strides", strides)
+    end
     Tensor(Operation(desc), 1)
 end
 
-function weighted_cross_entropy_with_logits(logits, targets, pos_weight; name="")
-    desc = NodeDescription("WeightedCrossEntropyWithLogits", get_name(name))
-    add_input(desc, Tensor(logits))
-    add_input(desc, Tensor(targets))
-    add_input(desc, Tensor(pos_weight))
+function weighted_cross_entropy_with_logits(logits, targets, pos_weight; name="WeightedCrossEntropyWithLogits")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("WeightedCrossEntropyWithLogits")
+        add_input(desc, Tensor(logits))
+        add_input(desc, Tensor(targets))
+        add_input(desc, Tensor(pos_weight))
+    end
     Tensor(Operation(desc))
 end
 
