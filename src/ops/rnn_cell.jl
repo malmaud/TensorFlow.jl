@@ -56,6 +56,8 @@ immutable LSTMStateTuple
     h
 end
 
+tf.as_tf_array(x::LSTMStateTuple) = [x.c, x.h]
+
 function Base.show(io::IO, s::LSTMStateTuple)
     print(io, "LSTMStateTuple(c=$(s.c), h=$(s.h))")
 end

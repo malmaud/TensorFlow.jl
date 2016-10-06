@@ -104,6 +104,7 @@ abstract AbstractTensorShape
 include("constants.jl")
 include("tensorflow_protos.jl")
 include("core.jl")
+include("run.jl")
 include("variable.jl")
 include("shape_inference.jl")
 using .ShapeInference
