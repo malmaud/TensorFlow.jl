@@ -24,6 +24,11 @@ result_r = run(sess, real(c))
 result_i = run(sess, imag(c))
 @test Float32(5.) == result_i
 
+#basic tensor facts
+tens = TensorFlow.ones((5,5))
+@test size(tens) == (5,5)
+@test length(tens) == 25
+
 d_raw = 1. + rand(10)
 d = TensorFlow.constant(d_raw)
 for unary_func in [erf, erfc, lgamma, tanh, tan, sin, cos, abs, exp, log]
