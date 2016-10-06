@@ -93,6 +93,19 @@ for (bin_op, jl_func_name, tf_func_name) in [
     @eval $bin_op(n1, n2::AbstractTensor) = $jl_func_name(tf_promote(n2, n1), n2)
 end
 
+function Base.cross(n1::AbstractTensor, n2::AbstractTensor; name="Cross")
+    local desc
+    with_op_name(name) do
+        n1 = Tensor(n1)
+        n2 = Tensor(n2)
+        name = get_name(name)
+        desc = NodeDescription("Cross")
+        add_input(desc, n1)
+        add_input(desc, n2)
+    end
+    Tensor(Operation(desc), 1)
+end
+
 *(x::Number, n::AbstractTensor) = x.*n
 
   # For supporting notation like `2x`
@@ -165,6 +178,22 @@ end
 
 -(n::AbstractTensor) = neg(n)
 
+
+for (jl_func_name, tf_func_name) in [
+    (:inv, "MatrixInverse"),
+    (:det, "MatrixDeterminant"),
+    (:diagm, "Diag"),
+    (:diag, "MatrixDiagPart")]
+    @eval function Base.$jl_func_name(n::AbstractTensor; name=$tf_func_name)
+        local desc
+        with_op_name(name) do
+            n = Tensor(n)
+            desc = NodeDescription($tf_func_name)
+            add_input(desc, n)
+        end
+        Tensor(Operation(desc), 1)
+    end
+end
 
 # Reductions
 
