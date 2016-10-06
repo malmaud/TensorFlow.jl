@@ -33,9 +33,17 @@ end
 result = run(sess, -d)
 @test -d_raw == result
 
-f_raw = randn(10)./2
+f_raw = rand(10)./2
 f = TensorFlow.constant(f_raw)
 for func in [acos, asin, atan]
     result = run(sess, func(f))
     @test func.(f_raw) ≈ result
 end
+
+x_r_raw = Vector{Float32}(rand(10))
+x_i_raw = Vector{Float32}(rand(10))
+x_r = Tensor(x_r_raw)
+x_i = Tensor(x_i_raw)
+
+result = run(sess, complex(x_r, x_i))
+@test complex(x_r_raw, x_i_raw) == result
