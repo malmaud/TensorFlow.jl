@@ -3,9 +3,11 @@ module image
 export
 decode_jpeg,
 decode_png,
-resize_images
+resize_images,
+flip_up_down,
+flip_left_right
 
-import ..TensorFlow: NodeDescription, get_def_graph, get_name, add_input, Operation, pack, convert_number, AbstractOperation, Tensor
+import ..TensorFlow: NodeDescription, get_def_graph, get_name, add_input, Operation, pack, convert_number, AbstractOperation, Tensor, with_op_name, constant
 
 """
 `function decode_jpeg(contents, channels=1, ratio=1, fancy_upscaling=true, try_recover_truncated=false, acceptable_fraction=1.0)`
@@ -75,6 +77,28 @@ function resize_images(images, new_height, new_width; method=BILINEAR, align_cor
     dims = pack([convert_number(Int32,new_height), convert_number(Int32,new_width)])
     add_input(desc, dims)
     desc["align_corners"] = align_corners
+    Tensor(Operation(desc), 1)
+end
+
+function flip_up_down(image; name="FlipUpDown")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("Reverse")
+        add_input(desc, image)
+        dims = Tensor([true, false, false])
+        add_input(desc, dims)
+    end
+    Tensor(Operation(desc), 1)
+end
+
+function flip_left_right(image; name="FlipLeftRight")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("Reverse")
+        add_input(desc, image)
+        dims = Tensor([false, true, false])
+        add_input(desc, dims)
+    end
     Tensor(Operation(desc), 1)
 end
 
