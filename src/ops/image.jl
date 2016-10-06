@@ -1,11 +1,18 @@
 module image
 
 export
+encode_jpeg,
 decode_jpeg,
+encode_png,
 decode_png,
 resize_images,
 flip_up_down,
-flip_left_right
+flip_left_right,
+central_crop,
+rgb_to_grayscale,
+grayscale_to_rgb,
+rgb_to_hsv,
+hsv_to_rgb
 
 import ..TensorFlow: NodeDescription, get_def_graph, get_name, add_input, Operation, pack, convert_number, AbstractOperation, Tensor, with_op_name, constant
 
@@ -48,22 +55,55 @@ Args:
 Returns:
   A `Tensor` of type `uint8`. 3-D with shape `[height, width, channels]`.
 """
-function decode_jpeg(contents; channels=0, ratio=1, fancy_upscaling=true, try_recover_truncated=false, acceptable_fraction=1.0, name="")
-    desc = NodeDescription(get_def_graph(), "DecodeJpeg", get_name(name))
-    add_input(desc, contents)
-    desc["acceptable_fraction"] = Float32(acceptable_fraction)
-    desc["channels"] = Int64(channels)
-    desc["fancy_upscaling"] = fancy_upscaling
-    desc["ratio"] = Int64(ratio)
-    desc["try_recover_truncated"] = try_recover_truncated
+function decode_jpeg(contents; channels=0, ratio=1, fancy_upscaling=true, try_recover_truncated=false, acceptable_fraction=1.0, name="DecodeJpeg")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("DecodeJpeg")
+        add_input(desc, contents)
+        desc["acceptable_fraction"] = Float32(acceptable_fraction)
+        desc["channels"] = Int64(channels)
+        desc["fancy_upscaling"] = fancy_upscaling
+        desc["ratio"] = Int64(ratio)
+        desc["try_recover_truncated"] = try_recover_truncated
+    end
     Tensor(Operation(desc), 1)
 end
 
-function decode_png(contents; channels=0, dtype=UInt8, name="")
-    desc = NodeDescription(get_def_graph(), "DecodePng", get_name(name))
-    add_input(desc, contents)
-    desc["channels"] = Int64(channels)
-    desc["dtype"] = dtype
+function encode_jpeg(contents; format="", quality=95, progressive=true, optimize_size=false, chroma_downsampling=true, density_unit="in", x_density=300, y_density=300, xmp_metadata="", name="EncodeJpeg")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("EncodeJpeg")
+        add_input(desc, contents)
+        desc["quality"] = Int64(quality)
+        desc["progressive"] = progressive
+        desc["optimize_size"] = optimize_size
+        desc["chroma_downsampling"] = chroma_downsampling
+        desc["density_unit"] = density_unit
+        desc["x_density"] = Int64(x_density)
+        desc["y_density"] = Int64(y_density)
+        desc["xmp_metadata"] = xmp_metadata
+    end
+    Tensor(Operation(desc), 1)
+end
+
+function decode_png(contents; channels=0, dtype=UInt8, name="DecodePng")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("DecodePng")
+        add_input(desc, contents)
+        desc["channels"] = Int64(channels)
+        desc["dtype"] = dtype
+    end
+    Tensor(Operation(desc), 1)
+end
+
+function encode_png(image; compression::Integer=-1, name="EncodePng")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("EncodePng")
+        add_input(desc, image)
+        desc["compression"] = Int64(compression)
+    end
     Tensor(Operation(desc), 1)
 end
 
@@ -77,6 +117,16 @@ function resize_images(images, new_height, new_width; method=BILINEAR, align_cor
     dims = pack([convert_number(Int32,new_height), convert_number(Int32,new_width)])
     add_input(desc, dims)
     desc["align_corners"] = align_corners
+    Tensor(Operation(desc), 1)
+end
+
+function central_crop(image, crop_fraction; name="CentralCrop")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("CentralCrop")
+        add_input(desc, image)
+        add_input(desc, Float32(crop_fraction))
+    end
     Tensor(Operation(desc), 1)
 end
 
@@ -100,6 +150,21 @@ function flip_left_right(image; name="FlipLeftRight")
         add_input(desc, dims)
     end
     Tensor(Operation(desc), 1)
+end
+
+for (jl_func_name, tf_func_name) in [
+    (:rgb_to_grayscale, "rgb_to_grayscale"),
+    (:grayscale_to_rgb, "grayscale_to_rgb"),
+    (:hsv_to_rgb, "hsv_to_rgb"),
+    (:rgb_to_hsv, "rgb_to_hsv")]
+    @eval function $jl_func_name(image; name=$tf_func_name)
+        local desc
+        with_op_name(name) do
+            desc = NodeDescription($tf_func_name)
+            add_input(desc, image)
+        end
+        Tensor(Operation(desc), 1)
+    end
 end
 
 end
