@@ -98,7 +98,6 @@ function Base.cross(n1::AbstractTensor, n2::AbstractTensor; name="Cross")
     with_op_name(name) do
         n1 = Tensor(n1)
         n2 = Tensor(n2)
-        name = get_name(name)
         desc = NodeDescription("Cross")
         add_input(desc, n1)
         add_input(desc, n2)
