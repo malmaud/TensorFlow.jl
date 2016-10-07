@@ -281,7 +281,7 @@ function in_top_k(predictions, targets, k; name="InTopK")
     local desc
     with_op_name(name) do
         desc = NodeDescription("InTopK")
-        add_input(desc, cast(Tensor(predictions), Float32))
+        add_input(desc, tf.cast(Tensor(predictions), Float32))
         add_input(desc, Tensor(targets)-1)
         desc["k"] = Int64(k)
     end
@@ -301,14 +301,60 @@ function l2_loss(t; name="L2_Loss")
     out
 end
 
-@not_implemented function nce_loss()
+function nce_loss(weights, biases, inputs, labels, num_sampled, num_classes;
+                  num_true=1, sampled_values=nothing,
+                  remove_accidental_hits=false, partition_strategy="mod",
+                  name="NceLoss")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("NceLoss")
+        add_input(desc, Tensor(weights))
+        add_input(desc, Tensor(biases))
+        add_input(desc, Tensor(inputs))
+        add_input(desc, Tensor(labels) - 1)
+        add_input(desc, Int64(num_sampled))
+        add_input(desc, Int64(num_classes))
+        desc["num_true"] = Int64(num_true)
+        desc["sampled_values"] = sampled_values
+        desc["remove_accidental_hits"] = remove_accidental_hits
+        desc["partition_strategy"] = partition_strategy
+    end
+    Tensor(Operation(desc), 1)
 end
 
-@not_implemented function sampled_softmax_loss()
+function sampled_softmax_loss(weights, biases, inputs, labels, num_sampled, num_classes;
+                  num_true=1, sampled_values=nothing,
+                  remove_accidental_hits=false, partition_strategy="mod",
+                  name="SampledSoftmaxLoss")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("SampledSoftmaxLoss")
+        add_input(desc, Tensor(weights))
+        add_input(desc, Tensor(biases))
+        add_input(desc, Tensor(inputs))
+        add_input(desc, Tensor(labels) - 1)
+        add_input(desc, Int64(num_sampled))
+        add_input(desc, Int64(num_classes))
+        desc["num_true"] = Int64(num_true)
+        desc["sampled_values"] = sampled_values
+        desc["remove_accidental_hits"] = remove_accidental_hits
+        desc["partition_strategy"] = partition_strategy
+    end
+    Tensor(Operation(desc), 1)
 end
 
-@not_implemented function batch_normalization(x, mean, variance, offset, scale, variable_epsilon; name="")
-
+function batch_normalization(x, mean, variance, offset, scale, variable_epsilon; name="BatchNormalization")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("BatchNormalization")
+        add_input(desc, Tensor(x))
+        add_input(desc, Tensor(mean))
+        add_input(desc, Tensor(variance))
+        add_input(desc, Tensor(offset))
+        add_input(desc, Tensor(scale))
+        add_input(desc, variable_epsilon)
+    end
+    Tensor(Operation(desc), 1)
 end
 
 function local_response_normalization(input; depth_radius=5, bias=1.0, alpha=1.0, beta=0.5, name="LRN")
@@ -358,7 +404,15 @@ end
 @not_implemented function batch_norm_with_global_normalization()
 end
 
-@not_implemented function bias_add()
+function bias_add(value, bias; data_format="NHWC", name="BiasAdd")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("BiasAdd")
+        add_input(desc, Tensor(value))
+        add_input(desc, Tensor(bias))
+        desc["data_format"] = data_format
+    end
+    Tensor(Operation(desc), 1)
 end
 
 function conv1d(value, filters, strides, padding; data_format="NHWC", name="Conv1D")
@@ -422,6 +476,9 @@ function erosion2d(value, kernel, strides, rates, padding; name="Erosion2D")
         set_attr_list(desc, "strides", strides)
     end
     Tensor(Operation(desc), 1)
+end
+
+@not_implemented function learned_unigram_candidate_sampler()
 end
 
 @not_implemented function fixed_unigram_candidate_sampler()
