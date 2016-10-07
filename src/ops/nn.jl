@@ -157,13 +157,57 @@ all elements but all later dimensions may vary.
 * `scope`: `VariableScope` for the subgraph. Defaults to `RNN`.
 """
 @not_implemented function dynamic_rnn(cell, inputs; sequence_length=nothing, initial_state=nothing, dtype=nothing, parallel_iterations=nothing, swap_memory=false, time_major=false, scope="RNN")
-
 end
 
-@not_implemented function state_saving_rnn()
+@not_implemented function state_saving_rnn(cell, inputs, state_saver, state_name; sequence_length=nothing, scope="RNN")
 end
 
-@not_implemented function bidirectional_rnn()
+function bidirectional_rnn(cell_fw, cell_bw, inputs; sequence_length=nothing, initial_state_fw=nothing, initial_state_bw=nothing, dtype=nothing, scope="BiRNN")
+    # TODO use sequence length
+    if initial_state_fw === nothing
+        if dtype === nothing
+            error("dtype must be set if initial_state is not provided")
+        end
+        shape = get_shape(inputs[1])
+        if shape.rank_unknown
+            error("Shape of input is unknown")
+        end
+        if isnull(shape.dims[1])
+            error("Batch size of input is unknown")
+        end
+        batch_size = get(shape.dims[1])
+        initial_state_fw = zero_state(cell_fw, batch_size, dtype)
+    end
+    if initial_state_bw === nothing
+        if dtype === nothing
+            error("dtype must be set if initial_state is not provided")
+        end
+        shape = get_shape(inputs[1])
+        if shape.rank_unknown
+            error("Shape of input is unknown")
+        end
+        if isnull(shape.dims[1])
+            error("Batch size of input is unknown")
+        end
+        batch_size = get(shape.dims[1])
+        initial_state_bw = zero_state(cell_bw, batch_size, dtype)
+    end
+    outputs = Tensor[]
+    local output_fw
+    local output_bw
+    state_fw = initial_state_fw
+    state_bw = initial_state_bw
+    for (idx, input) in enumerate(inputs)
+        variable_scope(scope; reuse=idx>1) do
+            output_fw, state_fw = cell(input, state_fw)
+            output_bw, state_bw = cell(input, state_bw)
+        end
+        push!(outputs, [output_fw, output_bw])
+    end
+    return outputs, state_fw, state_bw
+end
+
+@not_implemented function bidirectional_dynamic_rnn(cell_fw, cell_bw, inputs; sequence_length=nothing, initial_state_fw=nothing, initial_state_bw=nothing, dtype=nothing, parallel_interations=nothing, swap_memory=false, time_major=false, scope="BiRNN")
 end
 
 """
