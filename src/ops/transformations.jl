@@ -69,25 +69,25 @@ Base.slice(n::AbstractTensor, begin_, size_; name="")
 
 Extracts a slice from a tensor.
 
-This operation extracts a slice of size size from a tensor input starting at the location specified by begin. The slice size is represented as a tensor shape, where size[i] is the number of elements of the 'i'th dimension of input that you want to slice. The starting location (begin) for the slice is represented as an offset in each dimension of input. In other words, begin[i] is the offset into the 'i'th dimension of input that you want to slice from.
+This operation extracts a slice of size `size_` from a tensor input starting at the location specified by `begin_`. The slice size is represented as a tensor shape, where `size_[i]` is the number of elements of the `i`th dimension of input that you want to slice. The starting location (`begin_`) for the slice is represented as an offset in each dimension of input. In other words, `begin_[i]` is the offset into the `i`th dimension of input that you want to slice from.
 
-begin is zero-based; size is one-based. If size[i] is -1, all remaining elements in dimension i are included in the slice. In other words, this is equivalent to setting:
+`begin` is zero-based; `size_` is one-based. If `size[i]` is `-1`, all remaining elements in dimension `i` are included in the slice. In other words, this is equivalent to setting:
 
-size[i] = input.dim_size(i) - begin[i]
+`size[i] = input.dim_size(i) - begin[i]`
 
 This operation requires that:
 
-0 <= begin[i] <= begin[i] + size[i] <= Di for i in [0, n]
+`0 <= begin[i] <= begin[i] + size[i] <= Di` for `i in [0, n]`.
 
 Args:
 
-input_: A Tensor.
-begin: An int32 or int64 Tensor.
-size: An int32 or int64 Tensor.
-name: A name for the operation (optional).
+`input_`: A `Tensor`.
+`begin`: An `int32` or `int64` `Tensor`.
+`size`: An `int32` or `int64` `Tensor`.
+`name`: A name for the operation (optional).
 Returns:
 
-A Tensor the same type as input.
+A `Tensor` the same type as input.
 
 https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#slice
 """

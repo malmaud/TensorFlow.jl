@@ -156,7 +156,46 @@ all elements but all later dimensions may vary.
 * `time_major`: Shape format for `inputs` and `outputs` `Tensor`s. Determines whether the first dimension of each is `max_time` (`true`) or `batch_size` (`false`, default). `true` is more efficient but is the transpose of most TensorFlow operations.
 * `scope`: `VariableScope` for the subgraph. Defaults to `RNN`.
 """
-@not_implemented function dynamic_rnn(cell, inputs; sequence_length=nothing, initial_state=nothing, dtype=nothing, parallel_iterations=nothing, swap_memory=false, time_major=false, scope="RNN")
+function dynamic_rnn(cell, inputs; sequence_length=nothing, initial_state=nothing, dtype=nothing, parallel_iterations=32, swap_memory=false, time_major=false, scope="RNN")
+    # TODO use sequence length
+    # TODO do some input checking
+    if initial_state === nothing
+        if dtype === nothing
+            error("dtype must be set if initial_state is not provided")
+        end
+        shape = get_shape(inputs[1])
+        if shape.rank_unknown
+            error("Shape of input is unknown")
+        end
+        if isnull(shape.dims[1])
+            error("Batch size of input is unknown")
+        end
+        batch_size = get(shape.dims[1])
+        initial_state = zero_state(cell, batch_size, dtype)
+    end
+    max_time = size(inputs, 2)
+    if time_major
+        max_time = size(inputs, 1)
+    end
+    outputs = Tensor[]
+    local output
+    state = initial_state
+    for idx in 1:max_time
+        begin_ = zeros(rank(input))
+        size_  = -ones(rank(input))
+        begin_[2] = idx
+        size_[2] = 1
+        if time_major
+            begin_[1] = idx
+            size_[1] = 1
+        end
+        input_slice = slice(input, begin_, size_)
+        variable_scope(scope; reuse=idx>1) do
+            output, state = cell(input_slice, state)
+        end
+        push!(outputs, output)
+    end
+    return outputs, state
 end
 
 @not_implemented function state_saving_rnn(cell, inputs, state_saver, state_name; sequence_length=nothing, scope="RNN")
