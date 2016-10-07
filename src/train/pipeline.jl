@@ -15,7 +15,7 @@ Run all queue runners in parallel that were previously added to the graph's coll
 via `add_queue_runner`.
 
 Args:
-* session: The TensorFlow session containing the queues
+* `session`: The TensorFlow session containing the queues
 """
 function start_queue_runners(sess)
     runners = tf.get_collection(:QueueRunners)
@@ -40,11 +40,11 @@ end
 Produces the integers from 1 to `limit` in a queue.
 
 Args:
-* limit: Inclusive upper bound on the endpoint of the range of integers to produce
-* num_epochs: Number of times to produce the integers.
-* do_shuffle
-* seed
-* capacity
+* `limit`: Inclusive upper bound on the endpoint of the range of integers to produce
+* `num_epochs`: Number of times to produce the integers.
+* `do_shuffle`: If `true`, shuffle the inputs each epoch.
+* `seed`: Seed to use for the RNG if `do_shuffle` is `true`.
+* `capacity`: Sets the queue capacity. Default is 32.
 """
 function range_input_producer(limit; num_epochs=nothing, do_shuffle=true, seed=0, capacity=32, name="")
     input = range(Tensor, 1, limit=limit+1)
@@ -53,6 +53,16 @@ end
 
 """
 `input_producer(input; element_shape=nothing, num_epochs=nothing, do_shuffle=true, seed=0, capacity=32)`
+
+Outputs the rows of `input` to a queue for input pipelining.
+
+Args:
+* `input`: A `Tensor` with the rows to produce.
+* `element_shape`: The shape of the input rows, in case it can't be inferred. Defaults to `nothing`.
+* `num_epochs`: Number of times to produce each row. If unspecified (default), `input_producer` can produce each row an unlimited number of times.
+* `do_shuffle`: If `true`, shuffle the inputs each epoch.
+* `seed`: Seed to use for the RNG if `do_shuffle` is `true`.
+* `capacity`: Sets the queue capacity. Default is 32.
 """
 function input_producer(input; element_shape=nothing, num_epochs=nothing, do_shuffle=true, seed=0, capacity=32, name="")
     full_name = tf.get_name(name)
@@ -78,11 +88,33 @@ function input_producer(input; element_shape=nothing, num_epochs=nothing, do_shu
     return queue
 end
 
-@not_implemented function slice_input_producer()
+"""
+`slice_input_producer(input; num_epochs=nothing, do_shuffle=true, seed=0, capacity=32)`
+
+Produces a slice of each `Tensor` in `input`.
+
+Args:
+* `input`: A list of `Tensor` objects. Each element must have the same size of its first dimension.
+* `num_epochs`: Number of times to produce the strings.
+* `do_shuffle`: If `true`, shuffle the inputs each epoch.
+* `seed`: Seed to use for the RNG if `do_shuffle` is `true`.
+* `capacity`: Sets the queue capacity. Default is 32.
+"""
+function slice_input_producer(input; num_epochs=nothing, do_shuffle=true, seed=0, capacity=32, name="")
+    input_producer(tf.to_tensor(input), num_epochs=num_epochs, do_shuffle=do_shuffle, seed=seed, capacity=capacity, name=name)
 end
 
 """
 `string_input_producer(string_tensors; num_epochs=nothing, do_shuffle=true, seed=0, capacity=32)`
+
+Output strings to a queue for an input pipeline.
+
+Args:
+* `string_tensor`: A one dimensional `Tensor` of strings to produce.
+* `num_epochs`: Number of times to produce the strings.
+* `do_shuffle`: If `true`, shuffle the inputs each epoch.
+* `seed`: Seed to use for the RNG if `do_shuffle` is `true`.
+* `capacity`: Sets the queue capacity. Default is 32.
 """
 function string_input_producer(string_tensor; num_epochs=nothing, do_shuffle=true, seed=0, capacity=32, name="")
     input_producer(tf.to_tensor(string_tensor), num_epochs=num_epochs, do_shuffle=do_shuffle, seed=seed, capacity=capacity, name=name)
@@ -90,8 +122,18 @@ end
 
 """
 `shuffle_batch(tensors, batch_size; capacity=32, enqueue_many=false, shapes=nothing, dynamic_pad=false, allow_smaller_final_batch=false)`
+
+Create batches by randomly shuffling `tensors`.
+
+Args:
+* `tensors`: A list of tensors to enqueue.
+* `batch_size`: The batch size which will be pulled from the queue.
+* `capacity`: Sets the queue capacity. Default is 32.
+* `enqueue_many`: If `false`, `tensors` represents a single example. Otherwise `tensors` represents a batch of examples. Currently only `false` is supported.
+* `shapes`: The shapes for each example. Defaults to the inferred shapes from `tensors`.
+* `allow_smaller_final_batch`: If `true` (default `false`), the final batch is allowed to be smaller than the other batches if there are not enough samples remaining.
 """
-function shuffle_batch(tensors, batch_size; capacity=32, enqueue_many=false, shapes=nothing, dynamic_pad=false, allow_smaller_final_batch=false, name="")
+function shuffle_batch(tensors, batch_size; capacity=32, enqueue_many=false, shapes=nothing, allow_smaller_final_batch=false, name="")
     if enqueue_many
         error("Not supported")  # TODO support this
     end
@@ -107,11 +149,37 @@ function shuffle_batch(tensors, batch_size; capacity=32, enqueue_many=false, sha
     return dequeue_op
 end
 
-@not_implemented function batch_join()
+@not_implemented function batch_join(tensors, batch_size; capacity=32, enqueue_many=false, shapes=nothing, dynamic_pad=false, allow_smaller_final_batch=false, name="BatchJoin")
 end
 
-@not_implemented function batch()
+"""
+`batch(tensors, batch_size; num_threads=1, capacity=32, enqueue_many=false, shapes=nothing, dynamic_pad=false, allow_smaller_final_batch=false)`
 
+Create batches by randomly shuffling `tensors`.
+
+Args:
+* `tensors`: A list of tensors to enqueue.
+* `batch_size`: The batch size which will be pulled from the queue.
+* `num_threads`: The number of threads to use while enqueuing. Default is 1.
+* `capacity`: Sets the queue capacity. Default is 32.
+* `enqueue_many`: If `false`, `tensors` represents a single example. Otherwise `tensors` represents a batch of examples. Currently only `false` is supported.
+* `shapes`: The shapes for each example. Defaults to the inferred shapes from `tensors`.
+* `allow_smaller_final_batch`: If `true` (default `false`), the final batch is allowed to be smaller than the other batches if there are not enough samples remaining.
+"""
+function batch(tensors, batch_size; num_threads=1, capacity=32, enqueue_many=false, shapes=nothing, dynamic_pad=false, allow_smaller_final_batch=false, name="Batch")
+    if enqueue_many
+        error("Not supported")  # TODO support this
+    end
+    name = tf.get_name(name)
+    if shapes === nothing
+        shapes = [tf.get_shape(_) for _ in tensors]
+    end
+    queue = tf.FIFOQueue(capacity, [eltype(_) for _ in tensors], shapes=shapes, name="$name/queue")
+    enqueue_op = tf.enqueue(queue, tensors, name="$name/enqueue")
+    dequeue_op = tf.dequeue_many(queue, batch_size, name="$name/dequeue")
+    runner = QueueRunner(queue, [enqueue_op])
+    add_queue_runner(runner)
+    return dequeue_op
 end
 
 @not_implemented function shuffle_batch_join()
