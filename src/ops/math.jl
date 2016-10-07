@@ -158,6 +158,16 @@ for (jl_func_name, tf_func_name) in [
     end
 end
 
+function Base.lbeta(x1::AbstractTensor, x2; name="lbeta")
+    local out
+    with_op_name(name) do
+        x1 = Tensor(x1)
+        x2 = Tensor(x2)
+        out = lgamma(x1) + lgamma(x2) - lgamma(x1 + x2)
+    end
+    out
+end
+
 #two arg special functions
 for (jl_func_name, tf_func_name) in [
     (:zeta, "Zeta"),

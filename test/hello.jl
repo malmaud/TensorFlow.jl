@@ -109,3 +109,5 @@ end
 
 result = run(sess, ~a)
 @test ~a_raw == result
+
+@test lbeta(2.0, 3.0) ≈ run(sess, lbeta(constant(2.0), constant(3.0)))
