@@ -360,6 +360,10 @@ register_shape("Conv2D") do op
     end
     padding = get_attr(op, "padding", String)#tf.load_proto(op.attrs["padding"])
     strides = get_attr(op, "strides", Vector{Int})#tf.load_proto(op.attrs["strides"])
+    for (shape, name) in [(input_shape, "input"), (filter_shape, "filter")]
+        @assert length(shape.dims) == 4 "Convolution $name must be 4D"
+    end
+    @assert length(strides) == 4
     dims = Nullable{Int}[]
     push!(dims, input_shape.dims[1])
     if padding == "SAME"
