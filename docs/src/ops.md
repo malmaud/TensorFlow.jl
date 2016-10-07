@@ -109,6 +109,12 @@ nn.l2_loss
 nn.dropout
 ```
 
+### Evaluations
+
+```@docs
+nn.top_k
+nn.in_top_k
+```
 
 ## Logic
 
