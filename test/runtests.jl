@@ -3,6 +3,7 @@ using Base.Test
 
 include("hello.jl")
 include("math.jl")
+include("debug.jl")
 include(joinpath(dirname(@__FILE__), "..", "examples", "logistic.jl"))
 
 # RNNs
