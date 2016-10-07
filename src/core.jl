@@ -440,6 +440,15 @@ function get_attr(op::Operation, attr, ::Type{Vector{Int}})
     out
 end
 
+function get_attr(op::Operation, attr, ::Type{String})
+    meta = get_attr_metadata(op, attr)
+    out = Vector{UInt8}(meta.total_size)
+    status = Status()
+    ccall((:TF_OperationGetAttrString, LIBTF), Void, (Ptr{Void}, Cstring, Ptr{UInt8}, Cint, Ptr{Void}), op.ptr, attr, out, length(out), status.ptr)
+    check_status(status)
+    String(out)
+end
+
 function fillin(op::Operation)
     op.name = ccall((:TF_OperationName, LIBTF), Cstring, (Ptr{Void},), op.ptr) |> unsafe_string
     op.op_name = ccall((:TF_OperationOpType, LIBTF), Cstring, (Ptr{Void},), op.ptr) |> unsafe_string
