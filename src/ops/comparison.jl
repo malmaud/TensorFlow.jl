@@ -8,11 +8,14 @@ for (func, op) in [
     (:greater, "Greater"),
     (:greater_equal, "GreaterEqual")]
 
-    @eval function $func(t1::AbstractTensor, t2::AbstractTensor; name="")
-        desc = NodeDescription($op, get_name(name))
-        add_input(desc, Tensor(t1))
-        add_input(desc, Tensor(t2))
-        Tensor(Operation(desc))
+    @eval function $func(t1::AbstractTensor, t2::AbstractTensor; name=$op)
+        local desc
+        with_op_name(name) do
+            desc = NodeDescription($op)
+            add_input(desc, Tensor(t1))
+            add_input(desc, Tensor(t2))
+        end
+        Tensor(Operation(desc), 1)
     end
 
 end
@@ -32,17 +35,23 @@ for (func, sym) in [
 end
 
 function Base.select(condition::AbstractTensor, t, e; name="Select")
-    desc = NodeDescription("Select", get_name(name))
-    add_input(desc, Tensor(condition))
-    add_input(desc, Tensor(t))
-    add_input(desc, Tensor(e))
-    Node(Operation(desc))
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("Select")
+        add_input(desc, Tensor(condition))
+        add_input(desc, Tensor(t))
+        add_input(desc, Tensor(e))
+    end
+    Tensor(Operation(desc), 1)
 end
 
-function where(input; name="")
-    desc = NodeDescription("Where", get_name(name))
-    add_input(desc, Tensor(input))
-    Tensor(Operation(desc))
+function where(input; name="Where")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("Where")
+        add_input(desc, Tensor(input))
+    end
+    Tensor(Operation(desc), 1)
 end
 
 Base.ifelse(input::AbstractTensor) = where(input)
