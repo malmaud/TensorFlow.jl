@@ -13,4 +13,6 @@ script:
     - julia -e 'Pkg.clone(pwd())'
     - julia deps/build_pytensorflow.jl
     - julia -e 'Pkg.build("TensorFlow")'
-    - julia -e 'Pkg.test("TensorFlow")'
+    - julia -e 'Pkg.test("TensorFlow", coverage=true)'
+after_success:
+- julia -e 'cd(Pkg.dir("TensorFlow")); Pkg.add("Coverage"); using Coverage; Codecov.submit(process_folder())'
