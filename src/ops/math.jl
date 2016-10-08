@@ -177,8 +177,9 @@ for (jl_func_name, tf_func_name) in [
         with_op_name(name) do
             x = Tensor(x)
             q = Tensor(q)
-            desc = NodeDescription($tf_func_name, name)
-            add_input(desc, x, q)
+            desc = NodeDescription($tf_func_name)
+            add_input(desc, x)
+            add_input(desc, q)
         end
         Tensor(Operation(desc), 1)
     end
