@@ -45,6 +45,18 @@ for f in [:relu, :relu6, :elu, :softplus, :softsign, :softmax, :sigmoid, :tanh]
     end
 end
 
+"""
+`conv2d(input, filter, strides, padding; data_format="NHWC")`
+
+Computes a 2-dimensional convolution on 4-dimensional input `Tensor`s `input` and `filter`.
+
+Args:
+* `input`: A `Tensor`.
+* `filter`: A `Tensor` of the same type as `input`.
+* `strides`: A list of `Int`s controlling the stride of the sliding window.
+* `padding`: A string, either `'VALID'` or `'SAME'`. Specifies which padding algorithm to use.
+* `data_format`: A string specifying which data format to use. The default is `'NHWC'`. The other option is `'NCHW'`.
+"""
 function conv2d(input, filter, strides, padding; data_format="NHWC", name="")
     desc = NodeDescription("Conv2D", get_name(name))
     add_input(desc, Tensor(input))
@@ -55,6 +67,18 @@ function conv2d(input, filter, strides, padding; data_format="NHWC", name="")
     Tensor(Operation(desc), 1)
 end
 
+"""
+`max_pool(value, ksize, strides, padding; data_format="NHWC")`
+
+Performs max pooling on the input.
+
+Args:
+* `value`: A 4-dimensional `Tensor` to pool.
+* `ksize`: A list of `Int`s at least length 4. The size of the pooling window in each dimension.
+* `strides`: A list of `Int`s at least length 4. The stride of the sliding pooling window.
+* `padding`: A string, either `'VALID'` or `'SAME'`. Specifies which padding algorithm to use.
+* `data_format`: A string specifying which data format to use. The default is `'NHWC'`. The other option is `'NCHW'`.
+"""
 function max_pool(value, ksize, strides, padding; data_format="NHWC", name="")
     desc = NodeDescription("MaxPool", get_name(name))
     add_input(desc, value)
@@ -68,6 +92,19 @@ end
 include("rnn_cell.jl")
 import .rnn_cell:  zero_state, output_size, state_size
 
+"""
+`rnn(cell, inputs; initial_state=nothing, dtype=nothing, sequence_length=nothing, scope="RNN")`
+
+Creates a recurrent neural network.
+
+Args:
+* `cell`: An instance of `RNNCell`.
+* `inputs`: A list of input `Tensor`s, each with size `(batch_size, input_size)`.
+* `initial_state`: A starting state for the RNN. If not provided, the initial state is `zero_state`.
+* `dtype`: Data type of the initial state and output, in case it cannot be inferred.
+* `sequence_length`: Specifies length of each sequence in `inputs`.
+* `scope`: `VariableScope` for the subgraph. Defaults to `RNN`.
+"""
 function rnn(cell, inputs; initial_state=nothing, dtype=nothing, sequence_length=nothing, scope="RNN")
     # TODO use sequence length
     if initial_state === nothing
@@ -106,6 +143,18 @@ end
 @not_implemented function bidirectional_rnn()
 end
 
+"""
+`dropout(x, keep_prob; noise_shape=nothing, seed=0)`
+
+Keeps each element of `x` with `keep_prob`, scaled by `1/keep_prob`, otherwise outputs `0`.
+This computes dropout.
+
+Args:
+* `x`: A `Tensor`.
+* `keep_prob`: Probability that each element is kept.
+* `noise_shape`: Shape for randomly generated keep/drop flags.
+* `seed`: Integer used to seed the RNG. Defaults to `0`.
+"""
 function dropout(x, keep_prob; noise_shape=nothing, seed=0, name="Dropout")
     local y
     tf.with_op_name(name) do
@@ -153,6 +202,17 @@ end
 @not_implemented function embedding_lookup_sparse()
 end
 
+"""
+`top_k(input, k=1; sorted=true)`
+
+Finds values and indices of the top `k` largest entries of `input` in its
+last dimension.
+
+Args:
+* `input`: One or more dimensional `Tensor` with last dimension at least size `k`.
+* `k`: Number of largest elements of `input` to look for. Defaults to 1.
+* `sorted`: If `true` (default), the returned values will be sorted in descending order.
+"""
 function top_k(input, k=1; sorted=true, name="")
     desc = NodeDescription("TopKV2", get_name(name))
     add_input(desc, Tensor(input))
@@ -162,6 +222,17 @@ function top_k(input, k=1; sorted=true, name="")
     Tensor(op, 1), Tensor(op, 2)+1
 end
 
+"""
+`in_top_k(predictions, targets, k)`
+
+Determines whether the `targets` are in the top `k` `predictions`.
+Outputs a `batch_size` (first dimension of `predictions`) array of boolean values.
+
+Args:
+* `predictions`: Two dimensional `Tensor`.
+* `targets`: A `Tensor`.
+* `k`: Number of elements to look at for comparison.
+"""
 function in_top_k(predictions, targets, k; name="")
     desc = NodeDescription("InTopK", get_name(name))
     add_input(desc, tf.cast(Tensor(predictions), Float32))
@@ -170,6 +241,11 @@ function in_top_k(predictions, targets, k; name="")
     Tensor(Operation(desc))
 end
 
+"""
+`l2_loss(t)`
+
+Computes half the L2-norm of a `Tensor` `t`, without taking the square root.
+"""
 function l2_loss(t; name="L2_Loss")
     local out
     tf.with_op_name(name) do
