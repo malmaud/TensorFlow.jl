@@ -393,7 +393,7 @@ end
 register_shape("MaxPool") do op
     # TODO: also can be off by one when padding is VALID
     input_shape = get_shape(get_input(op, 1))
-    padding = get_attr(op, "padding", Vector{Int})#tf.load_proto(op.attrs["padding"])
+    padding = get_attr(op, "padding", String)#tf.load_proto(op.attrs["padding"])
     ksize = get_attr(op, "ksize", Vector{Int})#tf.load_proto(op.attrs["ksize"])
     strides = get_attr(op, "strides", Vector{Int})#tf.load_proto(op.attrs["strides"])
     if input_shape.rank_unknown

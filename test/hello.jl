@@ -27,4 +27,6 @@ let
   x = placeholder(Float32, shape = [1,28,28,1])
   y = nn.conv2d(x, Variable(randn(Float32, 5,5,1,32)), [1, 1, 1, 1], "VALID")
   @test get.(get_shape(y).dims) == [1,23,23,32]
+  z = nn.max_pool(y, [1, 2, 2, 1], [1, 2, 2, 1], "VALID")
+  @test get.(get_shape(z).dims) == [1, 12, 12, 32]
 end
