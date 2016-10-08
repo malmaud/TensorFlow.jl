@@ -23,6 +23,9 @@ tens = TensorFlow.ones((5,5))
 @test size(tens) == (5,5)
 @test length(tens) == 25
 
+@test fill(9, (2, 3)) == run(sess, fill(Tensor, 9, Int32[2, 3])) 
+@test [2 1; 4 3] == run(sess, reverse(constant([1 2; 3 4]), constant([false, true])))
+
 let
   x = placeholder(Float32, shape = [1,28,28,1])
   y = nn.conv2d(x, Variable(randn(Float32, 5,5,1,32)), [1, 1, 1, 1], "VALID")
