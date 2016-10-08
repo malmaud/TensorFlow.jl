@@ -163,7 +163,7 @@ https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#pack
 """
 function pack(nodes; axis=0, name="")
     desc = NodeDescription("Pack", get_name(name))
-    add_input(desc, [Tensor(Operation(_), 1) for _ in nodes])
+    add_input(desc, [Tensor(_) for _ in nodes])
     desc["N"] = length(nodes)
     desc["axis"] = axis
     Tensor(Operation(desc), 1)
