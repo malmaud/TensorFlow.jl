@@ -25,11 +25,14 @@ TypeError: If x cannot be cast to the dtype.
 
 https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#cast
 """
-function cast(x::Tensor, dtype; name="")
-    desc = NodeDescription("Cast",get_name(name))
-    add_input(desc, x)
-    desc["DstT"] = dtype
-    # desc["SrcT"] = eltype(x)
+function cast(x::Tensor, dtype; name="Cast")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("Cast")
+        add_input(desc, x)
+        desc["DstT"] = dtype
+        # desc["SrcT"] = eltype(x)
+    end
     Tensor(Operation(desc), 1)
 end
 
@@ -46,11 +49,14 @@ If shape is 1-D or higher, then the operation returns a tensor with shape shape 
 
 https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#reshape
 """
-function Base.reshape(n::AbstractTensor, dims; name="")
+function Base.reshape(n::AbstractTensor, dims; name="Reshape")
     dims = Int32[dims...]
-    desc = NodeDescription(get_def_graph(), "Reshape",  get_name(name))
-    add_input(desc, n)
-    add_input(desc, Tensor(dims))
+    local desc
+    with_op_name(name) do 
+        desc = NodeDescription("Reshape")
+        add_input(desc, n)
+        add_input(desc, Tensor(dims))
+    end
     Tensor(Operation(desc), 1)
 end
 
@@ -83,11 +89,14 @@ A Tensor the same type as input.
 
 https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#slice
 """
-function Base.slice(n::AbstractTensor, begin_, size_; name="")
-    desc = NodeDescription(get_def_graph(), "Slice", get_name(name))
-    add_input(desc, Tensor(n))
-    add_input(desc, cast(Tensor(begin_), Int32))
-    add_input(desc, cast(Tensor(size_), Int32))
+function Base.slice(n::AbstractTensor, begin_, size_; name="Slice")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("Slice")
+        add_input(desc, Tensor(n))
+        add_input(desc, cast(Tensor(begin_), Int32))
+        add_input(desc, cast(Tensor(size_), Int32))
+    end
     Tensor(Operation(desc), 1)
 end
 
@@ -126,11 +135,14 @@ num_split Tensor objects resulting from splitting value.
 
 https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#split
 """
-function Base.split(split_dim, num_split, value::AbstractTensor; name="")
-    desc = NodeDescription("Split", get_name(name))
-    add_input(desc, Tensor(convert_number(Int32, split_dim))-1)
-    add_input(desc, Tensor(value))
-    desc["num_split"] = num_split
+function Base.split(split_dim, num_split, value::AbstractTensor; name="Split")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("Split")
+        add_input(desc, Tensor(convert_number(Int32, split_dim))-1)
+        add_input(desc, Tensor(value))
+        desc["num_split"] = num_split
+    end
     op = Operation(desc)
     [Tensor(op, _) for _ in 1:num_split]
 end
@@ -140,11 +152,14 @@ concat(dim, values; name="")
 
 https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#concat
 """
-function concat(dim, values; name="")
-    desc = NodeDescription(get_def_graph(), "Concat", get_name(name))
-    add_input(desc, Tensor(convert_number(Int32, dim)))
-    add_input(desc, [Tensor(_) for _ in values])
-    desc["N"] = length(values)
+function concat(dim, values; name="Concat")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("Concat")
+        add_input(desc, Tensor(convert_number(Int32, dim)))
+        add_input(desc, [Tensor(_) for _ in values])
+        desc["N"] = length(values)
+    end
     Tensor(Operation(desc), 1)
 end
 
@@ -161,15 +176,28 @@ if axis == 0 then the output tensor will have the shape (N, A, B, C). if axis ==
 
 https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#pack
 """
-function pack(nodes; axis=0, name="")
-    desc = NodeDescription("Pack", get_name(name))
-    add_input(desc, [Tensor(_) for _ in nodes])
-    desc["N"] = length(nodes)
-    desc["axis"] = axis
+function pack(nodes; axis=0, name="Pack")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("Pack")
+        add_input(desc, [Tensor(_) for _ in nodes])
+        desc["N"] = length(nodes)
+        desc["axis"] = axis
+    end
     Tensor(Operation(desc), 1)
 end
 
-@not_implemented function unpack()
+function unpack(value; num=0, axis=0, name="Unpack")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("Unpack")
+        add_input(desc, value)
+        desc["num"] = num
+        desc["axis"] = axis
+    end
+    num_split = num==0 ? size(value, axis) : num
+    op = Operation(desc)
+    [Tensor(op, _) for _ in 1:num_split]
 end
 
 """
@@ -209,10 +237,13 @@ A Tensor. Has the same type as input. Contains the same data as input, but its s
 
 https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#expand_dims
 """
-function expand_dims(input, dim; name="")
-    desc = NodeDescription("ExpandDims", get_name(name))
-    add_input(desc, Tensor(input))
-    add_input(desc, Tensor(convert_number(Int32,dim)))
+function expand_dims(input, dim; name="ExpandDims")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("ExpandDims")
+        add_input(desc, Tensor(input))
+        add_input(desc, Tensor(convert_number(Int32,dim)))
+    end
     Tensor(Operation(desc), 1)
 end
 
@@ -240,9 +271,12 @@ A Tensor of type int32.
 
 https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#rank
 """
-function Base.rank(n::AbstractTensor; name="")
-    desc = NodeDescription("Rank", get_name(name))
-    add_input(desc, Tensor(n))
+function Base.rank(n::AbstractTensor; name="Rank")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("Rank")
+        add_input(desc, Tensor(n))
+    end
     Tensor(Operation(desc), 1)
 end
 
@@ -251,9 +285,12 @@ Base.size(n::AbstractTensor; name="")
 
 https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#size
 """
-function Base.size(n::AbstractTensor; name="")
-    desc = NodeDescription(get_def_graph(), "Size", get_name(name))
-    add_input(desc, Tensor(n))
+function Base.size(n::AbstractTensor; name="Size")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("Size")
+        add_input(desc, Tensor(n))
+    end
     Tensor(Operation(desc), 1)
 end
 
@@ -275,11 +312,14 @@ A Tensor. Has the same type as input.
 
 https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#tile
 """
-function tile(input, multiples; name="")
-    desc = NodeDescription("Tile", get_name(name))
-    add_input(desc, Tensor(input))
-    add_input(desc, cast(Tensor(multiples), Int32))
-    Tensor(Operation(desc))
+function tile(input, multiples; name="Tile")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("Tile")
+        add_input(desc, Tensor(input))
+        add_input(desc, cast(Tensor(multiples), Int32))
+    end
+    Tensor(Operation(desc), 1)
 end
 
 
@@ -310,10 +350,13 @@ ValueError: When mode is not one of "CONSTANT", "REFLECT", or "SYMMETRIC".
 
 https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#pad
 """
-function pad(tensor, paddings; mode="CONSTANT", name="")
-    desc = NodeDescription("Pad",get_name(name))
-    add_input(desc, Tensor(tensor))
-    add_input(desc, cast(Tensor(paddings), Int32))
+function pad(tensor, paddings; mode="CONSTANT", name="Pad")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("Pad")
+        add_input(desc, Tensor(tensor))
+        add_input(desc, cast(Tensor(paddings), Int32))
+    end
     # TODO pay attention to mode
     mode != "CONSTANT" && warn("pad does not yet pay attention to mode")
     Tensor(Operation(desc))
@@ -347,12 +390,15 @@ If indices is a permutation and length(indices) == params.shape[1] then this ope
 
 https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#gather
 """
-function gather(params, indices; validate_indices=true, name="")
-    desc = NodeDescription("Gather", get_name(name))
-    add_input(desc, Tensor(params))
-    add_input(desc, Tensor(indices)-1)
-    desc["validate_indices"] = validate_indices
-    Tensor(Operation(desc))
+function gather(params, indices; validate_indices=true, name="Gather")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("Gather")
+        add_input(desc, Tensor(params))
+        add_input(desc, Tensor(indices)-1)
+        desc["validate_indices"] = validate_indices
+    end
+    Tensor(Operation(desc), 1)
 end
 
 @not_implemented function gather_nd()
@@ -386,14 +432,17 @@ Note: If a non-numeric data type output is desired (tf.string, tf.bool, etc.), b
 https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#one_hot
 
 """
-function one_hot(indices, depth; on_value=Float32(1), off_value=Float32(0), axis=-1, dtype=Float32, name="")
-    desc = NodeDescription("OneHot", get_name(name))
-    add_input(desc, Tensor(indices)-1)
-    add_input(desc, Tensor(Int32(depth)))
-    add_input(desc, Tensor(dtype(on_value)))
-    add_input(desc, Tensor(dtype(off_value)))
-    desc["axis"] = axis
-    desc["T"] = dtype
+function one_hot(indices, depth; on_value=Float32(1), off_value=Float32(0), axis=-1, dtype=Float32, name="OneHot")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("OneHot")
+        add_input(desc, Tensor(indices)-1)
+        add_input(desc, Tensor(Int32(depth)))
+        add_input(desc, Tensor(dtype(on_value)))
+        add_input(desc, Tensor(dtype(off_value)))
+        desc["axis"] = axis
+        desc["T"] = dtype
+    end
     Tensor(Operation(desc), 1)
 end
 
@@ -405,11 +454,14 @@ dynamic_partition(data, partitions, num_partitions; name="")
 
 https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#dynamic_partition
 """
-function dynamic_partition(data, partitions, num_partitions; name="")
-    desc = NodeDescription("DynamicPartition", get_name(name))
-    add_input(desc, data)
-    add_input(desc, partitions)
-    desc["num_partitions"] = Int64(num_partitions)
+function dynamic_partition(data, partitions, num_partitions; name="DynamicPartition")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("DynamicPartition")
+        add_input(desc, data)
+        add_input(desc, partitions)
+        desc["num_partitions"] = Int64(num_partitions)
+    end
     op = Operation(desc)
     [Tensor(op, _) for _ in 1:num_partitions]
 end
@@ -419,18 +471,18 @@ dynamic_stitch(indices, data; name="")
 
 https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#dynamic_stitch
 """
-function dynamic_stitch(indices, data; name="")
-    desc = NodeDescription("DynamicStitch", get_name(name))
-    add_input(desc, indices)
-    add_input(desc, data)
-    Tensor(Operation(desc))
+function dynamic_stitch(indices, data; name="DynamicStitch")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("DynamicStitch")
+        add_input(desc, indices)
+        add_input(desc, data)
+    end
+    Tensor(Operation(desc), 1)
 end
 
-@not_implemented function boolean_mask(tensor, mask; name="")
-
+@not_implemented function boolean_mask(tensor, mask; name="boolean_mask")
 end
-
-
 
 """
 `transpose(n::AbstractTensor, perm=nothing)`
