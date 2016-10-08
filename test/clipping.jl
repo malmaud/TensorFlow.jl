@@ -1,7 +1,7 @@
 using TensorFlow
 using Base.Test
 
-sess = TensorFlow.Session()
+sess = TensorFlow.Session(TensorFlow.Graph())
 a_raw = rand(10, 10)
 a = TensorFlow.constant(a_raw)
 result = run(sess, clamp(a, 0.3, 0.7))
