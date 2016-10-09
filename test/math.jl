@@ -124,3 +124,8 @@ evs = eigvecs(M_raw)
 for vec_ind in 1:10
     @test abs(dot(evs[:, vec_ind], result[2][:, vec_ind])) ≈ Float32(1.)
 end
+
+M_raw = rand(Float32, 10, 10)
+M_raw *= M_raw'
+result = run(sess, TensorFlow.cholesky(constant(M_raw)))
+@test cholfact(M_raw)[:L] ≈ result 

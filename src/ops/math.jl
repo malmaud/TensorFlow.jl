@@ -145,6 +145,15 @@ function self_adjoint_eig(tensor; name="SelfAdjointEig")
     [Tensor(op, 1), Tensor(op, 2)]
 end
 
+function cholesky(input; name="Cholesky")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("Cholesky")
+        add_input(desc, Tensor(input))
+    end
+    Tensor(Operation(desc), 1)
+end
+
 function Base.cross(n1::AbstractTensor, n2::AbstractTensor; name="Cross")
     local desc
     with_op_name(name) do
