@@ -164,7 +164,7 @@ Args:
 function dropout(x, keep_prob; noise_shape=nothing, seed=0, name="Dropout")
     local y
     tf.with_op_name(name) do
-        keep_prob = Tensor(keep_prob)
+        keep_prob = tf.cast(Tensor(keep_prob), eltype(x))
         x_scaled = x/keep_prob
         if noise_shape == nothing
             noise_shape = shape(x)
