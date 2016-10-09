@@ -252,3 +252,17 @@ for reduction in [:sum, :prod, :min, :max, :all, :any, :mean]
         end
     end
 end
+
+for reduction in [:sum, :prod, :min, :max, :mean]
+    func_name = ucfirst(string(reduction))
+    @eval function $(Symbol("segment_", reduction))(n::AbstractTensor, segment_indices; name="Segment"*$func_name)
+        segment_indices = cast(Tensor(segment_indices), Int32) - 1
+        local desc
+        with_op_name(name) do
+            desc = NodeDescription("Segment"*$func_name)
+            add_input(desc, Tensor(n))
+            add_input(desc, Tensor(segment_indices))
+        end
+        Tensor(Operation(desc), 1)
+    end
+end

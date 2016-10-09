@@ -1,6 +1,8 @@
 using TensorFlow
 using Base.Test
 
+sess = TensorFlow.Session(TensorFlow.Graph())
+
 c = TensorFlow.constant(complex(Float32(3.2), Float32(5.0)))
 result_r = run(sess, real(c))
 @test Float32(3.2) == result_r
@@ -93,6 +95,15 @@ a = TensorFlow.constant(a_raw)
 for (jl_func, red_func) in [(sum, reduce_sum), (prod, reduce_prod), (minimum, reduce_min), (maximum, reduce_max), (mean, reduce_mean)]
     result = run(sess, red_func(a))
     @test jl_func(a_raw) ≈ result
+end
+
+a_raw = rand(10)
+a = TensorFlow.constant(a_raw)
+inds = vcat(ones(Int32,5), fill(Int32(2), 5)) 
+for (jl_func, seg_func) in [(sum, segment_sum), (prod, segment_prod), (minimum, segment_min), (maximum, segment_max), (mean, segment_mean)]
+    result = run(sess, seg_func(a, inds))
+    @test jl_func(a_raw[1:5]) ≈ result[1]
+    @test jl_func(a_raw[6:10]) ≈ result[2]
 end
 
 a_raw = Vector{Bool}(trues(10))
