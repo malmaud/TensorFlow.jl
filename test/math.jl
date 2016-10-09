@@ -65,9 +65,9 @@ b_raw = rand(10)
 a = TensorFlow.constant(a_raw)
 b = TensorFlow.constant(b_raw)
 result = run(sess, max(a,b))
-@test max(a_raw, b_raw) == result
+@test max.(a_raw, b_raw) == result
 result = run(sess, min(a,b))
-@test min(a_raw, b_raw) == result
+@test min.(a_raw, b_raw) == result
 
 a_raw = rand(10)
 a = TensorFlow.constant(a_raw)
@@ -104,4 +104,23 @@ for (jl_func, red_func) in [(any, reduce_any), (all, reduce_all)]
     @test jl_func(a_raw) == result
     result = run(sess, red_func(b))
     @test jl_func(b_raw) == result
+end
+
+M_raw = tril(rand(Float32, 10, 10))
+x_raw = ones(Float32, 10, 2)
+x = TensorFlow.constant(x_raw)
+M = TensorFlow.constant(M_raw)
+result = run(sess, TensorFlow.matrix_triangular_solve(M, x))
+@test M_raw \ x_raw ≈ result
+
+result = run(sess, TensorFlow.matrix_solve(M, x))
+@test M_raw \ x_raw ≈ result
+
+M_raw = rand(Float32, 10, 10)
+M_raw += M_raw'
+result = run(sess, TensorFlow.self_adjoint_eig(constant(M_raw)))
+@test eigvals(M_raw) ≈ result[1]
+evs = eigvecs(M_raw)
+for vec_ind in 1:10
+    @test abs(dot(evs[:, vec_ind], result[2][:, vec_ind])) ≈ Float32(1.)
 end
