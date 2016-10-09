@@ -5,6 +5,7 @@ include("hello.jl")
 include("math.jl")
 include("debug.jl")
 include("comp.jl")
+include("clipping.jl")
 include(joinpath(dirname(@__FILE__), "..", "examples", "logistic.jl"))
 
 # RNNs
