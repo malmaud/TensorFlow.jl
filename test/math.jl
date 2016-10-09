@@ -15,7 +15,9 @@ for unary_func in [erf, erfc, lgamma, tanh, tan, sin, cos, abs, exp, log]
 end
 result = run(sess, -d)
 @test -d_raw == result
-@test lbeta(2.0, 3.0) ≈ run(sess, lbeta(constant(2.0), constant(3.0)))
+for func in [lbeta, polygamma, zeta]
+    @test func(2, 3.0) ≈ run(sess, func(constant(2.0), constant(3.0)))
+end
 
 f_raw = rand(10)./2
 f = TensorFlow.constant(f_raw)
@@ -59,6 +61,10 @@ result = run(sess, a.*b)
 @test a_raw.*b_raw ≈ result
 result = run(sess, a × b)
 @test a_raw × b_raw ≈ result
+result = run(sess, TensorFlow.add_n([a,b]))
+@test a_raw .+ b_raw ≈ result
+result = run(sess, 5 * a)
+@test 5*a_raw ≈ result
 
 a_raw = rand(10)
 b_raw = rand(10)
@@ -93,6 +99,8 @@ a = TensorFlow.constant(a_raw)
 for (jl_func, red_func) in [(sum, reduce_sum), (prod, reduce_prod), (minimum, reduce_min), (maximum, reduce_max), (mean, reduce_mean)]
     result = run(sess, red_func(a))
     @test jl_func(a_raw) ≈ result
+    result = run(sess, red_func(a, reduction_indices=0))
+    @test jl_func(a_raw, 1)[1] ≈ result
 end
 
 a_raw = Vector{Bool}(trues(10))
