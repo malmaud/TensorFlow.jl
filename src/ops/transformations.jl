@@ -49,13 +49,15 @@ If shape is 1-D or higher, then the operation returns a tensor with shape shape 
 
 https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#reshape
 """
-function Base.reshape(n::AbstractTensor, dims; name="Reshape")
-    dims = Int32[dims...]
+Base.reshape(n::AbstractTensor, dims; name="Reshape") =
+  reshape(n, Tensor(Int32[dims...]); name = name)
+
+function Base.reshape(n::AbstractTensor, dims::AbstractTensor; name="Reshape")
     local desc
-    with_op_name(name) do 
+    with_op_name(name) do
         desc = NodeDescription("Reshape")
         add_input(desc, n)
-        add_input(desc, Tensor(dims))
+        add_input(desc, dims)
     end
     Tensor(Operation(desc), 1)
 end
