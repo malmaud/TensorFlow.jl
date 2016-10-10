@@ -1,5 +1,5 @@
 """
-`function scalar_sumary(tags, values)`
+`scalar_sumary(tags, values; collections=[:Summaries])`
 
 Outputs a `Summary` protocol buffer with scalar values.
 
@@ -7,20 +7,22 @@ The input `tags` and `values` must have the same shape.  The generated
 summary has a summary value for each tag-value pair in `tags` and `values`.
 
 Args:
-  tags: A `string` `Tensor`.  Tags for the summaries.
-  values: A real numeric Tensor.  Values for the summaries.
-  collections: Optional list of graph collections keys. The new summary op is
+* `tags`: A `string` `Tensor`.  Tags for the summaries.
+* `values`: A real numeric `Tensor`.  Values for the summaries.
+* `collections`: Optional list of graph collections keys. The new summary op is
     added to these collections. Defaults to `[GraphKeys.SUMMARIES]`.
-  name: A name for the operation (optional).
 
 Returns:
   A scalar `Tensor` of type `string`. The serialized `Summary` protocol
   buffer.
 """
-function scalar_summary(tags, values; collections=[:Summaries], name="")
-    desc = NodeDescription("ScalarSummary", get_name(name))
-    add_input(desc, Tensor(tags))
-    add_input(desc, Tensor(values))
+function scalar_summary(tags, values; collections=[:Summaries], name="ScalarSummary")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("ScalarSummary")
+        add_input(desc, Tensor(tags))
+        add_input(desc, Tensor(values))
+    end
     t = Tensor(Operation(desc))
     for collection in collections
         add_to_collection(collection, t)
@@ -28,7 +30,37 @@ function scalar_summary(tags, values; collections=[:Summaries], name="")
     return t
 end
 
-@not_implemented function audio_summary()
+"""
+`audio_sumary(tag, tensor, sample_rate; max_outputs=3, collections=[:Summaries])`
+
+Outputs a `Summary` protocol buffer with audio.
+
+Args:
+* `tag`: A `string` `Tensor`.  Tag for the summary.
+* `tensor`: A real numeric `Tensor`.  Values for the summaries.
+* `sample_rate`: The sample rate of the signal in Hertz.
+* `max_outputs`: Maximum number of batch outputs to generate audio for.
+* `collections`: Optional list of graph collections keys. The new summary op is
+    added to these collections. Defaults to `[GraphKeys.SUMMARIES]`.
+
+Returns:
+  A scalar `Tensor` of type `string`. The serialized `Summary` protocol
+  buffer.
+"""
+function audio_summary(tag, tensor, sample_rate; max_outputs=3, collections=[:Summaries], name="AudioSummary")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("AudioSummary")
+        add_input(desc, Tensor(tag))
+        add_input(desc, Tensor(tensor))
+        desc["sample_rate"] = sample_rate
+        desc["max_outputs"] = max_outputs
+    end
+    t = Tensor(Operation(desc))
+    for collection in collections
+        add_to_collection(collection, t)
+    end
+    return t
 end
 
 """
