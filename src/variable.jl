@@ -61,11 +61,14 @@ Returns:
 `v`, the updated `Variable`.
 """
 function assign(v::Variable, value; validate_shape=true, use_locking=true, name="Assign")
-    desc = NodeDescription(get_def_graph(), "Assign", get_name())
-    add_input(desc, v.var_node)
-    add_input(desc, Tensor(value))
-    desc["validate_shape"] = validate_shape
-    desc["use_locking"] = use_locking
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("Assign")
+        add_input(desc, v.var_node)
+        add_input(desc, Tensor(value))
+        desc["validate_shape"] = validate_shape
+        desc["use_locking"] = use_locking
+    end
     return Tensor(Operation(desc), 1)
 end
 
@@ -102,10 +105,13 @@ Args:
 Returns:
 `v`, the updated `Variable`.
 """
-function assign_sub(v::Variable, value)
-    desc = NodeDescription("AssignSub", get_name())
-    add_input(desc, v.var_node)
-    add_input(desc, Tensor(value))
+function assign_sub(v::Variable, value; use_locking=false, name="AssignSub")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("AssignSub")
+        add_input(desc, v.var_node)
+        add_input(desc, Tensor(value))
+    end
     return Tensor(Operation(desc), 1)
 end
 

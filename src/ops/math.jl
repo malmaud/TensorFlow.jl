@@ -36,7 +36,7 @@ A `Tensor` of type `Int64`.
 function argmin(n::AbstractTensor, dim; name="ArgMin")
     local desc
     with_op_name(name) do
-        desc = NodeDescription("ArgMin", get_name(name))
+        desc = NodeDescription("ArgMin")
         add_input(desc, Tensor(n))
         add_input(desc, Tensor(convert_number(Int32,dim)))
     end
@@ -58,7 +58,7 @@ A `Tensor` of type `Int64`.
 function argmax(n::AbstractTensor, dim; name="ArgMax")
     local desc
     with_op_name(name) do
-        desc = NodeDescription("ArgMax", get_name(name))
+        desc = NodeDescription("ArgMax")
         add_input(desc, Tensor(n))
         add_input(desc, Tensor(convert_number(Int32, dim)))
     end
@@ -100,7 +100,6 @@ for (bin_op, jl_func_name, tf_func_name) in [
         with_op_name(name) do
             n1 = Tensor(n1)
             n2 = Tensor(n2)
-            name = get_name(name)
             desc = NodeDescription($tf_func_name)
             add_input(desc, n1)
             add_input(desc, n2)
@@ -276,7 +275,6 @@ function Base.complex(x_r::AbstractTensor, x_i::AbstractTensor; name="Complex")
         x_i = Tensor(x_i)
         desc = NodeDescription("Complex")
         add_input(desc, x_r)
-        #desc = NodeDescription(get_def_graph(), "Imag", "$name/imag")
         add_input(desc, x_i)
     end
     Tensor(Operation(desc), 1)

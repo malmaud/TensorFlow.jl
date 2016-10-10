@@ -1,14 +1,15 @@
 """
 Creates a constant `Tensor`.
 """
-function constant(tensor; name="")
-    name = get_name(name)
-    desc = NodeDescription(get_def_graph(), "Const", name)
-    tensor = RawTensor(tensor)
-    desc["dtype"] = eltype(tensor)
-    desc["value"] = tensor
-    node = Operation(desc)
-    Tensor(node, 1)
+function constant(tensor; name="Const")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("Const")
+        tensor = RawTensor(tensor)
+        desc["dtype"] = eltype(tensor)
+        desc["value"] = tensor
+    end
+    Tensor(Operation(desc), 1)
 end
 
 Base.convert(::Type{Tensor}, x::Union{Number, String}) = constant(x)
@@ -154,7 +155,7 @@ Returns:
 function Base.fill(n::AbstractTensor, dims::AbstractTensor; name="Fill")
     local desc
     with_op_name(name) do
-        desc = NodeDescription("Fill", get_name(name))
+        desc = NodeDescription("Fill")
         add_input(desc, dims)
         add_input(desc, n)
     end

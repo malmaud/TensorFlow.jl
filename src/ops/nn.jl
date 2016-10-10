@@ -180,7 +180,7 @@ Args:
 """
 function dropout(x, keep_prob; noise_shape=nothing, seed=0, name="Dropout")
     local y
-    tf.with_op_name(name) do
+    with_op_name(name) do
         keep_prob = tf.cast(Tensor(keep_prob), eltype(x))
         x_scaled = x/keep_prob
         if noise_shape == nothing
@@ -197,16 +197,22 @@ function sigmoid_cross_entropy_with_logits(logits, targets; name="")
     -logits.*targets + log(1+ exp(logits))
 end
 
-function sparse_softmax_cross_entropy_with_logits(logits, labels; name="")
-    desc = NodeDescription("SparseSoftmaxCrossEntropyWithLogits", get_name(name))
-    add_input(desc, Tensor(logits))
-    add_input(desc, Tensor(labels)-1)
+function sparse_softmax_cross_entropy_with_logits(logits, labels; name="SparseSoftmaxCrossEntropyWithLogits")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("SparseSoftmaxCrossEntropyWithLogits")
+        add_input(desc, Tensor(logits))
+        add_input(desc, Tensor(labels)-1)
+    end
     Tensor(Operation(desc))
 end
 
-function log_softmax(logits; name="")
-    desc = NodeDescription("LogSoftmax", get_name(name))
-    add_input(desc, logits)
+function log_softmax(logits; name="LogSoftmax")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("LogSoftmax")
+        add_input(desc, logits)
+    end
     Tensor(Operation(desc))
 end
 
@@ -248,11 +254,14 @@ Args:
 * `k`: Number of largest elements of `input` to look for. Defaults to 1.
 * `sorted`: If `true` (default), the returned values will be sorted in descending order.
 """
-function top_k(input, k=1; sorted=true, name="")
-    desc = NodeDescription("TopKV2", get_name(name))
-    add_input(desc, Tensor(input))
-    add_input(desc, tf.cast(Tensor(k), Int32))
-    desc["sorted"] = sorted
+function top_k(input, k=1; sorted=true, name="TopKV2")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("TopKV2")
+        add_input(desc, Tensor(input))
+        add_input(desc, tf.cast(Tensor(k), Int32))
+        desc["sorted"] = sorted
+    end
     op = Operation(desc)
     Tensor(op, 1), Tensor(op, 2)+1
 end
@@ -268,11 +277,14 @@ Args:
 * `targets`: A `Tensor`.
 * `k`: Number of elements to look at for comparison.
 """
-function in_top_k(predictions, targets, k; name="")
-    desc = NodeDescription("InTopK", get_name(name))
-    add_input(desc, tf.cast(Tensor(predictions), Float32))
-    add_input(desc, Tensor(targets)-1)
-    desc["k"] = Int64(k)
+function in_top_k(predictions, targets, k; name="InTopK")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("InTopK")
+        add_input(desc, cast(Tensor(predictions), Float32))
+        add_input(desc, Tensor(targets)-1)
+        desc["k"] = Int64(k)
+    end
     Tensor(Operation(desc))
 end
 
@@ -283,7 +295,7 @@ Computes half the L2-norm of a `Tensor` `t`, without taking the square root.
 """
 function l2_loss(t; name="L2_Loss")
     local out
-    tf.with_op_name(name) do
+    with_op_name(name) do
         out = sqrt(reduce_sum(t.*t; name=name))
     end
     out

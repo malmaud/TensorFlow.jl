@@ -180,11 +180,14 @@ A `Tensor` of the resized `images`.
 """
 function resize_images(images, new_height, new_width; method=BILINEAR, align_corners=false, name="")
     op_names = Dict(BILINEAR=>"ResizeBilinear", BICUBIC=>"ResizeBicubic")
-    desc = NodeDescription(get_def_graph(), op_names[method], get_name(name))
-    add_input(desc, images)
-    dims = pack([convert_number(Int32,new_height), convert_number(Int32,new_width)])
-    add_input(desc, dims)
-    desc["align_corners"] = align_corners
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription(op_names[method])
+        add_input(desc, images)
+        dims = pack([convert_number(Int32,new_height), convert_number(Int32,new_width)])
+        add_input(desc, dims)
+        desc["align_corners"] = align_corners
+    end
     Tensor(Operation(desc), 1)
 end
 
