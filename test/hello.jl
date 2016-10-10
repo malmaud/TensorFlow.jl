@@ -34,3 +34,9 @@ let
   z = nn.max_pool(y, [1, 2, 2, 1], [1, 2, 2, 1], "VALID")
   @test get.(get_shape(z).dims) == [1, 12, 12, 32]
 end
+
+let
+  x = placeholder(Float32, shape = [1,28,28,1])
+  sh = TensorFlow.shape(x)
+  @test get.(get_shape(sh).dims) == [4]
+end
