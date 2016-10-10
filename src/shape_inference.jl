@@ -457,7 +457,7 @@ register_shape("Slice") do op
             return [TensorShape([Nullable{Int}() for i in 1:length(slice_shape.dims)])]
         end
     else
-        return [TensorShape(slice_value)]
+        return [TensorShape(get(slice_value))]
     end
 end
 
