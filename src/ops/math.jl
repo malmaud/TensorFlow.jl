@@ -93,6 +93,67 @@ for (bin_op, jl_func_name, tf_func_name) in [
     @eval $bin_op(n1, n2::AbstractTensor) = $jl_func_name(tf_promote(n2, n1), n2)
 end
 
+# TO DO provide the aliases for Base functions
+function matrix_solve(matrix, rhs; adjoint=false, name="MatrixSolve")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("MatrixSolve")
+        matrix = Tensor(matrix)
+        rhs = Tensor(rhs)
+        add_input(desc, matrix)
+        add_input(desc, rhs)
+        desc["adjoint"] = adjoint
+    end
+    Tensor(Operation(desc), 1)
+end
+
+function matrix_triangular_solve(matrix, rhs; lower=true, adjoint=false, name="MatrixTriangularSolve")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("MatrixTriangularSolve")
+        matrix = Tensor(matrix)
+        rhs = Tensor(rhs)
+        add_input(desc, matrix)
+        add_input(desc, rhs)
+        desc["lower"] = lower
+        desc["adjoint"] = adjoint
+    end
+    Tensor(Operation(desc), 1)
+end
+
+function matrix_solve_ls(matrix, rhs; l2regularizer=0., fast=true, name="MatrixSolveLS")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("MatrixSolveLS")
+        matrix = Tensor(matrix)
+        rhs = Tensor(rhs)
+        add_input(desc, matrix)
+        add_input(desc, rhs)
+        desc["l2regularizer"] = l2regularizer
+        desc["fast"] = fast
+    end
+    Tensor(Operation(desc), 1)
+end
+
+function self_adjoint_eig(tensor; name="SelfAdjointEig")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("SelfAdjointEigV2")
+        add_input(desc, Tensor(tensor))
+    end
+    op = Operation(desc)
+    [Tensor(op, 1), Tensor(op, 2)]
+end
+
+function cholesky(input; name="Cholesky")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("Cholesky")
+        add_input(desc, Tensor(input))
+    end
+    Tensor(Operation(desc), 1)
+end
+
 function Base.cross(n1::AbstractTensor, n2::AbstractTensor; name="Cross")
     local desc
     with_op_name(name) do
