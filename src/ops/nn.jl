@@ -34,7 +34,7 @@ seq2seq
 
 import TensorFlow
 const tf = TensorFlow
-import ..TensorFlow: Operation, NodeDescription, get_def_graph, capitalize, add_input, Port, get_name, set_attr_list, get_shape, variable_scope, shape, random_uniform, AbstractTensor, Tensor, reduce_sum, @not_implemented
+import ..TensorFlow: Operation, NodeDescription, get_def_graph, capitalize, add_input, Port, get_name, set_attr_list, get_shape, variable_scope, shape, random_uniform, AbstractTensor, Tensor, reduce_sum, @not_implemented, with_op_name
 
 for f in [:relu, :relu6, :elu, :softplus, :softsign, :softmax, :sigmoid, :tanh]
     @eval function $f(n::AbstractTensor; name="")
@@ -57,13 +57,16 @@ Args:
 * `padding`: A string, either `'VALID'` or `'SAME'`. Specifies which padding algorithm to use.
 * `data_format`: A string specifying which data format to use. The default is `'NHWC'`. The other option is `'NCHW'`.
 """
-function conv2d(input, filter, strides, padding; data_format="NHWC", name="")
-    desc = NodeDescription("Conv2D", get_name(name))
-    add_input(desc, Tensor(input))
-    add_input(desc, Tensor(filter))
-    desc["padding"] = padding
-    desc["data_format"] = data_format
-    set_attr_list(desc, "strides", strides)
+function conv2d(input, filter, strides, padding; data_format="NHWC", name="Conv2D")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("Conv2D")
+        add_input(desc, Tensor(input))
+        add_input(desc, Tensor(filter))
+        desc["padding"] = padding
+        desc["data_format"] = data_format
+        set_attr_list(desc, "strides", strides)
+    end
     Tensor(Operation(desc), 1)
 end
 
@@ -79,13 +82,16 @@ Args:
 * `padding`: A string, either `'VALID'` or `'SAME'`. Specifies which padding algorithm to use.
 * `data_format`: A string specifying which data format to use. The default is `'NHWC'`. The other option is `'NCHW'`.
 """
-function max_pool(value, ksize, strides, padding; data_format="NHWC", name="")
-    desc = NodeDescription("MaxPool", get_name(name))
-    add_input(desc, value)
-    desc["data_format"] = data_format
-    desc["padding"] = padding
-    set_attr_list(desc, "ksize", ksize)
-    set_attr_list(desc, "strides", strides)
+function max_pool(value, ksize, strides, padding; data_format="NHWC", name="MaxPool")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("MaxPool")
+        add_input(desc, value)
+        desc["data_format"] = data_format
+        desc["padding"] = padding
+        set_attr_list(desc, "ksize", ksize)
+        set_attr_list(desc, "strides", strides)
+    end
     Tensor(Operation(desc), 1)
 end
 
@@ -264,13 +270,16 @@ end
 
 end
 
-function local_response_normalization(input; depth_radius=5, bias=1.0, alpha=1.0, beta=0.5, name="")
-    desc = NodeDescription("LRN", get_name(name))
-    desc["depth_radius"] = Int64(depth_radius)
-    desc["bias"] = Float32(bias)
-    desc["alpha"] = Float32(alpha)
-    desc["beta"] = Float32(beta)
-    add_input(desc, input)
+function local_response_normalization(input; depth_radius=5, bias=1.0, alpha=1.0, beta=0.5, name="LRN")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("LRN")
+        desc["depth_radius"] = Int64(depth_radius)
+        desc["bias"] = Float32(bias)
+        desc["alpha"] = Float32(alpha)
+        desc["beta"] = Float32(beta)
+        add_input(desc, input)
+    end
     Tensor(Operation(desc))
 end
 
