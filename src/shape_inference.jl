@@ -19,7 +19,7 @@ function TensorShape(dims::Vector{Nullable{Int}})
 end
 
 function TensorShape(dims::Vector)
-    TensorShape([Nullable(Int64(_)) for _ in dims])
+    TensorShape([Nullable{Int64}(_) for _ in dims])
 end
 
 function TensorShape(dim::Void)
@@ -270,7 +270,7 @@ end
 
 register_shape("Shape") do op
     s = get_shape(get_input(op, 1))
-    return [TensorShape([length(s)])]
+    return [TensorShape([s.rank_unknown ? nothing : length(s.dims)])]
 end
 
 register_shape("Concat") do op
@@ -457,7 +457,7 @@ register_shape("Slice") do op
             return [TensorShape([Nullable{Int}() for i in 1:length(slice_shape.dims)])]
         end
     else
-        return [TensorShape(slice_value)]
+        return [TensorShape(get(slice_value))]
     end
 end
 
