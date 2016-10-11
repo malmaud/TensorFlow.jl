@@ -1,13 +1,15 @@
 """
-Returns the truth value of x AND y element-wise.
+    logical_and(x, y; name="LogicalAnd")
+
+Returns the truth value of `x` AND `y` element-wise.
 
 *NOTE*: `LogicalAnd` supports broadcasting. More about broadcasting
 [here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html)
 
 Args:
-  x: A `Tensor` of type `bool`.
-  y: A `Tensor` of type `bool`.
-  name: A name for the operation (optional).
+*  `x`: A `Tensor` of type `bool`.
+*  `y`: A `Tensor` of type `bool`.
+*  `name`: A name for the operation (optional).
 
 Returns:
   A `Tensor` of type `bool`.
@@ -23,14 +25,16 @@ function logical_and(x, y; name="LogicalAnd")
 end
 
 """
-Returns the truth value of NOT x element-wise.
+    logical_not(x; name="LogicalNot")
+
+Returns the truth value of NOT `x` element-wise.
 
 Args:
-  x: A `Tensor` of type `bool`.
-  name: A name for the operation (optional).
+*  `x`: A `Tensor` of type `bool`.
+*  `name`: A name for the operation (optional).
 
 Returns:
-  A `Tensor` of type `bool`.
+*  A `Tensor` of type `bool`.
 """
 function logical_not(x; name="LogicalNot")
     local desc
@@ -42,15 +46,17 @@ function logical_not(x; name="LogicalNot")
 end
 
 """
-Returns the truth value of x OR y element-wise.
+    logical_or(x, y; name="LogicalOr")
+
+Returns the truth value of `x` OR `y` element-wise.
 
 *NOTE*: `LogicalOr` supports broadcasting. More about broadcasting
 [here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html)
 
 Args:
-  x: A `Tensor` of type `bool`.
-  y: A `Tensor` of type `bool`.
-  name: A name for the operation (optional).
+*  `x`: A `Tensor` of type `bool`.
+*  `y`: A `Tensor` of type `bool`.
+*  `name`: A name for the operation (optional).
 
 Returns:
   A `Tensor` of type `bool`.
@@ -65,6 +71,22 @@ function logical_or(x, y; name="LogicalOr")
     Tensor(Operation(desc))
 end
 
+"""
+    logical_xor(x, y; name="LogicalXor")
+
+Returns the truth value of `x` XOR `y` element-wise.
+
+*NOTE*: `LogicalXor` supports broadcasting. More about broadcasting
+[here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html)
+
+Args:
+*  `x`: A `Tensor` of type `bool`.
+*  `y`: A `Tensor` of type `bool`.
+*  `name`: A name for the operation (optional).
+
+Returns:
+  A `Tensor` of type `bool`.
+"""
 function logical_xor(x, y; name="LogicalXor")
     local n
     with_op_name(name) do

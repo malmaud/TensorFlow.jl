@@ -71,7 +71,7 @@ nn.max_pool
 ### Embeddings
 
 ```@docs
-embedding_lookup
+nn.embedding_lookup
 ```
 
 ### Recurrent neural nets
