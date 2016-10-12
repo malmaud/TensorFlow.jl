@@ -20,12 +20,25 @@ function build_output(tensor::Tensor, values, pos)
     out
 end
 
+function get_inputs(values, input_tensors, input_set=[])
+    push!(input_set, values)
+    input_set
+end
+
+function get_inputs(values, input_tensors::Vector)
+    inputs = []
+    for subtensors in input_tensors
+        get_inputs(values, subtensors, inputs)
+    end
+    inputs
+end
+
 function build_input(tensor_map::Dict)
     input_tensors = Tensor[]
     input_values = []
     for (k,v) in tensor_map
         append!(input_tensors, get_tensors(k))
-        append!(input_values, get_tensors(v))
+        append!(input_values, get_inputs(v,k))
     end
     input_tensors, input_values
 end
@@ -63,6 +76,14 @@ function run(sess::Session, inputs, input_values, outputs, targets)
     return [as_native(RawTensor(_)) for _ in output_values]
 end
 
+function cast_type(T, val::Array)
+    convert(Array{T}, val)
+end
+
+function cast_type(T, val)
+    convert(T, val)
+end
+
 function run(sess::Session, outputs::AbstractVector, input_dict)
     output_map = Dict{Tensor, Tuple{Symbol, Int}}()
     output_ports = Port[]
@@ -70,8 +91,8 @@ function run(sess::Session, outputs::AbstractVector, input_dict)
     for tensor in get_tensors(outputs)
         if !haskey(output_map, tensor)
             if num_outputs(get_op(tensor)) == 0
-                push!(targets, get_op(tensor).ptr)
-                output_map[tensor] = (:target, length(targets))
+                push!(target_ptrs, get_op(tensor).ptr)
+                output_map[tensor] = (:target, length(target_ptrs))
             else
                 push!(output_ports, Port(tensor))
                 output_map[tensor] = (:output, length(output_ports))
@@ -79,7 +100,11 @@ function run(sess::Session, outputs::AbstractVector, input_dict)
         end
     end
     input_ports = Port[]
-    input_tensors, input_values = build_input(input_dict)
+    input_tensors, uncast_input_values = build_input(input_dict)
+    input_values = []
+    for (input_tensor, input_value) in zip(input_tensors, uncast_input_values)
+        push!(input_values, cast_type(eltype(input_tensor), input_value))
+    end
     input_ports = [Port(tensor) for tensor in input_tensors]
     unique_output_values = run(sess, input_ports, input_values, output_ports, target_ptrs)
     output_values = []

@@ -56,6 +56,8 @@ immutable LSTMStateTuple
     h
 end
 
+Base.eltype(l::LSTMStateTuple) = eltype(l.c)
+
 function tf.get_tensors(s::LSTMStateTuple)
     [s.c, s.h]
 end
