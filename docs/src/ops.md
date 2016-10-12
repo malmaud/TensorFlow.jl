@@ -141,13 +141,3 @@ TensorFlow.group
 TensorFlow.no_op
 cond
 ```
-
-## Tensorboard summaries
-
-```@docs
-scalar_summary
-histogram_summary
-image_summary
-merge_summary
-merge_all_summaries
-```
