@@ -28,6 +28,9 @@ variable_scope
 get_variable
 ConstantInitializer
 assign
+assign_add
+assign_sub
+scatter_update
 ```
 
 ## Reductions

@@ -27,11 +27,36 @@ end
 
 Base.ones(::Type{Tensor}, shape) = ones(Tensor, Float32, shape)
 
-function random_uniform(shape; name="RandomUniform", seed=0, dtype=Float32)
+"""
+Outputs random values from a uniform distribution.
+
+The generated values follow a uniform distribution in the range `[minval, maxval)`.
+The lower bound `minval` is included in the range, while the upper bound `maxval` is excluded.
+
+For floats, the default range is `[0, 1)`. For ints, at least `maxval` must be specified explicitly.
+
+In the integer case, the random integers are slightly biased unless
+`maxval - minval` is an exact power of two.
+The bias is small for values of `maxval - minval` significantly smaller than the
+range of the output (either 2**32 or 2**64).
+
+Args:
+* `shape`: A one dimensional `Tensor` or array containing the shape of the output `Tensor`.
+* `minval`: A zero dimensional `Tensor` or value of type `dtype`. Lower bound on random values.
+* `maxval`: A zero dimensional `Tensor` or value of type `dtype`. Upper bound on random values.
+* `seed`: An integer to seed the RNG with. Defaults to `0`.
+* `dtype`: Optional datatype of random values generated. Default is `Float32`.
+
+Returns:
+A `Tensor` of the specified `shape` and `dtype` containing random values.
+"""
+function random_uniform(shape, minval, maxval; name="RandomUniform", seed=0, dtype=Float32)
     local desc
     with_op_name(name) do
         desc = NodeDescription("RandomUniform")
         add_input(desc, Tensor(shape))
+        add_input(desc, minval)
+        add_input(desc, maxval)
         desc["dtype"] = dtype
         desc["seed2"] = seed
         # TODO use global seed
@@ -40,6 +65,19 @@ function random_uniform(shape; name="RandomUniform", seed=0, dtype=Float32)
     Tensor(Operation(desc), 1)
 end
 
+"""
+Outputs random values from a normal distribution.
+
+Args:
+* `shape`: A one dimensional `Tensor` or array containing the shape of the output `Tensor`.
+* `mean`: A zero dimensional `Tensor` or value of type `dtype`. The mean of the normal distribution.
+* `stddev`: A zero dimensional `Tensor` or value of type `dtype`. The standard deviation of the normal distribution.
+* `seed`: An integer to seed the RNG with. Defaults to `0`.
+* `dtype`: Optional datatype of random values generated. Default is `Float32`.
+
+Returns:
+A `Tensor` of the specified `shape` and `dtype` containing random values.
+"""
 function random_normal(shape; mean=0.0, stddev=1.0, dtype=Float32, seed=0, name="RandomNormal")
     local out
     with_op_name(name) do

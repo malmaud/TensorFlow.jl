@@ -23,6 +23,16 @@ function add_n(inputs; name="AddN")
     Tensor(Operation(desc))
 end
 
+"""
+Returns the index with the smallest value across dimensions of a tensor.
+
+Args:
+* `n`: A `Tensor`.
+* `dim`: A `Tensor`. Describes which dimension of `n` to reduce across.
+
+Returns:
+A `Tensor` of type `Int64`.
+"""
 function argmin(n::AbstractTensor, dim; name="ArgMin")
     local desc
     with_op_name(name) do
@@ -35,6 +45,16 @@ end
 
 Base.indmin(n::AbstractTensor, dim) = argmin(n, dim-1)
 
+"""
+Returns the index with the largest value across dimensions of a tensor.
+
+Args:
+* `n`: A `Tensor`.
+* `dim`: A `Tensor`. Describes which dimension of `n` to reduce across.
+
+Returns:
+A `Tensor` of type `Int64`.
+"""
 function argmax(n::AbstractTensor, dim; name="ArgMax")
     local desc
     with_op_name(name) do
