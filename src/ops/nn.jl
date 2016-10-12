@@ -193,6 +193,18 @@ function log_softmax(logits; name="")
     Tensor(Operation(desc))
 end
 
+"""
+    embedding_lookup(params, ids; partition_strategy="mod", name="", validate_indices=true)
+
+Looks up values of `ids` in `params`. Currently only supports one `Tensor` in `params`.
+
+Args:
+* `params`: A list of `Tensor`s of the same type and which can be concatenated along their first dimension.
+* `ids`: A `Tensor` of `Int32` or `Int64` ids to be looked up in `params`.
+* `partition_strategy`: If `"mod"` (default), assign each id to partition `p = id % len(params)`. If `"div"`, assign each id contiguously.
+* `name`: An optional name for the operation.
+* `validate_indices`: If `true` (default), make sure the indices are valid.
+"""
 function embedding_lookup(params, ids; partition_strategy="mod", name="", validate_indices=true)
     ids = Tensor(ids)
     if isa(params, AbstractArray)
