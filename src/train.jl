@@ -24,7 +24,7 @@ create_threads
 using JLD
 using FileIO
 
-import ..TensorFlow: Operation, get_def_graph, gradients, assign, variable_scope, ConstantInitializer, node_name, get_variable, get_shape, get_collection, Session, placeholder, Tensor, cast, group, @not_implemented, AbstractQueue
+import ..TensorFlow: Operation, get_def_graph, gradients, variable_scope, ConstantInitializer, node_name, get_variable, get_shape, get_collection, Session, placeholder, Tensor, cast, group, @not_implemented, AbstractQueue
 
 import TensorFlow
 const tf = TensorFlow
@@ -49,7 +49,7 @@ end
 macro advance_step()
     quote
         if global_step !== nothing
-            push!(ops, assign(global_step, global_step+1))
+            push!(ops, tf.assign(global_step, global_step+1))
         end
     end
 end
@@ -106,7 +106,7 @@ function apply_gradients(optimizer::MomentumOptimizer, grads_and_vars; global_st
         else
             step = learning_rate .* grad + momentum_rate .* momentum
             push!(ops, tf.assign(var, var-step))  # Problematic line
-            push!(ops, assign(momentum, step))
+            push!(ops, tf.assign(momentum, step))
         end
 
     end
@@ -154,8 +154,8 @@ function apply_gradients(optimizer::AdamOptimizer, grads_and_vars; global_step=n
             m_new = β1 .* m + (1-β1).*grad
             v_new = β2 .* v + (1-β2).*(grad.^2)
             push!(ops, tf.assign_sub(var, lr/(sqrt(v_new)+ϵ) .* m_new))
-            push!(ops, assign(m, m_new))
-            push!(ops, assign(v, v_new))
+            push!(ops, tf.assign(m, m_new))
+            push!(ops, tf.assign(v, v_new))
         end
     end
     return group(ops...)
@@ -181,7 +181,7 @@ function Saver(;var_list=nothing, max_to_keep=5)
     for var in var_list
         ph = placeholder(eltype(var))
         placeholders[node_name(var)[1]] = ph
-        restore_op = assign(var, ph)
+        restore_op = tf.assign(var, ph)
         push!(restore_ops, restore_op)
     end
     Saver(var_list, max_to_keep, placeholders, restore_ops)
