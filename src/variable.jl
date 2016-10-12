@@ -48,7 +48,7 @@ function scatter_update(ref, indices, updates; name="ScatterUpdate")
     with_op_name(name) do
         desc = NodeDescription("ScatterUpdate")
         add_input(desc, Tensor(ref))
-        add_input(desc, Tensor(indices))
+        add_input(desc, Tensor(indices)-1)
         add_input(desc, Tensor(updates))
     end
     Tensor(Operation(desc))
@@ -59,7 +59,7 @@ function scatter_sub(ref, indices, updates; name="ScatterSub")
     with_op_name(name) do
         desc = NodeDescription("ScatterSub")
         add_input(desc, Tensor(ref))
-        add_input(desc, Tensor(indices))
+        add_input(desc, Tensor(indices)-1)
         add_input(desc, Tensor(updates))
     end
     Tensor(Operation(desc))

@@ -24,7 +24,7 @@ create_threads
 using JLD
 using FileIO
 
-import ..TensorFlow: Operation, get_def_graph, gradients, assign, variable_scope, ConstantInitializer, node_name, get_variable, get_shape, get_collection, Session, placeholder, Tensor, cast, group, @not_implemented, AbstractQueue
+import ..TensorFlow: Operation, get_def_graph, gradients, variable_scope, ConstantInitializer, node_name, get_variable, get_shape, get_collection, Session, placeholder, Tensor, cast, group, @not_implemented, AbstractQueue
 
 import TensorFlow
 const tf = TensorFlow
@@ -49,7 +49,7 @@ end
 macro advance_step()
     quote
         if global_step !== nothing
-            push!(ops, assign(global_step, global_step+1))
+            push!(ops, tf.assign(global_step, global_step+1))
         end
     end
 end
@@ -96,15 +96,17 @@ function apply_gradients(optimizer::MomentumOptimizer, grads_and_vars; global_st
                 momentum = get_variable("momentum", get_shape(var), eltype(var), initializer=ConstantInitializer(0.0), trainable=false)
             end
         end
+        learning_rate = cast(optimizer.learning_rate, eltype(var))
+        momentum_rate = cast(optimizer.momentum, eltype(var))
         if isa(grad, tf.IndexedSlices)
-            momentum_slice = tf.gather(momentum, grad.indices)
-            step = -optimizer.learning_rate .* grad.values + optimizer.momentum .* momentum_slice
-            push!(ops, tf.scatter_sub(var.var_node, grad.indices, -step))
+            momentum_slice = tf.gather(momentum, grad.indices) # TODO should reduce?
+            step = learning_rate .* grad.values + momentum_rate .* momentum_slice
+            push!(ops, tf.scatter_sub(var.var_node, grad.indices, step))
             push!(ops, tf.scatter_update(momentum, grad.indices, step))
         else
-            step = -optimizer.learning_rate .* grad + optimizer.momentum .* momentum
-            push!(ops, assign(var, var + step))
-            push!(ops, assign(momentum, step))
+            step = learning_rate .* grad + momentum_rate .* momentum
+            push!(ops, tf.assign(var, var-step))  # Problematic line
+            push!(ops, tf.assign(momentum, step))
         end
 
     end
@@ -119,38 +121,41 @@ type AdamOptimizer <: Optimizer
     name::String
 end
 
-AdamOptimizer(learning_rate=.01; name="adam") = AdamOptimizer(learning_rate, .9, .999, 1e-8, name)
+AdamOptimizer(learning_rate=.001; β1=.9, β2=.999, ϵ=1e-8, name="adam") = AdamOptimizer(learning_rate, β1, β2, ϵ, name)
 
 function apply_gradients(optimizer::AdamOptimizer, grads_and_vars; global_step=nothing, name="adam")
     ops = Tensor[]
     @advance_step
     for (grad, var) in grads_and_vars
-        local m, v
+        local m, v, T
         variable_scope(name) do
             variable_scope(node_name(var)[1]) do
                 m = get_variable("m", get_shape(var), eltype(var), initializer=ConstantInitializer(0.0), trainable=false)
                 v = get_variable("v", get_shape(var), eltype(var), initializer=ConstantInitializer(0.0), trainable=false)
+                T = get_variable("t", [], Float32, initializer=ConstantInitializer(1.0), trainable=false)
             end
         end
         β1 = eltype(var)(optimizer.β1)
         β2 = eltype(var)(optimizer.β2)
         ϵ = eltype(var)(optimizer.ϵ)
         η = eltype(var)(optimizer.η)
+        t = cast(Tensor(T), eltype(var))
+        push!(ops, tf.assign(T, T+1))
+        lr = η*sqrt(1-β2^t)/(1-β1^t)
         if isa(grad, tf.IndexedSlices)
             m_slice = tf.gather(m, grad.indices)
             v_slice = tf.gather(v, grad.indices)
             m_new = β1 .* m_slice + (1-β1) .* grad.values
             v_new = β2 .* v_slice + (1-β2) .* (grad.values .^ 2)
-            push!(ops, tf.scatter_sub(var.var_node, grad.indices, η/(sqrt(v_new)+ϵ) .* m_new))
+            push!(ops, tf.scatter_sub(var.var_node, grad.indices, lr/(sqrt(v_new)+ϵ) .* m_new))
             push!(ops, tf.scatter_update(m.var_node, grad.indices, m_new))
-            push!(ops, tf.scatter_update(m.var_node, grad.indices, v_new))
+            push!(ops, tf.scatter_update(v.var_node, grad.indices, v_new))
         else
             m_new = β1 .* m + (1-β1).*grad
             v_new = β2 .* v + (1-β2).*(grad.^2)
-            # TODO use m_hat
-            push!(ops, tf.assign_sub(var, η/(sqrt(v_new)+ϵ) .* m_new))
-            push!(ops, assign(m, m_new))
-            push!(ops, assign(v, v_new))
+            push!(ops, tf.assign_sub(var, lr/(sqrt(v_new)+ϵ) .* m_new))
+            push!(ops, tf.assign(m, m_new))
+            push!(ops, tf.assign(v, v_new))
         end
     end
     return group(ops...)
@@ -176,7 +181,7 @@ function Saver(;var_list=nothing, max_to_keep=5)
     for var in var_list
         ph = placeholder(eltype(var))
         placeholders[node_name(var)[1]] = ph
-        restore_op = assign(var, ph)
+        restore_op = tf.assign(var, ph)
         push!(restore_ops, restore_op)
     end
     Saver(var_list, max_to_keep, placeholders, restore_ops)

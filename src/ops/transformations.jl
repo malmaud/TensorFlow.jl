@@ -249,6 +249,16 @@ function expand_dims(input, dim; name="ExpandDims")
     Tensor(Operation(desc), 1)
 end
 
+function Base.squeeze(x::AbstractTensor, squeeze_dims; name="squeeze")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("Squeeze")
+        add_input(desc, x)
+        set_attr_list(desc, "squeeze_dims", squeeze_dims-1)
+    end
+    Tensor(Operation(desc), 1)
+end
+
 """
 Base.rank(n::AbstractTensor; name="")
 

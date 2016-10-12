@@ -946,7 +946,7 @@ function gradients(y, x::AbstractArray)
         if isa(name, String)
             push!(out, Tensor(get_node_by_name(name)|>get, 1))
         else
-            push!(out, IndexedSlices(Tensor(get_node_by_name(name[1])|>get,1), Tensor(get_node_by_name(name[2])|>get,1)))
+            push!(out, IndexedSlices(Tensor(get_node_by_name(name[1])|>get,1), Tensor(get_node_by_name(name[2])|>get,1)+1))
         end
     end
     return out
