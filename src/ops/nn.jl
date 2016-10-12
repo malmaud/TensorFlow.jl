@@ -139,6 +139,23 @@ function rnn(cell, inputs; initial_state=nothing, dtype=nothing, sequence_length
     return outputs, state
 end
 
+"""
+`dynamic_rnn(cell, inputs; sequence_length=nothing, initial_state=nothing, dtype=nothing, parallel_iterations=nothing, swap_memory=false, time_major=false, scope="RNN")`
+
+Creates a *dynamic* recurrent neural network. Performs full dynamic unrolling of `inputs`.
+
+Args:
+* `cell`: An instance of `RNNCell`.
+* `inputs`: A `Tensor` of shape `[max_time, batch_size, ..., ...]` or `[batch_size, max_time, ..., ...]` (see `time_major`). May also be a nested `Tuple` with the same property. The first two dimensions *must* be the same across
+all elements but all later dimensions may vary.
+* `sequence_length`: Specifies length of each sequence in `inputs`.
+* `initial_state`: A starting state for the RNN. If not provided, the initial state is `zero_state`.
+* `dtype`: Data type of the initial state and output, in case it cannot be inferred.
+* `parallel_iterations`: Number of iterations to run in parallel, defaulting to `32`. Ops that have no temporal dependency can be run in parallel and will be. Trades time for space - larger values use more memory.
+* `swap_memory`: Optional `Bool`, which if `true` allows transparent swapping of `Tensor`s needed for back propagation from the CPU to the GPU and vice versa. Allows training of RNNs which wouldn't fit on a single GPU. Defaults to `false`.
+* `time_major`: Shape format for `inputs` and `outputs` `Tensor`s. Determines whether the first dimension of each is `max_time` (`true`) or `batch_size` (`false`, default). `true` is more efficient but is the transpose of most TensorFlow operations.
+* `scope`: `VariableScope` for the subgraph. Defaults to `RNN`.
+"""
 @not_implemented function dynamic_rnn(cell, inputs; sequence_length=nothing, initial_state=nothing, dtype=nothing, parallel_iterations=nothing, swap_memory=false, time_major=false, scope="RNN")
 
 end

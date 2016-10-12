@@ -1,3 +1,6 @@
+"""
+Creates a constant `Tensor`.
+"""
 function constant(tensor; name="")
     name = get_name(name)
     desc = NodeDescription(get_def_graph(), "Const", name)

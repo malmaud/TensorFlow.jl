@@ -30,7 +30,7 @@ function make_tuple(tensors; name="", control_inputs=Operation[])
 end
 
 """
-    group(tensors...)
+    `group(tensors...)`
 
 Create an op that groups multiple operations.
 
@@ -58,6 +58,9 @@ function group(tensors...; name="")
     Tensor(Operation(desc))
 end
 
+"""
+A named `Operation` that does nothing.
+"""
 function no_op(name="")
     desc = NodeDescription("NoOp", get_name(name))
     Tensor(Operation(desc))
@@ -72,17 +75,17 @@ This operation outputs `ref` after the update is done.  This makes it
 easier to chain operations that need to use the updated value.
 
 Args:
-  `ref`: A mutable `Tensor`. Must be one of the following types: `Int32`, `Int64`.
+*  `ref`: A mutable `Tensor`. Must be one of the following types: `Int32`, `Int64`.
     Should be from a scalar `Variable` node.
-  `limit`: An `int`.
-    If incrementing `ref` would bring it above limit, instead generates an
+*  `limit`: An `int`.
+    If incrementing `ref` would bring it above `limit`, instead generates an
     `OutOfRange` error.
-  `name`: A name for the operation (optional).
+*  `name`: A name for the operation (optional).
 
 Returns:
-  A `Tensor`. Has the same type as `ref`.
-  A copy of the input before increment. If nothing else modifies the
-  input, the values produced will all be distinct.
+*  A `Tensor`. Has the same type as `ref`.
+*  A copy of the input before increment. If nothing else modifies the
+   input, the values produced will all be distinct.
 """
 function count_up_to(ref, limit; name="")
     desc = NodeDescription("CountUpTo", get_name(name))
@@ -114,18 +117,18 @@ Although this behavior is consistent with the dataflow model of TensorFlow,
 it has occasionally surprised some users who expected a lazier semantics.
 
 Args:
-  `pred`: A scalar determining whether to return the result of `fn1` or `fn2`.
-  `fn1`: The callable to be performed if `pred` is `true`.
-  `fn2`: The callable to be performed if `pred` is `false`.
-  `name`: Optional name prefix for the returned tensors.
+*  `pred`: A scalar determining whether to return the result of `fn1` or `fn2`.
+*  `fn1`: The callable to be performed if `pred` is `true`.
+*  `fn2`: The callable to be performed if `pred` is `false`.
+*  `name`: Optional name prefix for the returned tensors.
 
 Returns:
-  `Tensor`s returned by the call to either `fn1` or `fn2`. If the callables
-  return a singleton list, the element is extracted from the list.
+*  `Tensor`s returned by the call to either `fn1` or `fn2`. If the callables
+   return a singleton list, the element is extracted from the list.
 
 Raises:
-  `TypeError`: if `fn1` or `fn2` is not callable.
-  `ValueError`: if `fn1` and `fn2` do not return the same number of tensors, or
+*  `TypeError`: if `fn1` or `fn2` is not callable.
+*  `ValueError`: if `fn1` and `fn2` do not return the same number of tensors, or
               return tensors of different types.
 
 Example:

@@ -26,6 +26,9 @@ function check_shape(shape)
     end
 end
 
+"""
+Form a `RNNCell` with all states initialized to zero.
+"""
 function zero_state(cell::RNNCell, batch_size, T)
     zeros(Tensor, T, (batch_size, state_size(cell)))
 end
@@ -64,6 +67,9 @@ end
 
 state_size(cell::LSTMCell) = LSTMStateTuple(cell.hidden_size, cell.hidden_size)
 
+"""
+Form a `LSTMCell` with all states initialized to zero.
+"""
 function zero_state(cell::LSTMCell, batch_size, T)
     LSTMStateTuple(zeros(Tensor, T, (batch_size, cell.hidden_size)),
         zeros(Tensor, T, (batch_size, cell.hidden_size)))

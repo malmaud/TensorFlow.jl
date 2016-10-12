@@ -12,8 +12,11 @@ pack
 split
 expand_dims
 argmin
+argmax
+add_n
 one_hot
 random_uniform
+random_normal
 ```
 
 ## Variables
@@ -24,6 +27,7 @@ initialize_all_variables
 variable_scope
 get_variable
 ConstantInitializer
+assign
 ```
 
 ## Reductions
@@ -55,8 +59,11 @@ where
 
 ```@docs
 image.decode_jpeg
+image.encode_jpeg
 image.decode_png
+image.encode_png
 image.resize_images
+image.central_crop
 ```
 
 ## Neural networks
@@ -129,9 +136,9 @@ logical_xor
 
 ```@docs
 identity
-make_tuple
-group
-no_op
+TensorFlow.make_tuple
+TensorFlow.group
+TensorFlow.no_op
 cond
 ```
 

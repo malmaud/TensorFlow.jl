@@ -14,7 +14,7 @@ train.create_threads
 
 ## Readers
 ```@docs
-WholeFileReader
-TextLineReader
+io.WholeFileReader
+io.TextLineReader
 read
 ```

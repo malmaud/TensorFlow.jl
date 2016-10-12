@@ -1,6 +1,4 @@
 """
-`scalar_sumary(tags, values; collections=[:Summaries])`
-
 Outputs a `Summary` protocol buffer with scalar values.
 
 The input `tags` and `values` must have the same shape.  The generated
@@ -31,8 +29,6 @@ function scalar_summary(tags, values; collections=[:Summaries], name="ScalarSumm
 end
 
 """
-`audio_sumary(tag, tensor, sample_rate; max_outputs=3, collections=[:Summaries])`
-
 Outputs a `Summary` protocol buffer with audio.
 
 Args:
@@ -64,8 +60,6 @@ function audio_summary(tag, tensor, sample_rate; max_outputs=3, collections=[:Su
 end
 
 """
-`function histogram_summmary(tag, values)`
-
 Outputs a `Summary` protocol buffer with a histogram.
 
 The generated
@@ -75,12 +69,12 @@ has one summary value containing a histogram for `values`.
 This op reports an `InvalidArgument` error if any value is not finite.
 
 Args:
-  tag: A `string` `Tensor`. 0-D.  Tag to use for the summary value.
-  values: A real numeric `Tensor`. Any shape. Values to use to
+*  `tag`: A `string` `Tensor`. 0-D.  Tag to use for the summary value.
+*  `values`: A real numeric `Tensor`. Any shape. Values to use to
     build the histogram.
-  collections: Optional list of graph collections keys. The new summary op is
+*  `collections`: Optional list of graph collections keys. The new summary op is
     added to these collections. Defaults to `[GraphKeys.SUMMARIES]`.
-  name: A name for the operation (optional).
+*  `name`: A name for the operation (optional).
 
 Returns:
   A scalar `Tensor` of type `string`. The serialized `Summary` protocol
@@ -95,6 +89,20 @@ function histogram_summary(tag, values; collections=[:Summaries], name="")
     t
 end
 
+"""
+Creates a `Summary` protocol buffer containing the unions of all the summaries
+in `inputs`.
+
+Args:
+* `inputs`: A list of `string` `Tensor`s containing serialized `Summary` buffers.
+*  `collections`: Optional list of graph collections keys. The new summary op is
+    added to these collections. Defaults to `[GraphKeys.SUMMARIES]`.
+*  `name`: A name for the operation (optional).
+
+Returns:
+  A scalar `Tensor` of type `string`. The serialized `Summary` protocol
+  buffer resulting from the merge.
+"""
 function merge_summary(inputs; collections=[:Summaries], name="")
     desc = NodeDescription("MergeSummary", get_name(name))
     add_input(desc, inputs)
@@ -106,13 +114,11 @@ function merge_summary(inputs; collections=[:Summaries], name="")
 end
 
 """
-`function merge_all_summaries(key=:Summaries)`
-
 Merges all summaries collected in the default graph.
 
 Args:
-  key: `GraphKey` used to collect the summaries.  Defaults to
-    `:summaries`
+  `key`: `GraphKey` used to collect the summaries.  Defaults to
+          `:summaries`
 
 Returns:
   If no summaries were collected, returns nothing.  Otherwise returns a scalar
@@ -124,8 +130,6 @@ function merge_all_summaries(key=:Summaries)
 end
 
 """
-`function image_summary(tag, tensor; max_images=3)`
-
 Outputs a `Summary` protocol buffer with images.
 
 The summary has up to `max_images` summary values containing images. The

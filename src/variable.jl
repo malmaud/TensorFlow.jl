@@ -7,6 +7,25 @@ type Variable <: AbstractTensor
     Variable() = new()
 end
 
+"""
+A variable maintains state in the graph across calls to `run()`.
+You add a variable to the graph by constructing an instance of the type `Variable`.
+
+The `Variable()` constructor requires an `initial_value` for the variable,
+which can be a `Tensor` of any type and shape. The initial value defines the
+type and shape of the variable. After construction, the type and shape of the
+variable are fixed. The value can be changed using one of the `assign` methods.
+
+If you want to change the shape of a variable later you have to use an
+`assign` `Operation` with `validate_shape=false`.
+
+Variables can be used as inputs to `Operation`s, just like any `Tensor`.
+
+When you launch the graph, variables have to be explicitly initialized before
+you can run `Operation`s that use their value. You can initialize a variable by
+running its `initializer` `Operation`, restoring the variable from a save file,
+or simply running an `assign` `Operation` that assigns a value to the variable.
+"""
 function Variable(initial_value; name="", trainable=true, literal_name=false)
     self = Variable()
     if !literal_name
@@ -69,6 +88,9 @@ Base.setindex!(v::Variable, value) = assign(v, value)
 
 Base.convert(::Type{Tensor}, v::Variable) = Tensor(v.var_node, 1)
 
+"""
+Returns an `Operation` that initializes all TensorFlow `Variable`s.
+"""
 function initialize_all_variables()
     return group([Tensor(var.assign_node) for var in get_collection(:Variables)]...)
 end
@@ -95,6 +117,14 @@ function make_scope(name; initializer=nothing, reuse=false)
     return scope
 end
 
+"""
+Returns a context manager for defining `Operation`s that create `Variable`s (layers).
+
+This context manager validates that the (optional) values are from the same graph,
+ensures that graph is the default graph, and pushes a name scope and a variable scope.
+Variable scope allows one to create new variables and to share already created
+ones while providing checks to not create or share variables by accident.
+"""
 function variable_scope(f, name; kwargs...)
     scope = make_scope(name; kwargs...)
     push!(scope_stack, scope)
@@ -108,6 +138,10 @@ end
 get_dims(t::AbstractTensorShape) = map(get, t.dims)
 get_dims(x) = x
 
+"""
+Gets an existing variable with these parameters (`shape`, `dtype`, `trainable`)
+or create a new one.
+"""
 function get_variable(var_name, shape, dtype; trainable=true, kwargs...)
     shape = get_dims(shape)
     scope = make_scope(var_name; kwargs...)
