@@ -68,6 +68,11 @@ function tf.build_output(s::LSTMStateTuple, values, pos=Ref(1))
     out
 end
 
+function tf.get_inputs(value::LSTMStateTuple, input_tensors, input_set=[])
+    push!(input_set, value.c)
+    push!(input_set, value.h)
+end
+
 function Base.show(io::IO, s::LSTMStateTuple)
     print(io, "LSTMStateTuple(c=$(s.c), h=$(s.h))")
 end

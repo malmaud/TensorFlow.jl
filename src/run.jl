@@ -27,8 +27,8 @@ end
 
 function get_inputs(values, input_tensors::Vector)
     inputs = []
-    for subtensors in input_tensors
-        get_inputs(values, subtensors, inputs)
+    for (value, subtensors) in zip(values, input_tensors)
+        get_inputs(value, subtensors, inputs)
     end
     inputs
 end
@@ -76,13 +76,15 @@ function run(sess::Session, inputs, input_values, outputs, targets)
     return [as_native(RawTensor(_)) for _ in output_values]
 end
 
-function cast_type(T, val::Array)
+function cast_type{Q<:Number}(T, val::Array{Q})
     convert(Array{T}, val)
 end
 
-function cast_type(T, val)
+function cast_type(T, val::Number)
     convert(T, val)
 end
+
+cast_type(T, val) = val
 
 function run(sess::Session, outputs::AbstractVector, input_dict)
     output_map = Dict{Tensor, Tuple{Symbol, Int}}()
