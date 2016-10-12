@@ -1,3 +1,27 @@
+# The interface for "runnable" types
+
+"""
+`get_tensors(x)`
+
+Return a vector of tensors that should be computed when `x` is passed to `run(::Session, ...)`.
+`x` might be arbitrary nested in the array passed to `run`.
+"""
+function get_tensors end
+
+"""
+`build_output(tensors, values, position)`
+
+
+"""
+function build_output end
+
+"""
+`get_inputs(value, input_tensors, input_set)`
+
+"""
+function get_inputs end
+
+
 function get_tensors(tensors::Vector)
     out = []
     for subtensor in tensors
