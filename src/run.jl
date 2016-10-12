@@ -1,4 +1,34 @@
-as_tf_array(x) = x
+function get_tensors(tensors::Vector)
+    out = []
+    for subtensor in tensors
+        append!(out, get_tensors(subtensor))
+    end
+    out
+end
+
+function build_output(tensors::Vector, values, pos=Ref(1))
+    [build_output(subtensor, values, pos) for subtensor in tensors]
+end
+
+function get_tensors(tensor::Union{Tensor, Number})
+    return [tensor]
+end
+
+function build_output(tensor::Tensor, values, pos)
+    out = values[pos[]]
+    pos[] += 1
+    out
+end
+
+function build_input(tensor_map::Dict)
+    input_tensors = Tensor[]
+    input_values = []
+    for (k,v) in tensor_map
+        append!(input_tensors, get_tensors(k))
+        append!(input_values, get_tensors(v))
+    end
+    input_tensors, input_values
+end
 
 function run(sess::Session, inputs, input_values, outputs, targets)
     status = Status()
@@ -33,97 +63,42 @@ function run(sess::Session, inputs, input_values, outputs, targets)
     return [as_native(RawTensor(_)) for _ in output_values]
 end
 
-function build_key_map{T}(elems::AbstractVector, output_map::Dict{T, Int})
-    out = []
-    for elem in elems
-        push!(out, build_key_map(as_tf_array(elem), output_map))
-    end
-    out
-end
-
-function build_key_map{T}(elem::T, output_map::Dict{T, Int})
-    if haskey(output_map, elem)
-        output_map[elem]
-    else
-        id = length(output_map)+1
-        output_map[elem] = id
-        id
-    end
-end
-
-function build_key_map(elems)
-    d = Dict{Tensor, Int}()
-    out = build_key_map(as_tf_array(elems), d)
-    out, d
-end
-
-function use_key_map(shapes::AbstractVector, value_map)
-    out = []
-    for shape in shapes
-        push!(out, use_key_map(shape, value_map))
-    end
-    out
-end
-
-function use_key_map(value, value_map)
-    get(value_map, value, [])
-end
-
-function build_input_map(d_in::Dict, d_out)
-    for (key, value) in d_in
-        build_input_map(key, value, d_out)
-    end
-    d_out
-end
-
-function build_input_map(key::AbstractVector, value, d_out)
-    for (key_elem, value_elem) in zip(key, value)
-        build_input_map(as_tf_array(key_elem), as_tf_array(value_elem), d_out)
-    end
-    d_out
-end
-
-function build_input_map(key, value, d_out)
-    d_out[key] = value
-    d_out
-end
-
-build_input_map(d_in) = build_input_map(as_tf_array(d_in), Dict())
-
 function run(sess::Session, outputs::AbstractVector, input_dict)
-    isempty(outputs) && return []
-    inputs = Port[]
-    input_values = []
-    input_dict = build_input_map(input_dict)
-    for (input, value) in input_dict
-        push!(inputs, Port(input))
-        push!(input_values, map(eltype(input), value))
-    end
-    real_outputs = Tensor[]
-    targets = Ptr{Void}[]
-    id_map = Dict{Int, Any}()
-    output_shape, output_map = build_key_map(outputs)
-    for (tensor, id) in output_map
-        if num_outputs(get_op(tensor)) == 0
-            push!(targets, get_op(tensor).ptr)
-        else
-            push!(real_outputs, tensor)
-            id_map[length(real_outputs)] = id
+    output_map = Dict{Tensor, Tuple{Symbol, Int}}()
+    output_ports = Port[]
+    target_ptrs= Ptr{Void}[]
+    for tensor in get_tensors(outputs)
+        if !haskey(output_map, tensor)
+            if num_outputs(get_op(tensor)) == 0
+                push!(targets, get_op(tensor).ptr)
+                output_map[tensor] = (:target, length(targets))
+            else
+                push!(output_ports, Port(tensor))
+                output_map[tensor] = (:output, length(output_ports))
+            end
         end
     end
-    output_ports = map(Port, real_outputs)
-    result = run(sess, inputs, input_values, output_ports, targets)
-    result_map = Dict{Int, Any}()
-    for (id, res) in enumerate(result)
-        result_map[id_map[id]] = res
+    input_ports = Port[]
+    input_tensors, input_values = build_input(input_dict)
+    input_ports = [Port(tensor) for tensor in input_tensors]
+    unique_output_values = run(sess, input_ports, input_values, output_ports, target_ptrs)
+    output_values = []
+    for tensor in get_tensors(outputs)
+        location = output_map[tensor]
+        if location[1] == :target
+            push!(output_values, nothing)
+        elseif location[1] == :output
+            push!(output_values, unique_output_values[location[2]])
+        end
     end
-    use_key_map(output_shape, result_map)
+    build_output(outputs, output_values)
 end
+
 
 """
 Compute the result of one of more operations in the computation graph.
 """
-function run(sess::Session, output::Tensor, input_dict)
+function run(sess::Session, output, input_dict)
     res = run(sess, [output], input_dict)
     if length(res)==1
         return res[1]

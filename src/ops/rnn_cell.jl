@@ -56,7 +56,15 @@ immutable LSTMStateTuple
     h
 end
 
-tf.as_tf_array(x::LSTMStateTuple) = [x.c, x.h]
+function tf.get_tensors(s::LSTMStateTuple)
+    [s.c, s.h]
+end
+
+function tf.build_output(s::LSTMStateTuple, values, pos=Ref(1))
+    out = LSTMStateTuple(values[pos[]], values[pos[]+1])
+    pos[] += 2
+    out
+end
 
 function Base.show(io::IO, s::LSTMStateTuple)
     print(io, "LSTMStateTuple(c=$(s.c), h=$(s.h))")
