@@ -488,25 +488,12 @@ register_shape("Pad") do op
 end
 
 register_shape("Gather") do op
-<<<<<<< HEAD
-    # tensor_shape = TensorShape([get_shape(op.inputs[1]).dims; get_shape(op.inputs[2]).dims[2:end]])
-    # [tensor_shape]
-    [TensorShape([get_shape(get_input(op, 2)).dims[1], get_shape(get_input(op, 1)).dims[2]])] # TODO Generalize to scalar case
-||||||| parent of a32aee6... Don't use shape cache across get_shape calls
-    value_dims = get_shape(get_input(op, 1))
-    index_dims = get_shape(get_input(op, 2))
-    if index_dims.rank_unknown || value_dims.rank_unknown
-        return [TensorShape(nothing)]
-    end
-    [TensorShape(vcat(index_dims.dims, value_dims.dims[2:end]))]
-=======
     value_dims = _get_shape(get_input(op, 1))
     index_dims = _get_shape(get_input(op, 2))
     if index_dims.rank_unknown || value_dims.rank_unknown
         return [TensorShape(nothing)]
     end
     [TensorShape(vcat(index_dims.dims, value_dims.dims[2:end]))]
->>>>>>> a32aee6... Don't use shape cache across get_shape calls
 end
 
 function todo_register_shape(name)
