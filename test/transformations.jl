@@ -29,3 +29,9 @@ one_tens = ones(Tensor, (5,5))
 @test ones(Float32, 2, 5) == run(sess, gather(one_tens, [1, 2]))
 
 @test Float32[1.; 0.; 0.; 0.; 0.] == run(sess, one_hot(1, 5))
+
+a = Tensor(collect(1:5))
+result = run(sess, shuffle(a))
+for i in 1:5
+    @test i ∈ result
+end
