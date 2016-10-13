@@ -141,7 +141,7 @@ for (func, name) in [
         function $func(ref, indices, updates; use_locking=false, name=$name)
             local desc
             with_op_name(name) do
-                desc = NodeDescription("ScatterSub")
+                desc = NodeDescription($name)
                 add_input(desc, Tensor(ref))
                 add_input(desc, Tensor(indices)-1)
                 add_input(desc, Tensor(updates))
