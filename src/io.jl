@@ -2,7 +2,7 @@ module io
 
 export
 WholeFileReader,
-TetLineReader
+TextLineReader
 
 import TensorFlow
 const tf = TensorFlow

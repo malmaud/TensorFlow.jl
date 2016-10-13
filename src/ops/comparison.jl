@@ -45,6 +45,9 @@ function Base.select(condition::AbstractTensor, t, e; name="Select")
     Tensor(Operation(desc), 1)
 end
 
+"""
+Returns locations of `true` values in a boolean `Tensor`. Equivalent to `ifelse`.
+"""
 function where(input; name="Where")
     local desc
     with_op_name(name) do
