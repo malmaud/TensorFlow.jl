@@ -40,6 +40,7 @@ function clip_by_global_norm(t_list, clip_norm; use_norm=nothing, name="ClipByGl
     out, gn
 end
 
+
 function global_norm(t_list; name="GlobalNorm")
     local out
     with_op_name(name) do

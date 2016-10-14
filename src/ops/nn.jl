@@ -186,7 +186,7 @@ function dropout(x, keep_prob; noise_shape=nothing, seed=0, name="Dropout")
         if noise_shape == nothing
             noise_shape = shape(x)
         end
-        r = random_uniform(noise_shape, seed=seed, dtype=eltype(x))
+        r = random_uniform(noise_shape, 0, 1, seed=seed, dtype=eltype(x))
         y = x_scaled .* floor(keep_prob+r)
     end
     y
