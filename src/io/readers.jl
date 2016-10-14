@@ -14,23 +14,30 @@ end
 @reader TFRecordReader
 @reader FixedLengthRecordReader
 
-function WholeFileReader(; name="")
-    desc = tf.NodeDescription("WholeFileReader", tf.get_name(name))
-    op = tf.Operation(desc)
-    return WholeFileReader(op)
+function WholeFileReader(; name="WholeFileReader")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("WholeFileReader")
+    end
+    return WholeFileReader(Operation(desc))
 end
 
-function TextLineReader(skip_header_lines::Int=0; name="")
-    desc = tf.NodeDescription("TextLineReader", tf.get_name(name))
-    desc["skip_header_lines"] = Int64(skip_header_lines)
-    op = tf.Operation(desc)
-    return TextLineReader(op)
+function TextLineReader(skip_header_lines::Int=0; name="TextLineReader")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("TextLineReader")
+        desc["skip_header_lines"] = Int64(skip_header_lines)
+    end
+    return TextLineReader(Operation(desc))
 end
 
-function Base.read(reader::AbstractReader, queue::tf.AbstractQueue; name="")
-    desc = tf.NodeDescription("ReaderRead", tf.get_name(name))
-    tf.add_input(desc, tf.Tensor(reader.op))
-    tf.add_input(desc, tf.Tensor(queue.op))
+function Base.read(reader::AbstractReader, queue::tf.AbstractQueue; name="ReaderRead")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("ReaderRead")
+        add_input(desc, Tensor(reader.op))
+        add_input(desc, Tensor(queue.op))
+    end
     op = tf.Operation(desc)
     tf.Tensor(op, 1), tf.Tensor(op, 2)
 end

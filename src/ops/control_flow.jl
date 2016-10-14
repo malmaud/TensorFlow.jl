@@ -10,9 +10,12 @@ Args:
 Returns:
   A `Tensor`. Has the same type as `input`.
 """
-function identity(input; name="")
-    desc = NodeDescription("Identity", get_name(name))
-    add_input(desc, Tensor(input))
+function identity(input; name="Identity")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("Identity")
+        add_input(desc, Tensor(input))
+    end
     Tensor(Operation(desc))
 end
 
@@ -50,10 +53,13 @@ Returns:
 Raises:
   `ValueError`: If an unknown keyword argument is provided.
 """
-function group(tensors...; name="")
-    desc = NodeDescription("NoOp", get_name(name))
-    for tensor in tensors
-        add_control_input(desc, tensor)
+function group(tensors...; name="NoOp")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("NoOp")
+        for tensor in tensors
+            add_control_input(desc, tensor)
+        end
     end
     Tensor(Operation(desc))
 end
@@ -61,8 +67,11 @@ end
 """
 A named `Operation` that does nothing.
 """
-function no_op(name="")
-    desc = NodeDescription("NoOp", get_name(name))
+function no_op(name="NoOp")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("NoOp")
+    end
     Tensor(Operation(desc))
 end
 
@@ -87,10 +96,13 @@ Returns:
 *  A copy of the input before increment. If nothing else modifies the
    input, the values produced will all be distinct.
 """
-function count_up_to(ref, limit; name="")
-    desc = NodeDescription("CountUpTo", get_name(name))
-    add_input(desc, Tensor(ref))
-    desc["limit"] = Int64(limit)
+function count_up_to(ref, limit; name="CountUpTo")
+    local desc
+    with_op_name(name) do
+        desc = NodeDescription("CountUpTo")
+        add_input(desc, Tensor(ref))
+        desc["limit"] = Int64(limit)
+    end
     Tensor(Operation(desc))
 end
 
