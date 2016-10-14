@@ -52,18 +52,20 @@ Returns:
 A `Tensor` of the specified `shape` and `dtype` containing random values.
 """
 function random_uniform(shape, minval, maxval; name="RandomUniform", seed=0, dtype=Float32)
-    local desc
+    local out
     with_op_name(name) do
         desc = NodeDescription("RandomUniform")
         add_input(desc, Tensor(shape))
-        add_input(desc, minval)
-        add_input(desc, maxval)
         desc["dtype"] = dtype
         desc["seed2"] = seed
         # TODO use global seed
         desc["seed"] = 0
+        r = Tensor(Operation(desc), 1)
+        minval = cast(Tensor(minval), dtype)
+        maxval = cast(Tensor(maxval), dtype)
+        out = r .* (maxval-minval) + minval
     end
-    Tensor(Operation(desc), 1)
+    out
 end
 
 """
