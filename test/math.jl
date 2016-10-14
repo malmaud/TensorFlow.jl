@@ -107,7 +107,7 @@ end
 
 a_raw = rand(10)
 a = TensorFlow.constant(a_raw)
-inds = vcat(ones(Int32,5), fill(Int32(2), 5)) 
+inds = vcat(ones(Int32,5), fill(Int32(2), 5))
 for (jl_func, seg_func) in [(sum, segment_sum), (prod, segment_prod), (minimum, segment_min), (maximum, segment_max), (mean, segment_mean)]
     result = run(sess, seg_func(a, inds))
     @test jl_func(a_raw[1:5]) ≈ result[1]
@@ -147,4 +147,21 @@ end
 M_raw = rand(Float32, 10, 10)
 M_raw *= M_raw'
 result = run(sess, TensorFlow.cholesky(constant(M_raw)))
-@test cholfact(M_raw)[:L] ≈ result 
+@test cholfact(M_raw)[:L] ≈ result
+
+a = TensorFlow.Variable(ones(6))
+run(sess, initialize_all_variables())
+result = run(sess, TensorFlow.scatter_update(a, [1; 5], [2.; 2.]))
+@test [2; 1; 1; 1; 2; 1] == result
+
+result = run(sess, TensorFlow.assign_add(a, ones(6); use_locking=true))
+@test [3.; 2.; 2.; 2.; 3.; 2.] == result
+
+result = run(sess, TensorFlow.assign_sub(a, ones(6)))
+@test [2.; 1.; 1.; 1.; 2.; 1.] == result
+
+result = run(sess, TensorFlow.assign(a, -ones(6); use_locking=true))
+@test -ones(6) == result
+
+result = run(sess, TensorFlow.scatter_add(a, [1; 5], [1.; 1.]; use_locking=true))
+@test [0.; -1.; -1.; -1.; 0.; -1.] == result
