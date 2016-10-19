@@ -192,6 +192,7 @@ end
 .^(n::AbstractTensor, x::Number) = n^x
 
 for (jl_func_name, tf_func_name) in [
+    (:sign, "Sign"),
     (:neg, "Neg"),
     (:square, "Square"),
     (:shape, "Shape")]

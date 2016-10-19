@@ -165,3 +165,6 @@ result = run(sess, TensorFlow.assign(a, -ones(6); use_locking=true))
 
 result = run(sess, TensorFlow.scatter_add(a, [1; 5], [1.; 1.]; use_locking=true))
 @test [0.; -1.; -1.; -1.; 0.; -1.] == result
+
+result = run(sess, TensorFlow.sign(constant([-1, 2, 0])))
+@test [-1, 1, 0] == result
