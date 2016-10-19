@@ -9,7 +9,8 @@ Read through the official tutorial! Only the differences from the Python version
 The `DataLoader` API provided in "examples/mnist_loader.jl" has some simple code for loading the MNIST dataset, based on the MNIST.jl package.
 
 ```julia
-loader = data_loader()
+include(joinpath(Pkg.dir(), "TensorFlow", "examples", "mnist_loader.jl"))
+loader = DataLoader()
 ```
 
 ## Start TensorFlow session
@@ -25,14 +26,14 @@ sess = Session()
 
 ```julia
 x = placeholder(Float32)
-y = placeholder(Float32)
+y_ = placeholder(Float32)
 ```
 
 ### Variables
 
 ```julia
-W = Variable(zeros([784, 10]))
-b = Variable(zeros([10]))
+W = Variable(zeros(Float32, 784, 10))
+b = Variable(zeros(Float32, 10))
 
 run(sess, initialize_all_variables())
 ```
