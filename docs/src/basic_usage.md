@@ -13,5 +13,5 @@ w = exp(x + z + -y)
 
 run(sess, initialize_all_variables())
 res = run(sess, w, Dict(z=>Float64[1,2]))
-@test res[1] ≈ exp(-1)
+Base.Test.@test res[1] ≈ exp(-1)
 ```
