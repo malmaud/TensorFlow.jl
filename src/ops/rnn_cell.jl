@@ -102,10 +102,14 @@ function (cell::LSTMCell)(input, state)
     Wo = get_variable("Wo", [N, cell.hidden_size], T)
     Wg = get_variable("Wg", [N, cell.hidden_size], T)
 
-    Bi = get_variable("Bi", [cell.hidden_size], T)
-    Bf = get_variable("Bf", [cell.hidden_size], T)
-    Bo = get_variable("Bo", [cell.hidden_size], T)
-    Bg = get_variable("Bg", [cell.hidden_size], T)
+    local Bi, Bf, Bo, Bg
+    #tf.variable_scope("Bias", initializer=tf.ConstantInitializer(1.0)) do
+    tf.variable_scope("Bias") do
+        Bi = get_variable("Bi", [cell.hidden_size], T)
+        Bf = get_variable("Bf", [cell.hidden_size], T)
+        Bo = get_variable("Bo", [cell.hidden_size], T)
+        Bg = get_variable("Bg", [cell.hidden_size], T)
+    end
 
     # TODO make this all one multiply
     I = sigmoid(X*Wi + Bi)

@@ -150,7 +150,15 @@ type Session
         return this
     end
 
-    Session() = Session(get_def_graph())
+    function Session(;config=nothing, allow_growth=false)
+        if config === nothing
+            config = tensorflow.ConfigProto()
+            gpu_config = tensorflow.GPUOptions()
+            gpu_config.allow_growth = allow_growth
+            config.gpu_options = gpu_config
+        end
+        Session(get_def_graph(), config)
+    end
 end
 
 

@@ -100,16 +100,20 @@ function __init__()
     c_deallocator[] = cfunction(deallocator, Void, (Ptr{Void}, Csize_t, Ptr{Void}))
     if myid() == 1
         set_def_graph(Graph())
-        addprocs(1)
-        pyproc[] = nprocs()
-        py_file = joinpath(dirname(@__FILE__), "py.jl")
-        eval(Main, quote
-            remotecall_wait($(pyproc[]), $py_file) do py_file
-                include(py_file)
-                init()
-            end
-        end)
+        load_python_process()
     end
+end
+
+function load_python_process()
+    addprocs(1)
+    pyproc[] = nprocs()
+    py_file = joinpath(dirname(@__FILE__), "py.jl")
+    eval(Main, quote
+        remotecall_wait($(pyproc[]), $py_file) do py_file
+            include(py_file)
+            init()
+        end
+    end)
 end
 
 abstract AbstractTensorShape
