@@ -130,7 +130,8 @@ for func in ["Log", "Exp", "Neg", "Ceil", "Floor", "Sqrt", "Square",
     "Cos", "Sin", "Tan", "Atan", "Asin", "Acos", "Tanh",
     "Cast", "Relu", "Relu6", "Elu", "Softplus", "Softsign",
     "Softmax", "Sigmoid", "Tanh", "SparseSoftmaxCrossEntropyWithLogits",
-    "LogSoftmax", "LRN", "LogicalAnd", "LogicalNot", "LogicalOr", "LogicalXor"]
+    "LogSoftmax", "LRN", "LogicalAnd", "LogicalNot", "LogicalOr", "LogicalXor",
+    "Sign"]
     register_shape(func) do op
         [_get_shape(get_input(op, 1))]
     end
