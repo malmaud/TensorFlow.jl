@@ -103,8 +103,7 @@ function (cell::LSTMCell)(input, state)
     Wg = get_variable("Wg", [N, cell.hidden_size], T)
 
     local Bi, Bf, Bo, Bg
-    #tf.variable_scope("Bias", initializer=tf.ConstantInitializer(1.0)) do
-    tf.variable_scope("Bias") do
+    tf.variable_scope("Bias", initializer=ConstantInitializer(0.0)) do
         Bi = get_variable("Bi", [cell.hidden_size], T)
         Bf = get_variable("Bf", [cell.hidden_size], T)
         Bo = get_variable("Bo", [cell.hidden_size], T)
