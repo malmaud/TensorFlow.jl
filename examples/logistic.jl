@@ -3,7 +3,7 @@ using Distributions
 # Generate some synthetic data
 x = randn(100, 50)
 w = randn(50, 10)
-y_prob = exp(x*w)
+y_prob = exp.(x*w)
 y_prob ./= sum(y_prob,2)
 
 function draw(probs)
