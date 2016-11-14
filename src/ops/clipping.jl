@@ -33,7 +33,7 @@ function clip_by_global_norm(t_list, clip_norm; use_norm=nothing, name="ClipByGl
         error("Must pass at least one tensor to clip_by_global_norm")
     end
     clip_tensor(t, ratio) = t .* ratio
-    clip_tensor(t::IndexedSlices, ratio) = IndexedSlices(t.value .* ratio, t.indices)
+    clip_tensor(t::IndexedSlices, ratio) = IndexedSlices(t.values .* ratio, t.indices)
     with_op_name(name) do
         clip_norm = cast(Tensor(clip_norm), eltype(t_list[1]))
         if use_norm === nothing
@@ -45,7 +45,6 @@ function clip_by_global_norm(t_list, clip_norm; use_norm=nothing, name="ClipByGl
     end
     [out, gn]
 end
-
 
 function global_norm(t_list; name="GlobalNorm")
     local out

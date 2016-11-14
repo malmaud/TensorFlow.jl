@@ -38,9 +38,17 @@ function get_tensors(tensor::Union{Tensor, Number})
     return [tensor]
 end
 
+get_tensors(tensor::IndexedSlices) = [tensor.values, tensor.indices]
+
 function build_output(tensor::Tensor, values, pos)
     out = values[pos[]]
     pos[] += 1
+    out
+end
+
+function build_output(tensor::IndexedSlices, values, pos)
+    out = IndexedSlicesValue(values[pos[]], values[pos[]+1])
+    pos[] += 2
     out
 end
 

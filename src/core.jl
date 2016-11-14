@@ -983,3 +983,10 @@ type IndexedSlices
     values::Tensor
     indices::Tensor
 end
+
+Base.eltype(i::IndexedSlices) = eltype(i.values)
+
+type IndexedSlicesValue
+    values
+    indices
+end
