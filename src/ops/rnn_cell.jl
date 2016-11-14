@@ -103,7 +103,7 @@ function (cell::LSTMCell)(input, state)
     Wg = get_variable("Wg", [N, cell.hidden_size], T)
 
     local Bi, Bf, Bo, Bg
-    tf.variable_scope("Bias", initializer=ConstantInitializer(0.0)) do
+    tf.variable_scope("Bias", initializer=tf.ConstantInitializer(0.0)) do
         Bi = get_variable("Bi", [cell.hidden_size], T)
         Bf = get_variable("Bf", [cell.hidden_size], T)
         Bo = get_variable("Bo", [cell.hidden_size], T)
@@ -138,7 +138,7 @@ function (cell::GRUCell)(input, state)
     Wr = get_variable("Wr", [N, cell.hidden_size], T)
     Wh = get_variable("Wh", [N, cell.hidden_size], T)
     local Bz, Br, Bh
-    tf.variable_scope("Bias", initializer=tf.ConstantInitializer(1.0)) do
+    tf.variable_scope("Bias", initializer=tf.ConstantInitializer(0.0)) do  # TODO doublecheck python also uses 0 for GRU
         Bz = get_variable("Bz", [cell.hidden_size], T)
         Br = get_variable("Br", [cell.hidden_size], T)
         Bh = get_variable("Bh", [cell.hidden_size], T)

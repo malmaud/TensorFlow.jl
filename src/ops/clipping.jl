@@ -29,22 +29,30 @@ end
 
 function clip_by_global_norm(t_list, clip_norm; use_norm=nothing, name="ClipByGlobalNorm")
     local out, gn
+    if isempty(t_list)
+        error("Must pass at least one tensor to clip_by_global_norm")
+    end
+    clip_tensor(t, ratio) = t .* ratio
+    clip_tensor(t::IndexedSlices, ratio) = IndexedSlices(t.value .* ratio, t.indices)
     with_op_name(name) do
+        clip_norm = cast(Tensor(clip_norm), eltype(t_list[1]))
         if use_norm === nothing
             gn = global_norm(t_list)
         else
             gn = use_norm
         end
-        out = [t .* clip_norm / max(gn, clip_norm) for t in t_list]
+        out = [clip_tensor(t, clip_norm / max(gn, clip_norm)) for t in t_list]
     end
-    out, gn
+    [out, gn]
 end
 
 
 function global_norm(t_list; name="GlobalNorm")
     local out
+    tensor_value(t) = Tensor(t)
+    tensor_value(t::IndexedSlices) = t.values
     with_op_name(name) do
-        out = sqrt(add_n([reduce_sum(Tensor(t).^2) for t in t_list]))
+        out = sqrt(add_n([reduce_sum(tensor_value(t).^2) for t in t_list]))
     end
     out
 end
