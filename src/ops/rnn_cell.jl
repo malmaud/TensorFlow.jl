@@ -178,4 +178,22 @@ function (cell::MultiRNNCell)(input, state)
     input, states
 end
 
+type DropoutWrapper{CellType<:RNNCell} <: RNNCell
+    cell::CellType
+    output_keep_prob::Tensor
+end
+
+DropoutWrapper(cell; output_keep_prob=1.0) = DropoutWrapper(cell, Tensor(output_keep_prob))
+
+output_size(cell::DropoutWrapper) = output_size(cell.cell)
+state_size(cell::DropoutWrapper) = state_size(cell.cell)
+zero_state(cell::DropoutWrapper, batch_size, T) = zero_state(cell.cell, batch_size, T)
+
+function (wrapper::DropoutWrapper)(input, state)
+    output, new_state = wrapper.cell(input, state)
+    dropped_output = nn.dropout(output, wrapper.output_keep_prob)
+    dropped_output, new_state
+end
+
+
 end
