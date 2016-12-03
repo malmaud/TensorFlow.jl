@@ -221,7 +221,6 @@ for (jl_func_name, tf_func_name) in [
     (:asin, "Asin"),
     (:acos, "Acos"),
     (:tanh, "Tanh"),
-    #(:lbeta, "Lbeta"), #not working for now
     (:lgamma, "Lgamma"),
     (:erf, "Erf"),
     (:erfc, "Erfc"),
