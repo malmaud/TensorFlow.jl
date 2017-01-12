@@ -441,7 +441,7 @@ register_shape("Split") do op
     if isnull(split_dim_value)
         return [TensorShape(nothing)]
     end
-    split_dim_value = get(split_dim_value)[]
+    split_dim_value = get(split_dim_value)[] + 1
 
     value_shape = copy(_get_shape(get_input(op, 2)))
     if isnull(value_shape.dims[split_dim_value])
@@ -449,7 +449,7 @@ register_shape("Split") do op
     else
         split_value = Nullable(get(value_shape.dims[split_dim_value])/num_split)
     end
-    value_shape.dims[spit_dim] = split_value
+    value_shape.dims[split_dim_value] = split_value
     [value_shape for i in 1:num_split]
 end
 
