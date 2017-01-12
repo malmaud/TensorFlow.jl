@@ -140,12 +140,12 @@ type Session
             check_status(config_status)
         end
         status = Status()
-        ptr = ccall((:TF_NewSessionWithGraph, LIBTF), Ptr{Void}, (Ptr{Void}, Ptr{Void}, Ptr{Void}), graph.ptr, options.ptr, status.ptr)
+        ptr = ccall((:TF_NewSession, LIBTF), Ptr{Void}, (Ptr{Void}, Ptr{Void}, Ptr{Void}), graph.ptr, options.ptr, status.ptr)
         this = new(ptr, graph)
         check_status(status)
         finalizer(this, self->begin
             status = Status()
-            ccall((:TF_DeleteSessionWithGraph, LIBTF), Void, (Ptr{Void}, Ptr{Void}), self.ptr, status.ptr)
+            ccall((:TF_DeleteSession, LIBTF), Void, (Ptr{Void}, Ptr{Void}), self.ptr, status.ptr)
         end)
         return this
     end
