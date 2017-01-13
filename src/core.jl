@@ -298,7 +298,7 @@ function RawTensor(data::Array{String}, is_scalar=false)
     for str in data
         write(b, UInt64(length(b_data.data)))
         varint_encode(b_data, sizeof(str))
-        write(b_data, str.data)
+        write(b_data, Vector{UInt8}(str))
     end
     seekstart(b_data)
     write(b, read(b_data))
@@ -803,7 +803,7 @@ end
 
 function setindex!(desc::NodeDescription, value::AbstractString, attr_name)
     value = String(value)
-    ccall((:TF_SetAttrString, LIBTF), Void, (Ptr{Void}, Cstring, Ptr{Void}, Cint), desc.ptr, attr_name, value.data, sizeof(value))
+    ccall((:TF_SetAttrString, LIBTF), Void, (Ptr{Void}, Cstring, Ptr{Void}, Cint), desc.ptr, attr_name, Vector{UInt8}(value), sizeof(value))
 end
 
 function set_attr_list(desc::NodeDescription, attr_name, list::Vector{Int})

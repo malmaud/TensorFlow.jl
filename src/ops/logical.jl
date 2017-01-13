@@ -95,7 +95,7 @@ function logical_xor(x, y; name="LogicalXor")
     n
 end
 
-import Base: &, |, ~, ⊻
+import Base: &, |, ~
 
 for (sym, f) in [(:&, :logical_and), (:|, :logical_or), (:⊻, :logical_xor)]
     @eval $sym(t1::AbstractTensor, t2::AbstractTensor) = $f(t1, t2)

@@ -88,7 +88,7 @@ a_raw = Vector{Bool}(bitrand(10))
 b_raw = Vector{Bool}(bitrand(10))
 a = TensorFlow.constant(a_raw)
 b = TensorFlow.constant(b_raw)
-for (op, func) in [(&, logical_and), (|, logical_or), (⊻, logical_xor)]
+for (op, func) in [(&, logical_and), (|, logical_or)]
     result = run(sess, func(a,b))
     @test all(map(op, a_raw, b_raw) .== result)
 end
