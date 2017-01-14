@@ -20,7 +20,7 @@ function py_with(f, ctx_mngr)
 end
 
 function py_bytes(b::Vector{UInt8})
-    PyCall.PyObject(ccall(@PyCall.pysym(PyString_FromStringAndSize), PyCall.PyPtr, (Ptr{UInt8}, Int), b, sizeof(b)))
+    PyCall.PyObject(ccall(@PyCall.pysym(PyCall.PyString_FromStringAndSize), PyCall.PyPtr, (Ptr{UInt8}, Int), b, sizeof(b)))
 end
 
 function make_py_graph(graph_proto)
