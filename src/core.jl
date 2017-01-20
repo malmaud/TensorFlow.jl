@@ -617,6 +617,18 @@ function Operation(node_def::tensorflow.NodeDef)
             push!(inputs, Tensor(input_node, port))
         end
         add_input(desc, inputs)
+    elseif node_def.op == "Variable"
+        if isdefined(node_def, :attr)
+            attributes = keys(node_def.attr)
+            if "dtype" in attributes && has_field(node_def.attr["dtype"], :(_type))
+                desc["dtype"] = proto_type_map[node_def.attr["dtype"]._type]
+            end
+            if "shape" in attributes && has_field(node_def.attr["shape"], :shape)
+                desc["shape"] = tuple(collect(
+                    _.size for _ in node_def.attr["shape"].shape.dim
+                )...)
+            end
+        end
     else
         for (input_idx, input) in enumerate(node_def.input)
             input_kind = :normal
