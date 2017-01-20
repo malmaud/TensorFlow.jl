@@ -70,7 +70,13 @@ end
 
 function extend_graph(graph::Graph, nodedef::tensorflow.NodeDef)
     if isnull(get_node_by_name(graph, nodedef.name))
-        Operation(nodedef)
+        domain = split(nodedef.name, "/")[1]
+        if domain == "save"
+            warn("Ignoring the following operation: $(nodedef.name)")
+        else
+            Operation(nodedef)
+            # TODO: add to collection
+        end
     end
 end
 
