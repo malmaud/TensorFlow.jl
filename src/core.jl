@@ -84,6 +84,7 @@ Returns a collection from the default graph
 """
 get_collection(name) = get_collection(get_def_graph(), name)
 
+<<<<<<< HEAD
 const DEBUG_EXTEND_GRAPH = false
 
 to_node_def(n::tensorflow.NodeDef) = n
@@ -944,7 +945,10 @@ function gradients(y, x::AbstractArray)
     end)
     node_protos = Main.node_protos
     grad_names = Main.grad_names
-    extend_graph(get_def_graph(), node_protos)
+    g = get_def_graph()
+    for node_proto in node_protos
+        extend_graph(g, proto2nodedef(node_proto))
+    end
     out = []
     for name in grad_names
         if isa(name, String)
