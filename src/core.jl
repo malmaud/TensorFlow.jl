@@ -75,7 +75,6 @@ function extend_graph(graph::Graph, nodedef::tensorflow.NodeDef)
             warn("Ignoring the following operation: $(nodedef.name)")
         else
             Operation(nodedef)
-            # TODO: add to collection
         end
     end
 end

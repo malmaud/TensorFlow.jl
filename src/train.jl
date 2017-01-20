@@ -25,7 +25,7 @@ using JLD
 using FileIO
 using ProtoBuf
 
-import ..TensorFlow: Operation, get_def_graph, gradients, variable_scope, ConstantInitializer, node_name, get_variable, get_shape, get_collection, Session, placeholder, Tensor, cast, group, @not_implemented, AbstractQueue, tensorflow
+import ..TensorFlow: Graph, Operation, get_def_graph, extend_graph, gradients, variable_scope, ConstantInitializer, node_name, get_variable, get_shape, get_collection, Session, placeholder, Tensor, Variable, cast, group, @not_implemented, AbstractQueue, tensorflow, add_to_collection
 
 import TensorFlow
 const tf = TensorFlow
@@ -244,15 +244,41 @@ Args:
 Returns:
     A `MetaGraphDef` protocol buffer.
 """
-function read_meta_graph_file(filepath)
+function read_meta_graph_file(filepath::String)
     meta_graph_def = open(filepath) do f
         readproto(f, tensorflow.MetaGraphDef())
     end
     meta_graph_def
 end
 
+function import_meta_graph(
+        meta_graph_def::tensorflow.MetaGraphDef,
+        graph::Graph = get_def_graph()
+    )
+    var_node = Dict{String,Operation}()
+    assign_node = Dict{String,Operation}()
+    for nodedef in meta_graph_def.graph_def.node
+        operation = extend_graph(graph, nodedef)
+        domain = split(nodedef.name, "/")[1]
+        if domain != "save"
+            if nodedef.op == "Variable"
+                var_node[nodedef.name] = operation
+            elseif nodedef.op == "Assign"
+                assign_node[nodedef.name] = operation
+            end
+        end
+    end
+    for (name, op) in var_node
+        var = Variable(var_node[name], assign_node["$name/Assign"])
+        add_to_collection(graph, :Variables, var)
+    end
+    # TODO: return a Saver object
+end
+
+import_meta_graph(filepath::String, graph::Graph = get_def_graph()) =
+    import_meta_graph(read_meta_graph_file(filepath), graph)
+
 # TODO: implement
-#  (i) import_scoped_meta_graph (https://github.com/tensorflow/tensorflow/blob/99fe61a8a8f3dd41b4e1e4dedfc53b45f67e88a7/tensorflow/python/framework/meta_graph.py#L420-L544)
 #  (ii) export_scoped_meta_graph (https://github.com/tensorflow/tensorflow/blob/99fe61a8a8f3dd41b4e1e4dedfc53b45f67e88a7/tensorflow/python/framework/meta_graph.py#L547-L649)
 
 include("train/summary_writer.jl")
