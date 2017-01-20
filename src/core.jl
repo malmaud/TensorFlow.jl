@@ -84,7 +84,6 @@ Returns a collection from the default graph
 """
 get_collection(name) = get_collection(get_def_graph(), name)
 
-<<<<<<< HEAD
 const DEBUG_EXTEND_GRAPH = false
 
 to_node_def(n::tensorflow.NodeDef) = n
