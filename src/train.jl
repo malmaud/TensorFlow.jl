@@ -23,8 +23,9 @@ create_threads
 
 using JLD
 using FileIO
+using ProtoBuf
 
-import ..TensorFlow: Operation, get_def_graph, gradients, variable_scope, ConstantInitializer, node_name, get_variable, get_shape, get_collection, Session, placeholder, Tensor, cast, group, @not_implemented, AbstractQueue
+import ..TensorFlow: Operation, get_def_graph, gradients, variable_scope, ConstantInitializer, node_name, get_variable, get_shape, get_collection, Session, placeholder, Tensor, cast, group, @not_implemented, AbstractQueue, tensorflow
 
 import TensorFlow
 const tf = TensorFlow
@@ -233,6 +234,26 @@ function restore(saver::Saver, session::Session, save_path)
     run(session, saver.restore_ops, d)
     nothing
 end
+
+"""
+Reads a file containing `MetaGraphDef` and returns the protocol buffer.
+
+Args:
+    filepath: `meta_graph_def` filepath
+
+Returns:
+    A `MetaGraphDef` protocol buffer.
+"""
+function read_meta_graph_file(filepath)
+    meta_graph_def = open(filepath) do f
+        readproto(f, tensorflow.MetaGraphDef())
+    end
+    meta_graph_def
+end
+
+# TODO: implement
+#  (i) import_scoped_meta_graph (https://github.com/tensorflow/tensorflow/blob/99fe61a8a8f3dd41b4e1e4dedfc53b45f67e88a7/tensorflow/python/framework/meta_graph.py#L420-L544)
+#  (ii) export_scoped_meta_graph (https://github.com/tensorflow/tensorflow/blob/99fe61a8a8f3dd41b4e1e4dedfc53b45f67e88a7/tensorflow/python/framework/meta_graph.py#L547-L649)
 
 include("train/summary_writer.jl")
 include("train/pipeline.jl")
