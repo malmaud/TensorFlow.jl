@@ -5,6 +5,8 @@ type Variable <: AbstractTensor
     assign_node::Operation
 
     Variable() = new()
+    Variable(var_node::Operation, assign_node::Operation) =
+        new(var_node, assign_node)
 end
 
 """
