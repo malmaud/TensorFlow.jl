@@ -252,7 +252,13 @@ function read_meta_graph_file(filepath::String)
 end
 
 """
-Imports the meta graph in `meta_graph_def` into `graph`.
+Recreates a Graph saved in a `MetaGraphDef` proto.
+
+This function takes a `MetaGraphDef` protocol buffer as input. If the argument
+is a file containing a `MetaGraphDef` protocol buffer, it constructs a protocol
+buffer from the file content. The function then adds all the nodes from the
+`graph_def` field to the current graph, recreates all the collections, and
+returns a saver constructed from the `saver_def` field.
 
 Assumes variables are trainable, unless the `trainable` keyword is provided, in
 # whch case only variables whose names are in the list are "trainable".
@@ -285,7 +291,7 @@ function import_meta_graph(
             add_to_collection(graph, :TrainableVariables, var)
         end
     end
-    # TODO: return a Saver object
+    Saver(var_list = get_collection(graph, :TrainableVariables))
 end
 
 import_meta_graph(filepath::String, graph::Graph = get_def_graph()) =
