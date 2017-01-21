@@ -25,7 +25,7 @@ using JLD
 using FileIO
 using ProtoBuf
 
-import ..TensorFlow: Graph, Operation, get_def_graph, extend_graph, gradients, variable_scope, ConstantInitializer, node_name, get_variable, get_shape, get_collection, Session, placeholder, Tensor, Variable, cast, group, @not_implemented, AbstractQueue, tensorflow, add_to_collection
+import ..TensorFlow: Graph, Operation, get_def_graph, extend_graph, gradients, variable_scope, ConstantInitializer, node_name, get_variable, get_shape, get_collection, Session, placeholder, Tensor, Variable, cast, group, @not_implemented, AbstractQueue, tensorflow, add_to_collection, get_proto
 
 import TensorFlow
 const tf = TensorFlow
@@ -328,8 +328,56 @@ function import_meta_graph(
     )
 end
 
-# TODO: implement
-#  (ii) export_scoped_meta_graph (https://github.com/tensorflow/tensorflow/blob/99fe61a8a8f3dd41b4e1e4dedfc53b45f67e88a7/tensorflow/python/framework/meta_graph.py#L547-L649)
+"Construct and returns a `MetaGraphDef` protocol buffer."
+function create_meta_graph_def(graph::Graph)
+    # reference: https://github.com/tensorflow/tensorflow/blob/cd1fe4072b43e650d47187838b7a37b050ec3d75/tensorflow/python/framework/meta_graph.py#L309-L385
+    meta_graph_def = tensorflow.MetaGraphDef()
+    meta_graph_def.graph_def = readproto(
+        PipeBuffer(get_proto(graph)),
+        tensorflow.GraphDef()
+    )
+    meta_graph_def.meta_info_def = tensorflow.MetaGraphDef_MetaInfoDef()
+      # TODO: Set the tf version strings to the current tf build.
+      # meta_graph_def.meta_info_def.tensorflow_version = versions.__version__
+      # meta_graph_def.meta_info_def.tensorflow_git_version = versions.__git_version__
+    meta_graph_def.collection_def = Dict{String,tensorflow.CollectionDef}()
+    # In general, we should provide a registration mechanism for `to_proto`
+    # functions to serialize objects into their corresponding protocol buffers.
+    # (see https://github.com/tensorflow/tensorflow/blob/799e31f3840c21322e380e1ec6e5bacb95d016fa/tensorflow/python/framework/ops.py#L4277-L4300)
+    # (and https://github.com/tensorflow/tensorflow/blob/master/tensorflow/python/framework/meta_graph.py#L274-L282)
+    for (collectionname, collection) in graph.collections
+        bytes_list = Array{UInt8,1}[]
+        for obj in collection
+            # TODO: complete it for the other types
+            if isa(obj, Variable)
+                push!(bytes_list, get_proto(obj.var_node))
+                push!(bytes_list, get_proto(obj.assign_node))
+            elseif isa(obj, Tensor)
+                push!(bytes_list, get_proto(obj.op))
+            end
+        end
+        collectiondef = tensorflow.CollectionDef()
+        collectiondef.bytes_list = tensorflow.CollectionDef_BytesList()
+        collectiondef.bytes_list.value = bytes_list
+        meta_graph_def.collection_def[string(collectionname)] = collectiondef
+    end
+    meta_graph_def
+end
+create_meta_graph_def() = create_meta_graph_def(get_def_graph())
+
+"""
+Writes a MetaGraphDef to filepath.
+
+The exported CollectionDef currently only contains operations from `Variables`
+and `Tensors`. 
+"""
+function export_meta_graph(saver::Saver, filepath::String)
+    # Although we don't use it yet, the function signature has ::Saver to match
+    # the corresponding python function.
+    open(filepath, "w") do f
+        writeproto(f, create_meta_graph_def())
+    end
+end
 
 include("train/summary_writer.jl")
 include("train/pipeline.jl")
