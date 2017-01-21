@@ -268,8 +268,8 @@ QueueRunners and Summaries.
 """
 function import_meta_graph(
         meta_graph_def::tensorflow.MetaGraphDef,
-        graph::Graph = get_def_graph();
-        trainable::Vector{String} = []
+        graph::Graph;
+        trainable::Vector{String} = String[]
     )
     var_node = Dict{String,Operation}()
     assign_node = Dict{String,Operation}()
@@ -287,15 +287,46 @@ function import_meta_graph(
     for (name, op) in var_node
         var = Variable(var_node[name], assign_node["$name/Assign"])
         add_to_collection(graph, :Variables, var)
-        if len(trainable) == 0 || name in trainable
+        if length(trainable) == 0 || name in trainable
             add_to_collection(graph, :TrainableVariables, var)
         end
     end
     Saver(var_list = get_collection(graph, :TrainableVariables))
 end
 
-import_meta_graph(filepath::String, graph::Graph = get_def_graph()) =
-    import_meta_graph(read_meta_graph_file(filepath), graph)
+function import_meta_graph(
+        meta_graph_def::tensorflow.MetaGraphDef;
+        trainable::Vector{String} = String[]
+    )
+    import_meta_graph(
+        meta_graph_def,
+        get_def_graph(),
+        trainable = trainable
+    )
+end
+
+function import_meta_graph(
+        filepath::String,
+        graph::Graph;
+        trainable::Vector{String} = String[]
+    )
+    import_meta_graph(
+        read_meta_graph_file(filepath),
+        graph,
+        trainable = trainable
+    )
+end
+
+function import_meta_graph(
+        filepath::String,
+        trainable::Vector{String} = String[]
+    )
+    import_meta_graph(
+        read_meta_graph_file(filepath),
+        get_def_graph(),
+        trainable = trainable
+    )
+end
 
 # TODO: implement
 #  (ii) export_scoped_meta_graph (https://github.com/tensorflow/tensorflow/blob/99fe61a8a8f3dd41b4e1e4dedfc53b45f67e88a7/tensorflow/python/framework/meta_graph.py#L547-L649)
