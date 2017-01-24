@@ -12,12 +12,24 @@ if !isdir(bin_dir)
     run(`mkdir -p $bin_dir`)
 end
 
+function try_unzip()
+    try
+        run(`unzip -o $base/downloads/tensorflow.zip`)
+    catch err
+        if !isfile(joinpath(base, "libtensorflow_c.so"))
+            throw(err)
+        else
+            warn("Problem unzipping: $err")
+        end
+    end
+end
+
 @static if is_apple()
     r = Requests.get("https://storage.googleapis.com/malmaud-stuff/tensorflow_mac_v4.zip")
     open(joinpath(base, "downloads/tensorflow.zip"), "w") do file
         write(file, r.data)
     end
-    run(`unzip -o $base/downloads/tensorflow.zip`)
+    try_unzip()
     mv("libtensorflow_c.so", "usr/bin/libtensorflow_c.dylib", remove_destination=true)
 end
 
@@ -33,6 +45,6 @@ end
     open(joinpath(base, "downloads/tensorflow.zip"), "w") do file
         write(file, r.data)
     end
-    run(`unzip -o $base/downloads/tensorflow.zip`)
+    try_unzip()
     mv("libtensorflow_c.so", "usr/bin/libtensorflow_c.so", remove_destination=true)
 end
