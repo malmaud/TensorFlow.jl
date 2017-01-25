@@ -111,8 +111,11 @@ function load_python_process()
     pyproc[] = nprocs()
     py_file = joinpath(dirname(@__FILE__), "py.jl")
     eval(Main, quote
+        # These have to be split for unclear reasons on .6
         remotecall_wait($(pyproc[]), $py_file) do py_file
             include(py_file)
+        end
+        remotecall_wait($(pyproc[])) do
             init()
         end
     end)

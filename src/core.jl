@@ -388,6 +388,11 @@ type Operation <: AbstractOperation
     Operation() = new()
 end
 
+immutable Port
+    node_ptr::Ptr{Void}
+    index::Int
+end
+
 function get_input(op::Operation, idx)
     port = Port(op.ptr, idx-1)
     in_port = ccall((:TF_OperationInput, LIBTF), Port, (Port,), port)
@@ -740,11 +745,6 @@ function Base.eltype(t::AbstractTensor)
     else
         return tf_to_jl_type(tf_type)
     end
-end
-
-immutable Port
-    node_ptr::Ptr{Void}
-    index::Int
 end
 
 Port(t::Tensor) = Port(t.op.ptr, t.value_index-1)
