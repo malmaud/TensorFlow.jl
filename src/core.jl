@@ -849,7 +849,8 @@ end
 
 function Base.convert(::Type{Array}, t::RawTensor)
     dims = ndims(t)
-    data = ccall((:TF_TensorData, LIBTF), Ptr{eltype(t)}, (Ptr{Void},), t.ptr)
+    data = ccall((:TF_TensorData, LIBTF), Ptr{Void}, (Ptr{Void},), t.ptr)
+    data = convert(Ptr{eltype(t)}, data)
     if eltype(t) == String
         d = size(t)
         out = String[]
