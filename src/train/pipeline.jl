@@ -129,12 +129,13 @@ Args:
 * `tensors`: A list of tensors to enqueue.
 * `batch_size`: The batch size which will be pulled from the queue.
 * `capacity`: Sets the queue capacity. Default is 32.
+* `dynamic_pad`: If `true` all `tensors` will be padded on unknown dimensions to `batch_size`. Otherwise `tensors` shapes must be fully known. Currently only `false` is supported.
 * `enqueue_many`: If `false`, `tensors` represents a single example. Otherwise `tensors` represents a batch of examples. Currently only `false` is supported.
 * `shapes`: The shapes for each example. Defaults to the inferred shapes from `tensors`.
 * `allow_smaller_final_batch`: If `true` (default `false`), the final batch is allowed to be smaller than the other batches if there are not enough samples remaining.
 """
 function shuffle_batch(tensors, batch_size; capacity=32, enqueue_many=false, shapes=nothing, allow_smaller_final_batch=false, name="")
-    if enqueue_many
+    if enqueue_many || dynamic_pad
         error("Not supported")  # TODO support this
     end
     name = tf.get_name(name)
@@ -162,12 +163,14 @@ Args:
 * `batch_size`: The batch size which will be pulled from the queue.
 * `num_threads`: The number of threads to use while enqueuing. Default is 1.
 * `capacity`: Sets the queue capacity. Default is 32.
+
+* `dynamic_pad`: If `true` all `tensors` will be padded on unknown dimensions to `batch_size`. Otherwise `tensors` shapes must be fully known. Currently only `false` is supported.
 * `enqueue_many`: If `false`, `tensors` represents a single example. Otherwise `tensors` represents a batch of examples. Currently only `false` is supported.
 * `shapes`: The shapes for each example. Defaults to the inferred shapes from `tensors`.
 * `allow_smaller_final_batch`: If `true` (default `false`), the final batch is allowed to be smaller than the other batches if there are not enough samples remaining.
 """
 function batch(tensors, batch_size; num_threads=1, capacity=32, enqueue_many=false, shapes=nothing, dynamic_pad=false, allow_smaller_final_batch=false, name="Batch")
-    if enqueue_many
+    if enqueue_many || dynamic_pad
         error("Not supported")  # TODO support this
     end
     name = tf.get_name(name)
