@@ -522,20 +522,43 @@ function load_proto(tensor::tensorflow.TensorProto)
         val = tensor.int64_val
     elseif dtype == tensorflow._DataType.DT_DOUBLE
         val = tensor.double_val
+    elseif dtype == tensorflow._DataType.DT_STRING
+        val = tensor.string_val
     else
-        # warn("Unrecognized datatype $dtype")
+        warn("Unrecognized datatype $dtype")
     end
     # Sometimes Tensorflow store the tensor content in the 'tensor_content' byte array,
     # and sometimes in a typed field. Haven't figured out the rational yet.
     if length(tensor.tensor_content) > 0
-        val = reinterpret(eltype(val), tensor.tensor_content)
+        # Vector-valued string tensors are stored as eg
+        # ""\x02\x03hibye" for ["hi", "bye"]
+        if dtype == tensorflow._DataType.DT_STRING
+            bytes = tensor.tensor_content
+            sizes = Int[]
+            pos = 1
+            for i in 1:prod(dim)
+                push!(sizes, bytes[pos])
+                pos += 1
+            end
+            val = Vector{UInt8}[]
+            for i in 1:length(sizes)
+                val_i = UInt8[]
+                for j in 1:sizes[i]
+                    push!(val_i, bytes[pos])
+                    pos += 1
+                end
+                push!(val, val_i)
+            end
+        else
+            val = reinterpret(eltype(val), tensor.tensor_content)
+        end
     end
     if length(val) == 0
         zeros(eltype(val),0)
     elseif length(dim) == 0
         val[1]
     else
-        reshape(val, dim)
+        reshape(val, dim) |> convert_major_order
     end
 end
 

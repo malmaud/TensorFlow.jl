@@ -8,6 +8,7 @@ include("comp.jl")
 include("clipping.jl")
 include("image.jl")
 include("transformations.jl")
+include("proto.jl")
 
 include(joinpath(dirname(@__FILE__), "..", "examples", "logistic.jl"))
 
