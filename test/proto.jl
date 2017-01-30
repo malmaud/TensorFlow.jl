@@ -12,3 +12,4 @@ let
     t = get_def(constant(val)).attr["value"].tensor
     @test all(load_proto(t) .== map(Vector{UInt8}, val))
 end
+    

@@ -553,11 +553,20 @@ function load_proto(tensor::tensorflow.TensorProto)
             val = reinterpret(eltype(val), tensor.tensor_content)
         end
     end
-    if length(val) == 0
+    if length(val) == 0 && length(dim) == 0
         zeros(eltype(val),0)
     elseif length(dim) == 0
         val[1]
     else
+        # https://www.tensorflow.org/api_docs/python/constant_op/constant_value_tensors#constant
+        if length(val) < prod(dim)
+            last_val = val[end]
+            original_length = length(val)
+            resize!(val, prod(dim))
+            for i in (original_length+1):length(val)
+                val[i] = last_val
+            end
+        end
         reshape(val, dim) |> convert_major_order
     end
 end
