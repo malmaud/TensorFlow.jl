@@ -22,6 +22,7 @@ one_tens = ones(Tensor, (5,5))
 @test ones(10,5) == run(sess, tile(one_tens, [2; 1]))
 
 @test ones(Float32, 4,3) == run(sess, transpose(ones(Tensor, (3, 4))))
+@test ones(Float32, 4,3,2) == run(sess, permutedims(ones(Tensor, (4, 2, 3)), [1, 3, 2]))
 
 @test hcat(ones(Float32, 5,5), zeros(Float32, 5)) == run(sess, pad(one_tens, [0 0; 0 1]))
 

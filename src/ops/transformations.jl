@@ -550,11 +550,16 @@ function Base.transpose(n::AbstractTensor, perm=nothing; name="transpose")
             r = range(Tensor, 0, limit=rank(n))
             perm = reverse(r, [true])
         end
+        perm = convert_number(Int32, perm)
         desc = NodeDescription("Transpose")
         add_input(desc, Tensor(n))
         add_input(desc, Tensor(perm))
     end
     Tensor(Operation(desc))
+end
+
+function Base.permutedims(n::AbstractTensor, perm; name="transpose")
+    transpose(n, perm.-1; name=name)
 end
 
 Base.ctranspose(n::AbstractTensor) = transpose(n)
