@@ -2,6 +2,7 @@ using TensorFlow
 using Base.Test
 
 include("hello.jl")
+include("core.jl")
 include("math.jl")
 include("debug.jl")
 include("comp.jl")

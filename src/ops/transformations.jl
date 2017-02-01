@@ -168,36 +168,36 @@ end
 Base.cat(::Type{Tensor}, dim, values...) = concat(dim-1, values)
 
 """
-pack(values; axis=0, name="")
+pack(values; axis=1, name="")
 
 Packs a list of rank-R tensors into one rank-(R+1) tensor.
 
 Packs the list of tensors in values into a tensor with rank one higher than each tensor in values, by packing them along the axis dimension. Given a list of length N of tensors of shape (A, B, C);
 
-if axis == 0 then the output tensor will have the shape (N, A, B, C). if axis == 1 then the output tensor will have the shape (A, N, B, C). Etc.
+if axis == 1 then the output tensor will have the shape (N, A, B, C). if axis == 2 then the output tensor will have the shape (A, N, B, C). Etc.
 
 https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#pack
 """
-function pack(nodes; axis=0, name="Pack")
+function pack(nodes; axis=1, name="Pack")
     local desc
     with_op_name(name) do
         desc = NodeDescription("Pack")
         add_input(desc, [Tensor(_) for _ in nodes])
         desc["N"] = length(nodes)
-        desc["axis"] = axis
+        desc["axis"] = axis -1
     end
     Tensor(Operation(desc), 1)
 end
 
-function unpack(value; num=0, axis=0, name="Unpack")
+function unpack(value; num=nothing, axis=1, name="Unpack")
+    num_split = num==nothing ? get_shape(value, axis) : num
     local desc
     with_op_name(name) do
         desc = NodeDescription("Unpack")
         add_input(desc, value)
-        desc["num"] = num
-        desc["axis"] = axis
+        desc["num"] = num_split
+        desc["axis"] = axis - 1
     end
-    num_split = num==0 ? size(value, axis) : num
     op = Operation(desc)
     [Tensor(op, _) for _ in 1:num_split]
 end
