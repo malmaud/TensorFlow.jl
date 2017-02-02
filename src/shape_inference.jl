@@ -137,6 +137,15 @@ for func in ["Log", "Exp", "Neg", "Ceil", "Floor", "Sqrt", "Square",
     end
 end
 
+register_shape("SparseSoftmaxCrossEntropyWithLogits") do op
+    s1 = _get_shape(get_input(op, 1))
+    s2 = _get_shape(get_input(op, 2))
+    if s1.rank_unknown || s2.rank_unknown
+        return [TensorShape(nothing)]
+    end
+    return [TensorShape([s1.dims[1]])]
+end
+
 for func in ["Add", "Sub", "Mul", "Div", "Pow"]
     register_shape(func) do op
         s1 = _get_shape(get_input(op, 1))
