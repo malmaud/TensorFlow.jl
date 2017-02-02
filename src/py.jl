@@ -38,7 +38,7 @@ function to_protos(py_graph)
     protos = []
     for node_idx in 1:n_nodes
         node_py = py_graph[:node][node_idx]
-        proto = node_py[:SerializeToString]().data
+        proto = Vector{UInt8}(node_py[:SerializeToString]())
         push!(protos, proto)
     end
     return protos
