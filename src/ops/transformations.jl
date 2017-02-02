@@ -64,8 +64,11 @@ end
 
 Base.length(::Type{Tensor}, n::AbstractTensor; name="") = size(n, name)
 
+if isdefined(Base, :slice)  # Removed in .6
+    import Base: slice
+end
 """
-Base.slice(n::AbstractTensor, begin_, size_; name="")
+slice(n::AbstractTensor, begin_, size_; name="")
 
 Extracts a slice from a tensor.
 
@@ -91,7 +94,7 @@ A Tensor the same type as input.
 
 https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#slice
 """
-function Base.slice(n::AbstractTensor, begin_, size_; name="Slice")
+function slice(n::AbstractTensor, begin_, size_; name="Slice")
     local desc
     with_op_name(name) do
         desc = NodeDescription("Slice")

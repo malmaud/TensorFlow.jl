@@ -158,7 +158,7 @@ function Base.fill(n::AbstractTensor, dims::AbstractTensor; name="Fill")
     local desc
     with_op_name(name) do
         desc = NodeDescription("Fill")
-        add_input(desc, dims)
+        add_input(desc, cast(dims, Int32))
         add_input(desc, n)
     end
     Tensor(Operation(desc), 1)

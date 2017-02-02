@@ -61,6 +61,8 @@ Returns a collection from the default graph
 """
 get_collection(name) = get_collection(get_def_graph(), name)
 
+const DEBUG_EXTEND_GRAPH = false
+
 function extend_graph(graph::Graph, node_defs)
     n_nodes = length(node_defs)
     nodes = []
@@ -76,6 +78,9 @@ function extend_graph(graph::Graph, node_defs)
         end
     end
     for (node_idx, node) in enumerate(nodes)
+        if DEBUG_EXTEND_GRAPH
+            info(node)
+        end
         Operation(node)
     end
 end

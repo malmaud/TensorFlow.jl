@@ -24,7 +24,7 @@ tens = TensorFlow.ones((5,5))
 @test length(tens) == 25
 
 
-@test fill(9, (2, 3)) == run(sess, fill(Tensor, 9, Int32[2, 3]))
+@test fill(9, (2, 3)) == run(sess, fill(Tensor, 9, [2, 3]))
 @test [2 1; 4 3] == run(sess, reverse(constant([1 2; 3 4]), constant([false, true])))
 
 let
