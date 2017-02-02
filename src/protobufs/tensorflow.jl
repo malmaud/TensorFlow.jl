@@ -1,4 +1,5 @@
 module tensorflow
+  include("saver_pb.jl")
   include("cost_graph_pb.jl")
   include("tensor_shape_pb.jl")
   include("types_pb.jl")
@@ -9,6 +10,7 @@ module tensorflow
   include("function_pb.jl")
   include("versions_pb.jl")
   include("graph_pb.jl")
+  include("meta_graph_pb.jl")
   include("allocation_description_pb.jl")
   include("tensor_description_pb.jl")
   include("step_stats_pb.jl")

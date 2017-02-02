@@ -61,22 +61,21 @@ Returns a collection from the default graph
 """
 get_collection(name) = get_collection(get_def_graph(), name)
 
-function extend_graph(graph::Graph, node_defs)
-    n_nodes = length(node_defs)
-    nodes = []
-    for node_idx in 1:n_nodes
-        proto = node_defs[node_idx]
-        b = IOBuffer()
-        write(b, proto)
-        seekstart(b)
-        node_def = tensorflow.NodeDef()
-        readproto(b, node_def)
-        if isnull(get_node_by_name(graph, node_def.name))
-            push!(nodes, node_def)
+function proto2nodedef(proto)
+    b = IOBuffer()
+    write(b, proto)
+    seekstart(b)
+    readproto(b, tensorflow.NodeDef())
+end
+
+function extend_graph(graph::Graph, nodedef::tensorflow.NodeDef)
+    if isnull(get_node_by_name(graph, nodedef.name))
+        domain = split(nodedef.name, "/")[1]
+        if domain == "save"
+            warn("Ignoring the following operation: $(nodedef.name)")
+        else
+            Operation(nodedef)
         end
-    end
-    for (node_idx, node) in enumerate(nodes)
-        Operation(node)
     end
 end
 
@@ -660,6 +659,18 @@ function Operation(node_def::tensorflow.NodeDef)
             push!(inputs, Tensor(input_node, port))
         end
         add_input(desc, inputs)
+    elseif node_def.op == "Variable"
+        if isdefined(node_def, :attr)
+            attributes = keys(node_def.attr)
+            if "dtype" in attributes && has_field(node_def.attr["dtype"], :(_type))
+                desc["dtype"] = proto_type_map[node_def.attr["dtype"]._type]
+            end
+            if "shape" in attributes && has_field(node_def.attr["shape"], :shape)
+                desc["shape"] = tuple(collect(
+                    _.size for _ in node_def.attr["shape"].shape.dim
+                )...)
+            end
+        end
     else
         for (input_idx, input) in enumerate(node_def.input)
             input_kind = :normal
@@ -981,7 +992,10 @@ function gradients(y, x::AbstractArray)
     end)
     node_protos = Main.node_protos
     grad_names = Main.grad_names
-    extend_graph(get_def_graph(), node_protos)
+    g = get_def_graph()
+    for node_proto in node_protos
+        extend_graph(g, proto2nodedef(node_proto))
+    end
     out = []
     for name in grad_names
         if isa(name, String)
