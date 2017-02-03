@@ -549,4 +549,14 @@ register_shape("AddN") do op
     end
 end
 
+register_shape("Where") do op
+    input = get_input(op, 1)
+    shape = _get_shape(input)
+    if shape.rank_unknown
+        [TensorShape(nothing)]
+    else
+        [TensorShape([Nullable{Int}() for _ in 1:length(shape.dims)])]
+    end
+end
+
 end

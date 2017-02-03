@@ -494,6 +494,14 @@ function gather(params, indices; validate_indices=true, name="Gather")
     Tensor(Operation(desc), 1)
 end
 
+function Base.getindex(params::AbstractTensor, indices)
+    if eltype(indices) == Bool
+        boolean_mask(params, indices)
+    else
+        gather(params, indices)
+    end
+end
+
 @not_implemented function gather_nd()
 end
 
@@ -574,7 +582,52 @@ function dynamic_stitch(indices, data; name="DynamicStitch")
     Tensor(Operation(desc), 1)
 end
 
-@not_implemented function boolean_mask(tensor, mask; name="boolean_mask")
+"""
+boolean_mask(tensor, mask)
+
+Apply boolean mask to tensor.  Numpy equivalent is `tensor[mask]`.
+
+```python
+# 1-D example
+tensor = [0, 1, 2, 3]
+mask = [True, False, True, False]
+boolean_mask(tensor, mask) ==> [0, 2]
+```
+
+In general, `0 < dim(mask) = K <= dim(tensor)`, and `mask`'s shape must match
+the first K dimensions of `tensor`'s shape.  We then have:
+  `boolean_mask(tensor, mask)[i, j1,...,jd] = tensor[i1,...,iK,j1,...,jd]`
+where `(i1,...,iK)` is the ith `True` entry of `mask` (row-major order).
+
+Args:
+  tensor:  N-D tensor.
+  mask:  K-D boolean tensor, K <= N and K must be known statically.
+  name:  A name for this operation (optional).
+
+Returns:
+  Tensor populated by entries in `tensor` corresponding to `True` values in
+    `mask`.
+
+Raises:
+  ValueError:  If shapes do not conform.
+
+Examples:
+
+```python
+# 2-D example
+tensor = [[1, 2], [3, 4], [5, 6]]
+mask = [True, False, True]
+boolean_mask(tensor, mask) ==> [[1, 2], [5, 6]]
+```
+"""
+function boolean_mask(tensor, mask; name="boolean_mask")
+    local result
+    with_op_name(name) do
+        indices = find(mask)  # TODO generalize to more dimensions
+        squeezed = squeeze(indices, [2])
+        result = tensor[squeezed]
+    end
+    result
 end
 
 """

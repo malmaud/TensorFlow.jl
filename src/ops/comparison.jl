@@ -46,7 +46,7 @@ function Base.select(condition::AbstractTensor, t, e; name="Select")
 end
 
 """
-Returns locations of `true` values in a boolean `Tensor`. Equivalent to `ifelse`.
+Returns locations of `true` values in a boolean `Tensor`.
 """
 function where(input; name="Where")
     local desc
@@ -57,4 +57,4 @@ function where(input; name="Where")
     Tensor(Operation(desc), 1)
 end
 
-Base.ifelse(input::AbstractTensor) = where(input)
+Base.find(input::AbstractTensor) = where(input)+1  # Convert from 0-based indices

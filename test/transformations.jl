@@ -37,3 +37,13 @@ result = run(sess, shuffle(a))
 for i in 1:5
     @test i ∈ result
 end
+
+@test run(sess, boolean_mask(constant([1,2,3]), constant([true, false, true]))) == [1, 3]
+
+## getindex overloading
+let
+    indices = constant([1, 3])
+    mask = constant([true, false, true])
+    y = constant([1, 2, 3])
+    @test run(sess, y[indices]) == run(sess, y[mask]) == [1, 3]
+end
