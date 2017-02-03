@@ -93,8 +93,11 @@ clip_by_value,
 clip_by_norm,
 clip_by_average_norm,
 clip_by_global_norm,
-global_norm,
-⊻
+global_norm
+
+if !isdefined(Base, :⊻)
+    export ⊻
+end
 
 const pyproc = Ref{Int}()
 
