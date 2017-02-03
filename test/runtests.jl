@@ -1,6 +1,8 @@
 using TensorFlow
 using Base.Test
 
+srand(0)  # Make tests deterministic
+
 include(joinpath(dirname(@__FILE__), "..", "examples", "logistic.jl"))
 
 # RNNs
