@@ -66,6 +66,16 @@ function get_shape(n::TensorFlow.AbstractTensor)
     _get_shape(n)
 end
 
+function get_shape(n::TensorFlow.AbstractTensor, dim::Integer)
+    shape = get_shape(n)
+    if shape.rank_unknown
+        error("Shape of $(n.op.name) is unknown")
+    end
+    if isnull(shape.dims[dim])
+        error("Shape of $(n.op.name) in dim $(dim) is unknown")
+    end
+    get(shape.dims[dim])
+end
 
 function _get_shape(n::TensorFlow.AbstractTensor)
     t = Tensor(n)

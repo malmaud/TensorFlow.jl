@@ -20,11 +20,6 @@ type BasicRNNCell <: RNNCell
     hidden_size::Int
 end
 
-function check_shape(shape)
-    if shape.rank_unknown || isnull(shape.dims[2])
-        error("Shape must be inferable")
-    end
-end
 
 """
 Form a `RNNCell` with all states initialized to zero.
@@ -37,9 +32,7 @@ output_size(cell::BasicRNNCell) = cell.hidden_size
 state_size(cell::BasicRNNCell) = cell.hidden_size
 
 function (cell::BasicRNNCell)(input, state)
-    shape = get_shape(input)
-    check_shape(shape)
-    N = get(shape.dims[2]) + cell.hidden_size
+    N = get_shape(input, 2) + cell.hidden_size
     T = eltype(state)
     W = get_variable("weights", [N, cell.hidden_size], T)
     B = get_variable("bias", [cell.hidden_size], T)
@@ -91,9 +84,7 @@ function zero_state(cell::LSTMCell, batch_size, T)
 end
 
 function (cell::LSTMCell)(input, state)
-    shape = get_shape(input)
-    check_shape(shape)
-    N = get(shape.dims[2]) + cell.hidden_size
+    N = get_shape(input, 2) + cell.hidden_size
     T = eltype(state)
     X = cat(Tensor, 2, input, state.h)
 
@@ -130,9 +121,7 @@ state_size(cell::GRUCell) = cell.hidden_size
 
 function (cell::GRUCell)(input, state)
     T = eltype(state)
-    shape = get_shape(input)
-    check_shape(shape)
-    N = get(shape.dims[2]) + cell.hidden_size
+    N = get_shape(input, 2) + cell.hidden_size
     X = cat(Tensor, 2, input, state)
     Wz = get_variable("Wz", [N, cell.hidden_size], T)
     Wr = get_variable("Wr", [N, cell.hidden_size], T)
