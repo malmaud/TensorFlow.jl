@@ -96,7 +96,8 @@ clip_by_global_norm,
 global_norm,
 Print,
 import_graph_def,
-tf_version
+tf_version,
+GraphInputOptions
 
 if !isdefined(Base, :⊻)
     export ⊻

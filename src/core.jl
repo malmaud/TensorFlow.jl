@@ -8,6 +8,22 @@ const LIBTF = joinpath(LIB_BASE, "usr", "bin", "libtensorflow_c")
 
 include("py.jl")
 
+"""
+    tf_version()
+
+Return the version number of the C tensorflow library
+"""
+function tf_version()
+    res = ccall((:TF_Version, LIBTF), Cstring, ())
+    VersionNumber(unsafe_string(res))
+end
+
+function version_check(v)
+    if tf_version() < v
+        error("You have TensorFlow binary version $(tf_version()), but need version $v to use this functionality. Please upgrade with `Pkg.build(\"TensorFlow\").")
+    end
+end
+
 type Status
     ptr::Ptr{Void}
     function Status()
@@ -1038,6 +1054,7 @@ type GraphInputOptions
 end
 
 function import_graph_def(graph::Graph, graph_def::Vector{UInt8}, options=GraphInputOptions())
+    version_check(v"1.0.0-rc1")
     options_ptr = ccall((:TF_NewImportGraphDefOptions, LIBTF), Ptr{Void}, ())
     for ((input_name, input_port), tensor) in options.input_mapping
         ccall((:TF_ImportGraphDefOptionsAddInputMapping, LIBTF), Void,
@@ -1074,14 +1091,4 @@ function import_graph_def(graph::Graph, graph_def::tensorflow.GraphDef, options=
     writeproto(b, graph_def)
     data = takebuf_array(b)
     import_graph_def(graph, data, options)
-end
-
-"""
-    tf_version()
-    
-Return the version number of the C tensorflow library
-"""
-function tf_version()
-    res = ccall((:TF_Version, LIBTF), Cstring, ())
-    VersionNumber(unsafe_string(res))
 end
