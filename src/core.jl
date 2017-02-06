@@ -1028,3 +1028,60 @@ type IndexedSlicesValue
     values
     indices
 end
+
+type GraphInputOptions
+    input_mapping::Dict{Tuple{String, Int}, Tensor}
+    return_output::Vector{Tuple{String, Int}}
+    control_dependencies::Vector{Operation}
+    prefix::String
+    GraphInputOptions() = new(Dict{Tuple{String, Int}, Tensor}(), Vector{Tuple{String, Int}}(), Vector{Operation}(), "")
+end
+
+function import_graph_def(graph::Graph, graph_def::Vector{UInt8}, options=GraphInputOptions())
+    options_ptr = ccall((:TF_NewImportGraphDefOptions, LIBTF), Ptr{Void}, ())
+    for ((input_name, input_port), tensor) in options.input_mapping
+        ccall((:TF_ImportGraphDefOptionsAddInputMapping, LIBTF), Void,
+            (Ptr{Void}, Cstring, Cint, Port),
+            options_ptr, input_name, input_port-1, Port(tensor))
+    end
+    for (output_name, output_port) in options.return_output
+        ccall((:TF_ImportGraphDefOptionsAddReturnOutput, LIBTF), Void,
+            (Ptr{Void}, Cstring, Cint),
+            options_ptr, output_name, output_port-1)
+    end
+    for operation in options.control_dependencies
+        ccall((:TF_ImportGraphDefOptionsAddControlDependency, LIBTF), Void,
+            (Ptr{Void}, Ptr{Void}),
+            options_ptr, operation.ptr)
+    end
+    ccall((:TF_ImportGraphDefOptionsSetPrefix, LIBTF), Void,
+        (Ptr{Void}, Cstring),
+        options_ptr, options.prefix)
+    status = Status()
+    buffer = Buffer(graph_def)
+    output_ports = Vector{Port}(length(options.return_output))
+    ccall((:TF_GraphImportGraphDefWithReturnOutputs, LIBTF), Void,
+        (Ptr{Void}, Ptr{Void}, Ptr{Void}, Ptr{Void}, Cint, Ptr{Void}),
+        graph.ptr, buffer.ptr, options_ptr, output_ports, length(output_ports), status.ptr)
+    check_status(status)
+    ccall((:TF_DeleteImportGraphDefOptions, LIBTF), Void, (Ptr{Void},), options_ptr)
+    output_tensors = map(Tensor, output_ports)
+    output_tensors
+end
+
+function import_graph_def(graph::Graph, graph_def::tensorflow.GraphDef, options=GraphInputOptions())
+    b = IOBuffer()
+    writeproto(b, graph_def)
+    data = takebuf_array(b)
+    import_graph_def(graph, data, options)
+end
+
+"""
+    tf_version()
+    
+Return the version number of the C tensorflow library
+"""
+function tf_version()
+    res = ccall((:TF_Version, LIBTF), Cstring, ())
+    VersionNumber(unsafe_string(res))
+end

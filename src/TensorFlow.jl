@@ -94,7 +94,9 @@ clip_by_norm,
 clip_by_average_norm,
 clip_by_global_norm,
 global_norm,
-Print
+Print,
+import_graph_def,
+tf_version
 
 if !isdefined(Base, :⊻)
     export ⊻
