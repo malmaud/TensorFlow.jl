@@ -1,5 +1,6 @@
 using ProtoBuf
 using PyCall
+using Compat
 
 import Base: setindex!, getindex, run
 
@@ -11,11 +12,13 @@ include("py.jl")
 """
     tf_version()
 
-Return the version number of the C tensorflow library
+Return the version number of the C tensorflow library.
 """
 function tf_version()
-    res = ccall((:TF_Version, LIBTF), Cstring, ())
-    VersionNumber(unsafe_string(res))
+    res = ccall((:TF_Version, LIBTF), Cstring, ()) |> unsafe_string
+    # Deal with version strings like "0.12.head"
+    res = replace(res, r"\.head$", "")
+    VersionNumber(res)
 end
 
 function version_check(v)
@@ -1089,6 +1092,6 @@ end
 function import_graph_def(graph::Graph, graph_def::tensorflow.GraphDef, options=GraphInputOptions())
     b = IOBuffer()
     writeproto(b, graph_def)
-    data = takebuf_array(b)
+    data = @compat take!(b)
     import_graph_def(graph, data, options)
 end
