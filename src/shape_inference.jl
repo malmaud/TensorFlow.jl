@@ -193,11 +193,14 @@ function load_const(op)
         return const_cache[op.name]
     end
     if op.op_name == "Const"
-        if haskey(get_def(op).attr, "value")
-            value = Nullable(get_attr(op, "value", Array))
-        else
-            value = Nullable()
+        value = TensorFlow.load_proto(get_def(op).attr["value"].tensor)
+        if !isa(value, Array)
+            array = Array{typeof(value)}()
+            array[] = value
+            value = array
         end
+        value = Nullable(value)
+        # value = Nullable(get_attr(op, "value", Array))  # This crashes on empty tensors
     elseif op.op_name == "Cast"
         value = load_const(get_input(op, 1))
     elseif op.op_name ∈ ("Sub", "Add")
