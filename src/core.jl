@@ -32,6 +32,9 @@ type Status
     function Status()
         ptr = ccall((:TF_NewStatus, LIBTF), Ptr{Void}, ())
         this = new(ptr)
+        finalizer(this, status->begin
+            ccall((:TF_DeleteStatus, LIBTF), Void, (Ptr{Void},), status.ptr)
+        end)
         this
     end
 end
@@ -120,13 +123,6 @@ function extend_graph(graph::Graph, node_defs)
             end
         end
     end
-    # for (node_idx, node) in enumerate(nodes)
-    #     if DEBUG_EXTEND_GRAPH
-    #         info(node)
-    #     end
-    #     Operation(node)
-    # end
-    info(import_options.input_mapping)
     import_graph_def(graph, new_graph, import_options)
 end
 
@@ -144,7 +140,6 @@ end
 immutable TFException <: Exception
     status::Status
 end
-
 
 function check_status(status)
     if get_code(status) ≠ TF_OK
