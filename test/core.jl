@@ -22,3 +22,22 @@ if tf_version() >= v"1.0.0-rc1"
     z = import_graph_def(graph, graph_pb, options)
     @test run(sess, z) == [Int32(7)]
 end
+
+#################
+# get_operations
+#################
+let
+    graph = Graph()
+    TensorFlow.set_def_graph(graph)
+    x = placeholder(Int32, name="x")
+    y = placeholder(Int32, name="y")
+    z = TensorFlow.add(x, y, name="z")
+    names = Set{String}()
+    for op in get_operations(graph)
+        push!(names, get_def(op).name)
+    end
+    @test length(names) == 3
+    for name in ["x", "y", "z"]
+        @test name ∈ names
+    end
+end

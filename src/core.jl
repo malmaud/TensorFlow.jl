@@ -665,106 +665,6 @@ function load_proto(value::tensorflow.AttrValue)
     end
 end
 
-# Replace this entire function once we can import protobufs into a graph
-function Operation(node_def::tensorflow.NodeDef)
-    graph = get_def_graph()
-    desc = NodeDescription(graph, node_def.op, node_def.name)
-
-    if node_def.op == "DynamicStitch"
-        inputs = []
-        ports = []
-        for input in node_def.input
-            input, port = parse_port_name(input)
-            input_node = get_node_by_name(graph, input)|>get
-            push!(inputs, input_node)
-            push!(ports, port)
-        end
-        add_input(desc, [Tensor(inputs[1], ports[1]), Tensor(inputs[2], ports[2])])
-        add_input(desc, [Tensor(inputs[3], ports[3]), Tensor(inputs[4], ports[4])])
-        return Operation(desc)
-    end
-    if node_def.op ∈ ("ConcatOffset", "Concat")
-        input, port = parse_port_name(node_def.input[1])
-        input_node = get_node_by_name(input) |> get
-        add_input(desc, Tensor(input_node, port))
-        inputs = Tensor[]
-        for idx in 2:length(node_def.input)
-            input, port = parse_port_name(node_def.input[idx])
-            input_node = get_node_by_name(input) |> get
-            push!(inputs, Tensor(input_node, port))
-        end
-        add_input(desc, inputs)
-    elseif node_def.op ∈ ("AddN", "ShapeN")
-        inputs = Tensor[]
-        for input in node_def.input
-            input, port = parse_port_name(input)
-            input_node = get_node_by_name(graph, input)|>get
-            push!(inputs, Tensor(input_node, port))
-        end
-        add_input(desc, inputs)
-    elseif node_def.op == "Pack"
-        inputs = Tensor[]
-        for input in node_def.input
-            input, port = parse_port_name(input)
-            input_node = get_node_by_name(graph, input) |> get
-            push!(inputs, Tensor(input_node, port))
-        end
-        add_input(desc, inputs)
-    else
-        for (input_idx, input) in enumerate(node_def.input)
-            input_kind = :normal
-            if input[1] == '^'
-                input_kind = :control
-                input = input[2:end]
-            end
-            input, port = parse_port_name(input)
-            input_node = get_node_by_name(graph, input)
-            if isnull(input_node)
-                warn("Could not find name $input")
-            end
-            if input_kind == :normal
-                add_input(desc, Tensor(input_node |> get, port))
-            elseif input_kind == :control
-                add_control_input(desc, input_node |> get)
-            end
-        end
-    end
-    if isdefined(node_def, :attr)  # TODO: complete this
-        for (attr_name, attr) in node_def.attr
-            if attr_name ∈ ("dtype", "T", "DstT", "SrcT", "Index")
-                ccall((:TF_SetAttrType, LIBTF), Void, (Ptr{Void}, Cstring, Cint), desc.ptr, attr_name, attr._type)
-            elseif attr_name == "value"
-                desc["value"] = RawTensor(load_proto(attr.tensor))
-            elseif attr_name == "keep_dims"
-                desc["keep_dims"] = attr.b
-            elseif attr_name == "N"
-                desc["N"] = attr.i
-            elseif attr_name == "transpose_a"
-                desc["transpose_a"] = attr.b
-            elseif attr_name == "transpose_b"
-                desc["transpose_b"] = attr.b
-            elseif attr_name == "strides"
-                set_attr_list(desc, "strides", attr.list.i)
-            elseif attr_name == "padding"
-                desc["padding"] = String(attr.s)
-            elseif attr_name == "ksize"
-                set_attr_list(desc, "ksize", attr.list.i)
-            elseif attr_name == "data_format"
-                desc["data_format"] = String(attr.s)
-            elseif attr_name == "use_cudnn_on_gpu"
-                desc["use_cudnn_on_gpu"] = attr.b
-            elseif attr_name == "axis"
-                desc["axis"] = attr.i
-            elseif attr_name ∈ ("begin_mask", "ellipsis_mask", "shrink_axis_mask", "new_axis_mask", "end_mask")
-                desc[attr_name] = attr.i
-            else
-                #warn("Unrecognized attribute $attr_name")
-            end
-        end
-    end
-    Operation(desc)
-end
-
 """
 `node_name(node::AbstractOperation)`
 
@@ -1120,4 +1020,21 @@ function import_graph_def(graph::Graph, graph_def::tensorflow.GraphDef, options=
     writeproto(b, graph_def)
     data = @compat take!(b)
     import_graph_def(graph, data, options)
+end
+
+function get_operations(g::Graph)
+    # TODO switch to iterator
+    ops = Operation[]
+    pos = Ref{Csize_t}(0)
+    while true
+        op_ptr = ccall((:TF_GraphNextOperation, LIBTF), Ptr{Void},
+            (Ptr{Void}, Ref{Csize_t}),
+            g.ptr, pos)
+        op_ptr == C_NULL && break
+        op = Operation()
+        op.ptr = op_ptr
+        op.graph = Nullable(g)
+        push!(ops, op)
+    end
+    ops
 end

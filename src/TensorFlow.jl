@@ -97,7 +97,8 @@ global_norm,
 Print,
 import_graph_def,
 tf_version,
-GraphInputOptions
+GraphInputOptions,
+get_operations
 
 if !isdefined(Base, :⊻)
     export ⊻
