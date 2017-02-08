@@ -41,3 +41,11 @@ let
         @test name ∈ names
     end
 end
+
+# Test getting shape of empty tensor
+let
+    graph = Graph()
+    TensorFlow.set_def_graph(graph)
+    c = constant(Int64[])
+    get_shape(c)
+end

@@ -612,7 +612,7 @@ function load_proto(tensor::tensorflow.TensorProto)
                 val[i] = last_val
             end
         end
-        reshape(val, dim) |> convert_major_order
+        reshape(val, reverse(dim)) |> convert_major_order
     end
 end
 
