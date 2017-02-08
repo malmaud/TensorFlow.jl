@@ -48,6 +48,7 @@ type Graph
     ptr::Ptr{Void}
     collections::Dict{Symbol, Any}
     shapes::Dict{String, AbstractTensorShape}
+    name_idx::Dict{String, Int}
 
     function Graph()
         ptr = ccall((:TF_NewGraph, LIBTF), Ptr{Void}, ())
@@ -56,7 +57,7 @@ type Graph
         collections[:TrainableVariables] = []
         collections[:Summaries] = []
         collections[:QueueRunners] = []
-        self = new(ptr, collections, Dict{String, AbstractTensorShape}())
+        self = new(ptr, collections, Dict{String, AbstractTensorShape}(), Dict{String, Int}())
         finalizer(self, self->begin
             ccall((:TF_DeleteGraph, LIBTF), Void, (Ptr{Void},), self.ptr)
         end)
@@ -84,7 +85,10 @@ const DEBUG_EXTEND_GRAPH = false
 
 function extend_graph(graph::Graph, node_defs)
     n_nodes = length(node_defs)
-    nodes = []
+    new_graph = tensorflow.GraphDef()
+    set_field!(new_graph, :node, tensorflow.NodeDef[])
+    import_options = GraphInputOptions()
+    ph_names = Set{String}()
     for node_idx in 1:n_nodes
         proto = node_defs[node_idx]
         b = IOBuffer()
@@ -93,15 +97,37 @@ function extend_graph(graph::Graph, node_defs)
         node_def = tensorflow.NodeDef()
         readproto(b, node_def)
         if isnull(get_node_by_name(graph, node_def.name))
-            push!(nodes, node_def)
+            push!(new_graph.node, node_def)
+            for (i, input) in enumerate(node_def.input)
+                name, port = parse_port_name(input)
+                existing_node = get_node_by_name(graph, name)
+                if !isnull(existing_node)
+                    new_name = "$(name)__placeholder__"
+                    node_def.input[i] = new_name
+                    import_options.input_mapping[(new_name, port)] = Tensor(get(existing_node), port)
+                    new_ph = tensorflow.NodeDef()
+                    set_field!(new_ph, :name, new_name)
+                    set_field!(new_ph, :op, "Placeholder")
+                    set_field!(new_ph, :attr, Dict{AbstractString, tensorflow.AttrValue}())
+                    new_ph.attr["dtype"] = tensorflow.AttrValue()
+                    set_field!(new_ph.attr["dtype"], :_type, node_def.attr["T"]._type)
+
+                    if new_name ∉ ph_names
+                        push!(new_graph.node, new_ph)
+                        push!(ph_names, new_name)
+                    end
+                end
+            end
         end
     end
-    for (node_idx, node) in enumerate(nodes)
-        if DEBUG_EXTEND_GRAPH
-            info(node)
-        end
-        Operation(node)
-    end
+    # for (node_idx, node) in enumerate(nodes)
+    #     if DEBUG_EXTEND_GRAPH
+    #         info(node)
+    #     end
+    #     Operation(node)
+    # end
+    info(import_options.input_mapping)
+    import_graph_def(graph, new_graph, import_options)
 end
 
 add_to_collection(name, node) = add_to_collection(get_def_graph(), name, node)

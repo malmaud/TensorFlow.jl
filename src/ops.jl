@@ -29,8 +29,6 @@ macro not_implemented(f)
     end
 end
 
-const name_idx = Dict{String,Int}()
-
 function capitalize(s)
     string(uppercase(s[1]), s[2:end])
 end
@@ -38,6 +36,8 @@ end
 capitalize(s::Symbol) = capitalize(string(s))
 
 function get_name(name="node")
+    graph = get_def_graph()
+    name_idx = graph.name_idx
     if name == ""
         name = "node"
     end

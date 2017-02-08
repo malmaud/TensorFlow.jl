@@ -193,7 +193,11 @@ function load_const(op)
         return const_cache[op.name]
     end
     if op.op_name == "Const"
-        value = Nullable(get_attr(op, "value", Array))
+        if haskey(get_def(op).attr, "value")
+            value = Nullable(get_attr(op, "value", Array))
+        else
+            value = Nullable()
+        end
     elseif op.op_name == "Cast"
         value = load_const(get_input(op, 1))
     elseif op.op_name ∈ ("Sub", "Add")
