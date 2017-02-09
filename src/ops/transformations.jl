@@ -330,12 +330,14 @@ Returns:
 Raises:
   ValueError: When both `squeeze_dims` and `axis` are specified.
 """
-function Base.squeeze(x::AbstractTensor, squeeze_dims; name="squeeze")
+function Base.squeeze(x::AbstractTensor, squeeze_dims=nothing; name="squeeze")
     local desc
     with_op_name(name) do
         desc = NodeDescription("Squeeze")
         add_input(desc, x)
-        set_attr_list(desc, "squeeze_dims", squeeze_dims-1)
+        if !(squeeze_dims === nothing)
+            set_attr_list(desc, "squeeze_dims", squeeze_dims-1)
+        end
     end
     Tensor(Operation(desc), 1)
 end
