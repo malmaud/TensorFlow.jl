@@ -105,7 +105,11 @@ function extend_graph(graph::Graph, node_defs)
                 name, port = parse_port_name(input)
                 existing_node = get_node_by_name(graph, name)
                 if !isnull(existing_node)
-                    new_name = "$(name)__placeholder__"
+                    local new_name
+                    for name_id in countfrom()
+                        new_name = "$(name)__placeholder__$(name_id)"
+                        isnull(get_node_by_name(graph, new_name)) && break
+                    end
                     node_def.input[i] = new_name
                     import_options.input_mapping[(new_name, port)] = Tensor(get(existing_node), port)
                     new_ph = tensorflow.NodeDef()
