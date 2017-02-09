@@ -152,14 +152,15 @@ function check_status(status)
     nothing
 end
 
+const def_graph = Ref{Graph}()
+
 """
 Returns the default computation graph, an object of type `Graph`.
 """
-get_def_graph() = def_graph
+get_def_graph() = def_graph[]
 
 function set_def_graph(g)
-    global def_graph
-    def_graph = g
+    def_graph[] = g
 end
 
 function as_default(f, g::Graph)
