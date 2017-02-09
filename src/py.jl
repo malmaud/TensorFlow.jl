@@ -23,17 +23,23 @@ function py_bytes(b::Vector{UInt8})
     PyCall.PyObject(ccall(@PyCall.pysym(PyCall.PyString_FromStringAndSize), PyCall.PyPtr, (Ptr{UInt8}, Int), b, sizeof(b)))
 end
 
+macro py_catch(ex)
+    quote
+        try
+            $(esc(ex))
+        catch err
+            s = string("Python error: ", err.val[:message])
+            error(s)
+        end
+    end
+end
+
 function make_py_graph(graph_proto)
     py_graph = py_tf[][:Graph]()
     py_with(py_graph[:as_default]()) do
         graph_def = py_tf[][:GraphDef]()
         graph_def[:ParseFromString](graph_proto|>py_bytes)
-        try
-            py_tf[][:import_graph_def](graph_def, name="")
-        catch err
-            isa(err, PyCall.PyError) || throw(err)
-            error("Error importing graph: $(err.val[:message])")
-        end
+        @py_catch py_tf[][:import_graph_def](graph_def, name="")
     end
     py_graph
 end
@@ -54,7 +60,7 @@ function py_gradients(jl_graph_proto, x_names, y_name)
     to_py_node = node_name->py_graph[:get_tensor_by_name](string(node_name[1], ":", node_name[2]-1))
     py_x = [to_py_node(node) for node in x_names]
     py_y = to_py_node(y_name)
-    grad_node = py_tf[][:gradients](py_y, py_x)
+    @py_catch grad_node = py_tf[][:gradients](py_y, py_x)
     py_graph_def = py_graph[:as_graph_def]()
     grad_names = []
     for node in grad_node
@@ -64,8 +70,6 @@ function py_gradients(jl_graph_proto, x_names, y_name)
             push!(grad_names, node[:name])
         end
     end
-    # grad_names = [_[:name] for _ in grad_node]
-    # grad_names = []
     return to_protos(py_graph_def), grad_names
 end
 

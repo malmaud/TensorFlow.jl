@@ -86,6 +86,17 @@ get_collection(name) = get_collection(get_def_graph(), name)
 
 const DEBUG_EXTEND_GRAPH = false
 
+to_node_def(n::tensorflow.NodeDef) = n
+
+function to_node_def(proto)
+    b = IOBuffer()
+    write(b, proto)
+    seekstart(b)
+    node_def = tensorflow.NodeDef()
+    readproto(b, node_def)
+    to_node_def(node_def)
+end
+
 function extend_graph(graph::Graph, node_defs)
     n_nodes = length(node_defs)
     new_graph = tensorflow.GraphDef()
@@ -93,12 +104,7 @@ function extend_graph(graph::Graph, node_defs)
     import_options = GraphInputOptions()
     ph_names = Set{String}()
     for node_idx in 1:n_nodes
-        proto = node_defs[node_idx]
-        b = IOBuffer()
-        write(b, proto)
-        seekstart(b)
-        node_def = tensorflow.NodeDef()
-        readproto(b, node_def)
+        node_def = to_node_def(node_defs[node_idx])
         if isnull(get_node_by_name(graph, node_def.name))
             push!(new_graph.node, node_def)
             for (i, input) in enumerate(node_def.input)
@@ -405,8 +411,10 @@ type NodeDescription
     function NodeDescription(graph, op_type, full_name)
         desc = ccall((:TF_NewOperation, LIBTF), Ptr{Void}, (Ptr{Void}, Cstring, Cstring), graph.ptr, op_type, full_name)
         self = new(desc, graph)
-        for control_op in vcat(op_context.control_ops)
-            add_control_input(self, control_op)
+        for control_op_set in op_context.control_ops
+            for control_op in control_op_set
+                add_control_input(self, control_op)
+            end
         end
         self
     end

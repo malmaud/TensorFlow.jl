@@ -181,5 +181,73 @@ end
 @not_implemented function case()
 end
 
-@not_implemented function while_loop()
+function while_loop(condition, body, variables)
+    g = Graph()
+    old_g = get_def_graph()
+    set_def_graph(g)
+    merge_nodes = Tensor[]
+    merge_names = String[]
+    frame = "jframe"
+    local pred
+
+    output = Tensor[]
+    body_input = Tensor[]
+    for var in variables
+        desc = NodeDescription("Enter", get_name("enter"))
+        add_input(desc, var)
+        desc["frame_name"] = frame
+        enter_op = Operation(desc)
+        desc = NodeDescription("Merge", get_name("merge"))
+        add_input(desc, [enter_op, enter_op])
+        op = Operation(desc)
+        push!(merge_nodes, Tensor(op, 1))
+        fillin(op)
+        push!(merge_names, op.name)
+    end
+    with_op_name("while") do
+        desc = NodeDescription("LoopCond")
+        local condition_out
+        with_op_control([tensor.op for tensor in merge_nodes]) do
+            condition_out = condition(merge_nodes...)
+        end
+        add_input(desc, condition_out)
+        pred = Operation(desc)
+    end
+    for var_idx in eachindex(variables)
+        desc = NodeDescription("Switch", get_name("switch"))
+        add_input(desc, merge_nodes[var_idx])
+        add_input(desc, pred)
+        op = Operation(desc)
+        desc = NodeDescription("Exit", get_name("exit"))
+        add_input(desc, Tensor(op, 1))
+        exit_op = Operation(desc)
+        push!(output, Tensor(exit_op,1))
+        push!(body_input, Tensor(op, 2))
+    end
+    local body_val
+    with_op_name("while") do
+        local body_output
+        with_op_control([tensor.op for tensor in body_input]) do
+            body_output = body(body_input...)
+        end
+        body_val = Tensor[]
+        for tensor in body_output
+            desc = NodeDescription("NextIteration", get_name("next_iteration"))
+            add_input(desc, tensor)
+            op = Operation(desc)
+            push!(body_val, Tensor(op,1))
+        end
+    end
+    g_def = get_def(g)
+    for i in eachindex(variables)
+        for op in g_def.node
+            if op.name == merge_names[i]
+                v = body_val[i]
+                op.input[2] = "$(get_def(v).name):$(v.value_index-1)"
+            end
+        end
+    end
+    set_def_graph(old_g)
+    extend_graph(old_g, g_def.node)
+    output
 end
