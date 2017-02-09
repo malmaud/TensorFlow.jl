@@ -28,7 +28,12 @@ function make_py_graph(graph_proto)
     py_with(py_graph[:as_default]()) do
         graph_def = py_tf[][:GraphDef]()
         graph_def[:ParseFromString](graph_proto|>py_bytes)
-        py_tf[][:import_graph_def](graph_def, name="")
+        try
+            py_tf[][:import_graph_def](graph_def, name="")
+        catch err
+            isa(err, PyCall.PyError) || throw(err)
+            error("Error importing graph: $(err.val[:message])")
+        end
     end
     py_graph
 end
