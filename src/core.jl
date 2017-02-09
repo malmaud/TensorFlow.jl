@@ -267,6 +267,7 @@ type RawTensor
     RawTensor() = new()
 
     function RawTensor(data::Array)
+        isempty(data) && error("Creating tensors from empty arrays is not allowed")
         dims = [size(data)...]
         dt = jl_to_df_type(eltype(data))
         data = convert_major_order(data)
