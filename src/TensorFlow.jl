@@ -98,7 +98,8 @@ Print,
 import_graph_def,
 tf_version,
 GraphInputOptions,
-get_operations
+get_operations,
+while_loop
 
 if !isdefined(Base, :⊻)
     export ⊻
