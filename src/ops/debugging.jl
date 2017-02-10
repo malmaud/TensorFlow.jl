@@ -2,9 +2,9 @@ for (func, name) in [
     (:is_finite, "IsFinite"),
     (:is_nan, "IsNan"),
     (:is_inf, "IsInf")]
-    @eval function $func(t::AbstractTensor; name=$name)
+    @eval function $func(t::AbstractTensor; name=nothing)
         local desc
-        with_op_name(name) do
+        with_op_name(name, $name) do
             desc = NodeDescription($name)
             add_input(desc, Tensor(t))
         end
@@ -33,9 +33,9 @@ Args:
 Returns:
   Same tensor as `input_`.
 """
-function Print(input, data; message=nothing, first_n=nothing, summarize=nothing, name="Print")
+function Print(input, data; message=nothing, first_n=nothing, summarize=nothing, name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "Print") do
         desc = NodeDescription("Print")
         add_input(desc, input)
         add_input(desc, data)

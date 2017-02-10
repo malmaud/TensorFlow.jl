@@ -25,9 +25,9 @@ TypeError: If x cannot be cast to the dtype.
 
 https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#cast
 """
-function cast(x::Tensor, dtype; name="Cast")
+function cast(x::Tensor, dtype; name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "Cast") do
         desc = NodeDescription("Cast")
         add_input(desc, x)
         desc["DstT"] = dtype
@@ -49,12 +49,12 @@ If shape is 1-D or higher, then the operation returns a tensor with shape shape 
 
 https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#reshape
 """
-Base.reshape(n::AbstractTensor, dims; name="Reshape") =
+Base.reshape(n::AbstractTensor, dims; name=nothing) =
   reshape(n, Tensor(Int32[dims...]); name = name)
 
-function Base.reshape(n::AbstractTensor, dims::AbstractTensor; name="Reshape")
+function Base.reshape(n::AbstractTensor, dims::AbstractTensor; name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "Reshape") do
         desc = NodeDescription("Reshape")
         add_input(desc, n)
         add_input(desc, dims)
@@ -62,7 +62,7 @@ function Base.reshape(n::AbstractTensor, dims::AbstractTensor; name="Reshape")
     Tensor(Operation(desc), 1)
 end
 
-Base.length(::Type{Tensor}, n::AbstractTensor; name="") = size(n, name)
+Base.length(::Type{Tensor}, n::AbstractTensor; name=nothing) = size(n, name)
 
 if isdefined(Base, :slice)  # Removed in .6
     import Base: slice
@@ -94,9 +94,9 @@ A Tensor the same type as input.
 
 https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#slice
 """
-function slice(n::AbstractTensor, begin_, size_; name="Slice")
+function slice(n::AbstractTensor, begin_, size_; name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "Slice") do
         desc = NodeDescription("Slice")
         add_input(desc, Tensor(n))
         add_input(desc, cast(Tensor(begin_), Int32))
@@ -140,9 +140,9 @@ num_split Tensor objects resulting from splitting value.
 
 https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#split
 """
-function Base.split(split_dim, num_split, value::AbstractTensor; name="Split")
+function Base.split(split_dim, num_split, value::AbstractTensor; name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "Split") do
         desc = NodeDescription("Split")
         add_input(desc, Tensor(convert_number(Int32, split_dim))-1)
         add_input(desc, Tensor(value))
@@ -157,9 +157,9 @@ concat(dim, values; name="")
 
 https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#concat
 """
-function concat(dim, values; name="Concat")
+function concat(dim, values; name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "Concat") do
         desc = NodeDescription("Concat")
         add_input(desc, Tensor(convert_number(Int32, dim)))
         add_input(desc, [Tensor(_) for _ in values])
@@ -181,9 +181,9 @@ if axis == 1 then the output tensor will have the shape (N, A, B, C). if axis ==
 
 https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#pack
 """
-function pack(nodes; axis=1, name="Pack")
+function pack(nodes; axis=1, name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "Pack") do
         desc = NodeDescription("Pack")
         add_input(desc, [Tensor(_) for _ in nodes])
         desc["N"] = length(nodes)
@@ -230,10 +230,10 @@ Raises:
   ValueError: If `num` is unspecified and cannot be inferred.
   ValueError: If `axis` is out of the range [-R, R).
 """
-function unpack(value; num=nothing, axis=1, name="Unpack")
+function unpack(value; num=nothing, axis=1, name=nothing)
     num_split = num==nothing ? get_shape(value, axis) : num
     local desc
-    with_op_name(name) do
+    with_op_name(name, "Unpack") do
         desc = NodeDescription("Unpack")
         add_input(desc, value)
         desc["num"] = num_split
@@ -280,9 +280,9 @@ A Tensor. Has the same type as input. Contains the same data as input, but its s
 
 https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#expand_dims
 """
-function expand_dims(input, dim; name="ExpandDims")
+function expand_dims(input, dim; name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "ExpandDims") do
         desc = NodeDescription("ExpandDims")
         add_input(desc, Tensor(input))
         add_input(desc, Tensor(convert_number(Int32,dim)))
@@ -330,9 +330,9 @@ Returns:
 Raises:
   ValueError: When both `squeeze_dims` and `axis` are specified.
 """
-function Base.squeeze(x::AbstractTensor, squeeze_dims=nothing; name="squeeze")
+function Base.squeeze(x::AbstractTensor, squeeze_dims=nothing; name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "Squeeze") do
         desc = NodeDescription("Squeeze")
         add_input(desc, x)
         if !(squeeze_dims === nothing)
@@ -366,9 +366,9 @@ A Tensor of type int32.
 
 https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#rank
 """
-function Base.rank(n::AbstractTensor; name="Rank")
+function Base.rank(n::AbstractTensor; name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "Rank") do
         desc = NodeDescription("Rank")
         add_input(desc, Tensor(n))
     end
@@ -380,9 +380,9 @@ Base.size(n::AbstractTensor; name="")
 
 https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#size
 """
-function Base.size(n::AbstractTensor; name="Size")
+function Base.size(n::AbstractTensor; name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "Size") do
         desc = NodeDescription("Size")
         add_input(desc, Tensor(n))
     end
@@ -407,9 +407,9 @@ A Tensor. Has the same type as input.
 
 https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#tile
 """
-function tile(input, multiples; name="Tile")
+function tile(input, multiples; name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "Tile") do
         desc = NodeDescription("Tile")
         add_input(desc, Tensor(input))
         add_input(desc, cast(Tensor(multiples), Int32))
@@ -445,9 +445,9 @@ ValueError: When mode is not one of "CONSTANT", "REFLECT", or "SYMMETRIC".
 
 https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#pad
 """
-function pad(tensor, paddings; mode="CONSTANT", name="Pad")
+function pad(tensor, paddings; mode="CONSTANT", name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "Pad") do
         desc = NodeDescription("Pad")
         add_input(desc, Tensor(tensor))
         add_input(desc, cast(Tensor(paddings), Int32))
@@ -485,9 +485,9 @@ If indices is a permutation and length(indices) == params.shape[1] then this ope
 
 https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#gather
 """
-function gather(params, indices; validate_indices=true, name="Gather")
+function gather(params, indices; validate_indices=true, name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "Gather") do
         desc = NodeDescription("Gather")
         add_input(desc, Tensor(params))
         add_input(desc, Tensor(indices)-1)
@@ -535,9 +535,9 @@ Note: If a non-numeric data type output is desired (tf.string, tf.bool, etc.), b
 https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#one_hot
 
 """
-function one_hot(indices, depth; on_value=Float32(1), off_value=Float32(0), axis=-1, dtype=Float32, name="OneHot")
+function one_hot(indices, depth; on_value=Float32(1), off_value=Float32(0), axis=-1, dtype=Float32, name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "OneHot") do
         desc = NodeDescription("OneHot")
         add_input(desc, Tensor(indices)-1)
         add_input(desc, Tensor(Int32(depth)))
@@ -557,9 +557,9 @@ dynamic_partition(data, partitions, num_partitions; name="")
 
 https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#dynamic_partition
 """
-function dynamic_partition(data, partitions, num_partitions; name="DynamicPartition")
+function dynamic_partition(data, partitions, num_partitions; name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "DynamicPartition") do
         desc = NodeDescription("DynamicPartition")
         add_input(desc, data)
         add_input(desc, partitions)
@@ -574,9 +574,9 @@ dynamic_stitch(indices, data; name="")
 
 https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#dynamic_stitch
 """
-function dynamic_stitch(indices, data; name="DynamicStitch")
+function dynamic_stitch(indices, data; name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "DynamicStitch") do
         desc = NodeDescription("DynamicStitch")
         add_input(desc, indices)
         add_input(desc, data)
@@ -622,9 +622,9 @@ mask = [True, False, True]
 boolean_mask(tensor, mask) ==> [[1, 2], [5, 6]]
 ```
 """
-function boolean_mask(tensor, mask; name="boolean_mask")
+function boolean_mask(tensor, mask; name=nothing)
     local result
-    with_op_name(name) do
+    with_op_name(name, "BooleanMask") do
         indices = find(mask)  # TODO generalize to more dimensions
         squeezed = squeeze(indices, [2])
         result = tensor[squeezed]
@@ -679,9 +679,9 @@ Args:
 Returns:
   A transposed `Tensor`.
 """
-function Base.transpose(n::AbstractTensor, perm=nothing; name="transpose")
+function Base.transpose(n::AbstractTensor, perm=nothing; name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "Transpose") do
         if perm === nothing
             r = range(Tensor, 0, limit=rank(n))
             perm = reverse(r, [true])
@@ -694,7 +694,7 @@ function Base.transpose(n::AbstractTensor, perm=nothing; name="transpose")
     Tensor(Operation(desc))
 end
 
-function Base.permutedims(n::AbstractTensor, perm; name="transpose")
+function Base.permutedims(n::AbstractTensor, perm; name=nothing)
     transpose(n, perm.-1; name=name)
 end
 

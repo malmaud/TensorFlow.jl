@@ -14,9 +14,9 @@ Returns:
   A scalar `Tensor` of type `string`. The serialized `Summary` protocol
   buffer.
 """
-function scalar_summary(tags, values; collections=[:Summaries], name="ScalarSummary")
+function scalar_summary(tags, values; collections=[:Summaries], name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "ScalarSummary") do
         desc = NodeDescription("ScalarSummary")
         add_input(desc, Tensor(tags))
         add_input(desc, Tensor(values))
@@ -43,9 +43,9 @@ Returns:
   A scalar `Tensor` of type `string`. The serialized `Summary` protocol
   buffer.
 """
-function audio_summary(tag, tensor, sample_rate; max_outputs=3, collections=[:Summaries], name="AudioSummary")
+function audio_summary(tag, tensor, sample_rate; max_outputs=3, collections=[:Summaries], name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "AudioSummary") do
         desc = NodeDescription("AudioSummary")
         add_input(desc, Tensor(tag))
         add_input(desc, Tensor(tensor))
@@ -80,9 +80,9 @@ Returns:
   A scalar `Tensor` of type `string`. The serialized `Summary` protocol
   buffer.
 """
-function histogram_summary(tag, values; collections=[:Summaries], name="HistogramSummary")
+function histogram_summary(tag, values; collections=[:Summaries], name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "HistogramSummary") do
         desc = NodeDescription("HistogramSummary")
         add_input(desc, Tensor(tag))
         add_input(desc, Tensor(values))
@@ -106,9 +106,9 @@ Returns:
   A scalar `Tensor` of type `string`. The serialized `Summary` protocol
   buffer resulting from the merge.
 """
-function merge_summary(inputs; collections=[:Summaries], name="MergeSummary")
+function merge_summary(inputs; collections=[:Summaries], name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "MergeSummary") do
         desc = NodeDescription("MergeSummary")
         add_input(desc, inputs)
     end
@@ -179,9 +179,9 @@ Returns:
   A scalar `Tensor` of type `string`. The serialized `Summary` protocol
   buffer.
 """
-function image_summary(tag, tensor; max_images=3, collections=[:Summaries], name="ImageSummary")
+function image_summary(tag, tensor; max_images=3, collections=[:Summaries], name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "ImageSummary") do
         desc = NodeDescription("ImageSummary")
         add_input(desc, tag)
         add_input(desc, tensor)

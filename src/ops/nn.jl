@@ -37,10 +37,12 @@ const tf = TensorFlow
 import ..TensorFlow: Operation, NodeDescription, get_def_graph, capitalize, add_input, Port, get_name, set_attr_list, get_shape, variable_scope, shape, random_uniform, AbstractTensor, Tensor, reduce_sum, @not_implemented, with_op_name
 
 for f in [:relu, :relu6, :elu, :softplus, :softsign, :softmax, :sigmoid, :tanh]
-    @eval function $f(n::AbstractTensor; name="")
-        name = get_name(name)
-        desc = NodeDescription($(capitalize(f)), name)
-        add_input(desc, Tensor(n))
+    @eval function $f(n::AbstractTensor; name=nothing)
+        local desc
+        with_op_name(name, string($f)) do
+            desc = NodeDescription($(capitalize(f)))
+            add_input(desc, Tensor(n))
+        end
         Tensor(Operation(desc), 1)
     end
 end
@@ -57,9 +59,9 @@ Args:
 * `padding`: A string, either `'VALID'` or `'SAME'`. Specifies which padding algorithm to use.
 * `data_format`: A string specifying which data format to use. The default is `'NHWC'`. The other option is `'NCHW'`.
 """
-function conv2d(input, filter, strides, padding; data_format="NHWC", name="Conv2D")
+function conv2d(input, filter, strides, padding; data_format="NHWC", name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "Conv2D") do
         desc = NodeDescription("Conv2D")
         add_input(desc, Tensor(input))
         add_input(desc, Tensor(filter))
@@ -82,9 +84,9 @@ Args:
 * `padding`: A string, either `'VALID'` or `'SAME'`. Specifies which padding algorithm to use.
 * `data_format`: A string specifying which data format to use. The default is `'NHWC'`. The other option is `'NCHW'`.
 """
-function max_pool(value, ksize, strides, padding; data_format="NHWC", name="MaxPool")
+function max_pool(value, ksize, strides, padding; data_format="NHWC", name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "MaxPool") do
         desc = NodeDescription("MaxPool")
         add_input(desc, value)
         desc["data_format"] = data_format
@@ -171,9 +173,9 @@ Args:
 * `noise_shape`: Shape for randomly generated keep/drop flags.
 * `seed`: Integer used to seed the RNG. Defaults to `0`.
 """
-function dropout(x, keep_prob; noise_shape=nothing, seed=0, name="Dropout")
+function dropout(x, keep_prob; noise_shape=nothing, seed=0, name=nothing)
     local y
-    with_op_name(name) do
+    with_op_name(name, "Dropout") do
         keep_prob = tf.cast(Tensor(keep_prob), eltype(x))
         x_scaled = x/keep_prob
         if noise_shape == nothing
@@ -185,14 +187,18 @@ function dropout(x, keep_prob; noise_shape=nothing, seed=0, name="Dropout")
     y
 end
 
-function sigmoid_cross_entropy_with_logits(logits, targets; name="")
+function sigmoid_cross_entropy_with_logits(logits, targets; name=nothing)
     #  TODO make numerically stable
-    -logits.*targets + log(1+ exp(logits))
+    local out
+    with_op_name(name, "SigmoidCrossEntropyWithLogits") do
+        out = -logits.*targets + log(1+ exp(logits))
+    end
+    out
 end
 
-function sparse_softmax_cross_entropy_with_logits(logits, labels; name="SparseSoftmaxCrossEntropyWithLogits")
+function sparse_softmax_cross_entropy_with_logits(logits, labels; name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "SparseSoftmaxCrossEntropyWithLogits") do
         desc = NodeDescription("SparseSoftmaxCrossEntropyWithLogits")
         add_input(desc, Tensor(logits))
         add_input(desc, Tensor(labels)-1)
@@ -200,9 +206,9 @@ function sparse_softmax_cross_entropy_with_logits(logits, labels; name="SparseSo
     Tensor(Operation(desc))
 end
 
-function log_softmax(logits; name="LogSoftmax")
+function log_softmax(logits; name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "LogSoftmax") do
         desc = NodeDescription("LogSoftmax")
         add_input(desc, logits)
     end
@@ -221,7 +227,7 @@ Args:
 * `name`: An optional name for the operation.
 * `validate_indices`: If `true` (default), make sure the indices are valid.
 """
-function embedding_lookup(params, ids; partition_strategy="mod", name="", validate_indices=true)
+function embedding_lookup(params, ids; partition_strategy="mod", name=nothing, validate_indices=true)
     ids = Tensor(ids)
     if isa(params, AbstractArray)
         if length(params) > 1
@@ -247,9 +253,9 @@ Args:
 * `k`: Number of largest elements of `input` to look for. Defaults to 1.
 * `sorted`: If `true` (default), the returned values will be sorted in descending order.
 """
-function top_k(input, k=1; sorted=true, name="TopKV2")
+function top_k(input, k=1; sorted=true, name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "TopKV2") do
         desc = NodeDescription("TopKV2")
         add_input(desc, Tensor(input))
         add_input(desc, tf.cast(Tensor(k), Int32))
@@ -270,9 +276,9 @@ Args:
 * `targets`: A `Tensor`.
 * `k`: Number of elements to look at for comparison.
 """
-function in_top_k(predictions, targets, k; name="InTopK")
+function in_top_k(predictions, targets, k; name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "InTopK") do
         desc = NodeDescription("InTopK")
         add_input(desc, cast(Tensor(predictions), Float32))
         add_input(desc, Tensor(targets)-1)
@@ -286,10 +292,10 @@ end
 
 Computes half the L2-norm of a `Tensor` `t`, without taking the square root.
 """
-function l2_loss(t; name="L2_Loss")
+function l2_loss(t; name=nothing)
     local out
-    with_op_name(name) do
-        out = sqrt(reduce_sum(t.*t; name=name))
+    with_op_name(name, "L2_Loss") do
+        out = sqrt(reduce_sum(t.*t))
     end
     out
 end
@@ -304,9 +310,9 @@ end
 
 end
 
-function local_response_normalization(input; depth_radius=5, bias=1.0, alpha=1.0, beta=0.5, name="LRN")
+function local_response_normalization(input; depth_radius=5, bias=1.0, alpha=1.0, beta=0.5, name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "LRN") do
         desc = NodeDescription("LRN")
         desc["depth_radius"] = Int64(depth_radius)
         desc["bias"] = Float32(bias)
@@ -323,9 +329,9 @@ end
 @not_implemented function all_candidate_sampler()
 end
 
-function atrous_conv2d(value, filters, rate, padding; name="AtrousConv2D")
+function atrous_conv2d(value, filters, rate, padding; name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "AtrousConv2D") do
         desc = NodeDescription("AtrousConv2D")
         add_input(desc, Tensor(value))
         add_input(desc, Tensor(filter))
@@ -335,9 +341,9 @@ function atrous_conv2d(value, filters, rate, padding; name="AtrousConv2D")
     Tensor(Operation(desc), 1)
 end
 
-function avg_pool(value, ksize, strides, padding; data_format="NHWC", name="AvgPool")
+function avg_pool(value, ksize, strides, padding; data_format="NHWC", name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "AvgPool") do
         desc = NodeDescription("AvgPool")
         add_input(desc, value)
         desc["data_format"] = data_format
@@ -354,9 +360,9 @@ end
 @not_implemented function bias_add()
 end
 
-function conv1d(value, filters, strides, padding; data_format="NHWC", name="Conv1D")
+function conv1d(value, filters, strides, padding; data_format="NHWC", name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "Conv1D") do
         desc = NodeDescription("Conv1D")
         add_input(desc, Tensor(value))
         add_input(desc, Tensor(filters))
@@ -367,9 +373,9 @@ function conv1d(value, filters, strides, padding; data_format="NHWC", name="Conv
     Tensor(Operation(desc), 1)
 end
 
-function conv3d(input, filter, strides, padding; name="Conv3D")
+function conv3d(input, filter, strides, padding; name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "Conv3D") do
         desc = NodeDescription("Conv3D")
         add_input(desc, Tensor(input))
         add_input(desc, Tensor(filter))
@@ -379,9 +385,9 @@ function conv3d(input, filter, strides, padding; name="Conv3D")
     Tensor(Operation(desc), 1)
 end
 
-function depthwise_conv2d(input, filter, strides, padding; name="DepthwiseConv2D")
+function depthwise_conv2d(input, filter, strides, padding; name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "DepthwiseConv2D") do
         desc = NodeDescription("DepthwiseConv2D")
         add_input(desc, Tensor(input))
         add_input(desc, Tensor(filter))
@@ -391,9 +397,9 @@ function depthwise_conv2d(input, filter, strides, padding; name="DepthwiseConv2D
     Tensor(Operation(desc), 1)
 end
 
-function dilation2d(input, filter, strides, rates, padding; name="Dilation2D")
+function dilation2d(input, filter, strides, rates, padding; name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "Dilation2D") do
         desc = NodeDescription("Dilation2D")
         add_input(desc, Tensor(input))
         add_input(desc, Tensor(filter))
@@ -404,9 +410,9 @@ function dilation2d(input, filter, strides, rates, padding; name="Dilation2D")
     Tensor(Operation(desc), 1)
 end
 
-function erosion2d(value, kernel, strides, rates, padding; name="Erosion2D")
+function erosion2d(value, kernel, strides, rates, padding; name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "Erosion2D") do
         desc = NodeDescription("Erosion2D")
         add_input(desc, Tensor(value))
         add_input(desc, Tensor(kernel))
@@ -420,10 +426,10 @@ end
 @not_implemented function fixed_unigram_candidate_sampler()
 end
 
-function l2_normalize(x, dim; epsilon=1e-12, name="L2Normalize")
+function l2_normalize(x, dim; epsilon=1e-12, name=nothing)
     # TODO take into account epsilon
     local out
-    tf.with_op_name(name) do
+    tf.with_op_name(name, "L2Normalize") do
         sums = tf.reduce_sum(x.*x, reduction_indices=[dim], keep_dims=true)
         norm = sqrt(sums)
         out = x/norm
@@ -431,9 +437,9 @@ function l2_normalize(x, dim; epsilon=1e-12, name="L2Normalize")
     out
 end
 
-function max_pool3d(input, ksize, strides, padding; name="MaxPool3D")
+function max_pool3d(input, ksize, strides, padding; name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "MaxPool3D") do
         desc = NodeDescription("MaxPool3D")
         add_input(desc, input)
         desc["padding"] = padding
@@ -443,9 +449,9 @@ function max_pool3d(input, ksize, strides, padding; name="MaxPool3D")
     Tensor(Operation(desc), 1)
 end
 
-function avg_pool3d(input, ksize, strides, padding; name="AvgPool3D")
+function avg_pool3d(input, ksize, strides, padding; name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "AvgPool3D") do
         desc = NodeDescription("AvgPool3D")
         add_input(desc, input)
         desc["padding"] = padding
@@ -455,9 +461,9 @@ function avg_pool3d(input, ksize, strides, padding; name="AvgPool3D")
     Tensor(Operation(desc), 1)
 end
 
-function weighted_cross_entropy_with_logits(logits, targets, pos_weight; name="WeightedCrossEntropyWithLogits")
+function weighted_cross_entropy_with_logits(logits, targets, pos_weight; name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "WeightedCrossEntropyWithLogits") do
         desc = NodeDescription("WeightedCrossEntropyWithLogits")
         add_input(desc, Tensor(logits))
         add_input(desc, Tensor(targets))

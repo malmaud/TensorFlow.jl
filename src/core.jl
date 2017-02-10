@@ -533,8 +533,11 @@ end
 
 const op_context = OperationContext(Vector{Operation}[], String[])
 
-function with_op_name(f, name)
-    push!(op_context.names, get_name(name))
+function with_op_name(f, name, def_name)
+    if name === nothing
+        name = get_name(def_name)
+    end
+    push!(op_context.names, name)
     f()
     pop!(op_context.names)
 end

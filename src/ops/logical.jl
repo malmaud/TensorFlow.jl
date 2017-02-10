@@ -14,9 +14,9 @@ Args:
 Returns:
   A `Tensor` of type `bool`.
 """
-function logical_and(x, y; name="LogicalAnd")
+function logical_and(x, y; name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "LogicalAnd") do
         desc = NodeDescription("LogicalAnd")
         add_input(desc, Tensor(x))
         add_input(desc, Tensor(y))
@@ -36,9 +36,9 @@ Args:
 Returns:
 *  A `Tensor` of type `bool`.
 """
-function logical_not(x; name="LogicalNot")
+function logical_not(x; name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "LogicalNot") do
         desc = NodeDescription("LogicalNot")
         add_input(desc, Tensor(x))
     end
@@ -61,9 +61,9 @@ Args:
 Returns:
   A `Tensor` of type `bool`.
 """
-function logical_or(x, y; name="LogicalOr")
+function logical_or(x, y; name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "LogicalOr") do
         desc = NodeDescription("LogicalOr")
         add_input(desc, Tensor(x))
         add_input(desc, Tensor(y))
@@ -87,9 +87,9 @@ Args:
 Returns:
   A `Tensor` of type `bool`.
 """
-function logical_xor(x, y; name="LogicalXor")
+function logical_xor(x, y; name=nothing)
     local n
-    with_op_name(name) do
+    with_op_name(name, "LogicalXor") do
         n = (x|y) & (~(x&y))
     end
     n

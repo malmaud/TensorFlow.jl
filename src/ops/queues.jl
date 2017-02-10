@@ -16,11 +16,11 @@ type RandomShuffleQueue <: AbstractQueue
     RandomShuffleQueue() = new()
 end
 
-function FIFOQueue(capacity, dtypes; name="FIFOQueue", shapes=nothing)
+function FIFOQueue(capacity, dtypes; name=nothing, shapes=nothing)
     self = FIFOQueue()
     dtypes = to_list(dtypes)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "FIFOQueue") do
         desc = NodeDescription("FIFOQueue")
         desc["capacity"] = Int64(capacity)
         set_attr_list(desc, "component_types", dtypes)
@@ -33,13 +33,13 @@ function FIFOQueue(capacity, dtypes; name="FIFOQueue", shapes=nothing)
     self
 end
 
-function RandomShuffleQueue(capacity, dtypes; name="RandomShuffleQueue", shapes=nothing)
+function RandomShuffleQueue(capacity, dtypes; name=nothing, shapes=nothing)
     self = RandomShuffleQueue()
     if !isa(dtypes, AbstractVector)
         dtypes = [dtypes]
     end
     local desc
-    with_op_name(name) do
+    with_op_name(name, "RandomShuffleQueue") do
         desc = NodeDescription("RandomShuffleQueue")
         desc["capacity"] = Int64(capacity)
         set_attr_list(desc, "component_types", dtypes)
@@ -52,10 +52,10 @@ function RandomShuffleQueue(capacity, dtypes; name="RandomShuffleQueue", shapes=
     self
 end
 
-function enqueue(queue::AbstractQueue, values; name="QueueEnqueue")
+function enqueue(queue::AbstractQueue, values; name=nothing)
     values = to_list(values)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "QueueEnqueue") do
         desc = NodeDescription("QueueEnqueue")
         add_input(desc, queue.op)
         add_input(desc, map(to_tensor, values))
@@ -64,9 +64,9 @@ function enqueue(queue::AbstractQueue, values; name="QueueEnqueue")
     Tensor(Operation(desc))
 end
 
-function enqueue_many(queue::AbstractQueue, values; name="QueueEnqueueMany")
+function enqueue_many(queue::AbstractQueue, values; name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "QueueEnqueueMany") do
         desc = NodeDescription("QueueEnqueueMany")
         add_input(desc, queue.op)
         if isa(values, AbstractVector) || isa(values, Tuple)
@@ -78,9 +78,9 @@ function enqueue_many(queue::AbstractQueue, values; name="QueueEnqueueMany")
     Tensor(Operation(desc))
 end
 
-function dequeue(queue::AbstractQueue; name="QueueDequeue")
+function dequeue(queue::AbstractQueue; name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "QueueDequeue") do
         desc = NodeDescription("QueueDequeue")
         add_input(desc, queue.op)
         set_attr_list(desc, "component_types", queue.dtypes)
@@ -89,9 +89,9 @@ function dequeue(queue::AbstractQueue; name="QueueDequeue")
     [Tensor(op, i) for i in 1:length(queue.dtypes)]
 end
 
-function dequeue_many(queue::AbstractQueue, n; name="QueueDequeueMany")
+function dequeue_many(queue::AbstractQueue, n; name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "QueueDequeueMany") do
         desc = NodeDescription("QueueDequeueMany")
         add_input(desc, queue.op)
         add_input(desc, Tensor(Int32(n)))
@@ -101,18 +101,18 @@ function dequeue_many(queue::AbstractQueue, n; name="QueueDequeueMany")
     [Tensor(op, i) for i in 1:length(queue.dtypes)]
 end
 
-function Base.size(queue::AbstractQueue; name="QueueSize")
+function Base.size(queue::AbstractQueue; name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "QueueSize") do
         desc = NodeDescription("QueueSize")
         add_input(desc, queue.op)
     end
     Tensor(Operation(desc))
 end
 
-function Base.close(queue::AbstractQueue; name="QueueClose")
+function Base.close(queue::AbstractQueue; name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "QueueClose") do
         desc = NodeDescription("QueueClose")
         add_input(desc, queue.op)
     end

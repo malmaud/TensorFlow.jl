@@ -46,9 +46,13 @@ Args:
 * `seed`: Seed to use for the RNG if `do_shuffle` is `true`.
 * `capacity`: Sets the queue capacity. Default is 32.
 """
-function range_input_producer(limit; num_epochs=nothing, do_shuffle=true, seed=0, capacity=32, name="")
-    input = range(Tensor, 1, limit=limit+1)
-    input_producer(input, element_shape=[], num_epochs=num_epochs, do_shuffle=do_shuffle, seed=seed, capacity=capacity, name=name)
+function range_input_producer(limit; num_epochs=nothing, do_shuffle=true, seed=0, capacity=32, name=nothing)
+    local out
+    with_op_name(name, "RangeInputProducer") do
+        input = range(Tensor, 1, limit=limit+1)
+        input_producer(input, element_shape=[], num_epochs=num_epochs, do_shuffle=do_shuffle, seed=seed, capacity=capacity, name=name)
+    end
+    out
 end
 
 """
@@ -64,27 +68,29 @@ Args:
 * `seed`: Seed to use for the RNG if `do_shuffle` is `true`.
 * `capacity`: Sets the queue capacity. Default is 32.
 """
-function input_producer(input; element_shape=nothing, num_epochs=nothing, do_shuffle=true, seed=0, capacity=32, name="")
-    full_name = tf.get_name(name)
-    input = tf.to_tensor(input)
-    if element_shape === nothing
-        queue = tf.FIFOQueue(capacity, eltype(input))
-    else
-        queue = tf.FIFOQueue(capacity, eltype(input), shapes=[element_shape])
+function input_producer(input; element_shape=nothing, num_epochs=nothing, do_shuffle=true, seed=0, capacity=32, name=nothing)
+    local queue
+    with_op_name(name, "InputProducer") do
+        input = tf.to_tensor(input)
+        if element_shape === nothing
+            queue = tf.FIFOQueue(capacity, eltype(input))
+        else
+            queue = tf.FIFOQueue(capacity, eltype(input), shapes=[element_shape])
+        end
+        if do_shuffle
+            input = shuffle(input, seed=seed)
+        end
+        if num_epochs !== nothing
+            epochs = tf.Variable(1, name="num_epochs", trainable=false)
+            epoch_op = tf.count_up_to(epochs, num_epochs+1)
+        else
+            epoch_op = tf.no_op()
+        end
+        enqueue_op = tf.enqueue_many(queue, input)
+        op = tf.group(enqueue_op, epoch_op)
+        runner = QueueRunner(queue, [op])
+        add_queue_runner(runner)
     end
-    if do_shuffle
-        input = shuffle(input, seed=seed)
-    end
-    if num_epochs !== nothing
-        epochs = tf.Variable(1, name="$full_name/num_epochs", trainable=false)
-        epoch_op = tf.count_up_to(epochs, num_epochs+1)
-    else
-        epoch_op = tf.no_op()
-    end
-    enqueue_op = tf.enqueue_many(queue, input)
-    op = tf.group(enqueue_op, epoch_op)
-    runner = QueueRunner(queue, [op])
-    add_queue_runner(runner)
     return queue
 end
 
@@ -100,7 +106,7 @@ Args:
 * `seed`: Seed to use for the RNG if `do_shuffle` is `true`.
 * `capacity`: Sets the queue capacity. Default is 32.
 """
-function slice_input_producer(input; num_epochs=nothing, do_shuffle=true, seed=0, capacity=32, name="")
+function slice_input_producer(input; num_epochs=nothing, do_shuffle=true, seed=0, capacity=32, name=nothing)
     input_producer(tf.to_tensor(input), num_epochs=num_epochs, do_shuffle=do_shuffle, seed=seed, capacity=capacity, name=name)
 end
 
@@ -116,7 +122,7 @@ Args:
 * `seed`: Seed to use for the RNG if `do_shuffle` is `true`.
 * `capacity`: Sets the queue capacity. Default is 32.
 """
-function string_input_producer(string_tensor; num_epochs=nothing, do_shuffle=true, seed=0, capacity=32, name="")
+function string_input_producer(string_tensor; num_epochs=nothing, do_shuffle=true, seed=0, capacity=32, name=nothing)
     input_producer(tf.to_tensor(string_tensor), num_epochs=num_epochs, do_shuffle=do_shuffle, seed=seed, capacity=capacity, name=name)
 end
 
@@ -134,19 +140,21 @@ Args:
 * `shapes`: The shapes for each example. Defaults to the inferred shapes from `tensors`.
 * `allow_smaller_final_batch`: If `true` (default `false`), the final batch is allowed to be smaller than the other batches if there are not enough samples remaining.
 """
-function shuffle_batch(tensors, batch_size; capacity=32, enqueue_many=false, shapes=nothing, allow_smaller_final_batch=false, name="")
-    if enqueue_many || dynamic_pad
-        error("Not supported")  # TODO support this
+function shuffle_batch(tensors, batch_size; capacity=32, enqueue_many=false, shapes=nothing, allow_smaller_final_batch=false, name=nothing)
+    local dequeue_op
+    with_op_name(name, "ShuffleBatch") do
+        if enqueue_many || dynamic_pad
+            error("Not supported")  # TODO support this
+        end
+        if shapes === nothing
+            shapes = [tf.get_shape(_) for _ in tensors]
+        end
+        queue = tf.RandomShuffleQueue(capacity, [eltype(_) for _ in tensors], shapes=shapes, name="queue")
+        enqueue_op = tf.enqueue(queue, tensors, name="enqueue")
+        dequeue_op = tf.dequeue_many(queue, batch_size, name="dequeue")
+        runner = QueueRunner(queue, [enqueue_op])
+        add_queue_runner(runner)
     end
-    name = tf.get_name(name)
-    if shapes === nothing
-        shapes = [tf.get_shape(_) for _ in tensors]
-    end
-    queue = tf.RandomShuffleQueue(capacity, [eltype(_) for _ in tensors], shapes=shapes, name="$name/queue")
-    enqueue_op = tf.enqueue(queue, tensors, name="$name/enqueue")
-    dequeue_op = tf.dequeue_many(queue, batch_size, name="$name/dequeue")
-    runner = QueueRunner(queue, [enqueue_op])
-    add_queue_runner(runner)
     return dequeue_op
 end
 
@@ -169,19 +177,21 @@ Args:
 * `shapes`: The shapes for each example. Defaults to the inferred shapes from `tensors`.
 * `allow_smaller_final_batch`: If `true` (default `false`), the final batch is allowed to be smaller than the other batches if there are not enough samples remaining.
 """
-function batch(tensors, batch_size; num_threads=1, capacity=32, enqueue_many=false, shapes=nothing, dynamic_pad=false, allow_smaller_final_batch=false, name="Batch")
-    if enqueue_many || dynamic_pad
-        error("Not supported")  # TODO support this
+function batch(tensors, batch_size; num_threads=1, capacity=32, enqueue_many=false, shapes=nothing, dynamic_pad=false, allow_smaller_final_batch=false, name=nothing)
+    local dequeue_op
+    with_op_name(name, "Batch") do
+        if enqueue_many || dynamic_pad
+            error("Not supported")  # TODO support this
+        end
+        if shapes === nothing
+            shapes = [tf.get_shape(_) for _ in tensors]
+        end
+        queue = tf.FIFOQueue(capacity, [eltype(_) for _ in tensors], shapes=shapes, name="queue")
+        enqueue_op = tf.enqueue(queue, tensors, name="enqueue")
+        dequeue_op = tf.dequeue_many(queue, batch_size, name="dequeue")
+        runner = QueueRunner(queue, [enqueue_op])
+        add_queue_runner(runner)
     end
-    name = tf.get_name(name)
-    if shapes === nothing
-        shapes = [tf.get_shape(_) for _ in tensors]
-    end
-    queue = tf.FIFOQueue(capacity, [eltype(_) for _ in tensors], shapes=shapes, name="$name/queue")
-    enqueue_op = tf.enqueue(queue, tensors, name="$name/enqueue")
-    dequeue_op = tf.dequeue_many(queue, batch_size, name="$name/dequeue")
-    runner = QueueRunner(queue, [enqueue_op])
-    add_queue_runner(runner)
     return dequeue_op
 end
 

@@ -60,9 +60,9 @@ Args:
 Returns:
 `v`, the updated `Variable`.
 """
-function assign(v::Variable, value; validate_shape=true, use_locking=true, name="Assign")
+function assign(v::Variable, value; validate_shape=true, use_locking=true, name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "Assign") do
         desc = NodeDescription("Assign")
         add_input(desc, v.var_node)
         add_input(desc, Tensor(value))
@@ -83,9 +83,9 @@ Args:
 Returns:
 `v`, the updated `Variable`.
 """
-function assign_add(v::Variable, value; use_locking=false, name="AssignAdd")
+function assign_add(v::Variable, value; use_locking=false, name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "AssignAdd") do
         desc = NodeDescription("AssignAdd")
         add_input(desc, v.var_node)
         add_input(desc, Tensor(value))
@@ -105,9 +105,9 @@ Args:
 Returns:
 `v`, the updated `Variable`.
 """
-function assign_sub(v::Variable, value; use_locking=false, name="AssignSub")
+function assign_sub(v::Variable, value; use_locking=false, name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "AssignSub") do
         desc = NodeDescription("AssignSub")
         add_input(desc, v.var_node)
         add_input(desc, Tensor(value))
@@ -127,9 +127,9 @@ Args:
 Returns:
 `ref`, the updated `Variable`.
 """
-function scatter_update(ref, indices, updates; name="ScatterUpdate")
+function scatter_update(ref, indices, updates; name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "ScatterUpdate") do
         desc = NodeDescription("ScatterUpdate")
         add_input(desc, Tensor(ref))
         add_input(desc, Tensor(indices)-1)
@@ -144,9 +144,9 @@ for (func, name) in [
     (:scatter_mul, "ScatterMul"),
     (:scatter_div, "ScatterDiv")]
     @eval begin
-        function $func(ref, indices, updates; use_locking=false, name=$name)
+        function $func(ref, indices, updates; use_locking=false, name=nothing)
             local desc
-            with_op_name(name) do
+            with_op_name(name, $name) do
                 desc = NodeDescription($name)
                 add_input(desc, Tensor(ref))
                 add_input(desc, Tensor(indices)-1)

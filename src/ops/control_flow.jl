@@ -10,9 +10,9 @@ Args:
 Returns:
   A `Tensor`. Has the same type as `input`.
 """
-function identity(input; name="Identity")
+function identity(input; name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "Identity") do
         desc = NodeDescription("Identity")
         add_input(desc, Tensor(input))
     end
@@ -53,9 +53,9 @@ Returns:
 Raises:
   `ValueError`: If an unknown keyword argument is provided.
 """
-function group(tensors...; name="NoOp")
+function group(tensors...; name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "Group") do
         desc = NodeDescription("NoOp")
         for tensor in tensors
             add_control_input(desc, tensor)
@@ -67,9 +67,9 @@ end
 """
 A named `Operation` that does nothing.
 """
-function no_op(name="NoOp")
+function no_op(name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "NoOp") do
         desc = NodeDescription("NoOp")
     end
     Tensor(Operation(desc))
@@ -96,9 +96,9 @@ Returns:
 *  A copy of the input before increment. If nothing else modifies the
    input, the values produced will all be distinct.
 """
-function count_up_to(ref, limit; name="CountUpTo")
+function count_up_to(ref, limit; name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "CountUpTo") do
         desc = NodeDescription("CountUpTo")
         add_input(desc, Tensor(ref))
         desc["limit"] = Int64(limit)
@@ -155,23 +155,19 @@ Example:
   # Operations in f2 (e.g., tf.add) are not executed.
 ```
 """
-function Base.cond(pred::AbstractTensor, fn1, fn2; name="cond")
+function Base.cond(pred::AbstractTensor, fn1, fn2; name=nothing)
     #  TODO add control dependencies to subgraphs
-    local switch1, switch2, merge
+    local merge
 
-    with_op_name(name) do
+    with_op_name(name, "cond") do
         switch1 = NodeDescription("Switch", "switch1")
         add_input(switch1, fn1())
         add_input(switch1, Tensor(pred))
-    end
 
-    with_op_name(name) do
         switch2 = NodeDescription("Switch", "switch2")
         add_input(switch2, fn2())
         add_input(switch2, pred)
-    end
 
-    with_op_name(name) do
         merge = NodeDescription("Merge", "merge")
         add_input(merge, [Tensor(Operation(switch1), 2), Tensor(Operation(switch2), 1)])
     end

@@ -78,15 +78,15 @@ Returns:
   A `Tensor` that may be used as a handle for feeding a value, but not
   evaluated directly.
 """
-function placeholder(dtype; name="placeholder", shape=nothing)
+function placeholder(dtype; name=nothing, shape=nothing)
     local node
-    with_op_name(name) do
+    with_op_name(name, "placeholder") do
         graph = get_def_graph()
         desc = NodeDescription("Placeholder")
         desc["dtype"] = dtype
         node = Operation(desc)
-        if shape===nothing
-            graph.shapes[name] = ShapeInference.TensorShape(nothing)
+        if shape === nothing
+            graph.shapes[get_cur_node_name()] = ShapeInference.TensorShape(nothing)
         else
             dims = Nullable{Int}[]
             for dim in shape
@@ -112,9 +112,9 @@ Args:
 Returns:
   A `Tensor` of type `string`.
 """
-function read_file(filename; name="ReadFile")
+function read_file(filename; name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "ReadFile") do
         desc = NodeDescription("ReadFile")
         add_input(desc, Tensor(filename))
     end

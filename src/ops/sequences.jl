@@ -1,9 +1,9 @@
 """
 Creates a constant `Tensor`.
 """
-function constant(tensor; name="Const")
+function constant(tensor; name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "Const") do
         desc = NodeDescription("Const")
         tensor = RawTensor(tensor)
         desc["dtype"] = eltype(tensor)
@@ -51,9 +51,9 @@ Args:
 Returns:
 A `Tensor` of the specified `shape` and `dtype` containing random values.
 """
-function random_uniform(shape, minval, maxval; name="RandomUniform", seed=0, dtype=Float32)
+function random_uniform(shape, minval, maxval; name=nothing, seed=0, dtype=Float32)
     local out
-    with_op_name(name) do
+    with_op_name(name, "RandomUniform") do
         desc = NodeDescription("RandomUniform")
         add_input(desc, Tensor(shape))
         desc["dtype"] = dtype
@@ -81,9 +81,9 @@ Args:
 Returns:
 A `Tensor` of the specified `shape` and `dtype` containing random values.
 """
-function random_normal(shape; mean=0.0, stddev=1.0, dtype=Float32, seed=0, name="RandomNormal")
+function random_normal(shape; mean=0.0, stddev=1.0, dtype=Float32, seed=0, name=nothing)
     local out
-    with_op_name(name) do
+    with_op_name(name, "RandomNormal") do
         desc = NodeDescription("RandomStandardNormal")
         add_input(desc, Tensor(shape))
         desc["dtype"] = dtype
@@ -93,9 +93,9 @@ function random_normal(shape; mean=0.0, stddev=1.0, dtype=Float32, seed=0, name=
     out
 end
 
-function Base.shuffle(t::Tensor; seed=0, name="RandomShuffle")
+function Base.shuffle(t::Tensor; seed=0, name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "RandomShuffle") do
         desc = NodeDescription("RandomShuffle")
         add_input(desc, t)
         desc["seed2"] = Int64(seed)
@@ -103,9 +103,9 @@ function Base.shuffle(t::Tensor; seed=0, name="RandomShuffle")
     Tensor(Operation(desc))
 end
 
-function Base.linspace(::Type{Tensor}, start, stop, num; name="LinSpace")
+function Base.linspace(::Type{Tensor}, start, stop, num; name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "LinSpace") do
         desc = NodeDescription("LinSpace")
         add_input(desc, Tensor(convert_number(Float32, start)))
         add_input(desc, Tensor(convert_number(Float32, stop)))
@@ -115,13 +115,13 @@ function Base.linspace(::Type{Tensor}, start, stop, num; name="LinSpace")
 end
 
 
-function Base.range(::Type{Tensor}, start; limit=nothing, delta=1, name="Range")
+function Base.range(::Type{Tensor}, start; limit=nothing, delta=1, name=nothing)
     if limit == nothing
         limit = start
         start = 0
     end
     local desc
-    with_op_name(name) do
+    with_op_name(name, "Range") do
         desc = NodeDescription("Range")
         add_input(desc, cast(Tensor(start), Int32))
         add_input(desc, cast(Tensor(limit), Int32))
@@ -154,9 +154,9 @@ Args:
 Returns:
   A `Tensor`. Has the same type as `value`.
 """
-function Base.fill(n::AbstractTensor, dims::AbstractTensor; name="Fill")
+function Base.fill(n::AbstractTensor, dims::AbstractTensor; name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "Fill") do
         desc = NodeDescription("Fill")
         add_input(desc, cast(dims, Int32))
         add_input(desc, n)
@@ -164,7 +164,7 @@ function Base.fill(n::AbstractTensor, dims::AbstractTensor; name="Fill")
     Tensor(Operation(desc), 1)
 end
 
-function Base.fill(::Type{Tensor}, n, dims; name="")
+function Base.fill(::Type{Tensor}, n, dims; name=nothing)
     fill(Tensor(n), Tensor(dims); name=name)
 end
 
@@ -227,9 +227,9 @@ Args:
 Returns:
   A `Tensor`. Has the same type as `tensor`. The same shape as `tensor`.
 """
-function Base.reverse(x::AbstractTensor, indices; name="reverse")
+function Base.reverse(x::AbstractTensor, indices; name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "Reverse") do
         desc = NodeDescription("Reverse")
         add_input(desc, Tensor(x))
         add_input(desc, Tensor(indices))

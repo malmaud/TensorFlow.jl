@@ -24,7 +24,13 @@ function py_bytes(b::Vector{UInt8})
 end
 
 macro py_catch(ex)
+    if ex.head == Symbol("=") && isa(ex.args[1], Symbol)
+        local_block = Expr(:local, esc(ex.args[1]))
+    else
+        local_block = Expr(:block)
+    end
     quote
+        $local_block
         try
             $(esc(ex))
         catch err

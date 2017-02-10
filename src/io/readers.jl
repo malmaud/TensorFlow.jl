@@ -31,9 +31,9 @@ function TextLineReader(skip_header_lines::Int=0; name="TextLineReader")
     return TextLineReader(Operation(desc))
 end
 
-function Base.read(reader::AbstractReader, queue::tf.AbstractQueue; name="ReaderRead")
+function Base.read(reader::AbstractReader, queue::tf.AbstractQueue; name=nothing)
     local desc
-    with_op_name(name) do
+    with_op_name(name, "ReaderRead") do
         desc = NodeDescription("ReaderRead")
         add_input(desc, Tensor(reader.op))
         add_input(desc, Tensor(queue.op))
