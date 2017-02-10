@@ -247,8 +247,8 @@ function getindex(b::Buffer)
 end
 
 function Base.convert(::Type{Array}, buf::Buffer)
-    struct = buf[]
-    array = unsafe_wrap(Array, struct.data, (struct.len,))
+    struct_ = buf[]
+    array = unsafe_wrap(Array, struct_.data, (struct_.len,))
     copy(array)
 end
 
