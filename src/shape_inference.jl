@@ -182,15 +182,27 @@ register_shape("Const") do op
     [TensorShape([size(value)...])]
 end
 
+ # Simple 1-input 1-output functions that preserve the input shape
 for func in ["Log", "Exp", "Neg", "Ceil", "Floor", "Sqrt", "Square",
     "Cos", "Sin", "Tan", "Atan", "Asin", "Acos", "Tanh",
     "Cast", "Relu", "Relu6", "Elu", "Softplus", "Softsign",
     "Softmax", "Sigmoid", "Tanh", "SparseSoftmaxCrossEntropyWithLogits",
     "LogSoftmax", "LRN", "LogicalAnd", "LogicalNot", "LogicalOr", "LogicalXor",
-    "Sign"]
+    "Sign", "Exit", "Enter", "NextIteration", "LoopCond"]
     register_shape(func) do op
         [_get_shape(get_input(op, 1))]
     end
+end
+
+register_shape("Switch") do op
+    input_shape = _get_shape(get_input(op, 1))
+    [input_shape, input_shape]
+end
+
+register_shape("Merge") do op
+    # TODO what if inputs have different lengths?
+    input_shape = _get_shape(get_input(op, 1))
+    [input_shape, TensorShape(Nullable{Int}[])]
 end
 
 register_shape("SparseSoftmaxCrossEntropyWithLogits") do op
