@@ -177,73 +177,239 @@ end
 @not_implemented function case()
 end
 
-function while_loop(condition, body, variables)
-    g = Graph()
-    old_g = get_def_graph()
-    set_def_graph(g)
-    merge_nodes = Tensor[]
-    merge_names = String[]
-    frame = "jframe"
-    local pred
+function with_frame(f)
+    id = op_context.frame_id
+    op_context.frame_id += 1
+    f(id)
+    op_context.frame_id -= 1
+end
 
-    output = Tensor[]
-    body_input = Tensor[]
-    for var in variables
-        desc = NodeDescription("Enter", get_name("enter"))
-        add_input(desc, var)
+function make_enter_op(input, frame; name=nothing)
+    local desc
+    with_op_name(name, "Enter") do
+        desc = NodeDescription("Enter")
         desc["frame_name"] = frame
-        enter_op = Operation(desc)
-        desc = NodeDescription("Merge", get_name("merge"))
-        add_input(desc, [enter_op, enter_op])
-        op = Operation(desc)
-        push!(merge_nodes, Tensor(op, 1))
-        fillin(op)
-        push!(merge_names, op.name)
+        add_input(desc, input)
     end
-    with_op_name("while") do
+    Tensor(Operation(desc), 1)
+end
+
+function make_exit_op(input; name=nothing)
+    local desc
+    with_op_name(name, "Exit") do
+        desc = NodeDescription("Exit")
+        add_input(desc, input)
+    end
+    Tensor(Operation(desc), 1)
+end
+
+function make_next_iteration_op(input; name=nothing)
+    local desc
+    with_op_name(name, "NextIteration") do
+        desc = NodeDescription("NextIteration")
+        add_input(desc, input)
+    end
+    Tensor(Operation(desc), 1)
+end
+
+function make_merge_op(inputs; name=nothing)
+    local desc
+    with_op_name(name, "Merge") do
+        desc = NodeDescription("Merge")
+        add_input(desc, inputs)
+    end
+    Tensor(Operation(desc), 1)
+end
+
+function make_switch_op(input, predicate; name=nothing)
+    local desc
+    with_op_name(name, "Switch") do
+        desc = NodeDescription("Switch")
+        add_input(desc, input)
+        add_input(desc, predicate)
+    end
+    op = Operation(desc)
+    [Tensor(op, 1), Tensor(op, 2)]
+end
+
+function make_loop_cond(input; name=nothing)
+    local desc
+    with_op_name(name, "LoopCond") do
         desc = NodeDescription("LoopCond")
-        local condition_out
-        with_op_control([tensor.op for tensor in merge_nodes]) do
-            condition_out = condition(merge_nodes...)
-        end
-        add_input(desc, condition_out)
-        pred = Operation(desc)
+        add_input(desc, input)
     end
-    for var_idx in eachindex(variables)
-        desc = NodeDescription("Switch", get_name("switch"))
-        add_input(desc, merge_nodes[var_idx])
-        add_input(desc, pred)
-        op = Operation(desc)
-        desc = NodeDescription("Exit", get_name("exit"))
-        add_input(desc, Tensor(op, 1))
-        exit_op = Operation(desc)
-        push!(output, Tensor(exit_op,1))
-        push!(body_input, Tensor(op, 2))
-    end
-    local body_val
-    with_op_name("while") do
-        local body_output
-        with_op_control([tensor.op for tensor in body_input]) do
-            body_output = body(body_input...)
-        end
-        body_val = Tensor[]
-        for tensor in body_output
-            desc = NodeDescription("NextIteration", get_name("next_iteration"))
-            add_input(desc, tensor)
-            op = Operation(desc)
-            push!(body_val, Tensor(op,1))
-        end
-    end
-    g_def = get_def(g)
-    for i in eachindex(variables)
-        for op in g_def.node
-            if op.name == merge_names[i]
-                v = body_val[i]
-                op.input[2] = "$(get_def(v).name):$(v.value_index-1)"
+    Tensor(Operation(desc), 1)
+end
+
+
+"""
+    while_loop(cond, body, loop_vars, shape_invariants=None, parallel_iterations=10, back_prop=True, swap_memory=False, name=None)
+
+
+Repeat `body` while the condition `cond` is true.
+
+`cond` is a callable returning a boolean scalar tensor. `body` is a callable
+returning a (possibly nested) tuple, namedtuple or list of tensors of the same
+arity (length and structure) and types as `loop_vars`. `loop_vars` is a
+(possibly nested) tuple, namedtuple or list of tensors that is passed to both
+`cond` and `body`. `cond` and `body` both take as many arguments as there are
+`loop_vars`.
+
+While `cond` evaluates to true, `body` is executed.
+
+In addition to regular Tensors or IndexedSlices, the body may accept and
+return TensorArray objects.  The flows of the TensorArray objects will
+be appropriately forwarded between loops and during gradient calculations.
+
+For correctness, `tf.while_loop()` strictly enforces shape invariants for
+the loop variables. A shape invariant is a (possibly partial) shape that
+is unchanged across the iterations of the loop. An error will be raised
+if the shape of a loop variable after an iteration is determined to be more
+general than or incompatible with its shape invariant. For example, a shape
+of [11, None] is more general than a shape of [11, 17], and [11, 21] is not
+compatible with [11, 17]. By default (if the argument `shape_invariants` is
+not specified), it is assumed that the initial shape of each tensor in
+`loop_vars` is the same in every iteration. The `shape_invariants` argument
+allows the caller to specify a less specific shape invariant for each loop
+variable, which is needed if the shape varies between iterations. The
+[`Tensor.set_shape()`](../../api_docs/python/framework.md#Tensor.set_shape)
+function may also be used in the `body` function to indicate that
+the output loop variable has a particular shape. The shape invariant for
+SparseTensor and IndexedSlices are treated specially as follows:
+
+a) If a loop variable is a SparseTensor, the shape invariant must be
+TensorShape([r]) where r is the rank of the dense tensor represented
+by the sparse tensor. It means the shapes of the three tensors of the
+SparseTensor are ([None], [None, r], [r]). NOTE: The shape invariant here
+is the shape of the SparseTensor.shape property. It must be the shape of
+a vector.
+
+b) If a loop variable is an IndexedSlices, the shape invariant must be
+a shape invariant of the values tensor of the IndexedSlices. It means
+the shapes of the three tensors of the IndexedSlices are (shape, [shape[0]],
+[shape.ndims]).
+
+`while_loop` implements non-strict semantics, enabling multiple iterations
+to run in parallel. The maximum number of parallel iterations can be
+controlled by `parallel_iterations`, which gives users some control over
+memory consumption and execution order. For correct programs, `while_loop`
+should return the same result for any parallel_iterations > 0.
+
+For training, TensorFlow remembers the tensors that are produced in the
+forward inference but needed in back propagation. These tensors can be a
+main source of memory consumption and often cause OOM problems when training
+on GPUs.  When the flag swap_memory is true, we swap out these tensors from
+GPU to CPU.  This for example allows us to train RNN models with very long
+sequences and large batches.
+
+Args:
+  cond: A callable that represents the termination condition of the loop.
+  body: A callable that represents the loop body.
+  loop_vars: A (possibly nested) tuple, namedtuple or list of numpy array,
+    `Tensor`, and `TensorArray` objects.
+  shape_invariants: The shape invariants for the loop variables.
+  parallel_iterations: The number of iterations allowed to run in parallel.
+    It must be a positive integer.
+  back_prop: Whether backprop is enabled for this while loop.
+  swap_memory: Whether GPU-CPU memory swap is enabled for this loop.
+  name: Optional name prefix for the returned tensors.
+
+Returns:
+  The output tensors for the loop variables after the loop. When the length
+  of `loop_vars` is 1 this is a Tensor, TensorArray or IndexedSlice and when
+  the length of `loop_vars` is greater than 1 it returns a list.
+
+Raises:
+  TypeError: if `cond` or `body` is not callable.
+  ValueError: if `loop_vars` is empty.
+
+Example:
+
+  ```python
+  i = tf.constant(0)
+  c = lambda i: tf.less(i, 10)
+  b = lambda i: tf.add(i, 1)
+  r = tf.while_loop(c, b, [i])
+  ```
+
+Example with nesting and a namedtuple:
+
+  ```python
+  import collections
+  Pair = collections.namedtuple('Pair', 'j, k')
+  ijk_0 = (tf.constant(0), Pair(tf.constant(1), tf.constant(2)))
+  c = lambda i, p: i < 10
+  b = lambda i, p: (i + 1, Pair((p.j + p.k), (p.j - p.k)))
+  ijk_final = tf.while_loop(c, b, ijk_0)
+  ```
+
+Example using shape_invariants:
+
+  ```python
+  i0 = tf.constant(0)
+  m0 = tf.ones([2, 2])
+  c = lambda i, m: i < 10
+  b = lambda i, m: [i+1, tf.concat(0, [m, m])]
+  tf.while_loop(
+      c, b, loop_vars=[i0, m0],
+      shape_invariants=[i0.get_shape(), tensor_shape.TensorShape([None, 2])])
+  ```
+"""
+function while_loop(condition, body, variables; name=nothing, shape_invariants=nothing, parallel_iterations=10, back_prop=true, swap_memory=false)
+    g = Graph()
+    variables = map(Tensor, variables)
+    local output, g_def
+    as_default(g) do
+        with_op_name(name, "while") do
+            with_frame() do frame_id
+                frame_name = "Frame_$(frame_id)"
+                merge_nodes = Tensor[]
+                merge_names = String[]
+                output = Tensor[]
+                body_input = Tensor[]
+                for var in variables
+                    enter_op = make_enter_op(var, frame_name)
+                    merge_op = make_merge_op([enter_op, enter_op])
+                    push!(merge_nodes, merge_op)
+                    fillin(merge_op.op)
+                    push!(merge_names, merge_op.op.name)
+                end
+
+                local condition_out
+                with_op_control([tensor.op for tensor in merge_nodes]) do
+                    condition_out = condition(merge_nodes...)
+                end
+                pred = make_loop_cond(condition_out)
+
+                for var_idx in eachindex(variables)
+                    switch_false, switch_true = make_switch_op(merge_nodes[var_idx], pred)
+                    exit_op = make_exit_op(switch_false)
+
+                    push!(output, exit_op)
+                    push!(body_input, switch_true)
+                end
+
+                local body_output
+                with_op_control([tensor.op for tensor in body_input]) do
+                    body_output = body(body_input...)
+                end
+                body_val = Tensor[]
+                for tensor in body_output
+                    next_iteration_op = make_next_iteration_op(tensor)
+                    push!(body_val, next_iteration_op)
+                end
+                g_def = get_def(g)
+                for var_idx in eachindex(variables)
+                    for op in g_def.node
+                        if op.name == merge_names[var_idx]
+                            v = body_val[var_idx]
+                            op.input[2] = "$(get_def(v).name):$(v.value_index-1)"
+                        end
+                    end
+                end
             end
         end
     end
-    set_def_graph(old_g)
-    extend_graph(old_g, g_def.node)
+    extend_graph(get_def_graph(), g_def.node)
     output
 end

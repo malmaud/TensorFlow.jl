@@ -529,11 +529,12 @@ end
 type OperationContext
     control_ops::Vector{Vector{Operation}}
     names::Vector{String}
+    frame_id::Int
 end
 
-const op_context = OperationContext(Vector{Operation}[], String[])
+const op_context = OperationContext(Vector{Operation}[], String[], 1)
 
-function with_op_name(f, name, def_name)
+function with_op_name(f, name, def_name="Node")
     if name === nothing
         name = get_name(def_name)
     end

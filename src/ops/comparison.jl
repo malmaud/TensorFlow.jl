@@ -20,7 +20,7 @@ for (func, op) in [
 
 end
 
-import Base: .==, .!=, .>, .<, .≥, .≤
+import Base: .==, .!=, .>, .<, .≥, .≤, >, <, ≥, ≤
 
 for (func, sym) in [
     (:equal, :.==),
@@ -28,10 +28,16 @@ for (func, sym) in [
     (:less, :.<),
     (:less_equal, :.≤),
     (:greater, :.>),
-    (:greater_equal, :.≥)]
+    (:greater_equal, :.≥),
+    (:less, :<),
+    (:less_equal, :≤),
+    (:greater, :>),
+    (:greater_equal, :≥)
+    ]
 
     @eval $sym(t1::AbstractTensor, t2::AbstractTensor) = $func(t1, t2)
-
+    @eval $sym(t1::AbstractTensor, t2) = $func(t1, Tensor(t2))
+    @eval $sym(t1, t2::AbstractTensor) = $func(Tensor(t1), t2)
 end
 
 function Base.select(condition::AbstractTensor, t, e; name=nothing)
