@@ -306,6 +306,9 @@ end
 @not_implemented function sampled_softmax_loss()
 end
 
+@not_implemented function log_poisson_loss()
+end
+
 @not_implemented function batch_normalization(x, mean, variance, offset, scale, variable_epsilon; name="")
 
 end
