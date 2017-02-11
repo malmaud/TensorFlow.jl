@@ -54,6 +54,35 @@ function Base.broadcast!(s1::TensorShape, s2::TensorShape)
     end
 end
 
+"""
+Perform a unification over the input tensor shapes.
+Replacing unknows with knowns.
+Throws a ``DimensionMismatch`` if the shapes are not compatible
+"""
+function unify(value_shapes::TensorShape...) ::TensorShape
+    union_dims = TensorShape(nothing)
+    for value_dims in value_shapes
+        if union_dims.rank_unknown # Unify per unknown shape
+            union_dims = copy(value_dims)
+        else
+            value_dims.rank_unknown && continue
+            if length(value_dims.dims) != length(union_dims.dims)
+                throw(DimensionMismatch("Tensors have different ranks ($(union_dims) vs $(value_dims))"))
+            end
+            for ii in eachindex(value_dims.dims)
+                isnull(value_dims.dims[ii]) && continue
+                if isnull(union_dims.dims[ii]) # Unify per unknown dimention
+                    union_dims.dims[ii] = value_dims.dims[ii]
+                elseif !isequal(value_dims.dims[ii], union_dims.dims[ii])
+                    throw(DimensionMismatch("Tensors have incompatiable shapes ($(union_dims) vs $(value_dims))"))
+                end
+            end
+        end
+    end
+    union_dims
+end
+
+
 const shape_cache = Dict{Tuple{String, Int}, TensorShape}()
 
 """
@@ -529,8 +558,28 @@ end
 todo_register_shape("DynamicPartition")
 todo_register_shape("DynamicStitch")
 todo_register_shape("Tile")
-todo_register_shape("Pack")
 
+
+register_shape("Pack") do op
+    axis = get_attr(op, "axis", Int) + 1
+    packed_len = get_attr(op, "N", Int)
+    packed_values = [get_input(op, i) for i in 1:tf.get_input_list_length(op, "values")]
+
+    @assert(length(packed_values)==packed_len)
+    union_dims = unify(_get_shape.(packed_values)...)
+    if !union_dims.rank_unknown
+       insert!(union_dims.dims, axis, Nullable(packed_len))
+    end
+    [union_dims]
+end
+
+
+register_shape("AddN") do op
+    inputs = [get_input(op, i) for i in 1:tf.get_input_list_length(op, "inputs")]
+    # TODO handle broadcasting
+    union_dims = unify(_get_shape.(inputs)...)
+    [union_dims]
+end
 
 for func in ["RandomStandardNormal", "RandomUniform"]
     register_shape(func) do op
@@ -544,17 +593,6 @@ for func in ["RandomStandardNormal", "RandomUniform"]
     end
 end
 
-register_shape("AddN") do op
-    inputs = [get_input(op, i) for i in 1:tf.get_input_list_length(op, "inputs")]
-    if length(inputs) == 0
-        [TensorShape(nothing)]
-    elseif length(inputs) == 1
-        [_get_shape(inputs[1])]
-    else
-        # TODO handle broadcasting
-        [_get_shape(inputs[1])]
-    end
-end
 
 register_shape("Where") do op
     input = get_input(op, 1)

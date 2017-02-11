@@ -17,6 +17,7 @@ y, s1 = cell(x, s0)
 tests = [
     "hello.jl",
     "core.jl",
+    "shape_inference.jl",
     "math.jl",
     "debug.jl",
     "comp.jl",
