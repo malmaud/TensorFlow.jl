@@ -26,8 +26,8 @@ n = placeholder(Float32)
 @test get_shape(m+k) == TensorShape([10, 20, -1])
 
 ## Concat
-@test get_shape(concat(2,[m,m])) == TensorShape([10, 40, 30])
-@test get_shape(concat(2, [m,k]))  == TensorShape([10, 40, 30])
-@test get_shape(concat(2, [k,m]))  == TensorShape([10, 40, 30])
-@test get_shape(concat(3, [m,k]))  == TensorShape([10,20, -1])
+@test get_shape(cat(2, m,m)) == TensorShape([10, 40, 30])
+@test get_shape(cat(2, m,k))  == TensorShape([10, 40, 30])
+@test get_shape(cat(2, k,m))  == TensorShape([10, 40, 30])
+@test get_shape(cat(3, m,k))  == TensorShape([10,20, -1])
 

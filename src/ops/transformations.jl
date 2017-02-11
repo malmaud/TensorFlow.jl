@@ -174,6 +174,7 @@ function concat(dim, values; name=nothing)
 end
 
 Base.cat(::Type{Tensor}, dim, values...) = concat(dim, values)
+Base.cat(dim, values::AbstractTensor...) = concat(dim, values)
 
 """
 pack(values; axis=1, name="")
