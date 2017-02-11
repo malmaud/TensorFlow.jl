@@ -363,15 +363,29 @@ register_shape("Concat") do op
 
     n_tensors = tf.get_input_list_length(op, "values")
     tensors = [get_input(op, i) for i in 2:(n_tensors+1)]
-    base_shape = copy(_get_shape(tensors[1]))
 
-    if base_shape.rank_unknown
-        return [TensorShape(nothing)]
-    end
-    base_shape.dims[dim] = Nullable(0)
+    axis_length = 0
+    axis_length_known = true
+    shapes=TensorShape[]
     for tensor in tensors
-        shape = _get_shape(tensor)
-        base_shape.dims[dim] = Nullable(get(base_shape.dims[dim]) + get(shape.dims[dim]))
+        shape = copy(_get_shape(tensor))
+        if shape.rank_unknown
+            return [TensorShape(nothing)]
+        end
+        if isnull(shape.dims[dim])
+            axis_length_known = false
+        else
+            axis_length += get(shape.dims[dim])
+        end
+        shape.dims[dim] = Nullable{Int64}() #Null it for purposes of passing unification
+        push!(shapes, shape)
+    end
+
+    base_shape = unify(shapes...)
+    if axis_length_known
+        base_shape.dims[dim] = Nullable(axis_length)
+    else
+        @assert(isnull(base_shape.dims[dim])) # Should be null from unification
     end
     [base_shape]
 end
