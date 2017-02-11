@@ -155,20 +155,26 @@ end
 """
 concat(dim, values; name="")
 
+Concatenates the list of tensors `values` along dimension `dim` (1-based).  If
+`values[i].shape = [D1, D2, ... Daxis(i), ...Dn]`, the concatenated
+result has shape `[D1, D2, ... Rdim, ...Dn]`,
+where `Rdim=sum(Daxis(i))`.
+
 https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#concat
 """
 function concat(dim, values; name=nothing)
     local desc
     with_op_name(name, "Concat") do
         desc = NodeDescription("Concat")
-        add_input(desc, Tensor(convert_number(Int32, dim)))
+        add_input(desc, Tensor(convert_number(Int32, dim - 1)))
         add_input(desc, [Tensor(_) for _ in values])
         desc["N"] = length(values)
     end
     Tensor(Operation(desc), 1)
 end
 
-Base.cat(::Type{Tensor}, dim, values...) = concat(dim-1, values)
+Base.cat(::Type{Tensor}, dim, values...) = concat(dim, values)
+Base.cat(dim, values::AbstractTensor...) = concat(dim, values)
 
 """
 pack(values; axis=1, name="")
