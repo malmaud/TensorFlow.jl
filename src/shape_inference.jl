@@ -19,12 +19,29 @@ function TensorShape(dims::Vector{Nullable{Int}})
 end
 
 function TensorShape(dims::Vector)
-    TensorShape([Nullable{Int64}(_) for _ in dims])
+    TensorShape([_<0 ? Nullable{Int64}() : Nullable{Int64}(_) for _ in dims])
 end
 
 function TensorShape(dim::Void)
     TensorShape(Nullable{Int}[], true)
 end
+
+
+function Base.isequal(ts1::TensorShape, ts2::TensorShape)
+    ts1.rank_unknown && ts2.rank_unknown ||
+    !ts1.rank_unknown && !ts2.rank_unknown && isequal(ts1.dims, ts2.dims)
+end
+
+Base.:(==)(ts1::TensorShape, ts2::TensorShape) = isequal(ts1, ts2)
+
+function Base.hash(ts::TensorShape, h::UInt64)
+    if ts.rank_unknown
+        h #All tensors with unknown rank hash the same, as they are equal
+    else
+        hash(ts.dims, h)
+    end
+end
+
 
 function Base.show(io::IO, shape::TensorShape)
     get_dim_name = x->begin
