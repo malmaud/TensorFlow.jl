@@ -936,7 +936,10 @@ get_node_by_name(name) = get_node_by_name(get_def_graph(), name)
 function gradients(y, x::AbstractArray)
     x_names = [node_name(_) for _ in x]
     y_name = node_name(y)
-    graph_proto = get_def_graph() |> get_proto
+    meta_graph = train.export_meta_graph()
+    b = IOBuffer()
+    writeproto(b, meta_graph)
+    graph_proto = takebuf_array(b)
     eval(Main, quote
         node_protos, grad_names = remotecall_fetch(($pyproc[])) do
             py_gradients($graph_proto, $x_names, $y_name)
@@ -945,9 +948,7 @@ function gradients(y, x::AbstractArray)
     node_protos = Main.node_protos
     grad_names = Main.grad_names
     g = get_def_graph()
-    for node_proto in node_protos
-        extend_graph(g, proto2nodedef(node_proto))
-    end
+    extend_graph(g, node_protos)
     out = []
     for name in grad_names
         if isa(name, String)

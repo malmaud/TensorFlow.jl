@@ -25,7 +25,7 @@ using JLD
 using FileIO
 using ProtoBuf
 
-import ..TensorFlow: Graph, Operation, get_def_graph, extend_graph, gradients, variable_scope, ConstantInitializer, node_name, get_variable, get_shape, get_collection, Session, placeholder, Tensor, Variable, cast, group, @not_implemented, AbstractQueue, tensorflow, add_to_collection, get_proto
+import ..TensorFlow: Graph, Operation, get_def_graph, extend_graph, gradients, variable_scope, ConstantInitializer, node_name, get_variable, get_shape, get_collection, Session, placeholder, Tensor, Variable, cast, group, @not_implemented, AbstractQueue, tensorflow, add_to_collection, get_proto, get_def
 
 import TensorFlow
 const tf = TensorFlow
@@ -331,7 +331,7 @@ end
 "Construct and returns a `MetaGraphDef` protocol buffer."
 function create_meta_graph_def(graph::Graph)
     # reference: https://github.com/tensorflow/tensorflow/blob/cd1fe4072b43e650d47187838b7a37b050ec3d75/tensorflow/python/framework/meta_graph.py#L309-L385
-    graph_def = readproto(PipeBuffer(get_proto(graph)), tensorflow.GraphDef())
+    graph_def = get_def(graph)
     meta_info_def = tensorflow.MetaGraphDef_MetaInfoDef()
       # TODO: Set the tf version strings to the current tf build.
       # meta_graph_def.meta_info_def.tensorflow_version = versions.__version__
@@ -363,14 +363,18 @@ create_meta_graph_def() = create_meta_graph_def(get_def_graph())
 Writes a MetaGraphDef to filepath.
 
 The exported CollectionDef currently only contains operations from `Variables`
-and `Tensors`. 
+and `Tensors`.
 """
-function export_meta_graph(saver::Saver, filepath::String)
+function export_meta_graph(filepath::String="")
     # Although we don't use it yet, the function signature has ::Saver to match
     # the corresponding python function.
-    open(filepath, "w") do f
-        writeproto(f, create_meta_graph_def())
+    meta_graph = create_meta_graph_def()
+    if !isempty(filepath)
+        open(filepath, "w") do f
+            writeproto(f, create_meta_graph_def())
+        end
     end
+    meta_graph
 end
 
 include("train/summary_writer.jl")
