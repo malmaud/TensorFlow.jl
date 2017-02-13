@@ -99,7 +99,8 @@ import_graph_def,
 tf_version,
 GraphInputOptions,
 get_operations,
-while_loop
+while_loop,
+batch_matmul
 
 if !isdefined(Base, :⊻)
     export ⊻
