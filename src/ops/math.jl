@@ -97,7 +97,7 @@ for (bin_op, jl_func_name, tf_func_name) in [
     (:^, :pow, "Pow")]
     @eval function $jl_func_name(n1::AbstractTensor, n2::AbstractTensor; name=nothing)
         local desc
-        with_op_name(name, $tf_func_name) do
+        with_op_name(name, lowercase($tf_func_name)) do
             n1 = Tensor(n1)
             n2 = Tensor(n2)
             desc = NodeDescription($tf_func_name)

@@ -17,4 +17,5 @@ module tensorflow
   include("config_pb.jl")
   include("summary_pb.jl")
   include("event_pb.jl")
+  include("control_flow_pb.jl")
 end

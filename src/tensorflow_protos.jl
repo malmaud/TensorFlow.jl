@@ -17,4 +17,5 @@ module tensorflow
   include("protobufs/config_pb.jl")
   include("protobufs/summary_pb.jl")
   include("protobufs/event_pb.jl")
+  include("protobufs/control_flow_pb.jl")
 end

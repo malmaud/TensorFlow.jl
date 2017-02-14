@@ -177,11 +177,22 @@ end
 @not_implemented function case()
 end
 
-function with_frame(f)
-    id = op_context.frame_id
-    op_context.frame_id += 1
-    f(id)
-    op_context.frame_id -= 1
+function with_frame(f, parallel_iterations, back_prop, swap_memory)
+    op_context = get_def_graph().op_context
+    if isempty(op_context.while_context)
+        frame_name = "while"
+    else
+        frame_name = string(op_context.while_context[end].context_name, "/", "while")
+    end
+    while_context = tensorflow.WhileContextDef(parallel_iterations=parallel_iterations, back_prop=back_prop, swap_memory=swap_memory)
+    set_field!(while_context, :context_name, frame_name)
+    add_to_collection(get_def_graph(), :while_context, while_context)
+    set_field!(while_context, :loop_exit_names, AbstractString[])
+    set_field!(while_context, :values_def, tensorflow.ValuesDef())
+    set_field!(while_context.values_def, :values, AbstractString[])
+    push!(op_context.while_context, while_context)
+    f()
+    pop!(op_context.while_context)
 end
 
 function make_enter_op(input, frame; name=nothing)
@@ -357,38 +368,45 @@ Example using shape_invariants:
 """
 function while_loop(condition, body, variables; name=nothing, shape_invariants=nothing, parallel_iterations=10, back_prop=true, swap_memory=false)
     g = Graph()
+    g.op_context = get_def_graph().op_context
+    g.name_idx = get_def_graph().name_idx
+    g.collections = get_def_graph().collections
     variables = map(Tensor, variables)
     local output, g_def
     as_default(g) do
         with_op_name(name, "while") do
-            with_frame() do frame_id
-                frame_name = "Frame_$(frame_id)"
+            with_frame(parallel_iterations, back_prop, swap_memory) do
+                context = get_def_graph().op_context.while_context[end]
                 merge_nodes = Tensor[]
                 merge_names = String[]
                 output = Tensor[]
                 body_input = Tensor[]
                 for var in variables
-                    enter_op = make_enter_op(var, frame_name)
+                    enter_op = make_enter_op(var, context.context_name)
                     merge_op = make_merge_op([enter_op, enter_op])
                     push!(merge_nodes, merge_op)
                     fillin(merge_op.op)
                     push!(merge_names, merge_op.op.name)
                 end
-
+                set_field!(context, :pivot_for_pred_name, get_name(merge_nodes[1]))
                 local condition_out
                 with_op_control([tensor.op for tensor in merge_nodes]) do
                     condition_out = condition(merge_nodes...)
                 end
                 pred = make_loop_cond(condition_out)
-
+                set_field!(context, :pivot_name, get_name(pred))
+                body_pivots = Tensor[]
                 for var_idx in eachindex(variables)
                     switch_false, switch_true = make_switch_op(merge_nodes[var_idx], pred)
                     exit_op = make_exit_op(switch_false)
-
+                    push!(context.loop_exit_names, get_name(exit_op))
                     push!(output, exit_op)
-                    push!(body_input, switch_true)
-                end
+                    body_pivot = identity(switch_true)
+                    push!(body_pivots, body_pivot)
 
+                    push!(body_input, body_pivot)
+                end
+                set_field!(context, :pivot_for_body_name, get_name(body_pivots[1]))
                 local body_output
                 with_op_control([tensor.op for tensor in body_input]) do
                     body_output = body(body_input...)
@@ -407,9 +425,16 @@ function while_loop(condition, body, variables; name=nothing, shape_invariants=n
                         end
                     end
                 end
+
+                for op in get_operations()
+                    for output_idx in 1:num_outputs(op)
+                        push!(context.values_def.values, get_name(Tensor(op, output_idx)))
+                    end
+                end
             end
         end
     end
+
     extend_graph(get_def_graph(), g_def.node)
     output
 end

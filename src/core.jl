@@ -44,6 +44,14 @@ function get_code(s::Status)
     return TF_Code(code)
 end
 
+
+type OperationContext
+    control_ops::Vector{Vector{Any}}  # Can't make Operation to break type cycle
+    names::Vector{String}
+    while_context::Vector{tensorflow.WhileContextDef}
+end
+
+
 """
 A TensorFlow computation graph
 """
@@ -52,6 +60,7 @@ type Graph
     collections::Dict{Symbol, Any}
     shapes::Dict{String, AbstractTensorShape}
     name_idx::Dict{String, Int}
+    op_context::OperationContext
 
     function Graph()
         ptr = ccall((:TF_NewGraph, LIBTF), Ptr{Void}, ())
@@ -60,7 +69,8 @@ type Graph
         collections[:TrainableVariables] = []
         collections[:Summaries] = []
         collections[:QueueRunners] = []
-        self = new(ptr, collections, Dict{String, AbstractTensorShape}(), Dict{String, Int}())
+        collections[:while_context] = []
+        self = new(ptr, collections, Dict{String, AbstractTensorShape}(), Dict{String, Int}(), OperationContext(Vector{Operation}[], String[], tensorflow.WhileContextDef[]))
         finalizer(self, self->begin
             ccall((:TF_DeleteGraph, LIBTF), Void, (Ptr{Void},), self.ptr)
         end)
@@ -164,6 +174,7 @@ const def_graph = Ref{Graph}()
 Returns the default computation graph, an object of type `Graph`.
 """
 get_def_graph() = def_graph[]
+has_def_graph() = isdefined(def_graph, :x)
 
 function set_def_graph(g)
     def_graph[] = g
@@ -411,7 +422,7 @@ type NodeDescription
     function NodeDescription(graph, op_type, full_name)
         desc = ccall((:TF_NewOperation, LIBTF), Ptr{Void}, (Ptr{Void}, Cstring, Cstring), graph.ptr, op_type, full_name)
         self = new(desc, graph)
-        for control_op_set in op_context.control_ops
+        for control_op_set in graph.op_context.control_ops
             for control_op in control_op_set
                 add_control_input(self, control_op)
             end
@@ -424,7 +435,7 @@ end
 NodeDescription(op_type, node_name) = NodeDescription(get_def_graph(), op_type, node_name)
 
 function get_cur_node_name()
-    join(op_context.names, "/")
+    join(get_def_graph().op_context.names, "/")
 end
 
 function NodeDescription(op_type)
@@ -526,27 +537,20 @@ function fillin(op::Operation)
     op.op_name = ccall((:TF_OperationOpType, LIBTF), Cstring, (Ptr{Void},), op.ptr) |> unsafe_string
 end
 
-type OperationContext
-    control_ops::Vector{Vector{Operation}}
-    names::Vector{String}
-    frame_id::Int
-end
-
-const op_context = OperationContext(Vector{Operation}[], String[], 1)
 
 function with_op_name(f, name, def_name="Node")
     if name === nothing
         name = get_name(def_name)
     end
-    push!(op_context.names, name)
+    push!(get_def_graph().op_context.names, name)
     f()
-    pop!(op_context.names)
+    pop!(get_def_graph().op_context.names)
 end
 
 function with_op_control(f, control_ops)
-    push!(op_context.control_ops, control_ops)
+    push!(get_def_graph().op_context.control_ops, control_ops)
     f()
-    pop!(op_context.control_ops)
+    pop!(get_def_graph().op_context.control_ops)
 end
 
 function Operation(desc::NodeDescription)
@@ -889,6 +893,12 @@ function get_proto(node::Operation)
     convert(Array, output)
 end
 
+function get_proto(w::tensorflow.WhileContextDef)
+    b = IOBuffer()
+    writeproto(b, w)
+    takebuf_array(b)
+end
+
 get_def_type(::Type{Operation}) = tensorflow.NodeDef
 get_def_type(::Type{Graph}) = tensorflow.GraphDef
 
@@ -1039,7 +1049,7 @@ function import_graph_def(graph::Graph, graph_def::tensorflow.GraphDef, options=
     import_graph_def(graph, data, options)
 end
 
-function get_operations(g::Graph)
+function get_operations(g::Graph=get_def_graph())
     # TODO switch to iterator
     ops = Operation[]
     pos = Ref{Csize_t}(0)
@@ -1055,3 +1065,7 @@ function get_operations(g::Graph)
     end
     ops
 end
+
+get_name(t::Tensor) = "$(get_name(t.op)):$(t.value_index-1)"
+get_name(op::Operation) = get_def(op).name
+get_name(i::IndexedSlices) = get_name(i.values)

@@ -350,6 +350,9 @@ function create_meta_graph_def(graph::Graph)
                 push!(bytes_list, get_proto(obj.assign_node))
             elseif isa(obj, Tensor)
                 push!(bytes_list, get_proto(obj.op))
+            elseif isa(obj, tensorflow.WhileContextDef)
+                info("hi")
+                push!(bytes_list, get_proto(obj))
             end
         end
         collectiondef = tensorflow.CollectionDef(;bytes_list=tensorflow.CollectionDef_BytesList(;value=bytes_list))
