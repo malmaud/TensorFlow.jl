@@ -115,10 +115,16 @@ function extend_graph(graph::Graph, node_defs)
     ph_names = Set{String}()
     for node_idx in 1:n_nodes
         node_def = to_node_def(node_defs[node_idx])
+
         if isnull(get_node_by_name(graph, node_def.name))
             push!(new_graph.node, node_def)
             for (i, input) in enumerate(node_def.input)
                 name, port = parse_port_name(input)
+                is_control = false
+                if name[1] == '^'
+                    name = name[2:end]
+                    is_control = true
+                end
                 existing_node = get_node_by_name(graph, name)
                 if !isnull(existing_node)
                     local new_name
@@ -126,15 +132,24 @@ function extend_graph(graph::Graph, node_defs)
                         new_name = "$(name)__placeholder__$(name_id)"
                         isnull(get_node_by_name(graph, new_name)) && break
                     end
-                    node_def.input[i] = new_name
+                    if is_control
+                        # push!(import_options.control_dependencies, get(existing_node))
+                        input_name = "^$new_name"
+                    else
+                        input_name = new_name
+                    end
+                    node_def.input[i] = input_name
                     import_options.input_mapping[(new_name, port)] = Tensor(get(existing_node), port)
                     new_ph = tensorflow.NodeDef()
                     set_field!(new_ph, :name, new_name)
-                    set_field!(new_ph, :op, "Placeholder")
-                    set_field!(new_ph, :attr, Dict{AbstractString, tensorflow.AttrValue}())
-                    new_ph.attr["dtype"] = tensorflow.AttrValue()
-                    set_field!(new_ph.attr["dtype"], :_type, node_def.attr["T"]._type)
-
+                    if is_control
+                        set_field!(new_ph, :op, "NoOp")
+                    else
+                        set_field!(new_ph, :op, "Placeholder")
+                        set_field!(new_ph, :attr, Dict{AbstractString, tensorflow.AttrValue}())
+                        new_ph.attr["dtype"] = tensorflow.AttrValue()
+                        set_field!(new_ph.attr["dtype"], :_type, node_def.attr["T"]._type)
+                    end
                     if new_name ∉ ph_names
                         push!(new_graph.node, new_ph)
                         push!(ph_names, new_name)

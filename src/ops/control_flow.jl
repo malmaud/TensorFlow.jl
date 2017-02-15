@@ -381,8 +381,10 @@ function while_loop(condition, body, variables; name=nothing, shape_invariants=n
                 merge_names = String[]
                 output = Tensor[]
                 body_input = Tensor[]
+                enter_nodes = Tensor[]
                 for var in variables
                     enter_op = make_enter_op(var, context.context_name)
+                    push!(enter_nodes, enter_op)
                     merge_op = make_merge_op([enter_op, enter_op])
                     push!(merge_nodes, merge_op)
                     fillin(merge_op.op)
