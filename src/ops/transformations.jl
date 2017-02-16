@@ -254,24 +254,26 @@ expand_dims(input, dim; name="")
 
 Inserts a dimension of 1 into a tensor's shape.
 
-Given a tensor input, this operation inserts a dimension of 1 at the dimension index dim of input's shape. The dimension index dim starts at zero; if you specify a negative number for dim it is counted backward from the end.
+Given a tensor input, this operation inserts a dimension of 1 at the dimension index dim of input's shape. The dimension index dim starts at one; if you specify a non-positive number for dim it is counted backward from the end. With `0` being the last dimension (`end-0`), `-1` being the second last (`end-1`) and so forth
 
-This operation is useful if you want to add a batch dimension to a single element. For example, if you have a single image of shape [height, width, channels], you can make it a batch of 1 image with expand_dims(image, 0), which will make the shape [1, height, width, channels].
+This operation is useful if you want to add a batch dimension to a single element. For example, if you have a single image of shape `[height, width, channels]`, you can make it a batch of 1 image with `expand_dims(image, 1)`, which will make the shape `[1, height, width, channels]`.
 
 Other examples:
 
+```julia
 # 't' is a tensor of shape [2]
-shape(expand_dims(t, 0)) ==> [1, 2]
-shape(expand_dims(t, 1)) ==> [2, 1]
-shape(expand_dims(t, -1)) ==> [2, 1]
+shape(expand_dims(t, 1)) ==> [1, 2]
+shape(expand_dims(t, 2)) ==> [2, 1]
+shape(expand_dims(t, 0)) ==> [2, 1]
 
 # 't2' is a tensor of shape [2, 3, 5]
-shape(expand_dims(t2, 0)) ==> [1, 2, 3, 5]
-shape(expand_dims(t2, 2)) ==> [2, 3, 1, 5]
-shape(expand_dims(t2, 3)) ==> [2, 3, 5, 1]
-This operation requires that:
+shape(expand_dims(t2, 1)) ==> [1, 2, 3, 5]
+shape(expand_dims(t2, 3)) ==> [2, 3, 1, 5]
+shape(expand_dims(t2, 4)) ==> [2, 3, 5, 1]
+```
 
--1-input.dims() <= dim <= input.dims()
+This operation requires that:
+-input.dims() <= dim <= input.dims()+1
 
 This operation is related to squeeze(), which removes dimensions of size 1.
 
@@ -291,7 +293,7 @@ function expand_dims(input, dim; name=nothing)
     with_op_name(name, "ExpandDims") do
         desc = NodeDescription("ExpandDims")
         add_input(desc, Tensor(input))
-        add_input(desc, Tensor(convert_number(Int32,dim)))
+        add_input(desc, Tensor(convert_number(Int32,dim-1)))
     end
     Tensor(Operation(desc), 1)
 end
