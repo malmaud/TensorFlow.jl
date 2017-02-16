@@ -270,6 +270,9 @@ shape(expand_dims(t, 0)) ==> [2, 1]
 shape(expand_dims(t2, 1)) ==> [1, 2, 3, 5]
 shape(expand_dims(t2, 3)) ==> [2, 3, 1, 5]
 shape(expand_dims(t2, 4)) ==> [2, 3, 5, 1]
+shape(expand_dims(t2, 0)) ==> [2, 3, 5, 1]
+shape(expand_dims(t2, -1)) ==> [2, 3, 1, 5]
+
 ```
 
 This operation requires that:
