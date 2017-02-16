@@ -104,7 +104,9 @@ get_tensor_by_name,
 as_default,
 @tf,
 visualize,
-visualize_graph
+visualize_graph,
+batch_matmul,
+squared_difference
 
 if !isdefined(Base, :⊻)
     export ⊻

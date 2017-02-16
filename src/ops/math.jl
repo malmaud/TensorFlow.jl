@@ -126,6 +126,33 @@ function batch_matmul(x::AbstractTensor,y::AbstractTensor; adj_x=false, adj_y=fa
     Tensor(Operation(desc), 1)
 end
 
+function batch_matmul(x::AbstractTensor,y::AbstractTensor; adj_x=false, adj_y=false, name=nothing)
+    local desc
+    with_op_name(name, "BatchMatMul") do
+        x = Tensor(x)
+        y = Tensor(y)
+        desc = NodeDescription("BatchMatMul")
+        add_input(desc, x)
+        add_input(desc, y)
+        desc["adj_x"] = adj_x
+        desc["adj_y"] = adj_y
+    end
+    Tensor(Operation(desc), 1)
+end
+
+function squared_difference(x::AbstractTensor,y::AbstractTensor; name=nothing)
+    local desc
+    with_op_name(name, "SquaredDifference") do
+        x = Tensor(x)
+        y = Tensor(y)
+        desc = NodeDescription("SquaredDifference")
+        add_input(desc, x)
+        add_input(desc, y)
+    end
+    Tensor(Operation(desc), 1)
+end
+
+
 # TO DO provide the aliases for Base functions
 @op function matrix_solve(matrix, rhs; adjoint=false, name=nothing)
     local desc
