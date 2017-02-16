@@ -1,12 +1,12 @@
 using ProtoBuf
-import ..TensorFlow: tensorflow, Graph
+import ..TensorFlow: tensorflow, Graph, get_def_graph
 
 type SummaryWriter
     log_dir::String
     SummaryWriter() = new()
 end
 
-function SummaryWriter(log_dir; graph=nothing)
+function SummaryWriter(log_dir; graph=get_def_graph())
     self = SummaryWriter()
     self.log_dir = log_dir
     path = joinpath(log_dir, "events")
