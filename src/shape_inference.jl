@@ -616,6 +616,23 @@ register_shape("Pack") do op
     [union_dims]
 end
 
+register_shape("Unpack") do op
+    whole_value = get_input(op, 1)
+    whole_shape = _get_shape(whole_value)
+    num_split = get_attr(op,"num", Int)
+
+    if whole_shape.rank_unknown
+        # We don't know the size of the input,
+        # so we don't know the size of the output
+        # we do know how many their will be.
+        fill(TensorShape(nothing), num_split)
+    else
+        axis = get_attr(op, "axis", Int) + 1
+        slice_shape = copy(whole_shape)
+        deleteat!(slice_shape.dims, axis)
+        fill(slice_shape, num_split)
+    end
+end
 
 register_shape("AddN") do op
     inputs = [get_input(op, i) for i in 1:tf.get_input_list_length(op, "inputs")]

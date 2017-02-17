@@ -20,6 +20,26 @@ n = placeholder(Float32)
 @test get_shape(pack([n,n])).rank_unknown
 @test get_shape(pack([k,k])) == TensorShape([2, 10, 20, -1])
 
+## Unpack
+for ii in 1:10
+    @test get_shape(unpack(m)[ii]) == TensorShape([20, 30])
+end
+
+for ii in 1:20
+    @test get_shape(unpack(k, axis=2)[ii]) == TensorShape([10, -1])
+end
+
+for ii in 1:3
+    @test get_shape(unpack(n, num=3)[ii]) == TensorShape(nothing)
+end
+
+
+
+### Pack/UnPack
+@test get_shape(pack(unpack(m))) == get_shape(m)
+@test get_shape(pack(unpack(k))) == get_shape(k)
+
+
 ## Add
 @test get_shape(m+m) == TensorShape([10, 20, 30])
 @test get_shape(m+n).rank_unknown
