@@ -599,6 +599,18 @@ register_shape("Gather") do op
     [TensorShape(vcat(index_dims.dims, value_dims.dims[2:end]))]
 end
 
+register_shape("GatherNd") do op
+    value_dims = _get_shape(get_input(op, 1))
+    index_dims = _get_shape(get_input(op, 2))
+    if index_dims.rank_unknown || value_dims.rank_unknown || isnull(index_dims.dims[end])
+        return [TensorShape(nothing)]
+    end
+    rr=get(index_dims.dims[end])
+
+    [TensorShape(vcat(index_dims.dims[1:end-1], value_dims.dims[rr+1:end]))]
+end
+
+
 function todo_register_shape(name)
 end
 

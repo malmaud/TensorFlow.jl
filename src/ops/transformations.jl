@@ -476,7 +476,7 @@ end
 
 #For x[1,2,3] etc
 function Base.getindex(params::AbstractTensor, indices...)
-    inds::Vector = collect(indices) # Want Vector, not tuple
+    inds::Vector = collect(indices) # Want Vector, not tuple. Could be a vector of Tensors though
     if eltype.(inds) ⊆ (Int32, Int64)
         gather_nd(params, inds)
     else
