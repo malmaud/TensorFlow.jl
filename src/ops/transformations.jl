@@ -528,7 +528,7 @@ end
 
 #TODO update the way matrixes are written in these docs -- so not wrriten asvectors of vectors
 """
-### `tf.gather_nd(params, indices, name=None)` {#gather_nd}
+### `gather_nd(params, indices, name="")` {#gather_nd}
 
 Gather values or slices from `params` according to `indices`.
 
@@ -551,95 +551,29 @@ Produces an output tensor with shape
 Some examples below.
 
 Simple indexing into a matrix:
-
 ```julia
-    indices = [1, 1], [2, 2]]
-    params = [['a', 'b'], ['c', 'd']]
+    indices = [1 1; 2 2]""
+    params = ['a' 'b';  'c' 'd']
     output = ['a', 'd']
 ```
 
 Slice indexing into a matrix:
-
 ```julia
-    indices = [[2], [1]]
-    params = [['a', 'b'], ['c', 'd']]
-    output = [['c', 'd'], ['a', 'b']]
-```
-
-Indexing into a 3-tensor:
-
-```julia
-    indices = [[2]]
-    params = [[['a0', 'b0'], ['c0', 'd0']],
-              [['a1', 'b1'], ['c1', 'd1']]]
-    output = [[['a1', 'b1'], ['c1', 'd1']]]
-
-
-    indices = [[1, 2], [2, 1]]
-    params = [[['a0', 'b0'], ['c0', 'd0']],
-              [['a1', 'b1'], ['c1', 'd1']]]
-    output = [['c0', 'd0'], ['a1', 'b1']]
-
-
-    indices = [[1, 1, 2], [2, 1, 2]]
-    params = [[['a0', 'b0'], ['c0', 'd0']],
-              [['a1', 'b1'], ['c1', 'd1']]]
-    output = ['b0', 'b1']
-```
-
-Batched indexing into a matrix:
-
-```julia
-    indices = [[[1, 1]], [[1, 2]]]
-    params = [['a', 'b'], ['c', 'd']]
-    output = [['a'], ['b']]
-```
-
-Batched slice indexing into a matrix:
-
-```julia
-    indices = [[[2]], [[1]]]
-    params = [['a', 'b'], ['c', 'd']]
-    output = [[['c', 'd']], [['a', 'b']]]
-```
-
-Batched indexing into a 3-tensor:
-
-```julia
-    indices = [[[2]], [[1]]]
-    params = [[['a0', 'b0'], ['c0', 'd0']],
-              [['a1', 'b1'], ['c1', 'd1']]]
-    output = [[[['a1', 'b1'], ['c1', 'd1']]],
-              [[['a0', 'b0'], ['c0', 'd0']]]]
-
-    indices = [[[1, 2], [2, 1]], [[1, 1], [2, 2]]]
-    params = [[['a0', 'b0'], ['c0', 'd0']],
-              [['a1', 'b1'], ['c1', 'd1']]]
-    output = [[['c0', 'd0'], ['a1', 'b1']],
-              [['a0', 'b0'], ['c1', 'd1']]]
-
-
-    indices = [[[1, 1, 2], [2, 1, 2]], [[1, 2, 2], [2, 2, 1]]]
-    params = [[['a0', 'b0'], ['c0', 'd0']],
-              [['a1', 'b1'], ['c1', 'd1']]]
-    output = [['b0', 'b1'], ['d0', 'c1']]
+    indices = [2  1]'
+    params = ['a' 'b'; 'c' 'd']
+    output = ['c' 'd'; 'a' 'b']
 ```
 
 ##### Args:
-
-
 *  <b>`params`</b>: A `Tensor`. `P-D`.  The tensor from which to gather values.
 *  <b>`indices`</b>: A `Tensor`. Must be one of the following types: `int32`, `int64`.
     `Q-D`.  Index tensor having shape `[d_1, ..., d_{Q-1}, K]`. 1 based
 *  <b>`name`</b>: A name for the operation (optional).
 
 ##### Returns:
-
   A `Tensor`. Has the same type as `params`.
   `(P+Q-K-1)-D`.  Values from `params` gathered from indices given by
   `indices`.
-
-
 """
 function gather_nd(params, indicies; name=nothing)
     local desc

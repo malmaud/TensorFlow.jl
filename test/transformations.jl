@@ -47,10 +47,10 @@ sq_ones = ones(Tensor, (10, 1, 5, 1))
 # getindex related methods (getindex overload and the methods behind it)
 
 # Test values
-srand(1) #constant seed for consistant test
-x_jl = rand(5,3)
+x_jl = [10x+y for x in 1:5, y in 1:7]
 x = constant(x_jl)
-
+w_jl = [100x+10y+z for x in 1:5, y in 1:7, z in 1:3]
+w = constant(w_jl)
 y = constant([1, 2, 3])
 
 ### Mask (bool array)
@@ -58,19 +58,22 @@ y = constant([1, 2, 3])
 mask = constant([true, false, true])
 @test run(sess, boolean_mask(y,mask))  == run(sess, y[mask]) == [1, 3]
 
-### Index/Gather (int/ int array)
+### Gather (int/ int array) / Index
 
 @test ones(Float32, 2, 5) == run(sess, gather(one_tens, [1, 2]))
 @test run(sess, y[[1, 3]]) == [1, 3]
 @test run(sess, y[2]) == 2
 
-### Cartean Index/Gather-nd
-@test run(sess, gather_nd(x,[2, 3])) == x_jl[2,3]
+### Gather-nd / Cartean Index/Slice
+@test run(sess, gather_nd(x, [2, 3])) == x_jl[2,3]
 @test run(sess, x[2,3]) == x_jl[2,3]
 
+@test run(sess, gather_nd(x, [3])) == x_jl[3,:]
+
+@test run(sess, gather_nd(x, [1 1; 2 3])) == [x_jl[1,1], x_jl[2,3]]
+@test run(sess, gather_nd(x, [1 2]')) == [x_jl[1,:]'; x_jl[2,:]']
 
 ### Slice
-
 # to do make sure we slice the right indices
 @test ones(Float32, 5).' == run(sess, slice(one_tens, [0, 0], [1, -1]))
 
