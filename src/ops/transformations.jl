@@ -526,7 +526,6 @@ function gather(params, indices; validate_indices=true, name=nothing)
     Tensor(Operation(desc), 1)
 end
 
-#TODO update the way matrixes are written in these docs -- so not wrriten asvectors of vectors
 """
 ### `gather_nd(params, indices, name="")` {#gather_nd}
 
