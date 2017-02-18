@@ -107,12 +107,12 @@ Runs shape inference to return the shape of the tensor produced by the given ope
 
 Note this runs *statically*. Use the `shape` operation to dynamically get the shape of an operation.
 """
-function get_shape(n::TensorFlow.AbstractTensor)
+function get_shape(n::tf.AbstractTensor)
     empty!(shape_cache)
     _get_shape(n)
 end
 
-function get_shape(n::TensorFlow.AbstractTensor, dim::Integer)
+function get_shape(n::tf.AbstractTensor, dim::Integer)
     shape = get_shape(n)
     if shape.rank_unknown
         error("Shape of $(n.op.name) is unknown")
@@ -123,7 +123,11 @@ function get_shape(n::TensorFlow.AbstractTensor, dim::Integer)
     get(shape.dims[dim])
 end
 
-function _get_shape(n::TensorFlow.AbstractTensor)
+# Overload `Base.size` so that [3:4, 1:end] etc works
+Base.size(n::tf.AbstractTensor, dim::Integer) = get_shape(n, dim)
+
+
+function _get_shape(n::tf.AbstractTensor)
     t = Tensor(n)
     cache_key = (t.op.name, t.value_index)
     if haskey(shape_cache, cache_key)

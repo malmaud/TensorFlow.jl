@@ -3,13 +3,12 @@ using Base.Test
 
 sess = TensorFlow.Session(TensorFlow.Graph())
 
-@test [1, 2] == run(sess, cast(constant([1.8, 2.2]), Int))
-
 one_tens = ones(Tensor, (5,5))
+
+@test [1, 2] == run(sess, cast(constant([1.8, 2.2]), Int))
 
 @test ones(25) == run(sess, reshape(one_tens, 25))
 
-@test ones(Float32, 5).' == run(sess, slice(one_tens, [0, 0], [1, -1]))
 
 @test Int32[5,5,1] == run(sess, TensorFlow.shape(pack(split(2, 5, one_tens), axis=1)))
 
@@ -27,9 +26,6 @@ one_tens = ones(Tensor, (5,5))
 
 @test hcat(ones(Float32, 5,5), zeros(Float32, 5)) == run(sess, pad(one_tens, [0 0; 0 1]))
 
-# to do make sure we slice the right indices
-@test ones(Float32, 2, 5) == run(sess, gather(one_tens, [1, 2]))
-
 @test Float32[1.; 0.; 0.; 0.; 0.] == run(sess, one_hot(1, 5))
 
 a = Tensor(collect(1:5))
@@ -38,15 +34,6 @@ for i in 1:5
     @test i ∈ result
 end
 
-@test run(sess, boolean_mask(constant([1,2,3]), constant([true, false, true]))) == [1, 3]
-
-## getindex overloading
-let
-    indices = constant([1, 3])
-    mask = constant([true, false, true])
-    y = constant([1, 2, 3])
-    @test run(sess, y[indices]) == run(sess, y[mask]) == [1, 3]
-end
 
 # Test `squeeze()` works when given explicit dimensions, fails on incorrect explicit dimensions,
 # and works when given no explicit dimension
@@ -55,4 +42,35 @@ sq_ones = ones(Tensor, (10, 1, 5, 1))
 @test size(run(sess, squeeze(sq_ones,[2,4]))) == (10,5)
 @test size(run(sess, squeeze(sq_ones,[2]))) == (10,5,1)
 @test_throws TensorFlow.TFException run(sess, squeeze(sq_ones,[1]))
+
+#######################################################################
+# getindex related methods (getindex overload and the methods behind it)
+
+# Test values
+srand(1) #constant seed for consistant test
+x_jl = rand(5,3)
+x = constant(x_jl)
+
+y = constant([1, 2, 3])
+
+### Mask (bool array)
+
+mask = constant([true, false, true])
+@test run(sess, boolean_mask(y,mask))  == run(sess, y[mask]) == [1, 3]
+
+### Index/Gather (int/ int array)
+
+@test ones(Float32, 2, 5) == run(sess, gather(one_tens, [1, 2]))
+@test run(sess, y[[1, 3]]) == [1, 3]
+@test run(sess, y[2]) == 2
+
+### Cartean Index/Gather-nd
+@test run(sess, gather_nd(x,[2, 3])) == x_jl[2,3]
+@test run(sess, x[2,3]) == x_jl[2,3]
+
+
+### Slice
+
+# to do make sure we slice the right indices
+@test ones(Float32, 5).' == run(sess, slice(one_tens, [0, 0], [1, -1]))
 

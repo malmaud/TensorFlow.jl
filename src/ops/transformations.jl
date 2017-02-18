@@ -383,7 +383,8 @@ end
 
 """
 Base.size(n::AbstractTensor; name="")
-
+Returns the total number of elements in a Tensor.
+(Like julia `Base.length` does for an `Array`)
 https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#size
 """
 function Base.size(n::AbstractTensor; name=nothing)
@@ -463,6 +464,27 @@ function pad(tensor, paddings; mode="CONSTANT", name=nothing)
     Tensor(Operation(desc))
 end
 
+
+#For x[[1,2,3]] etc
+function Base.getindex(params::AbstractTensor, indices)
+    if eltype(indices) == Bool
+        boolean_mask(params, indices)
+    else
+        gather(params, indices)
+    end
+end
+
+#For x[1,2,3] etc
+function Base.getindex(params::AbstractTensor, indices...)
+    inds::Vector = collect(indices) # Want Vector, not tuple
+    if eltype.(inds) ⊆ (Int32, Int64)
+        gather_nd(params, inds)
+    else
+        error("julia style indexing is not currently supported for indicies $inferred")
+    end
+end
+
+
 """
 gather(params, indices; validate_indices=true, name="")
 
@@ -478,7 +500,7 @@ name: A name for the operation (optional).
 A Tensor. Has the same type as params.
 
 indices must be an integer tensor of any dimension (usually 0-D or 1-D). Produces an output tensor with shape [indices.shape; params.shape[2:end]] where:
-
+```
 # Scalar indices
 output[:, ..., :] = params[indices, :, ... :]
 
@@ -487,7 +509,9 @@ output[i, :, ..., :] = params[indices[i], :, ... :]
 
 # Higher rank indices
 output[i, ..., j, :, ... :] = params[indices[i, ..., j], :, ..., :]
-If indices is a permutation and length(indices) == params.shape[1] then this operation will permute params accordingly.
+```
+
+If indices is a permutation and `length(indices) == params.shape[1]` then this operation will permute params accordingly.
 
 https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#gather
 """
@@ -502,16 +526,131 @@ function gather(params, indices; validate_indices=true, name=nothing)
     Tensor(Operation(desc), 1)
 end
 
-function Base.getindex(params::AbstractTensor, indices)
-    if eltype(indices) == Bool
-        boolean_mask(params, indices)
-    else
-        gather(params, indices)
+#TODO update the way matrixes are written in these docs -- so not wrriten asvectors of vectors
+"""
+### `tf.gather_nd(params, indices, name=None)` {#gather_nd}
+
+Gather values or slices from `params` according to `indices`.
+
+`params` is a Tensor of rank `P` and `indices` is a Tensor of rank `Q`.
+
+`indices` must be integer tensor, containing indices into `params`.
+It must be shape `[d_1, ..., d_{Q-1}, K]` where `0 < K <= P`.
+indicies are 1 based.
+
+The innermost dimension of `indices` (with length `K`) corresponds to
+indices into elements (if `K = P`) or slices (if `K < P`) along the `K`th
+dimension of `params`.
+
+Produces an output tensor with shape
+
+```
+[d_1, ..., d_{Q-1}, params.shape[K], ..., params.shape[P-1]].
+```
+
+Some examples below.
+
+Simple indexing into a matrix:
+
+```julia
+    indices = [1, 1], [2, 2]]
+    params = [['a', 'b'], ['c', 'd']]
+    output = ['a', 'd']
+```
+
+Slice indexing into a matrix:
+
+```julia
+    indices = [[2], [1]]
+    params = [['a', 'b'], ['c', 'd']]
+    output = [['c', 'd'], ['a', 'b']]
+```
+
+Indexing into a 3-tensor:
+
+```julia
+    indices = [[2]]
+    params = [[['a0', 'b0'], ['c0', 'd0']],
+              [['a1', 'b1'], ['c1', 'd1']]]
+    output = [[['a1', 'b1'], ['c1', 'd1']]]
+
+
+    indices = [[1, 2], [2, 1]]
+    params = [[['a0', 'b0'], ['c0', 'd0']],
+              [['a1', 'b1'], ['c1', 'd1']]]
+    output = [['c0', 'd0'], ['a1', 'b1']]
+
+
+    indices = [[1, 1, 2], [2, 1, 2]]
+    params = [[['a0', 'b0'], ['c0', 'd0']],
+              [['a1', 'b1'], ['c1', 'd1']]]
+    output = ['b0', 'b1']
+```
+
+Batched indexing into a matrix:
+
+```julia
+    indices = [[[1, 1]], [[1, 2]]]
+    params = [['a', 'b'], ['c', 'd']]
+    output = [['a'], ['b']]
+```
+
+Batched slice indexing into a matrix:
+
+```julia
+    indices = [[[2]], [[1]]]
+    params = [['a', 'b'], ['c', 'd']]
+    output = [[['c', 'd']], [['a', 'b']]]
+```
+
+Batched indexing into a 3-tensor:
+
+```julia
+    indices = [[[2]], [[1]]]
+    params = [[['a0', 'b0'], ['c0', 'd0']],
+              [['a1', 'b1'], ['c1', 'd1']]]
+    output = [[[['a1', 'b1'], ['c1', 'd1']]],
+              [[['a0', 'b0'], ['c0', 'd0']]]]
+
+    indices = [[[1, 2], [2, 1]], [[1, 1], [2, 2]]]
+    params = [[['a0', 'b0'], ['c0', 'd0']],
+              [['a1', 'b1'], ['c1', 'd1']]]
+    output = [[['c0', 'd0'], ['a1', 'b1']],
+              [['a0', 'b0'], ['c1', 'd1']]]
+
+
+    indices = [[[1, 1, 2], [2, 1, 2]], [[1, 2, 2], [2, 2, 1]]]
+    params = [[['a0', 'b0'], ['c0', 'd0']],
+              [['a1', 'b1'], ['c1', 'd1']]]
+    output = [['b0', 'b1'], ['d0', 'c1']]
+```
+
+##### Args:
+
+
+*  <b>`params`</b>: A `Tensor`. `P-D`.  The tensor from which to gather values.
+*  <b>`indices`</b>: A `Tensor`. Must be one of the following types: `int32`, `int64`.
+    `Q-D`.  Index tensor having shape `[d_1, ..., d_{Q-1}, K]`. 1 based
+*  <b>`name`</b>: A name for the operation (optional).
+
+##### Returns:
+
+  A `Tensor`. Has the same type as `params`.
+  `(P+Q-K-1)-D`.  Values from `params` gathered from indices given by
+  `indices`.
+
+
+"""
+function gather_nd(params, indicies; name=nothing)
+    local desc
+    with_op_name(name, "GatherNd") do
+        desc = NodeDescription("GatherNd")
+        add_input(desc, Tensor(params))
+        add_input(desc, Tensor(indicies)-1)
     end
+    Tensor(Operation(desc), 1)
 end
 
-@not_implemented function gather_nd()
-end
 
 """
 one_hot(indices, depth; on_value=Float32(1), off_value=Float32(0), axis=-1, dtype=Float32, name="")
@@ -555,8 +694,6 @@ function one_hot(indices, depth; on_value=Float32(1), off_value=Float32(0), axis
     Tensor(Operation(desc), 1)
 end
 
-# function Base.reverse()
-# end
 
 """
 dynamic_partition(data, partitions, num_partitions; name="")
@@ -595,7 +732,7 @@ boolean_mask(tensor, mask)
 
 Apply boolean mask to tensor.  Numpy equivalent is `tensor[mask]`.
 
-```python
+```julia
 # 1-D example
 tensor = [0, 1, 2, 3]
 mask = [True, False, True, False]
@@ -621,7 +758,7 @@ Raises:
 
 Examples:
 
-```python
+```julia
 # 2-D example
 tensor = [[1, 2], [3, 4], [5, 6]]
 mask = [True, False, True]
@@ -650,7 +787,7 @@ regular matrix transpose on 2-D input Tensors.
 
 For example:
 
-```python
+```julia
 # 'x' is [[1 2 3]
 #         [4 5 6]]
 tf.transpose(x) ==> [[1 4]
