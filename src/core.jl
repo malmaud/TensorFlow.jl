@@ -78,21 +78,51 @@ type Graph
     end
 end
 
-function add_to_collection(g::Graph, name, node)
+function with_def_graph(ex)
+    ex.head == :function || error("Improper use of with_def_graph")
+    new_func = Expr(:function)
+    old_call_sig = ex.args[1]
+    new_call_sig = Expr(:call, old_call_sig.args[1], old_call_sig.args[3:end]...)
+    push!(new_func.args, new_call_sig)
+    new_body = Expr(:call, old_call_sig.args[1], Expr(:call, :get_def_graph))
+    for arg in old_call_sig.args[3:end]
+        if isa(arg, Symbol)
+            push!(new_body.args, arg)
+        elseif isa(arg, Expr)
+            push!(new_body.args, arg.args[1])
+        end
+    end
+
+    push!(new_func.args, new_body)
+    new_func
+end
+
+"""
+    @with_def_graph
+
+Defaults the first parameter of the given function to `get_def_graph`.
+""""
+macro with_def_graph(ex)
+    new_func = with_def_graph(ex)
+    quote
+        $(esc(ex))
+        $(esc(new_func))
+    end
+end
+
+@with_def_graph function add_to_collection(g::Graph, name, node)
     push!(g.collections[name], node)
 end
 
 """
 Returns a collection attached to the graph `g` named `name`
 """
-function get_collection(g::Graph, name)
+function get_collection end
+
+@with_def_graph function get_collection(g::Graph, name)
     g.collections[name]
 end
 
-"""
-Returns a collection from the default graph
-"""
-get_collection(name) = get_collection(get_def_graph(), name)
 
 const DEBUG_EXTEND_GRAPH = false
 
@@ -120,11 +150,8 @@ function extend_graph(graph::Graph, node_defs)
             push!(new_graph.node, node_def)
             for (i, input) in enumerate(node_def.input)
                 name, port = parse_port_name(input)
-                is_control = false
-                if name[1] == '^'
-                    name = name[2:end]
-                    is_control = true
-                end
+                is_control = name[1] == '^'
+                is_control && (name = name[2:end])
                 existing_node = get_node_by_name(graph, name)
                 if !isnull(existing_node)
                     local new_name
@@ -133,12 +160,12 @@ function extend_graph(graph::Graph, node_defs)
                         isnull(get_node_by_name(graph, new_name)) && break
                     end
                     if is_control
-                        # push!(import_options.control_dependencies, get(existing_node))
-                        input_name = "^$new_name"
+                        input_name = string("^", new_name)
                     else
                         input_name = new_name
                     end
                     node_def.input[i] = input_name
+                    import_options.input_mapping[(input_name, port)] = Tensor(get(existing_node), port)
                     import_options.input_mapping[(new_name, port)] = Tensor(get(existing_node), port)
                     new_ph = tensorflow.NodeDef()
                     set_field!(new_ph, :name, new_name)
@@ -158,10 +185,9 @@ function extend_graph(graph::Graph, node_defs)
             end
         end
     end
+    info(import_options.input_mapping)
     import_graph_def(graph, new_graph, import_options)
 end
-
-add_to_collection(name, node) = add_to_collection(get_def_graph(), name, node)
 
 type SessionOptions
     ptr::Ptr{Void}
@@ -946,7 +972,9 @@ end
 """
 Returns an operation by searching for its name in the given graph.
 """
-function get_node_by_name(graph::Graph, name::AbstractString)
+function get_node_by_name end
+
+@with_def_graph function get_node_by_name(graph::Graph, name::AbstractString)
     name, port = parse_port_name(name)
     node_ptr = ccall((:TF_GraphOperationByName, LIBTF), Ptr{Void}, (Ptr{Void}, Cstring), graph.ptr, name)
     if node_ptr == C_NULL
@@ -955,8 +983,6 @@ function get_node_by_name(graph::Graph, name::AbstractString)
         return Nullable(Operation(node_ptr))
     end
 end
-
-get_node_by_name(name) = get_node_by_name(get_def_graph(), name)
 
 function gradients(y, x::AbstractArray)
     x_names = [node_name(_) for _ in x]
@@ -1024,7 +1050,7 @@ type GraphInputOptions
     GraphInputOptions() = new(Dict{Tuple{String, Int}, Tensor}(), Vector{Tuple{String, Int}}(), Vector{Operation}(), "")
 end
 
-function import_graph_def(graph::Graph, graph_def::Vector{UInt8}, options=GraphInputOptions())
+@with_def_graph function import_graph_def(graph::Graph, graph_def::Vector{UInt8}, options=GraphInputOptions())
     version_check(v"1.0.0-rc1")
     options_ptr = ccall((:TF_NewImportGraphDefOptions, LIBTF), Ptr{Void}, ())
     for ((input_name, input_port), tensor) in options.input_mapping
@@ -1057,14 +1083,14 @@ function import_graph_def(graph::Graph, graph_def::Vector{UInt8}, options=GraphI
     output_tensors
 end
 
-function import_graph_def(graph::Graph, graph_def::tensorflow.GraphDef, options=GraphInputOptions())
+@with_def_graph function import_graph_def(graph::Graph, graph_def::tensorflow.GraphDef, options=GraphInputOptions())
     b = IOBuffer()
     writeproto(b, graph_def)
     data = @compat take!(b)
     import_graph_def(graph, data, options)
 end
 
-function get_operations(g::Graph=get_def_graph())
+@with_def_graph function get_operations(g::Graph)
     # TODO switch to iterator
     ops = Operation[]
     pos = Ref{Csize_t}(0)
