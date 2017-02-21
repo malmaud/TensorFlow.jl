@@ -1,4 +1,4 @@
-function named(ex)
+function _tf(ex)
     @assert ex.head == Symbol("=")
     name = ex.args[1]
     call = copy(ex.args[2])
@@ -16,36 +16,36 @@ function named(ex)
 end
 
 """
-    @named
+    @tf
 
 Automatically name a tensor by the name of the variable it is assigned to.
 
 For example,
-`@named i = constant(1)` creates a node with name "i", exactly as if you
+`@tf i = constant(1)` creates a node with name "i", exactly as if you
 wrote `i = constant(1, name="i")`.
 
 Can also be applied to a block of assignments:
 ```
-@named begin
+@tf begin
   i = constant(1)
   j = constant(2)
 end
 ```
 """
-macro named(ex)
+macro tf(ex)
     is_assign(arg::Expr) = arg.head == Symbol("=")
     is_assign(arg) = false
     if ex.head == :block
         res = Expr(:block)
         for arg in ex.args
             if is_assign(arg)
-                push!(res.args, named(arg))
+                push!(res.args, _tf(arg))
             else
                 push!(res.args, arg)
             end
         end
     else
-        res = named(ex)
+        res = _tf(ex)
     end
     esc(res)
 end

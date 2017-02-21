@@ -102,7 +102,7 @@ get_operations,
 while_loop,
 get_tensor_by_name,
 as_default,
-@named
+@tf
 
 if !isdefined(Base, :⊻)
     export ⊻

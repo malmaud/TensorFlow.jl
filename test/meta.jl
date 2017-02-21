@@ -4,7 +4,7 @@ let
     g = Graph()
     local i, j
     as_default(g) do
-        @named begin
+        @tf begin
             i = constant(1)
             j = constant(2)
         end
