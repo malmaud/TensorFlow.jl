@@ -35,3 +35,13 @@ let
         @test name ∈ names
     end
 end
+
+let
+    graph = Graph()
+    local x
+    as_default(graph) do
+        x = placeholder(Int32, name="x")
+    end
+    x_retrieved = get_tensor_by_name(graph, "x:0")
+    @test x == x_retrieved
+end

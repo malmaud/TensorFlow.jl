@@ -99,7 +99,9 @@ import_graph_def,
 tf_version,
 GraphInputOptions,
 get_operations,
-while_loop
+while_loop,
+get_tensor_by_name,
+as_default
 
 if !isdefined(Base, :⊻)
     export ⊻

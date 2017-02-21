@@ -2,7 +2,7 @@ using ProtoBuf
 using PyCall
 using Compat
 
-import Base: setindex!, getindex, run
+import Base: setindex!, getindex, run, ==
 
 const LIB_BASE = joinpath(dirname(@__FILE__), "..", "deps")
 const LIBTF = joinpath(LIB_BASE, "usr", "bin", "libtensorflow_c")
@@ -101,7 +101,7 @@ end
     @with_def_graph
 
 Defaults the first parameter of the given function to `get_def_graph`.
-""""
+"""
 macro with_def_graph(ex)
     new_func = with_def_graph(ex)
     quote
@@ -137,7 +137,7 @@ function to_node_def(proto)
     to_node_def(node_def)
 end
 
-function extend_graph(graph::Graph, node_defs)
+@with_def_graph function extend_graph(graph::Graph, node_defs)
     n_nodes = length(node_defs)
     new_graph = tensorflow.GraphDef()
     set_field!(new_graph, :node, tensorflow.NodeDef[])
@@ -617,6 +617,10 @@ type NodeNameNotFound <: Exception
     name::String
 end
 
+function Base.show(io::IO, err::NodeNameNotFound)
+    print(io, "Node $(err.name) not found in graph")
+end
+
 get_graph(n::AbstractOperation) = Operation(n).graph
 
 function load_proto(tensor::tensorflow.TensorProto)
@@ -760,7 +764,7 @@ type Tensor <: AbstractTensor
     value_index::Int
 end
 
-function Base.isequal(t1::Tensor, t2::Tensor)
+function ==(t1::Tensor, t2::Tensor)
     t1.op.ptr == t2.op.ptr && t1.value_index==t2.value_index
 end
 
@@ -960,13 +964,12 @@ get_def(t::Tensor) = get_def(t.op)
 
 function parse_port_name(name)
     m = match(r"(.*):(.*)", name)
-    if m==nothing
+    if m === nothing
         return (name, 1)
     else
         port = parse(Int, m[2]) + 1
         return (m[1], port)
     end
-
 end
 
 """
@@ -982,6 +985,23 @@ function get_node_by_name end
     else
         return Nullable(Operation(node_ptr))
     end
+end
+
+"""
+    get_tensor_by_name([graph,], name)
+
+Returns the tensor with name `name` (in name:port format) in the given graph.
+
+Throws a `NodeNameNotFound` exception if there is no such tensor.
+"""
+function get_tensor_by_name end
+
+@with_def_graph function get_tensor_by_name(graph::Graph, full_name)
+    name, port = parse_port_name(full_name)
+    maybe_node = get_node_by_name(graph, name)
+    isnull(maybe_node) && throw(NodeNameNotFound(full_name))
+    node = get(maybe_node)
+    return Tensor(node, port)
 end
 
 function gradients(y, x::AbstractArray)
