@@ -149,7 +149,6 @@ end
     ph_names = Set{String}()
     for node_idx in 1:n_nodes
         node_def = to_node_def(node_defs[node_idx])
-
         if isnull(get_node_by_name(graph, node_def.name))
             # Hack to deal with imported nodes which have
             # colocation dependencies on existing nodes
@@ -179,7 +178,7 @@ end
                 if !isnull(existing_node)
                     local new_name
                     for name_id in countfrom()
-                        new_name = "$(name)__placeholder__$(name_id)"
+                        new_name = "$(name)__placeholder__$(name_id)_$port"
                         isnull(get_node_by_name(graph, new_name)) && break
                     end
                     if is_control
@@ -189,7 +188,7 @@ end
                     end
                     node_def.input[i] = input_name
 
-                    import_options.input_mapping[(new_name, port)] = Tensor(get(existing_node), port)
+                    import_options.input_mapping[(new_name, 1)] = Tensor(get(existing_node), port)
                     new_ph = tensorflow.NodeDef()
                     set_field!(new_ph, :name, new_name)
                     if is_control

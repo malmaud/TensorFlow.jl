@@ -190,7 +190,7 @@ end
 for func in ["Log", "Exp", "Neg", "Ceil", "Floor", "Sqrt", "Square",
     "Cos", "Sin", "Tan", "Atan", "Asin", "Acos", "Tanh",
     "Cast", "Relu", "Relu6", "Elu", "Softplus", "Softsign",
-    "Softmax", "Sigmoid", "Tanh", "SparseSoftmaxCrossEntropyWithLogits",
+    "Softmax", "Sigmoid", "Tanh",
     "LogSoftmax", "LRN", "LogicalAnd", "LogicalNot", "LogicalOr", "LogicalXor",
     "Sign", "Exit", "Enter", "NextIteration", "LoopCond"]
     register_shape(func) do op
@@ -213,9 +213,9 @@ register_shape("SparseSoftmaxCrossEntropyWithLogits") do op
     s1 = _get_shape(get_input(op, 1))
     s2 = _get_shape(get_input(op, 2))
     if s1.rank_unknown || s2.rank_unknown
-        return [TensorShape(nothing)]
+        return [TensorShape(nothing), TensorShape(nothing)]
     end
-    return [TensorShape([s1.dims[1]])]
+    return [TensorShape([s1.dims[1]]), copy(s1)]
 end
 
 for func in ["Add", "Sub", "Mul", "Div", "Pow"]
