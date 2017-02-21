@@ -209,11 +209,11 @@ If `value.shape[axis]` is not known, `ValueError` is raised.
 
 For example, given a tensor of shape `(A, B, C, D)`;
 
-If `axis == 0` then the i'th tensor in `output` is the slice
+If `axis == 1` then the i'th tensor in `output` is the slice
   `value[i, :, :, :]` and each tensor in `output` will have shape `(B, C, D)`.
   (Note that the dimension unpacked along is gone, unlike `split`).
 
-If `axis == 1` then the i'th tensor in `output` is the slice
+If `axis == 2` then the i'th tensor in `output` is the slice
   `value[:, i, :, :]` and each tensor in `output` will have shape `(A, C, D)`.
 Etc.
 
