@@ -31,3 +31,20 @@ n = placeholder(Float32)
 @test get_shape(cat(2, k,m))  == TensorShape([10, 40, 30])
 @test get_shape(cat(3, m,k))  == TensorShape([10,20, -1])
 
+## GatherNd
+@test get_shape(gather_nd(m, [3])) == TensorShape([20, 30]) #1
+
+@test get_shape(gather_nd(m, [5,6,6])) == TensorShape([]) #3
+@test get_shape(gather_nd(m, [5 6 6])) == TensorShape([1])#1x3
+@test get_shape(gather_nd(m, [5 6 6]')) == TensorShape([3, 20, 30])#3x1
+
+@test get_shape(gather_nd(m, [2 5; 2 6; 2 7])) == TensorShape([3, 30]) #2x3
+@test get_shape(gather_nd(m, [2 2 2; 5 6 7])) == TensorShape([2]) #3x2
+
+@test get_shape(gather_nd(m, [5,6])) == TensorShape([30]) #2
+@test get_shape(gather_nd(m, [5 6]')) == TensorShape([2, 20, 30]) #2x1
+
+@test get_shape(gather_nd(m, reshape([3], (1,1)))) == TensorShape([1, 20, 30]) #1x1
+@test get_shape(gather_nd(m, reshape([3], (1,1,1)))) == TensorShape([1, 1, 20, 30]) #1x1x1
+
+
