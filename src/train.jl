@@ -351,7 +351,6 @@ function create_meta_graph_def(graph::Graph)
             elseif isa(obj, Tensor)
                 push!(bytes_list, get_proto(obj.op))
             elseif isa(obj, tensorflow.WhileContextDef)
-                info("hi")
                 push!(bytes_list, get_proto(obj))
             end
         end
