@@ -125,3 +125,64 @@ function Base.show(io::IO, desc::tensorflow.NodeDef)
         end
     end
 end
+
+immutable Tensorboard
+    proc::Base.Process
+    logdir::String
+    port::Int
+end
+
+const tensorboard = Ref{Tensorboard}()
+
+function get_tensorboard()
+    if !isdefined(tensorboard, :x)
+        logdir = mktempdir()
+        _, proc = open(`tensorboard --logdir=$logdir`)
+        tensorboard[] = Tensorboard(proc, logdir, 6006)
+        atexit() do
+            close(proc)
+        end
+        sleep(3)
+    end
+    tensorboard[]
+end
+
+function open_url(url)
+    cmd = nothing
+    if is_apple()
+        cmd = `open $url`
+    elseif is_unix()
+        cmd = `xdg-open $url`
+    end
+    cmd === nothing || run(cmd)
+end
+
+"""
+    visualize(x)
+
+Visualize the given TensorFlow object `x`.
+
+Generally this will work by loading TensorBoard and opening a web
+browser.
+"""
+function visualize end
+
+function visualize(g::Graph)
+    tensorboard = get_tensorboard()
+    writer = train.SummaryWriter(tensorboard.logdir, graph=g)
+    close(writer)
+    open_url("http://localhost:$(tensorboard.port)")
+end
+
+"""
+    visualize_graph([graph=get_def_graph()])
+
+Open a web browser to visualize the given graph in TensorBoard.
+
+The graph defaults to the currnet default graph.
+"""
+function visualize_graph end
+
+@with_def_graph function visualize_graph(g)
+    visualize(g)
+end

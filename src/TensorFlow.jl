@@ -102,7 +102,9 @@ get_operations,
 while_loop,
 get_tensor_by_name,
 as_default,
-@tf
+@tf,
+visualize,
+visualize_graph
 
 if !isdefined(Base, :⊻)
     export ⊻
