@@ -149,8 +149,27 @@ end
     ph_names = Set{String}()
     for node_idx in 1:n_nodes
         node_def = to_node_def(node_defs[node_idx])
+        if node_def.name == "gradients/while/pow_grad/mul_2/f_acc"
+            # info(node_def)
+        end
 
         if isnull(get_node_by_name(graph, node_def.name))
+            # Hack to deal with imported nodes which have 
+            # colocation dependencies on existing nodes
+            if has_field(node_def, :attr) && haskey(node_def.attr, "_class")
+                classes = node_def.attr["_class"].list.s
+                inds = Int[]
+                for (ind, val) in enumerate(classes)
+                    m = match(r"^loc:@(.*)", String(val))
+                    if m !== nothing
+                        loc_name = m[1]
+                        if !isnull(get_node_by_name(graph, loc_name))
+                            push!(inds, ind)
+                        end
+                    end
+                end
+                deleteat!(classes, inds)
+            end
             push!(new_graph.node, node_def)
             for (i, input) in enumerate(node_def.input)
                 name, port = parse_port_name(input)

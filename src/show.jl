@@ -114,6 +114,11 @@ function Base.show(io::IO, desc::tensorflow.NodeDef)
             elseif has_field(attr_value, :shape)
                 print(io, "shape: ")
                 println(io, [_.size for _ in attr_value.shape.dim])
+            elseif has_field(attr_value, :list)
+                list = attr_value.list
+                if has_field(list, :s)
+                    println(io, "string: $(String.(list.s))")
+                end
             end
             println(io, "  }")
             println(io, "}")
