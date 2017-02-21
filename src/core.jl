@@ -85,12 +85,10 @@ function with_def_graph(ex)
     new_call_sig = Expr(:call, old_call_sig.args[1], old_call_sig.args[3:end]...)
     push!(new_func.args, new_call_sig)
     new_body = Expr(:call, old_call_sig.args[1], Expr(:call, :get_def_graph))
+    extract_arg(x::Symbol) = x
+    extract_arg(x::Expr) = x.args[1]
     for arg in old_call_sig.args[3:end]
-        if isa(arg, Symbol)
-            push!(new_body.args, arg)
-        elseif isa(arg, Expr)
-            push!(new_body.args, arg.args[1])
-        end
+        push!(new_body.args, extract_arg(arg))
     end
 
     push!(new_func.args, new_body)
