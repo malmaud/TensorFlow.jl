@@ -101,7 +101,8 @@ GraphInputOptions,
 get_operations,
 while_loop,
 get_tensor_by_name,
-as_default
+as_default,
+@named
 
 if !isdefined(Base, :⊻)
     export ⊻
@@ -145,5 +146,6 @@ include("ops.jl")
 include("train.jl")
 include("io.jl")
 include("show.jl")
+include("meta.jl")
 
 end

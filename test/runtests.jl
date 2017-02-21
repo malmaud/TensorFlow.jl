@@ -24,7 +24,8 @@ tests = [
     "clipping.jl",
     "image.jl",
     "transformations.jl",
-    "proto.jl"
+    "proto.jl",
+    "meta.jl"
 ]
 
 for filename in tests
