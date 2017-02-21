@@ -140,7 +140,7 @@ function get_tensorboard()
         _, proc = open(`tensorboard --logdir=$logdir`)
         tensorboard[] = Tensorboard(proc, logdir, 6006)
         atexit() do
-            close(proc)
+            kill(proc, 2)
         end
         sleep(3)
     end
