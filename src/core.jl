@@ -155,7 +155,10 @@ end
             for (i, input) in enumerate(node_def.input)
                 name, port = parse_port_name(input)
                 is_control = name[1] == '^'
-                is_control && (name = name[2:end])
+                if is_control
+                    name = name[2:end]
+                    port = 0
+                end
                 existing_node = get_node_by_name(graph, name)
                 if !isnull(existing_node)
                     local new_name
@@ -169,7 +172,7 @@ end
                         input_name = new_name
                     end
                     node_def.input[i] = input_name
-                    import_options.input_mapping[(input_name, port)] = Tensor(get(existing_node), port)
+
                     import_options.input_mapping[(new_name, port)] = Tensor(get(existing_node), port)
                     new_ph = tensorflow.NodeDef()
                     set_field!(new_ph, :name, new_name)
