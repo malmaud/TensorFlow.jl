@@ -109,6 +109,9 @@ macro with_def_graph(ex)
 end
 
 @with_def_graph function add_to_collection(g::Graph, name, node)
+    if !haskey(g.collections, name)
+        g.collections[name] = []
+    end
     push!(g.collections[name], node)
 end
 
@@ -118,7 +121,10 @@ Returns a collection attached to the graph `g` named `name`
 function get_collection end
 
 @with_def_graph function get_collection(g::Graph, name)
-    g.collections[name]
+    if !haskey(g.collections, name)
+        return []
+    end
+    return g.collections[name]
 end
 
 
