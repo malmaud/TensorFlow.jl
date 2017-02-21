@@ -132,7 +132,7 @@ Returns:
   buffer resulting from the merging.
 """
 function merge_all_summaries(key=:Summaries)
-    merge_summary(get_collection(:Summaries), collections=[])
+    merge_summary(get_collection(key), collections=[])
 end
 
 """
