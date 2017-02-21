@@ -183,7 +183,6 @@ end
             end
         end
     end
-    info(import_options.input_mapping)
     import_graph_def(graph, new_graph, import_options)
 end
 
