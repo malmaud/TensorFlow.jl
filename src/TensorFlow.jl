@@ -110,17 +110,15 @@ if !isdefined(Base, :⊻)
     export ⊻
 end
 
-const pyproc = Ref{Int}()
+const pyproc = Ref(0)
 
 function __init__()
     c_deallocator[] = cfunction(deallocator, Void, (Ptr{Void}, Csize_t, Ptr{Void}))
-    if myid() == 1
-        set_def_graph(Graph())
-        load_python_process()
-    end
+    set_def_graph(Graph())
 end
 
 function load_python_process()
+    pyproc[] > 0 && return  # Python process already loaded
     addprocs(1)
     pyproc[] = nprocs()
     py_file = joinpath(dirname(@__FILE__), "py.jl")

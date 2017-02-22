@@ -10,6 +10,7 @@ function SummaryWriter(log_dir; graph=get_def_graph())
     self = SummaryWriter()
     self.log_dir = log_dir
     path = joinpath(log_dir, "events")
+    load_python_process()
     eval(Main, quote
         remotecall_wait($(tf.pyproc[])) do
             open_events_file($path)
@@ -26,6 +27,7 @@ function Base.write(writer::SummaryWriter, event::tensorflow.Event)
     writeproto(b, event)
     seekstart(b)
     proto = read(b)
+    load_python_process()
     eval(Main, quote
         remotecall_wait($(tf.pyproc[])) do
             write_event($proto)
@@ -58,6 +60,7 @@ function Base.write(writer::SummaryWriter, graph::Graph)
 end
 
 function Base.close(writer::SummaryWriter)
+    load_python_process()
     eval(Main, quote
         remotecall_wait($(tf.pyproc[])) do
             close_events_file()
