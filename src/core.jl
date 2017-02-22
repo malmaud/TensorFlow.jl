@@ -168,17 +168,20 @@ end
             end
             push!(new_graph.node, node_def)
             for (i, input) in enumerate(node_def.input)
-                name, port = parse_port_name(input)
+                name, dest_port = parse_port_name(input)
                 is_control = name[1] == '^'
                 if is_control
                     name = name[2:end]
-                    port = 0
+                    dest_port = 0
+                    source_port = 0
+                else
+                    source_port = 1
                 end
                 existing_node = get_node_by_name(graph, name)
                 if !isnull(existing_node)
                     local new_name
                     for name_id in countfrom()
-                        new_name = "$(name)__placeholder__$(name_id)_$port"
+                        new_name = "$(name)__placeholder__$(name_id)_$dest_port"
                         isnull(get_node_by_name(graph, new_name)) && break
                     end
                     if is_control
@@ -188,7 +191,7 @@ end
                     end
                     node_def.input[i] = input_name
 
-                    import_options.input_mapping[(new_name, 1)] = Tensor(get(existing_node), port)
+                    import_options.input_mapping[(new_name, source_port)] = Tensor(get(existing_node), dest_port)
                     new_ph = tensorflow.NodeDef()
                     set_field!(new_ph, :name, new_name)
                     if is_control

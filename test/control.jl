@@ -14,6 +14,9 @@ f1 = ()->17x
 f2 = ()->y+23
 result = run(sess, TensorFlow.cond(x.<y, f1, f2))
 @test 17*2 == result
-
-w = while_loop((i,s)->i≤5, (i,s)->[i+1, s+i], [1, 0])
+inc = constant(1)
+i = constant(1)
+w = while_loop((i,s)->i≤5, (i,s)->[i+inc, s+i], [i, 0])
 @test run(sess, w)[2] == sum(1:5)
+grad = gradients(w[1], i)
+@test run(sess, grad) == 1

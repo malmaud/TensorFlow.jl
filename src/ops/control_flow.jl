@@ -195,11 +195,12 @@ function with_frame(f, parallel_iterations, back_prop, swap_memory)
     pop!(op_context.while_context)
 end
 
-function make_enter_op(input, frame; name=nothing)
+function make_enter_op(input, frame; name=nothing, is_constant=false)
     local desc
     with_op_name(name, "Enter") do
         desc = NodeDescription("Enter")
         desc["frame_name"] = frame
+        desc["is_constant"] = is_constant
         add_input(desc, input)
     end
     Tensor(Operation(desc), 1)
@@ -368,9 +369,10 @@ Example using shape_invariants:
 """
 function while_loop(condition, body, variables; name=nothing, shape_invariants=nothing, parallel_iterations=10, back_prop=true, swap_memory=false)
     g = Graph()
-    g.op_context = get_def_graph().op_context
-    g.name_idx = get_def_graph().name_idx
-    g.collections = get_def_graph().collections
+    def_graph = get_def_graph()
+    g.op_context = def_graph.op_context
+    g.name_idx = def_graph.name_idx
+    g.collections = def_graph.collections
     variables = map(Tensor, variables)
     local output, g_def
     as_default(g) do
@@ -433,9 +435,35 @@ function while_loop(condition, body, variables; name=nothing, shape_invariants=n
                         push!(context.values_def.values, get_name(Tensor(op, output_idx)))
                     end
                 end
-            end
-        end
-    end
+                set_field!(context.values_def, :external_values, Dict{AbstractString, AbstractString}())
+                for node in g_def.node
+                    for (input_idx, input) in enumerate(node.input)
+                        name, port = parse_port_name(input)
+                        maybe_op = get_node_by_name(def_graph, name)
+                        isnull(maybe_op) && continue
+                        is_var = false
+                        for var in variables
+                            if name == var.op.name && port == var.value_index
+                                is_var = true
+                                break
+                            end
+                        end
+                        is_var && continue
+                        op = get(maybe_op)
+                        tensor = Tensor(op, port)
+                        local enter_op
+                        as_default(def_graph) do
+                            enter_op = make_enter_op(tensor, context.context_name, is_constant=true)
+                        end
+                        context.values_def.external_values[get_name(tensor)] = get_name(enter_op)
+                        push!(context.values_def.values, get_name(tensor))
+                        push!(context.values_def.values, get_name(enter_op))
+                        node.input[input_idx] = get_name(enter_op)
+                    end
+                end
+            end  # with_frame
+        end  # with_op_name
+    end  # as_default
 
     extend_graph(get_def_graph(), g_def.node)
     output
