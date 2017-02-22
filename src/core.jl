@@ -200,7 +200,13 @@ end
                         set_field!(new_ph, :op, "Placeholder")
                         set_field!(new_ph, :attr, Dict{AbstractString, tensorflow.AttrValue}())
                         new_ph.attr["dtype"] = tensorflow.AttrValue()
-                        set_field!(new_ph.attr["dtype"], :_type, node_def.attr["T"]._type)
+                        local source_type
+                        try
+                            source_type = node_def.attr["T"]._type
+                        catch
+                            source_type = node_def.attr["SrcT"]._type
+                        end
+                        set_field!(new_ph.attr["dtype"], :_type, source_type)
                     end
                     if new_name ∉ ph_names
                         push!(new_graph.node, new_ph)
