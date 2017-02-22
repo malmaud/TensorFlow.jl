@@ -26,7 +26,8 @@ tests = [
     "transformations.jl",
     "proto.jl",
     "meta.jl",
-    "control.jl"
+    "control.jl",
+    "ops.jl"
 ]
 
 for filename in tests

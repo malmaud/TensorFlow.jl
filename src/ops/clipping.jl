@@ -1,4 +1,4 @@
-function clip_by_value(t, clip_value_min, clip_value_max; name=nothing)
+@op function clip_by_value(t, clip_value_min, clip_value_max; name=nothing)
     local out
     with_op_name(name, "ClipByValue") do
         out = max(min(t, clip_value_max), clip_value_min)
@@ -8,7 +8,7 @@ end
 
 Base.clamp(t::AbstractTensor, min_value, max_value) = clip_by_value(t, min_value, max_value)
 
-function clip_by_norm(t, clip_norm; axes=nothing, name=nothing)
+@op function clip_by_norm(t, clip_norm; axes=nothing, name=nothing)
     local out
     t = Tensor(t)
     with_op_name(name, "ClipByNorm") do
@@ -27,7 +27,7 @@ end
 @not_implemented function clip_by_average_norm(t, clip_norm; name="")
 end
 
-function clip_by_global_norm(t_list, clip_norm; use_norm=nothing, name=nothing)
+@op function clip_by_global_norm(t_list, clip_norm; use_norm=nothing, name=nothing)
     local out, gn
     if isempty(t_list)
         error("Must pass at least one tensor to clip_by_global_norm")
@@ -46,7 +46,7 @@ function clip_by_global_norm(t_list, clip_norm; use_norm=nothing, name=nothing)
     [out, gn]
 end
 
-function global_norm(t_list; name=nothing)
+@op function global_norm(t_list; name=nothing)
     local out
     tensor_value(t) = Tensor(t)
     tensor_value(t::IndexedSlices) = t.values

@@ -8,7 +8,7 @@ for (func, op) in [
     (:greater, "Greater"),
     (:greater_equal, "GreaterEqual")]
 
-    @eval function $func(t1::AbstractTensor, t2::AbstractTensor; name=nothing)
+    @eval @op function $func(t1::AbstractTensor, t2::AbstractTensor; name=nothing)
         local desc
         with_op_name(name, $op) do
             desc = NodeDescription($op)
@@ -40,7 +40,7 @@ for (func, sym) in [
     @eval $sym(t1, t2::AbstractTensor) = $func(Tensor(t1), t2)
 end
 
-function Base.select(condition::AbstractTensor, t, e; name=nothing)
+@op function Base.select(condition::AbstractTensor, t, e; name=nothing)
     local desc
     with_op_name(name, "Select") do
         desc = NodeDescription("Select")
@@ -54,7 +54,7 @@ end
 """
 Returns locations of `true` values in a boolean `Tensor`.
 """
-function where(input; name=nothing)
+@op function where(input; name=nothing)
     local desc
     with_op_name(name, "Where") do
         desc = NodeDescription("Where")

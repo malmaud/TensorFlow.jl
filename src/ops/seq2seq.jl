@@ -5,9 +5,9 @@ sequence_loss_by_example,
 sequence_loss
 
 import ..nn: tf
-import .tf: @not_implemented
+import .tf: @not_implemented, @op
 
-function sequence_loss_by_example(logits, targets, weights;
+@op function sequence_loss_by_example(logits, targets, weights;
                                   average_across_timesteps=true,
                                   softmax_loss_function=nothing,
                                   name=nothing)
@@ -30,7 +30,7 @@ function sequence_loss_by_example(logits, targets, weights;
     score
 end
 
-function sequence_loss(logits, targets, weights,
+@op function sequence_loss(logits, targets, weights,
                        average_across_timesteps=true,
                        average_across_batch=true,
                        softmax_loss_function=nothing,

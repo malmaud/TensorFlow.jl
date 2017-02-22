@@ -14,7 +14,7 @@ Raises:
   ValueError: If `inputs` don't all have same shape and dtype or the shape
   cannot be inferred.
 """
-function add_n(inputs; name=nothing)
+@op function add_n(inputs; name=nothing)
     local desc
     with_op_name(name, "AddN") do
         desc = NodeDescription("AddN")
@@ -33,7 +33,7 @@ Args:
 Returns:
 A `Tensor` of type `Int64`.
 """
-function argmin(n::AbstractTensor, dim; name=nothing)
+@op function argmin(n::AbstractTensor, dim; name=nothing)
     local desc
     with_op_name(name, "ArgMin") do
         desc = NodeDescription("ArgMin")
@@ -55,7 +55,7 @@ Args:
 Returns:
 A `Tensor` of type `Int64`.
 """
-function argmax(n::AbstractTensor, dim; name=nothing)
+@op function argmax(n::AbstractTensor, dim; name=nothing)
     local desc
     with_op_name(name, "ArgMax") do
         desc = NodeDescription("ArgMax")
@@ -67,7 +67,7 @@ end
 
 Base.indmax(n::AbstractTensor, dim) = argmax(n, dim-1)
 
-function Base.max(x::AbstractTensor, y, name=nothing)
+@op function Base.max(x::AbstractTensor, y, name=nothing)
     local desc
     with_op_name(name, "Maximum") do
         desc = NodeDescription("Maximum")
@@ -77,7 +77,7 @@ function Base.max(x::AbstractTensor, y, name=nothing)
     Tensor(Operation(desc))
 end
 
-function Base.min(x::AbstractTensor, y, name=nothing)
+@op function Base.min(x::AbstractTensor, y, name=nothing)
     local desc
     with_op_name(name, "Minimum") do
         desc = NodeDescription("Minimum")
@@ -113,7 +113,7 @@ for (bin_op, jl_func_name, tf_func_name) in [
 end
 
 # TO DO provide the aliases for Base functions
-function matrix_solve(matrix, rhs; adjoint=false, name=nothing)
+@op function matrix_solve(matrix, rhs; adjoint=false, name=nothing)
     local desc
     with_op_name(name, "MatrixSolve") do
         desc = NodeDescription("MatrixSolve")
@@ -126,7 +126,7 @@ function matrix_solve(matrix, rhs; adjoint=false, name=nothing)
     Tensor(Operation(desc), 1)
 end
 
-function matrix_triangular_solve(matrix, rhs; lower=true, adjoint=false, name=nothing)
+@op function matrix_triangular_solve(matrix, rhs; lower=true, adjoint=false, name=nothing)
     local desc
     with_op_name(name, "MatrixTriangularSolve") do
         desc = NodeDescription("MatrixTriangularSolve")
@@ -140,7 +140,7 @@ function matrix_triangular_solve(matrix, rhs; lower=true, adjoint=false, name=no
     Tensor(Operation(desc), 1)
 end
 
-function matrix_solve_ls(matrix, rhs; l2regularizer=0., fast=true, name=nothing)
+@op function matrix_solve_ls(matrix, rhs; l2regularizer=0., fast=true, name=nothing)
     local desc
     with_op_name(name, "MatrixSolveLS") do
         desc = NodeDescription("MatrixSolveLS")
@@ -154,7 +154,7 @@ function matrix_solve_ls(matrix, rhs; l2regularizer=0., fast=true, name=nothing)
     Tensor(Operation(desc), 1)
 end
 
-function self_adjoint_eig(tensor; name=nothing)
+@op function self_adjoint_eig(tensor; name=nothing)
     local desc
     with_op_name(name, "SelfAdjointEig") do
         desc = NodeDescription("SelfAdjointEigV2")
@@ -164,7 +164,7 @@ function self_adjoint_eig(tensor; name=nothing)
     [Tensor(op, 1), Tensor(op, 2)]
 end
 
-function cholesky(input; name=nothing)
+@op function cholesky(input; name=nothing)
     local desc
     with_op_name(name, "Cholesky") do
         desc = NodeDescription("Cholesky")
@@ -173,7 +173,7 @@ function cholesky(input; name=nothing)
     Tensor(Operation(desc), 1)
 end
 
-function Base.cross(n1::AbstractTensor, n2::AbstractTensor; name=nothing)
+@op function Base.cross(n1::AbstractTensor, n2::AbstractTensor; name=nothing)
     local desc
     with_op_name(name, "Cross") do
         n1 = Tensor(n1)
@@ -196,7 +196,7 @@ for (jl_func_name, tf_func_name) in [
     (:neg, "Neg"),
     (:square, "Square"),
     (:shape, "Shape")]
-    @eval function $jl_func_name(n::AbstractTensor; name=nothing)
+    @eval @op function $jl_func_name(n::AbstractTensor; name=nothing)
         local desc
         with_op_name(name, $tf_func_name) do
             n = Tensor(n)
@@ -227,7 +227,7 @@ for (jl_func_name, tf_func_name) in [
     (:real, "Real"),
     (:imag, "Imag"),
     (:conj, "Conj")]
-    @eval function Base.$jl_func_name(n::AbstractTensor; name=nothing)
+    @eval @op function Base.$jl_func_name(n::AbstractTensor; name=nothing)
         local desc
         with_op_name(name, $tf_func_name) do
             n = Tensor(n)
@@ -238,7 +238,7 @@ for (jl_func_name, tf_func_name) in [
     end
 end
 
-function Base.lbeta(x1::AbstractTensor, x2; name=nothing)
+@op function Base.lbeta(x1::AbstractTensor, x2; name=nothing)
     local out
     with_op_name(name, "lbeta") do
         x1 = Tensor(x1)
@@ -252,7 +252,7 @@ end
 for (jl_func_name, tf_func_name) in [
     (:zeta, "Zeta"),
     (:polygamma, "Polygamma")]
-    @eval function Base.$jl_func_name(x::AbstractTensor, q::AbstractTensor; name=nothing)
+    @eval @op function Base.$jl_func_name(x::AbstractTensor, q::AbstractTensor; name=nothing)
         local desc
         with_op_name(name, $tf_func_name) do
             x = Tensor(x)
@@ -268,7 +268,7 @@ end
 
 -(n::AbstractTensor) = neg(n)
 
-function Base.complex(x_r::AbstractTensor, x_i::AbstractTensor; name=nothing)
+@op function Base.complex(x_r::AbstractTensor, x_i::AbstractTensor; name=nothing)
     local desc
     with_op_name(name, "Complex") do
         x_r = Tensor(x_r)
@@ -287,7 +287,7 @@ for (jl_func_name, tf_func_name) in [
     (:det, "MatrixDeterminant"),
     (:diagm, "Diag"),
     (:diag, "MatrixDiagPart")]
-    @eval function Base.$jl_func_name(n::AbstractTensor; name=nothing)
+    @eval @op function Base.$jl_func_name(n::AbstractTensor; name=nothing)
         local desc
         with_op_name(name, $tf_func_name) do
             n = Tensor(n)
@@ -301,7 +301,7 @@ end
 # Reductions
 
 for reduction in [:sum, :prod, :min, :max, :all, :any, :mean]
-    @eval function $(Symbol("reduce_", reduction))(n::AbstractTensor; reduction_indices=nothing, keep_dims=false, name=nothing)
+    @eval @op function $(Symbol("reduce_", reduction))(n::AbstractTensor; reduction_indices=nothing, keep_dims=false, name=nothing)
         if name === nothing
             name = get_name("reduce")
         end
@@ -337,7 +337,7 @@ end
 
 for reduction in [:sum, :prod, :min, :max, :mean]
     func_name = ucfirst(string(reduction))
-    @eval function $(Symbol("segment_", reduction))(n::AbstractTensor, segment_indices; name=nothing)
+    @eval @op function $(Symbol("segment_", reduction))(n::AbstractTensor, segment_indices; name=nothing)
         segment_indices = cast(Tensor(segment_indices), Int32) - 1
         local desc
         with_op_name(name, string("Segment", $func_name)) do

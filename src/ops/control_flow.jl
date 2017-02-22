@@ -10,7 +10,7 @@ Args:
 Returns:
   A `Tensor`. Has the same type as `input`.
 """
-function identity(input; name=nothing)
+@op function identity(input; name=nothing)
     local desc
     with_op_name(name, "Identity") do
         desc = NodeDescription("Identity")
@@ -19,7 +19,7 @@ function identity(input; name=nothing)
     Tensor(Operation(desc))
 end
 
-function make_tuple(tensors; name="", control_inputs=Operation[])
+@op function make_tuple(tensors; name="", control_inputs=Operation[])
     group_deps = group(vcat(tensors, control_inputs)...)
     ops = Tensor[]
     name_base = get_name(name)
@@ -53,7 +53,7 @@ Returns:
 Raises:
   `ValueError`: If an unknown keyword argument is provided.
 """
-function group(tensors...; name=nothing)
+@op function group(tensors...; name=nothing)
     local desc
     with_op_name(name, "Group") do
         desc = NodeDescription("NoOp")
@@ -96,7 +96,7 @@ Returns:
 *  A copy of the input before increment. If nothing else modifies the
    input, the values produced will all be distinct.
 """
-function count_up_to(ref, limit; name=nothing)
+@op function count_up_to(ref, limit; name=nothing)
     local desc
     with_op_name(name, "CountUpTo") do
         desc = NodeDescription("CountUpTo")
@@ -155,7 +155,7 @@ Example:
   # Operations in f2 (e.g., tf.add) are not executed.
 ```
 """
-function Base.cond(pred::AbstractTensor, fn1, fn2; name=nothing)
+@op function Base.cond(pred::AbstractTensor, fn1, fn2; name=nothing)
     #  TODO add control dependencies to subgraphs
     local merge
 
@@ -195,7 +195,7 @@ function with_frame(f, parallel_iterations, back_prop, swap_memory)
     pop!(op_context.while_context)
 end
 
-function make_enter_op(input, frame; name=nothing, is_constant=false)
+@op function make_enter_op(input, frame; name=nothing, is_constant=false)
     local desc
     with_op_name(name, "Enter") do
         desc = NodeDescription("Enter")
@@ -206,7 +206,7 @@ function make_enter_op(input, frame; name=nothing, is_constant=false)
     Tensor(Operation(desc), 1)
 end
 
-function make_exit_op(input; name=nothing)
+@op function make_exit_op(input; name=nothing)
     local desc
     with_op_name(name, "Exit") do
         desc = NodeDescription("Exit")
@@ -215,7 +215,7 @@ function make_exit_op(input; name=nothing)
     Tensor(Operation(desc), 1)
 end
 
-function make_next_iteration_op(input; name=nothing)
+@op function make_next_iteration_op(input; name=nothing)
     local desc
     with_op_name(name, "NextIteration") do
         desc = NodeDescription("NextIteration")
@@ -224,7 +224,7 @@ function make_next_iteration_op(input; name=nothing)
     Tensor(Operation(desc), 1)
 end
 
-function make_merge_op(inputs; name=nothing)
+@op function make_merge_op(inputs; name=nothing)
     local desc
     with_op_name(name, "Merge") do
         desc = NodeDescription("Merge")
@@ -233,7 +233,7 @@ function make_merge_op(inputs; name=nothing)
     Tensor(Operation(desc), 1)
 end
 
-function make_switch_op(input, predicate; name=nothing)
+@op function make_switch_op(input, predicate; name=nothing)
     local desc
     with_op_name(name, "Switch") do
         desc = NodeDescription("Switch")
@@ -244,7 +244,7 @@ function make_switch_op(input, predicate; name=nothing)
     [Tensor(op, 1), Tensor(op, 2)]
 end
 
-function make_loop_cond(input; name=nothing)
+@op function make_loop_cond(input; name=nothing)
     local desc
     with_op_name(name, "LoopCond") do
         desc = NodeDescription("LoopCond")
@@ -367,7 +367,7 @@ Example using shape_invariants:
       shape_invariants=[i0.get_shape(), tensor_shape.TensorShape([None, 2])])
   ```
 """
-function while_loop(condition, body, variables; name=nothing, shape_invariants=nothing, parallel_iterations=10, back_prop=true, swap_memory=false)
+@op function while_loop(condition, body, variables; name=nothing, shape_invariants=nothing, parallel_iterations=10, back_prop=true, swap_memory=false)
     g = Graph()
     def_graph = get_def_graph()
     g.op_context = def_graph.op_context

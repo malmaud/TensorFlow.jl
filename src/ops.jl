@@ -1,5 +1,21 @@
 import Base: log, exp, +, -, *, /, .*, .+, ./, .-, ^, .^, sin, cos, tan, asin, acos, atan, div, tanh, sqrt, abs, floor, .==, ceil, floor, sign
 
+const op_funcs = Set{Any}()
+
+macro op(f)
+    if f.head == :function
+        op_name = f.args[1].args[1]
+    elseif f.head == Symbol("=") && f.args[1].head == :call
+        op_name = f.args[1].args[1]
+    else
+        error("Inproper use of `op`")
+    end
+    push!(op_funcs, op_name)
+    quote
+        @Base.__doc__ $f
+    end |> esc
+end
+
 function tf_promote(t, x::Number)
     return Tensor(eltype(t)(x))
 end
@@ -78,7 +94,7 @@ Returns:
   A `Tensor` that may be used as a handle for feeding a value, but not
   evaluated directly.
 """
-function placeholder(dtype; name=nothing, shape=nothing)
+@op function placeholder(dtype; name=nothing, shape=nothing)
     local node
     with_op_name(name, "placeholder") do
         graph = get_def_graph()
@@ -112,7 +128,7 @@ Args:
 Returns:
   A `Tensor` of type `string`.
 """
-function read_file(filename; name=nothing)
+@op function read_file(filename; name=nothing)
     local desc
     with_op_name(name, "ReadFile") do
         desc = NodeDescription("ReadFile")

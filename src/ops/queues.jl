@@ -16,7 +16,7 @@ type RandomShuffleQueue <: AbstractQueue
     RandomShuffleQueue() = new()
 end
 
-function FIFOQueue(capacity, dtypes; name=nothing, shapes=nothing)
+@op function FIFOQueue(capacity, dtypes; name=nothing, shapes=nothing)
     self = FIFOQueue()
     dtypes = to_list(dtypes)
     local desc
@@ -33,7 +33,7 @@ function FIFOQueue(capacity, dtypes; name=nothing, shapes=nothing)
     self
 end
 
-function RandomShuffleQueue(capacity, dtypes; name=nothing, shapes=nothing)
+@op function RandomShuffleQueue(capacity, dtypes; name=nothing, shapes=nothing)
     self = RandomShuffleQueue()
     if !isa(dtypes, AbstractVector)
         dtypes = [dtypes]
@@ -52,7 +52,7 @@ function RandomShuffleQueue(capacity, dtypes; name=nothing, shapes=nothing)
     self
 end
 
-function enqueue(queue::AbstractQueue, values; name=nothing)
+@op function enqueue(queue::AbstractQueue, values; name=nothing)
     values = to_list(values)
     local desc
     with_op_name(name, "QueueEnqueue") do
@@ -64,7 +64,7 @@ function enqueue(queue::AbstractQueue, values; name=nothing)
     Tensor(Operation(desc))
 end
 
-function enqueue_many(queue::AbstractQueue, values; name=nothing)
+@op function enqueue_many(queue::AbstractQueue, values; name=nothing)
     local desc
     with_op_name(name, "QueueEnqueueMany") do
         desc = NodeDescription("QueueEnqueueMany")
@@ -78,7 +78,7 @@ function enqueue_many(queue::AbstractQueue, values; name=nothing)
     Tensor(Operation(desc))
 end
 
-function dequeue(queue::AbstractQueue; name=nothing)
+@op function dequeue(queue::AbstractQueue; name=nothing)
     local desc
     with_op_name(name, "QueueDequeue") do
         desc = NodeDescription("QueueDequeue")
@@ -89,7 +89,7 @@ function dequeue(queue::AbstractQueue; name=nothing)
     [Tensor(op, i) for i in 1:length(queue.dtypes)]
 end
 
-function dequeue_many(queue::AbstractQueue, n; name=nothing)
+@op function dequeue_many(queue::AbstractQueue, n; name=nothing)
     local desc
     with_op_name(name, "QueueDequeueMany") do
         desc = NodeDescription("QueueDequeueMany")
@@ -101,7 +101,7 @@ function dequeue_many(queue::AbstractQueue, n; name=nothing)
     [Tensor(op, i) for i in 1:length(queue.dtypes)]
 end
 
-function Base.size(queue::AbstractQueue; name=nothing)
+@op function Base.size(queue::AbstractQueue; name=nothing)
     local desc
     with_op_name(name, "QueueSize") do
         desc = NodeDescription("QueueSize")
@@ -110,7 +110,7 @@ function Base.size(queue::AbstractQueue; name=nothing)
     Tensor(Operation(desc))
 end
 
-function Base.close(queue::AbstractQueue; name=nothing)
+@op function Base.close(queue::AbstractQueue; name=nothing)
     local desc
     with_op_name(name, "QueueClose") do
         desc = NodeDescription("QueueClose")

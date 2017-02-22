@@ -1,7 +1,7 @@
 """
 Creates a constant `Tensor`.
 """
-function constant(tensor; name=nothing)
+@op function constant(tensor; name=nothing)
     local desc
     with_op_name(name, "Const") do
         desc = NodeDescription("Const")
@@ -51,7 +51,7 @@ Args:
 Returns:
 A `Tensor` of the specified `shape` and `dtype` containing random values.
 """
-function random_uniform(shape, minval, maxval; name=nothing, seed=0, dtype=Float32)
+@op function random_uniform(shape, minval, maxval; name=nothing, seed=0, dtype=Float32)
     local out
     with_op_name(name, "RandomUniform") do
         desc = NodeDescription("RandomUniform")
@@ -81,7 +81,7 @@ Args:
 Returns:
 A `Tensor` of the specified `shape` and `dtype` containing random values.
 """
-function random_normal(shape; mean=0.0, stddev=1.0, dtype=Float32, seed=0, name=nothing)
+@op function random_normal(shape; mean=0.0, stddev=1.0, dtype=Float32, seed=0, name=nothing)
     local out
     with_op_name(name, "RandomNormal") do
         desc = NodeDescription("RandomStandardNormal")
@@ -93,7 +93,7 @@ function random_normal(shape; mean=0.0, stddev=1.0, dtype=Float32, seed=0, name=
     out
 end
 
-function Base.shuffle(t::Tensor; seed=0, name=nothing)
+@op function Base.shuffle(t::Tensor; seed=0, name=nothing)
     local desc
     with_op_name(name, "RandomShuffle") do
         desc = NodeDescription("RandomShuffle")
@@ -103,7 +103,7 @@ function Base.shuffle(t::Tensor; seed=0, name=nothing)
     Tensor(Operation(desc))
 end
 
-function Base.linspace(::Type{Tensor}, start, stop, num; name=nothing)
+@op function Base.linspace(::Type{Tensor}, start, stop, num; name=nothing)
     local desc
     with_op_name(name, "LinSpace") do
         desc = NodeDescription("LinSpace")
@@ -115,7 +115,7 @@ function Base.linspace(::Type{Tensor}, start, stop, num; name=nothing)
 end
 
 
-function Base.range(::Type{Tensor}, start; limit=nothing, delta=1, name=nothing)
+@op function Base.range(::Type{Tensor}, start; limit=nothing, delta=1, name=nothing)
     if limit == nothing
         limit = start
         start = 0
@@ -154,7 +154,7 @@ Args:
 Returns:
   A `Tensor`. Has the same type as `value`.
 """
-function Base.fill(n::AbstractTensor, dims::AbstractTensor; name=nothing)
+@op function Base.fill(n::AbstractTensor, dims::AbstractTensor; name=nothing)
     local desc
     with_op_name(name, "Fill") do
         desc = NodeDescription("Fill")
@@ -164,7 +164,7 @@ function Base.fill(n::AbstractTensor, dims::AbstractTensor; name=nothing)
     Tensor(Operation(desc), 1)
 end
 
-function Base.fill(::Type{Tensor}, n, dims; name=nothing)
+@op function Base.fill(::Type{Tensor}, n, dims; name=nothing)
     fill(Tensor(n), Tensor(dims); name=name)
 end
 
@@ -227,7 +227,7 @@ Args:
 Returns:
   A `Tensor`. Has the same type as `tensor`. The same shape as `tensor`.
 """
-function Base.reverse(x::AbstractTensor, indices; name=nothing)
+@op function Base.reverse(x::AbstractTensor, indices; name=nothing)
     local desc
     with_op_name(name, "Reverse") do
         desc = NodeDescription("Reverse")

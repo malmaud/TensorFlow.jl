@@ -14,7 +14,7 @@ grayscale_to_rgb,
 rgb_to_hsv,
 hsv_to_rgb
 
-import ..TensorFlow: NodeDescription, get_def_graph, get_name, add_input, Operation, pack, convert_number, AbstractOperation, Tensor, with_op_name, constant
+import ..TensorFlow: NodeDescription, get_def_graph, get_name, add_input, Operation, pack, convert_number, AbstractOperation, Tensor, with_op_name, constant, @op
 
 """
 `function decode_jpeg(contents, channels=1, ratio=1, fancy_upscaling=true, try_recover_truncated=false, acceptable_fraction=1.0)`
@@ -55,7 +55,7 @@ Args:
 Returns:
   A `Tensor` of type `uint8`. 3-D with shape `[height, width, channels]`.
 """
-function decode_jpeg(contents; channels=0, ratio=1, fancy_upscaling=true, try_recover_truncated=false, acceptable_fraction=1.0, name=nothing)
+@op function decode_jpeg(contents; channels=0, ratio=1, fancy_upscaling=true, try_recover_truncated=false, acceptable_fraction=1.0, name=nothing)
     local desc
     with_op_name(name, "DecodeJpeg") do
         desc = NodeDescription("DecodeJpeg")
@@ -90,7 +90,7 @@ Args:
 Returns:
   A `Tensor` of type `string`. Zero dimensional JPEG-encoded image.
 """
-function encode_jpeg(contents; format="", quality=95, progressive=true, optimize_size=false, chroma_downsampling=true, density_unit="in", x_density=300, y_density=300, xmp_metadata="", name=nothing)
+@op function encode_jpeg(contents; format="", quality=95, progressive=true, optimize_size=false, chroma_downsampling=true, density_unit="in", x_density=300, y_density=300, xmp_metadata="", name=nothing)
     local desc
     with_op_name(name, "EncodeJpeg") do
         desc = NodeDescription("EncodeJpeg")
@@ -122,7 +122,7 @@ Returns:
 
 A `dtype` `Tensor` containing the decoded image, of size `[height, width, channels]`.
 """
-function decode_png(contents; channels=0, dtype=UInt8, name=nothing)
+@op function decode_png(contents; channels=0, dtype=UInt8, name=nothing)
     local desc
     with_op_name(name, "DecodePng") do
         desc = NodeDescription("DecodePng")
@@ -147,7 +147,7 @@ Returns:
 
 A zero dimensional `string` `Tensor` containing the PNG image name.
 """
-function encode_png(image; compression::Integer=-1, name=nothing)
+@op function encode_png(image; compression::Integer=-1, name=nothing)
     local desc
     with_op_name(name, "EncodePng") do
         desc = NodeDescription("EncodePng")
@@ -178,7 +178,7 @@ Raises:
 Returns:
 A `Tensor` of the resized `images`.
 """
-function resize_images(images, new_height, new_width; method=BILINEAR, align_corners=false, name=nothing)
+@op function resize_images(images, new_height, new_width; method=BILINEAR, align_corners=false, name=nothing)
     op_names = Dict(BILINEAR=>"ResizeBilinear", BICUBIC=>"ResizeBicubic")
     local desc
     with_op_name(name, "ResizeImages") do
@@ -207,7 +207,7 @@ Returns:
 
 A 3D `Float` `Tensor` of the cropped `image`.
 """
-function central_crop(image, crop_fraction; name=nothing)
+@op function central_crop(image, crop_fraction; name=nothing)
     local desc
     with_op_name(name, "CentralCrop") do
         desc = NodeDescription("CentralCrop")
@@ -217,7 +217,7 @@ function central_crop(image, crop_fraction; name=nothing)
     Tensor(Operation(desc), 1)
 end
 
-function flip_up_down(image; name=nothing)
+@op function flip_up_down(image; name=nothing)
     local desc
     with_op_name(name, "FlipUpDown") do
         desc = NodeDescription("Reverse")
@@ -228,7 +228,7 @@ function flip_up_down(image; name=nothing)
     Tensor(Operation(desc), 1)
 end
 
-function flip_left_right(image; name=nothing)
+@op function flip_left_right(image; name=nothing)
     local desc
     with_op_name(name, "FlipLeftRight") do
         desc = NodeDescription("Reverse")
@@ -244,7 +244,7 @@ for (jl_func_name, tf_func_name) in [
     (:grayscale_to_rgb, "grayscale_to_rgb"),
     (:hsv_to_rgb, "hsv_to_rgb"),
     (:rgb_to_hsv, "rgb_to_hsv")]
-    @eval function $jl_func_name(image; name=nothing)
+    @eval @op function $jl_func_name(image; name=nothing)
         local desc
         with_op_name(name, $tf_func_name) do
             desc = NodeDescription($tf_func_name)
