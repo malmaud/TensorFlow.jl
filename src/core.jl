@@ -206,7 +206,9 @@ end
                               node_def.attr["SrcT"]
                             end._type
                         catch
-                            source_type = node_def.attr["SrcT"]._type
+                            println("### Not Ok, Error in Node: ###")
+                            dump(node_def)
+                            # Will error on next line
                         end
                         set_field!(new_ph.attr["dtype"], :_type, source_type)
                     end
