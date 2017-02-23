@@ -73,7 +73,17 @@ mask = constant([true, false, true])
 @test run(sess, gather_nd(x, [1 1; 2 3])) == [x_jl[1,1], x_jl[2,3]]
 @test run(sess, gather_nd(x, [1 2]')) == [x_jl[1,:]'; x_jl[2,:]']
 
+
 ### Slice
 # to do make sure we slice the right indices
 @test ones(Float32, 5).' == run(sess, slice(one_tens, [0, 0], [1, -1]))
 
+############
+# Check it gather_nd can make a network
+sess2 = Session(Graph())
+embs = get_variable("tt2", (10,10), Float64)
+vals = gather_nd(embs,[2])
+cost = reduce_sum(vals)
+optimizer = train.minimize(train.AdamOptimizer(0.1), cost)
+run(sess2, initialize_all_variables())
+@test length(run(sess2, vals)) == 10
