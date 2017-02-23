@@ -1042,13 +1042,12 @@ function gradients(y, x::AbstractArray)
     writeproto(b, meta_graph)
     graph_proto = takebuf_array(b)
     load_python_process()
-    eval(Main, quote
-        node_protos, grad_names = remotecall_fetch(($pyproc[])) do
+    node_protos, grad_names = eval(Main, quote
+        remotecall_fetch(($pyproc[])) do
             py_gradients($graph_proto, $x_names, $y_name)
         end
     end)
-    node_protos = Main.node_protos
-    grad_names = Main.grad_names
+
     g = get_def_graph()
     extend_graph(g, node_protos)
     out = []
