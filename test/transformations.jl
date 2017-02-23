@@ -87,3 +87,15 @@ cost = reduce_sum(vals)
 optimizer = train.minimize(train.AdamOptimizer(0.1), cost)
 run(sess2, initialize_all_variables())
 @test length(run(sess2, vals)) == 10
+
+
+# Check concat can make a network Issue #147
+sess3 = Session(Graph())
+x1 = constant(rand(20,10))
+x2 = get_variable("x2", (50,10), Float64)
+
+xs = concat(1, [x1,x2])
+cost = reduce_sum(xs)
+optimizer = train.minimize(train.AdamOptimizer(0.1), cost)
+
+@test size(run(sess3, xs)) == (70, 10)

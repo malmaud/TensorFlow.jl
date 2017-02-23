@@ -202,7 +202,9 @@ end
                         new_ph.attr["dtype"] = tensorflow.AttrValue()
                         local source_type
                         try
-                            source_type = node_def.attr["T"]._type
+                            source_type = get(node_def.attr,"T") do
+                              node_def.attr["SrcT"]
+                            end._type
                         catch
                             source_type = node_def.attr["SrcT"]._type
                         end
