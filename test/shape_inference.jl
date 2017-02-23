@@ -5,6 +5,7 @@ import TensorFlow.ShapeInference: TensorShape
 k = placeholder(Float32; shape=[10, 20, -1])
 m = placeholder(Float32; shape=[10, 20, 30])
 n = placeholder(Float32)
+i = placeholder(Int32; shape=[])
 
 @test get_shape(k,2) == 20
 @test_throws ErrorException get_shape(k, 3)
@@ -68,3 +69,12 @@ end
 @test get_shape(gather_nd(m, reshape([3], (1,1,1)))) == TensorShape([1, 1, 20, 30]) #1x1x1
 
 
+## ExpandDims
+@test get_shape(expand_dims(m, 1)) == TensorShape([1, 10, 20, 30])
+@test get_shape(expand_dims(m, 2)) == TensorShape([10, 1, 20, 30])
+@test get_shape(expand_dims(m, 3)) == TensorShape([10, 20, 1, 30])
+@test get_shape(expand_dims(m, 4)) == TensorShape([10, 20, 30, 1])
+@test get_shape(expand_dims(m, 0)) == TensorShape([10, 20, 30, 1])
+@test get_shape(expand_dims(m, -1)) == TensorShape([10, 20, 1, 30])
+@test get_shape(expand_dims(m, i)) == TensorShape([-1, -1, -1, -1])
+@test get_shape(expand_dims(n, 2)) == TensorShape(nothing)

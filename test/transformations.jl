@@ -15,7 +15,10 @@ one_tens = ones(Tensor, (5,5))
 @test ones(Float32, 5,5) == run(sess, pack(unpack(one_tens, num=5)))
 # @test ones(Float32, 5,5) == run(sess, pack(unpack(one_tens, axis=1)))
 
-@test ones(5,5,1) == run(sess, expand_dims(one_tens, 2))
+@test ones(1,5,5) == run(sess, expand_dims(one_tens, 1))
+@test ones(5,1,5) == run(sess, expand_dims(one_tens, 2))
+@test ones(5,1,5) == run(sess, expand_dims(one_tens, -1))
+@test ones(5,5,1) == run(sess, expand_dims(one_tens, 0))
 
 @test 2 == run(sess, rank(one_tens))
 
