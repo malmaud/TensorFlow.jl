@@ -579,7 +579,7 @@ Slice indexing into a matrix:
     with_op_name(name, "GatherNd") do
         desc = NodeDescription("GatherNd")
         add_input(desc, Tensor(params))
-        add_input(desc, Tensor(indicies)-1)
+        add_input(desc, cast(Tensor(indicies)-1, Int32))
     end
     Tensor(Operation(desc), 1)
 end
