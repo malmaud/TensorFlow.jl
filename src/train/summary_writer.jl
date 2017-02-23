@@ -1,5 +1,5 @@
 using ProtoBuf
-import ..TensorFlow: tensorflow, Graph, get_def_graph
+import ..TensorFlow: tensorflow, Graph, get_def_graph, @py_proc
 
 type SummaryWriter
     log_dir::String
@@ -10,12 +10,7 @@ function SummaryWriter(log_dir; graph=get_def_graph())
     self = SummaryWriter()
     self.log_dir = log_dir
     path = joinpath(log_dir, "events")
-    load_python_process()
-    eval(Main, quote
-        remotecall_wait($(tf.pyproc[])) do
-            open_events_file($path)
-        end
-    end)
+    @py_proc open_events_file($path)
     if graph !== nothing
         write(self, graph)
     end
@@ -27,12 +22,7 @@ function Base.write(writer::SummaryWriter, event::tensorflow.Event)
     writeproto(b, event)
     seekstart(b)
     proto = read(b)
-    load_python_process()
-    eval(Main, quote
-        remotecall_wait($(tf.pyproc[])) do
-            write_event($proto)
-        end
-    end)
+    @py_proc write_event($proto)
     nothing
 end
 
@@ -60,11 +50,6 @@ function Base.write(writer::SummaryWriter, graph::Graph)
 end
 
 function Base.close(writer::SummaryWriter)
-    load_python_process()
-    eval(Main, quote
-        remotecall_wait($(tf.pyproc[])) do
-            close_events_file()
-        end
-    end)
+    @py_proc close_events_file()    
     nothing
 end
