@@ -1041,15 +1041,14 @@ function gradients(y, x::AbstractArray)
     b = IOBuffer()
     writeproto(b, meta_graph)
     graph_proto = takebuf_array(b)
-    load_python_process()
     node_protos, grad_names = @py_proc py_gradients($graph_proto, $x_names, $y_name)
     extend_graph(node_protos)
     out = []
     for name in grad_names
         if isa(name, String)
-            push!(out, Tensor(get_node_by_name(name)|>get, 1))
+            push!(out, get_tensor_by_name(name))
         else
-            push!(out, IndexedSlices(Tensor(get_node_by_name(name[1])|>get,1), Tensor(get_node_by_name(name[2])|>get,1)+1))
+            push!(out, IndexedSlices(get_tensor_by_name(name[1]), get_tensor_by_name(name[2])+1))
         end
     end
     return out
