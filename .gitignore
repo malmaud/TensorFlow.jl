@@ -1,6 +1,7 @@
 deps
 !deps/build.jl
 !deps/build_pytensorflow.jl
+!deps/build_libtensorflow.jl
 src/scratch.jl
 tfdocs
 docs/build
