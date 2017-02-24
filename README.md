@@ -1,6 +1,6 @@
 # TensorFlow
 
-[![Build Status](https://travis-ci.org/malmaud/TensorFlow.jl.svg?branch=master)](https://travis-ci.org/malmaud/TensorFlow.jl) 
+[![Build Status](https://travis-ci.org/malmaud/TensorFlow.jl.svg?branch=master)](https://travis-ci.org/malmaud/TensorFlow.jl)
 [![codecov.io](http://codecov.io/github/malmaud/TensorFlow.jl/coverage.svg?branch=master)](http://codecov.io/github/malmaud/TensorFlow.jl?branch=master)
 
 A wrapper around [TensorFlow](https://www.tensorflow.org/), a popular open source machine learning framework from Google.
@@ -43,7 +43,7 @@ ENV["TF_USE_GPU"] = "1"
 Pkg.build("TensorFlow")
 ```
 
-CUDA 7.5 and cudnn are required for GPU usage.
+CUDA 8.0 and cudnn are required for GPU usage.
 
 ## Logistic regression example
 
@@ -104,6 +104,17 @@ If you see issues from the ccall or python interop, try updating TensorFlow both
 Pkg.build("TensorFlow")
 ```
 ```bash
-export TF_BINARY_URL = ... # see https://www.tensorflow.org/versions/r0.11/get_started/os_setup.html
+export TF_BINARY_URL = ... # see https://www.tensorflow.org/install/
 sudo pip3 install --upgrade $TF_BINARY_URL
 ```
+
+## Optional: Building the TensorFlow library
+
+If you want to build your own version of the TensorFlow binary library instead of relying on the one that is installed with
+`Pkg.build("TensorFlow")`, follow the instructions from https://www.tensorflow.org/install/install_sources, except:
+
+* In the section "Build the pip package", instead run `bazel build --config=opt //tensorflow:libtensorflow_c.so`.
+* Then copy the file "bazel-bin/tensorflow/libtensorflow_c.so" to the "deps/usr/bin" directory in the TensorFlow.jl package.
+* On OS X, rename the file to `libtensorflow_c.dylib`.
+
+A convenience script is included to use Docker to easily build the library. Just install docker and run `julia build_libtensorflow.so` from the "deps" directory of the TensorFlow.jl package.
