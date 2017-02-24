@@ -200,11 +200,12 @@ end
                         set_field!(new_ph, :op, "Placeholder")
                         set_field!(new_ph, :attr, Dict{AbstractString, tensorflow.AttrValue}())
                         new_ph.attr["dtype"] = tensorflow.AttrValue()
-                        local source_type
-                        try
-                            source_type = node_def.attr["T"]._type
-                        catch
-                            source_type = node_def.attr["SrcT"]._type
+                        source_type = tensorflow._DataType.DT_FLOAT
+                        for key in ["T", "SrcT"]
+                            if key ∈ keys(node_def.attr)
+                                source_type = node_def.attr[key]._type
+                                break
+                            end
                         end
                         set_field!(new_ph.attr["dtype"], :_type, source_type)
                     end
