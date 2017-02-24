@@ -40,4 +40,4 @@ end
 
 run(`docker run --name=$container_name $docker_image /bin/bash -c $build_script`)
 
-run(`docker cp $container_name:/tensorflow/bazel-bin/tensorflow/libtensorflow_c.so usr/bin`)
+run(`docker cp $(container_name[2:end]):/tensorflow/bazel-bin/tensorflow/libtensorflow_c.so usr/bin`)
