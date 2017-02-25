@@ -104,7 +104,8 @@ get_tensor_by_name,
 as_default,
 @tf,
 visualize,
-visualize_graph
+visualize_graph,
+with_device
 
 if !isdefined(Base, :⊻)
     export ⊻

@@ -45,3 +45,13 @@ let
     x_retrieved = get_tensor_by_name(graph, "x:0")
     @test x == x_retrieved
 end
+
+let
+    graph = Graph()
+    sess = Session(graph)
+    local x
+    with_device("cpu:1") do
+        x = constant(1)
+    end
+    @test run(sess, x) == 1
+end

@@ -44,11 +44,94 @@ function get_code(s::Status)
     return TF_Code(code)
 end
 
+immutable DevicePart{IndexType}
+    name::String
+    index::IndexType
+end
+
+device_index_from_zero(part::DevicePart{Int}) = "$(part.name):$(part.index-1)"
+device_index_from_zero(part::DevicePart) = "$(part.name):$(part.index)"
+
+immutable Device
+    parts::Vector{DevicePart}
+end
+
+Device() = Device(DevicePart[])
+
+function DevicePart(s::AbstractString)
+    parts = split(s, ":")
+    length(parts) == 2 || error("Invalid device: $s")
+    name = String(parts[1])
+    index_part = String(parts[2])
+    maybe_index = tryparse(Int, index_part)
+    if isnull(maybe_index)
+        index = index_part
+    else
+        index = get(maybe_index)
+    end
+    DevicePart(name, index)
+end
+
+function device_index_from_zero(device::Device)
+    b = IOBuffer()
+    for part in device.parts
+        print(b, "/")
+        print(b, device_index_from_zero(part))
+    end
+    takebuf_string(b)
+end
+
+Base.show(io::IO, part::DevicePart) = print(io, "$(part.name):$(part.index)")
+
+function Device(s::AbstractString)
+    device = Device()
+    for part in split(s, "/")
+        isempty(part) && continue
+        push!(device.parts, DevicePart(part))
+    end
+    device
+end
+
+function Base.show(io::IO, device::Device)
+    print(io, "/")
+    join(io, device.parts, "/")
+end
+
+macro device_str(s)
+    Device(s)
+end
+
+
+"""
+    with_device(function, device)
+
+Specifies the default device to use for ops created in `function`.
+
+In contrast to the Python version, devices use 1-based indexing (eg, "gpu:1"
+is the first GPU).
+
+Intended to be used with `do` syntax:
+
+```
+with_device("gpu:2") do  # Use the second GPU
+    x = constant(1.0)
+end
+```
+"""
+function with_device(f, device::Device)
+    g = get_def_graph()
+    push!(g.op_context.devices, device)
+    f()
+    pop!(g.op_context.devices)
+end
+
+with_device(f, device) = with_device(f, Device(device))
 
 type OperationContext
     control_ops::Vector{Vector{Any}}  # Can't make Operation to break type cycle
     names::Vector{String}
     while_context::Vector{tensorflow.WhileContextDef}
+    devices::Vector{Device}
 end
 
 
@@ -70,7 +153,7 @@ type Graph
         collections[:Summaries] = []
         collections[:QueueRunners] = []
         collections[:while_context] = []
-        self = new(ptr, collections, Dict{String, AbstractTensorShape}(), Dict{String, Int}(), OperationContext(Vector{Operation}[], String[], tensorflow.WhileContextDef[]))
+        self = new(ptr, collections, Dict{String, AbstractTensorShape}(), Dict{String, Int}(), OperationContext(Vector{Operation}[], String[], tensorflow.WhileContextDef[], String[]))
         finalizer(self, self->begin
             ccall((:TF_DeleteGraph, LIBTF), Void, (Ptr{Void},), self.ptr)
         end)
@@ -486,6 +569,13 @@ function Base.sizeof(t::RawTensor)
     ccall((:TF_TensorByteSize, LIBTF), Csize_t, (Ptr{Void},), t.ptr) |> Int
 end
 
+function set_device(node_desc, device::String)
+    ccall((:TF_SetDevice, LIBTF), Void,
+        (Ptr{Void}, Cstring),
+        node_desc.ptr, device)
+end
+
+set_device(node_desc, device::Device) = set_device(node_desc, device_index_from_zero(device))
 
 type NodeDescription
     ptr::Ptr{Void}
@@ -499,6 +589,7 @@ type NodeDescription
                 add_control_input(self, control_op)
             end
         end
+        isempty(graph.op_context.devices) || set_device(self, graph.op_context.devices[end])
         self
     end
 
@@ -614,15 +705,17 @@ function with_op_name(f, name, def_name="Node")
     if name === nothing
         name = get_name(def_name)
     end
-    push!(get_def_graph().op_context.names, name)
+    g = get_def_graph()
+    push!(g.op_context.names, name)
     f()
-    pop!(get_def_graph().op_context.names)
+    pop!(g.op_context.names)
 end
 
 function with_op_control(f, control_ops)
-    push!(get_def_graph().op_context.control_ops, control_ops)
+    g = get_def_graph()
+    push!(g.op_context.control_ops, control_ops)
     f()
-    pop!(get_def_graph().op_context.control_ops)
+    pop!(g.op_context.control_ops)
 end
 
 function Operation(desc::NodeDescription)
