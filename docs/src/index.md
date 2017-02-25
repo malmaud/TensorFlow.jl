@@ -19,7 +19,7 @@ ENV["TF_USE_GPU"] = "1"
 Pkg.build("TensorFlow")
 ```
 
-CUDA 7.5 and cudnn are required for GPU usage.
+CUDA 8.0 and cudnn are required for GPU usage.
 
 ## Comparison to Python API
 
