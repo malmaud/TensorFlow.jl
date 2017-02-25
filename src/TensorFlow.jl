@@ -105,7 +105,8 @@ as_default,
 @tf,
 visualize,
 visualize_graph,
-with_device
+with_device,
+@device_str
 
 if !isdefined(Base, :⊻)
     export ⊻
