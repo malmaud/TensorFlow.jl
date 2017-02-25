@@ -104,56 +104,37 @@ get_tensor_by_name,
 as_default,
 @tf,
 visualize,
-visualize_graph
+visualize_graph,
+batch_matmul,
+squared_difference
 
 if !isdefined(Base, :⊻)
     export ⊻
 end
 
-const pyproc = Ref(0)
+const pyproc = Ref{Int}()
 
 function __init__()
     c_deallocator[] = cfunction(deallocator, Void, (Ptr{Void}, Csize_t, Ptr{Void}))
-    set_def_graph(Graph())
+    if myid() == 1
+        set_def_graph(Graph())
+        load_python_process()
+    end
 end
 
 function load_python_process()
-    if myid() == 1
-        pyproc[] > 0 && return pyproc[] # Python process already loaded
-        addprocs(1)
-        pyproc[] = nprocs()
-        py_file = joinpath(dirname(@__FILE__), "py.jl")
-        eval(Main, quote
-            # These have to be split for unclear reasons on .6
-            remotecall_wait($(pyproc[]), $py_file) do py_file
-                include(py_file)
-            end
-            remotecall_wait($(pyproc[])) do
-                init()
-            end
-        end)
-        return pyproc[]
-    else
-        remotecall_fetch(1) do
-            load_python_process()
+    addprocs(1)
+    pyproc[] = nprocs()
+    py_file = joinpath(dirname(@__FILE__), "py.jl")
+    eval(Main, quote
+        # These have to be split for unclear reasons on .6
+        remotecall_wait($(pyproc[]), $py_file) do py_file
+            include(py_file)
         end
-    end
-end
-
-"""
-    @py_proc(block)
-
-Run the given code block in the Julia worker with the Python TensorFlow
-library loaded.
-"""
-macro py_proc(expr)
-    quote
-        eval(Main, quote
-            remotecall_fetch($(load_python_process())) do
-                $($(Expr(:quote, expr)))
-            end
-        end)
-    end
+        remotecall_wait($(pyproc[])) do
+            init()
+        end
+    end)
 end
 
 abstract AbstractTensorShape
@@ -169,6 +150,5 @@ include("ops.jl")
 include("train.jl")
 include("io.jl")
 include("show.jl")
-include("meta.jl")
 
 end
