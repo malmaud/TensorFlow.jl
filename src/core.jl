@@ -228,28 +228,24 @@ function get_collection end
     return g.collections[name]
 end
 
-
 const DEBUG_EXTEND_GRAPH = false
 
-to_node_def(n::tensorflow.NodeDef) = n
-
-function to_node_def(proto)
+function Base.convert(::Type{tensorflow.NodeDef}, proto::Vector{UInt8})
     b = IOBuffer()
     write(b, proto)
     seekstart(b)
     node_def = tensorflow.NodeDef()
     readproto(b, node_def)
-    to_node_def(node_def)
+    node_def
 end
 
 @with_def_graph function extend_graph(graph::Graph, node_defs)
-    n_nodes = length(node_defs)
     new_graph = tensorflow.GraphDef()
     set_field!(new_graph, :node, tensorflow.NodeDef[])
     import_options = GraphInputOptions()
     ph_names = Set{String}()
-    for node_idx in 1:n_nodes
-        node_def = to_node_def(node_defs[node_idx])
+    for node_bytes in node_defs
+        node_def = convert(tensorflow.NodeDef, node_bytes)
         if isnull(get_node_by_name(graph, node_def.name))
             # Hack to deal with imported nodes which have
             # colocation dependencies on existing nodes
