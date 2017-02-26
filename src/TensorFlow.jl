@@ -106,7 +106,9 @@ as_default,
 visualize,
 visualize_graph,
 with_device,
-@device_str
+@device_str,
+TensorShape,
+get_shape
 
 if !isdefined(Base, :⊻)
     export ⊻
@@ -158,15 +160,12 @@ macro py_proc(expr)
     end
 end
 
-abstract AbstractTensorShape
 include("constants.jl")
 include("tensorflow_protos.jl")
 include("core.jl")
 include("run.jl")
 include("variable.jl")
 include("shape_inference.jl")
-using .ShapeInference
-export get_shape
 include("ops.jl")
 include("train.jl")
 include("io.jl")

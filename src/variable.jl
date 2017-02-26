@@ -211,7 +211,7 @@ function variable_scope(f, name; kwargs...)
     end
 end
 
-get_dims(t::AbstractTensorShape) = map(get, t.dims)
+get_dims(t::TensorShape) = map(get, t.dims)
 get_dims(x) = x
 
 """

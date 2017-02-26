@@ -134,6 +134,24 @@ type OperationContext
     devices::Vector{Device}
 end
 
+type TensorShape
+    dims::Vector{Nullable{Int}}
+    rank_unknown::Bool
+end
+
+function TensorShape(dims::Vector{Nullable{Int}})
+    TensorShape(dims, false)
+end
+
+function TensorShape(dims::Vector)
+    TensorShape([_<0 ? Nullable{Int64}() : Nullable{Int64}(_) for _ in dims])
+end
+
+function TensorShape(dim::Void)
+    TensorShape(Nullable{Int}[], true)
+end
+
+function get_shape end
 
 """
 A TensorFlow computation graph
@@ -141,7 +159,7 @@ A TensorFlow computation graph
 type Graph
     ptr::Ptr{Void}
     collections::Dict{Symbol, Any}
-    shapes::Dict{String, AbstractTensorShape}
+    shapes::Dict{String, TensorShape}
     name_idx::Dict{String, Int}
     op_context::OperationContext
 
@@ -153,7 +171,7 @@ type Graph
         collections[:Summaries] = []
         collections[:QueueRunners] = []
         collections[:while_context] = []
-        self = new(ptr, collections, Dict{String, AbstractTensorShape}(), Dict{String, Int}(), OperationContext(Vector{Operation}[], String[], tensorflow.WhileContextDef[], Device[]))
+        self = new(ptr, collections, Dict{String, TensorShape}(), Dict{String, Int}(), OperationContext(Vector{Operation}[], String[], tensorflow.WhileContextDef[], Device[]))
         finalizer(self, self->begin
             ccall((:TF_DeleteGraph, LIBTF), Void, (Ptr{Void},), self.ptr)
         end)

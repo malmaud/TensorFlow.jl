@@ -1,31 +1,8 @@
 module ShapeInference
 
-export
-get_shape,
-TensorShape
-
 using ..TensorFlow
-import TensorFlow: get_input, get_attr
+import TensorFlow: get_input, get_attr, TensorShape, get_shape
 const tf = TensorFlow
-
-
-type TensorShape <: tf.AbstractTensorShape
-    dims::Vector{Nullable{Int}}
-    rank_unknown::Bool
-end
-
-function TensorShape(dims::Vector{Nullable{Int}})
-    TensorShape(dims, false)
-end
-
-function TensorShape(dims::Vector)
-    TensorShape([_<0 ? Nullable{Int64}() : Nullable{Int64}(_) for _ in dims])
-end
-
-function TensorShape(dim::Void)
-    TensorShape(Nullable{Int}[], true)
-end
-
 
 function Base.isequal(ts1::TensorShape, ts2::TensorShape)
     ts1.rank_unknown && ts2.rank_unknown ||
