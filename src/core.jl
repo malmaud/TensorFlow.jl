@@ -242,7 +242,7 @@ end
 @with_def_graph function extend_graph(graph::Graph, node_defs)
     new_graph = tensorflow.GraphDef()
     set_field!(new_graph, :node, tensorflow.NodeDef[])
-    import_options = GraphInputOptions()
+    import_options = GraphImportOptions()
     ph_names = Set{String}()
     for node_bytes in node_defs
         node_def = convert(tensorflow.NodeDef, node_bytes)
@@ -1193,15 +1193,15 @@ type IndexedSlicesValue
     indices
 end
 
-type GraphInputOptions
+type GraphImportOptions
     input_mapping::Dict{Tuple{String, Int}, Tensor}
     return_output::Vector{Tuple{String, Int}}
     control_dependencies::Vector{Operation}
     prefix::String
-    GraphInputOptions() = new(Dict{Tuple{String, Int}, Tensor}(), Vector{Tuple{String, Int}}(), Vector{Operation}(), "")
+    GraphImportOptions() = new(Dict{Tuple{String, Int}, Tensor}(), Vector{Tuple{String, Int}}(), Vector{Operation}(), "")
 end
 
-@with_def_graph function import_graph_def(graph::Graph, graph_def::Vector{UInt8}, options=GraphInputOptions())
+@with_def_graph function import_graph_def(graph::Graph, graph_def::Vector{UInt8}, options=GraphImportOptions())
     version_check(v"1.0.0-rc1")
     options_ptr = ccall((:TF_NewImportGraphDefOptions, LIBTF), Ptr{Void}, ())
     for ((input_name, input_port), tensor) in options.input_mapping
@@ -1234,7 +1234,7 @@ end
     output_tensors
 end
 
-@with_def_graph function import_graph_def(graph::Graph, graph_def::tensorflow.GraphDef, options=GraphInputOptions())
+@with_def_graph function import_graph_def(graph::Graph, graph_def::tensorflow.GraphDef, options=GraphImportOptions())
     b = IOBuffer()
     writeproto(b, graph_def)
     data = @compat take!(b)

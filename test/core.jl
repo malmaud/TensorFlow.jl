@@ -10,7 +10,7 @@ if tf_version() >= v"1.0.0-rc1"
     graph = Graph()
     sess = Session(graph)
     x_new = constant(Int32(5))
-    options = GraphInputOptions()
+    options = GraphImportOptions()
     options.input_mapping[("x", 1)] = x_new
     push!(options.return_output, ("z", 1))
     z = import_graph_def(graph, graph_pb, options)
