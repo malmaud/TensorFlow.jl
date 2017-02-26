@@ -14,21 +14,27 @@ end
 
 function try_unzip()
     try
-        run(`unzip -o $base/downloads/tensorflow.zip`)
+        run(`tar -xvzf $base/downloads/tensorflow.tar.gz --strip-components=2 ./lib/libtensorflow.so`)
     catch err
         if !isfile(joinpath(base, "libtensorflow.so"))
             throw(err)
         else
-            warn("Problem unzipping: $err")
+            warn("Problem extracting $err")
         end
     end
 end
 
-const cur_version = "1.0.0-rc1"
+const cur_version = "1.0.0"
 
 @static if is_apple()
-    r = Requests.get("https://storage.googleapis.com/malmaud-stuff/tensorflow_mac_$cur_version.zip")
-    open(joinpath(base, "downloads/tensorflow.zip"), "w") do file
+    if "TF_USE_GPU" ∈ keys(ENV) && ENV["TF_USE_GPU"] == "1"
+        info("Building TensorFlow.jl for use on the GPU")
+        url = "https://storage.googleapis.com/tensorflow/libtensorflow/libtensorflow-gpu-darwin-x86_64-$cur_version.tar.gz"
+    else
+        info("Building TensorFlow.jl for CPU use only. To enable the GPU, set the TF_USE_GPU environment variable to 1 and rebuild TensorFlow.jl")
+        url = "https://storage.googleapis.com/tensorflow/libtensorflow/libtensorflow-cpu-darwin-x86_64-$cur_version.tar.gz"
+    end
+    open(joinpath(base, "downloads/tensorflow.tar.gz"), "w") do file
         write(file, r.data)
     end
     try_unzip()
@@ -38,13 +44,13 @@ end
 @static if is_linux()
     if "TF_USE_GPU" ∈ keys(ENV) && ENV["TF_USE_GPU"] == "1"
         info("Building TensorFlow.jl for use on the GPU")
-        url = "https://storage.googleapis.com/malmaud-stuff/tensorflow_linux_$cur_version.zip"
+        url = "https://storage.googleapis.com/tensorflow/libtensorflow/libtensorflow-gpu-linux-x86_64-$cur_version.tar.gz"
     else
         info("Building TensorFlow.jl for CPU use only. To enable the GPU, set the TF_USE_GPU environment variable to 1 and rebuild TensorFlow.jl")
-        url = "https://storage.googleapis.com/malmaud-stuff/tensorflow_linux_cpu_$cur_version.zip"
+        url = "https://storage.googleapis.com/tensorflow/libtensorflow/libtensorflow-cpu-linux-x86_64-$cur_version.tar.gz"
     end
     r = Requests.get(url)
-    open(joinpath(base, "downloads/tensorflow.zip"), "w") do file
+    open(joinpath(base, "downloads/tensorflow.tar.gz"), "w") do file
         write(file, r.data)
     end
     try_unzip()
