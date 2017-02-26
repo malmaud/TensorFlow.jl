@@ -113,8 +113,8 @@ sudo pip3 install --upgrade $TF_BINARY_URL
 If you want to build your own version of the TensorFlow binary library instead of relying on the one that is installed with
 `Pkg.build("TensorFlow")`, follow the instructions from https://www.tensorflow.org/install/install_sources, except:
 
-* In the section "Build the pip package", instead run `bazel build --config=opt //tensorflow:libtensorflow_c.so`.
-* Then copy the file "bazel-bin/tensorflow/libtensorflow_c.so" to the "deps/usr/bin" directory in the TensorFlow.jl package.
-* On OS X, rename the file to `libtensorflow_c.dylib`.
+* In the section "Build the pip package", instead run `bazel build --config=opt //tensorflow:libtensorflow.so`.
+* Then copy the file "bazel-bin/tensorflow/libtensorflow.so" to the "deps/usr/bin" directory in the TensorFlow.jl package.
+* On OS X, rename the file to `libtensorflow.dylib`.
 
 A convenience script is included to use Docker to easily build the library. Just install docker and run `julia build_libtensorflow.so` from the "deps" directory of the TensorFlow.jl package.
