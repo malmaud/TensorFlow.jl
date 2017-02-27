@@ -121,8 +121,11 @@ end
 function with_device(f, device::Device)
     g = get_def_graph()
     push!(g.op_context.devices, device)
-    f()
-    pop!(g.op_context.devices)
+    try
+        f()
+    finally
+        pop!(g.op_context.devices)
+    end
 end
 
 with_device(f, device) = with_device(f, Device(device))
@@ -721,15 +724,21 @@ function with_op_name(f, name, def_name="Node")
     end
     g = get_def_graph()
     push!(g.op_context.names, name)
-    f()
-    pop!(g.op_context.names)
+    try
+        f()
+    finally
+        pop!(g.op_context.names)
+    end
 end
 
 function with_op_control(f, control_ops)
     g = get_def_graph()
     push!(g.op_context.control_ops, control_ops)
-    f()
-    pop!(g.op_context.control_ops)
+    try
+        f()
+    finally
+        pop!(g.op_context.control_ops)
+    end
 end
 
 function Operation(desc::NodeDescription)
