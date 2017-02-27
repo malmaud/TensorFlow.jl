@@ -396,8 +396,8 @@ type Session
         if config === nothing
             config = tensorflow.ConfigProto()
             gpu_config = tensorflow.GPUOptions()
-            gpu_config.allow_growth = allow_growth
-            config.gpu_options = gpu_config
+            set_field!(gpu_config, :allow_growth, allow_growth)
+            set_field!(config, :gpu_options, gpu_config)
         end
         Session(get_def_graph(), config)
     end
