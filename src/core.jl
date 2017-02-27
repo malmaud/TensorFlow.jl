@@ -355,8 +355,11 @@ end
 function as_default(f, g::Graph)
     old_def = get_def_graph()
     set_def_graph(g)
-    f()
-    set_def_graph(old_def)
+    try
+        f()
+    finally
+        set_def_graph(old_def)
+    end
 end
 
 """
