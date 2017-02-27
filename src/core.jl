@@ -130,14 +130,14 @@ end
 
 with_device(f, device) = with_device(f, Device(device))
 
-type OperationContext
+immutable OperationContext
     control_ops::Vector{Vector{Any}}  # Can't make Operation to break type cycle
     names::Vector{String}
     while_context::Vector{tensorflow.WhileContextDef}
     devices::Vector{Device}
 end
 
-type TensorShape
+immutable TensorShape
     dims::Vector{Nullable{Int}}
     rank_unknown::Bool
 end
@@ -419,7 +419,7 @@ type Buffer
     end
 end
 
-type BufferStruct
+immutable BufferStruct
     data::Ptr{UInt8}
     len::Csize_t
     deallocator::Ptr{Void}
@@ -760,7 +760,7 @@ function Operation(ptr::Ptr)
     return self
 end
 
-type NodeNameNotFound <: Exception
+immutable NodeNameNotFound <: Exception
     name::String
 end
 
@@ -906,7 +906,7 @@ abstract AbstractTensor
 """
 Represents the output of an operation in the computation graph
 """
-type Tensor <: AbstractTensor
+immutable Tensor <: AbstractTensor
     op::Operation
     value_index::Int
 end
@@ -1186,14 +1186,14 @@ end
 get_op(op::Operation) = op
 get_op(t::AbstractTensor) = Tensor(t).op
 
-type IndexedSlices
+immutable IndexedSlices
     values::Tensor
     indices::Tensor
 end
 
 Base.eltype(i::IndexedSlices) = eltype(i.values)
 
-type IndexedSlicesValue
+immutable IndexedSlicesValue
     values
     indices
 end
