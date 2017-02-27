@@ -207,7 +207,7 @@ Defaults the first parameter of the given function to `get_def_graph`.
 macro with_def_graph(ex)
     new_func = with_def_graph(ex)
     quote
-        $(esc(ex))
+        @Base.__doc__($(esc(ex)))
         $(esc(new_func))
     end
 end
@@ -1122,8 +1122,6 @@ end
 """
 Returns an operation by searching for its name in the given graph.
 """
-function get_node_by_name end
-
 @with_def_graph function get_node_by_name(graph::Graph, name::AbstractString)
     name, port = parse_port_name(name)
     node_ptr = ccall((:TF_GraphOperationByName, LIBTF), Ptr{Void}, (Ptr{Void}, Cstring), graph.ptr, name)
@@ -1141,8 +1139,6 @@ Returns the tensor with name `name` (in name:port format) in the given graph.
 
 Throws a `NodeNameNotFound` exception if there is no such tensor.
 """
-function get_tensor_by_name end
-
 @with_def_graph function get_tensor_by_name(graph::Graph, full_name)
     name, port = parse_port_name(full_name)
     maybe_node = get_node_by_name(graph, name)
