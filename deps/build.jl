@@ -72,6 +72,8 @@ function try_unzip()
     end
 end
 
+const cur_version = "1.0.0-rc1"
+
 @static if is_apple()
     r = Requests.get("https://storage.googleapis.com/malmaud-stuff/tensorflow_mac_$cur_version.zip")
     open(joinpath(base, "downloads/tensorflow.zip"), "w") do file
