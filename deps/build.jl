@@ -12,6 +12,54 @@ if !isdir(bin_dir)
     run(`mkdir -p $bin_dir`)
 end
 
+# When TensorFlow 1.1 is released, use the official release binaries
+# of the TensorFlow C library. Do this by setting cur_version to 1.1.0
+# and then replacing the blocks below with:
+#=
+function try_unzip()
+    try
+        run(`tar -xvzf $base/downloads/tensorflow.tar.gz --strip-components=2 ./lib/libtensorflow.so`)
+    catch err
+        if !isfile(joinpath(base, "libtensorflow.so"))
+            throw(err)
+        else
+            warn("Problem extracting $err")
+        end
+    end
+end
+
+@static if is_apple()
+    if "TF_USE_GPU" ∈ keys(ENV) && ENV["TF_USE_GPU"] == "1"
+        info("Building TensorFlow.jl for use on the GPU")
+        url = "https://storage.googleapis.com/tensorflow/libtensorflow/libtensorflow-gpu-darwin-x86_64-$cur_version.tar.gz"
+    else
+        info("Building TensorFlow.jl for CPU use only. To enable the GPU, set the TF_USE_GPU environment variable to 1 and rebuild TensorFlow.jl")
+        url = "https://storage.googleapis.com/tensorflow/libtensorflow/libtensorflow-cpu-darwin-x86_64-$cur_version.tar.gz"
+    end
+    open(joinpath(base, "downloads/tensorflow.tar.gz"), "w") do file
+        write(file, r.data)
+    end
+    try_unzip()
+    mv("libtensorflow.so", "usr/bin/libtensorflow.dylib", remove_destination=true)
+end
+
+@static if is_linux()
+    if "TF_USE_GPU" ∈ keys(ENV) && ENV["TF_USE_GPU"] == "1"
+        info("Building TensorFlow.jl for use on the GPU")
+        url = "https://storage.googleapis.com/tensorflow/libtensorflow/libtensorflow-gpu-linux-x86_64-$cur_version.tar.gz"
+    else
+        info("Building TensorFlow.jl for CPU use only. To enable the GPU, set the TF_USE_GPU environment variable to 1 and rebuild TensorFlow.jl")
+        url = "https://storage.googleapis.com/tensorflow/libtensorflow/libtensorflow-cpu-linux-x86_64-$cur_version.tar.gz"
+    end
+    r = Requests.get(url)
+    open(joinpath(base, "downloads/tensorflow.tar.gz"), "w") do file
+        write(file, r.data)
+    end
+    try_unzip()
+    mv("libtensorflow.so", "usr/bin/libtensorflow.so", remove_destination=true)
+end
+=#
+
 function try_unzip()
     try
         run(`unzip -o $base/downloads/tensorflow.zip`)
@@ -32,7 +80,7 @@ const cur_version = "1.0.0-rc1"
         write(file, r.data)
     end
     try_unzip()
-    mv("libtensorflow_c.so", "usr/bin/libtensorflow_c.dylib", remove_destination=true)
+    mv("libtensorflow_c.so", "usr/bin/libtensorflow.dylib", remove_destination=true)
 end
 
 @static if is_linux()
@@ -48,5 +96,5 @@ end
         write(file, r.data)
     end
     try_unzip()
-    mv("libtensorflow_c.so", "usr/bin/libtensorflow_c.so", remove_destination=true)
+    mv("libtensorflow_c.so", "usr/bin/libtensorflow.so", remove_destination=true)
 end
