@@ -131,17 +131,6 @@ function _get_shape(v::Variable)
     return _get_shape(get_input(v.assign_node, 2))
 end
 
-function to_shape(x::AbstractArray)
-    TensorShape(map(to_shape, x))
-end
-
-function to_shape(x)
-    if x==-1
-        return Nullable{Int}()
-    else
-        return Nullable(x)
-    end
-end
 
 const shape_inferer = Dict{String, Function}()
 
