@@ -657,7 +657,6 @@ register_shape("Where") do op
     if shape.rank_unknown
         [TensorShape(nothing)]
     else
-        @show shape.dims
         [TensorShape([Nullable{Int64}(), Nullable(length(shape.dims))])]
     end
 end
