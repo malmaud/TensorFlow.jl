@@ -335,7 +335,7 @@ for func in ["Sum", "Prod", "Min", "Max", "All", "Any", "Mean"]
                 for dim in dims
                     to_keep[dim] = false
                 end
-                value_shape.dims = value_shape.dims[to_keep]
+                return [TensorShape(value_shape.dims[to_keep])]
             end
             return [value_shape]
         end
