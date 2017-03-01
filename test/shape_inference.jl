@@ -78,3 +78,14 @@ end
 @test get_shape(expand_dims(m, -1)) == TensorShape([10, 20, 1, 30])
 @test get_shape(expand_dims(m, i)) == TensorShape([-1, -1, -1, -1])
 @test get_shape(expand_dims(n, 2)) == TensorShape(nothing)
+
+
+## Basic Operations
+@test get_shape(-k) == get_shape(k)
+@test get_shape(k+1) == get_shape(k)
+@test get_shape(k-1) == get_shape(k)
+@test get_shape(k*2) == get_shape(k)
+
+@test get_shape(1+k) == get_shape(k)
+@test get_shape(1-k) == get_shape(k)
+@test get_shape(2*k) == get_shape(k)
