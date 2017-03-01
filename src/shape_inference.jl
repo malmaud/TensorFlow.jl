@@ -646,7 +646,8 @@ register_shape("Where") do op
     if shape.rank_unknown
         [TensorShape(nothing)]
     else
-        [TensorShape([Nullable{Int}() for _ in 1:length(shape.dims)])]
+        @show shape.dims
+        [TensorShape([Nullable{Int64}(), Nullable(length(shape.dims))])]
     end
 end
 

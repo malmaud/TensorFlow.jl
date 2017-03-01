@@ -7,10 +7,22 @@ m = placeholder(Float32; shape=[10, 20, 30])
 n = placeholder(Float32)
 i = placeholder(Int32; shape=[])
 
+
+
+@test get_shape(k) == TensorShape([10, 20, -1])
+@test get_shape(m) == TensorShape([10, 20, 30])
+@test get_shape(n) == TensorShape(nothing)
+@test get_shape(i) == TensorShape([])
+
 @test get_shape(k,2) == 20
 @test_throws ErrorException get_shape(k, 3)
 @test_throws BoundsError get_shape(k, 4)
 @test_throws ErrorException get_shape(n, 1)
+
+## Find (i.e Where)
+@test get_shape(find(placeholder(Bool; shape=[10, 20, 30]))) == TensorShape([-1,3])
+@test get_shape(find(placeholder(Bool; shape=[10, 20, -1]))) == TensorShape([-1,3])
+@test get_shape(find(placeholder(Bool))) == TensorShape(nothing)
 
 ## Pack
 @test get_shape(pack([m,m,m])) == TensorShape([3, 10, 20, 30])
