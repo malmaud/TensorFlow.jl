@@ -84,7 +84,6 @@ end
 @test get_shape(-k) == get_shape(k)
 @test get_shape(k+1) == get_shape(k)
 @test get_shape(k-1) == get_shape(k)
-@test get_shape(k*2) == get_shape(k)
 
 @test get_shape(1+k) == get_shape(k)
 @test get_shape(1-k) == get_shape(k)
