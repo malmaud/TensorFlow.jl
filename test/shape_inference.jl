@@ -87,6 +87,9 @@ end
 @test get_shape(scatter_nd([5 3]', [9 9; 10 10], [6,2])) == TensorShape([6, 2])
 
 
+@test get_shape(scatter_nd([5 3]', [9 9; 10 10], TensorShape([6,2]))) == TensorShape([6, 2])
+
+
 
 ## ExpandDims
 @test get_shape(expand_dims(m, 1)) == TensorShape([1, 10, 20, 30])
