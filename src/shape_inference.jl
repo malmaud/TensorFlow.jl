@@ -208,7 +208,6 @@ register_shape("Transpose") do op
     [TensorShape(reverse(_get_shape(get_input(op, 1)).dims))]
 end
 
-const_cache = Dict{String, Any}()
 
 """
 `load_const(op::Operation)`
@@ -217,9 +216,6 @@ Load an op which is literally a constant or evaluated to a constant after
 a small amount of constant propogation.
 """
 function load_const(op)
-    if haskey(const_cache, op.name)
-        return const_cache[op.name]
-    end
     if op.op_name == "Const"
         value = TensorFlow.load_proto(get_def(op).attr["value"].tensor)
         if !isa(value, Array)
@@ -228,7 +224,6 @@ function load_const(op)
             value = array
         end
         value = Nullable(value)
-        # value = Nullable(get_attr(op, "value", Array))  # This crashes on empty tensors
     elseif op.op_name == "Cast"
         value = load_const(get_input(op, 1))
     elseif op.op_name ∈ ("Sub", "Add")
@@ -264,7 +259,6 @@ function load_const(op)
     else
         value = Nullable()
     end
-    const_cache[op.name] = value
     return value
 end
 
