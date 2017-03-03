@@ -264,8 +264,8 @@ end
 
 load_const(x::Tensor) = load_const(x.op)
 
-register_shape("Reshape") do op
-    n = get_input(op, 2)
+function get_shape_from_explict_shape_input(op, input_num)
+    n = get_input(op, input_num)
     op = tf.get_op(n)
     maybe = load_const(op)
     if isnull(maybe)
@@ -274,6 +274,15 @@ register_shape("Reshape") do op
         return [TensorShape(get(maybe))]
     end
 end
+
+register_shape("Reshape") do op
+    get_shape_from_explict_shape_input(op, 2)
+end
+
+register_shape("ScatterNd") do op
+    get_shape_from_explict_shape_input(op, 3)
+end
+
 
 register_shape("MatMul") do op
     shape1 = _get_shape(get_input(op, 1))

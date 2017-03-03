@@ -583,6 +583,66 @@ end
 
 
 """
+### `scatter_nd`
+Creates a new tensor by applying sparse `updates` to individual values
+ or slices within a zero tensor of the given `shape` tensor according to indices.
+
+This operator is the inverse of the `gather_nd`
+operator which extracts values or slices from a given tensor.
+
+`shape` is a `TensorShape` with rank `P` and `indices` is a `Tensor` of rank `Q`.
+
+`indices` must be integer tensor, containing indices into `shape`.
+It must be shape `[d_0, ..., d_{Q-2}, K]` where `0 < K <= P`.
+The innermost dimension of `indices` (with length `K`) corresponds to
+indices into elements (if `K = P`) or slices (if `K < P`) along the `K`th
+dimension of `shape`.
+
+`updates` is Tensor of rank `Q-1+P-K` with shape:
+
+```
+[d_0, ..., d_{Q-2}, shape[K], ..., shape[P-1]].
+```
+
+The simplest form of scatter is to insert individual elements in a tensor by
+index. For example, say we want to insert 4 scattered elements in a rank-1
+tensor with 8 elements.
+
+
+In Julia, this scatter operation would look like this:
+
+    indices = constant([5 4 2 8]')
+    updates = constant([9, 10, 11, 12])
+    shape = constant([8])
+    scatter_nd(indices, updates, shape)
+
+The resulting tensor would look like this:
+
+    [0, 11, 0, 10, 9, 0, 0, 12]
+
+We can also, insert entire slices of a higher rank tensor all at once. For
+example, if we wanted to insert two slices in the first dimension of a
+rank-3 tensor with two matrices of new values.
+"""
+@op function scatter_nd(indices, updates, shape; name=nothing)
+    local desc
+    with_op_name(name, "ScatterNd") do
+        desc = NodeDescription("ScatterNd")
+        add_input(desc, Tensor(indices)-1)
+        add_input(desc, Tensor(updates))
+        add_input(desc, Tensor(shape))
+    end
+    Tensor(Operation(desc), 1)
+end
+
+function scatter_nd(indices, updates, shape::TensorFlow.ShapeInference.TensorShape; name=nothing)
+    if shape.rank_unknown || any(isnull.(shape.dims))
+        error("TensorShape provided to scatter_nd not statically fully known ($shape). Consider using the dynamic `shape` operation instead of the static `get_shape` operation")
+    end
+    scatter_nd(indices, updates, get.(shape.dims); name=name)
+end
+
+"""
 one_hot(indices, depth; on_value=Float32(1), off_value=Float32(0), axis=-1, dtype=Float32, name="")
 
 Returns a one-hot tensor.
