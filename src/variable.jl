@@ -222,7 +222,7 @@ function get_variable(var_name, shape, dtype; trainable=true, kwargs...)
     shape = get_dims(shape)
     scope = make_scope(var_name; kwargs...)
     push!(scope_stack, scope)
-    name = join([get(_.name) for _ in scope_stack], "/")
+    name = join([get(x.name) for x in scope_stack], "/")
     local v
     try
         initializer = Normal(0, .01)

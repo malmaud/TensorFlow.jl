@@ -21,6 +21,7 @@ shuffle_batch,
 QueueRunner,
 create_threads
 
+using Compat
 using JLD
 using FileIO
 using ProtoBuf
@@ -30,7 +31,7 @@ import ..TensorFlow: Graph, Operation, get_def_graph, extend_graph, gradients, v
 import TensorFlow
 const tf = TensorFlow
 
-abstract Optimizer
+@compat abstract type Optimizer end
 
 function minimize(optimizer::Optimizer, loss; global_step=nothing, var_list=nothing, name="")
     if name == ""

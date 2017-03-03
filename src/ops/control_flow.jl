@@ -1,3 +1,5 @@
+using Compat
+
 """
 `function identity(input)`
 

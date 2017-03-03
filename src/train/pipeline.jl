@@ -147,9 +147,9 @@ function shuffle_batch(tensors, batch_size; capacity=32, enqueue_many=false, sha
             error("Not supported")  # TODO support this
         end
         if shapes === nothing
-            shapes = [tf.get_shape(_) for _ in tensors]
+            shapes = [tf.get_shape(x) for x in tensors]
         end
-        queue = tf.RandomShuffleQueue(capacity, [eltype(_) for _ in tensors], shapes=shapes, name="queue")
+        queue = tf.RandomShuffleQueue(capacity, [eltype(x) for x in tensors], shapes=shapes, name="queue")
         enqueue_op = tf.enqueue(queue, tensors, name="enqueue")
         dequeue_op = tf.dequeue_many(queue, batch_size, name="dequeue")
         runner = QueueRunner(queue, [enqueue_op])
@@ -184,9 +184,9 @@ function batch(tensors, batch_size; num_threads=1, capacity=32, enqueue_many=fal
             error("Not supported")  # TODO support this
         end
         if shapes === nothing
-            shapes = [tf.get_shape(_) for _ in tensors]
+            shapes = [tf.get_shape(x) for x in tensors]
         end
-        queue = tf.FIFOQueue(capacity, [eltype(_) for _ in tensors], shapes=shapes, name="queue")
+        queue = tf.FIFOQueue(capacity, [eltype(x) for x in tensors], shapes=shapes, name="queue")
         enqueue_op = tf.enqueue(queue, tensors, name="enqueue")
         dequeue_op = tf.dequeue_many(queue, batch_size, name="dequeue")
         runner = QueueRunner(queue, [enqueue_op])

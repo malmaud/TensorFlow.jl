@@ -1,5 +1,6 @@
 module ShapeInference
 
+using Compat
 using ..TensorFlow
 import TensorFlow: get_input, get_attr, TensorShape, get_shape
 const tf = TensorFlow
@@ -32,7 +33,7 @@ function Base.show(io::IO, shape::TensorShape)
         print(io, "TensorShape[unknown]")
     else
         print(io, "TensorShape[")
-        print(io, join([get_dim_name(_) for _ in shape.dims], ", "))
+        print(io, join([get_dim_name(x) for x in shape.dims], ", "))
         print(io, "]")
     end
 end
@@ -312,7 +313,7 @@ for func in ["Sum", "Prod", "Min", "Max", "All", "Any", "Mean"]
         reduction_dim_values = load_const(reduction_dims)
         if isnull(reduction_dim_values)
             if keep_dims
-                return [TensorShape([Nullable{Int}() for _ in 1:length(value_shape.dims)])]
+                return [TensorShape([Nullable{Int}() for x in 1:length(value_shape.dims)])]
             else
                 return [TensorShape(nothing)]
             end

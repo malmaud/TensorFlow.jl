@@ -1,6 +1,7 @@
 using ProtoBuf
 using PyCall
 using Compat
+using Compat.Iterators
 
 import Base: setindex!, getindex, run, ==
 
@@ -147,7 +148,7 @@ function TensorShape(dims::Vector{Nullable{Int}})
 end
 
 function TensorShape(dims::Vector)
-    TensorShape([_<0 ? Nullable{Int64}() : Nullable{Int64}(_) for _ in dims])
+    TensorShape([x<0 ? Nullable{Int64}() : Nullable{Int64}(x) for x in dims])
 end
 
 function TensorShape(dim::Void)
@@ -280,7 +281,7 @@ end
                 existing_node = get_node_by_name(graph, name)
                 if !isnull(existing_node)
                     local new_name
-                    for name_id in countfrom()
+                    for name_id in Iterators.countfrom()
                         new_name = "$(name)__placeholder__$(name_id)_$dest_port"
                         isnull(get_node_by_name(graph, new_name)) && break
                     end
@@ -581,7 +582,7 @@ function Base.size(t::RawTensor, dim::Integer)
 end
 
 function Base.size(t::RawTensor)
-    d = (size(t,_) for _ in 1:ndims(t))
+    d = (size(t, x) for x in 1:ndims(t))
     (d...)
 end
 
@@ -628,7 +629,7 @@ end
 
 get_graph(desc::NodeDescription) = Nullable(desc.graph)
 
-abstract AbstractOperation
+@compat abstract type AbstractOperation end
 
 """
 An operation in the computation graph.
@@ -775,7 +776,7 @@ get_graph(n::AbstractOperation) = Operation(n).graph
 
 function load_proto(tensor::tensorflow.TensorProto)
     dtype = tensor.dtype
-    dim = (Int[_.size for _ in tensor.tensor_shape.dim]...)
+    dim = (Int[x.size for x in tensor.tensor_shape.dim]...)
     if dtype == tensorflow._DataType.DT_FLOAT
         val = tensor.float_val
     elseif dtype == tensorflow._DataType.DT_INT32
@@ -904,7 +905,7 @@ Base.getindex(node::Operation, attr_name) = get_attr_value_proto(node, attr_name
 const dt = tensorflow._DataType
 const proto_type_map = Dict(dt.DT_FLOAT=>Float32, dt.DT_INT32=>Int32, dt.DT_DOUBLE=>Float64, dt.DT_INT64=>Int64, dt.DT_STRING=>String, dt.DT_BOOL=>Bool)
 
-abstract AbstractTensor
+@compat abstract type AbstractTensor end
 
 """
 Represents the output of an operation in the computation graph
@@ -970,7 +971,7 @@ end
 
 function setindex!(desc::NodeDescription, tensors::Vector{RawTensor}, attr_name)
     status = Status()
-    ccall((:TF_SetAttrTensorList, LIBTF), Void, (Ptr{Void}, Cstring, Ptr{Ptr{Void}}, Cint, Ptr{Void}), desc.ptr, attr_name, [_.ptr for _ in tensors], length(tensors), status.ptr)
+    ccall((:TF_SetAttrTensorList, LIBTF), Void, (Ptr{Void}, Cstring, Ptr{Ptr{Void}}, Cint, Ptr{Void}), desc.ptr, attr_name, [x.ptr for x in tensors], length(tensors), status.ptr)
     check_status(status)
 end
 
@@ -1018,7 +1019,7 @@ function set_attr_shape_list(desc::NodeDescription, attr_name, list::Vector)
         desc.ptr,
         attr_name,
         dims,
-        [length(_) for _ in dims],
+        [length(x) for x in dims],
         length(dims))
 end
 
@@ -1151,7 +1152,7 @@ Throws a `NodeNameNotFound` exception if there is no such tensor.
 end
 
 function gradients(y, x::AbstractArray)
-    x_names = [node_name(_) for _ in x]
+    x_names = [node_name(node) for node in x]
     y_name = node_name(y)
     meta_graph = train.export_meta_graph()
     b = IOBuffer()

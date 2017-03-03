@@ -78,13 +78,13 @@ end
 function run(sess::Session, inputs, input_values, outputs, targets)
     status = Status()
     output_values = fill(C_NULL, length(outputs))
-    input_tensors = [RawTensor(_) for _ in input_values]
+    input_tensors = [RawTensor(x) for x in input_values]
     ccall((:TF_SessionRun, LIBTF), Void,
     (Ptr{Void}, Ptr{Void}, Ptr{Void}, Ptr{Void}, Cint, Ptr{Void}, Ptr{Ptr{Void}}, Cint, Ptr{Void}, Cint, Ptr{Void}, Ptr{Void}),
         sess.ptr,
         C_NULL,
         inputs,
-        [_.ptr for _ in input_tensors],
+        [x.ptr for x in input_tensors],
         length(input_tensors),
         outputs,
         output_values,
@@ -105,7 +105,7 @@ function run(sess::Session, inputs, input_values, outputs, targets)
             Array(tensor)
         end
     end
-    return [as_native(RawTensor(_)) for _ in output_values]
+    return [as_native(RawTensor(x)) for x in output_values]
 end
 
 function cast_type{Q<:Number}(T, val::Array{Q})

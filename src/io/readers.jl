@@ -1,4 +1,6 @@
-abstract AbstractReader
+using Compat
+
+@compat abstract type AbstractReader end
 
 macro reader(name)
     quote

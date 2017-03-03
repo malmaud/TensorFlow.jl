@@ -96,7 +96,7 @@ function Base.show(io::IO, desc::tensorflow.NodeDef)
                 println(io, "dtype: $(proto_type_map[t.dtype])")
                 sep = "    "
                 print(io, sep, "shape: ")
-                println(io, [_.size for _ in t.tensor_shape.dim])
+                println(io, [x.size for x in t.tensor_shape.dim])
                 print(io, sep, "content: ")
                 show_tensor = k->begin
                     f = getfield(t, k)
@@ -113,7 +113,7 @@ function Base.show(io::IO, desc::tensorflow.NodeDef)
                 end
             elseif has_field(attr_value, :shape)
                 print(io, "shape: ")
-                println(io, [_.size for _ in attr_value.shape.dim])
+                println(io, [x.size for x in attr_value.shape.dim])
             elseif has_field(attr_value, :list)
                 list = attr_value.list
                 if has_field(list, :s)

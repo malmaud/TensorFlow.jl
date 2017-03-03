@@ -9,12 +9,13 @@ GRUCell,
 BasicRNNCell,
 RNNCell
 
+using Compat
 import ....Main: TensorFlow
 import .TensorFlow: Operation, get_shape, get_variable, tanh, Tensor, nn
 import .nn: sigmoid
 const tf = TensorFlow
 
-abstract RNNCell
+@compat abstract type RNNCell end
 
 type BasicRNNCell <: RNNCell
     hidden_size::Int

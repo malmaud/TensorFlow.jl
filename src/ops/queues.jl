@@ -1,4 +1,4 @@
-abstract AbstractQueue
+@compat abstract type AbstractQueue end
 
 type FIFOQueue <: AbstractQueue
     op::Operation

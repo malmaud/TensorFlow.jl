@@ -149,7 +149,7 @@ https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#split
         desc["num_split"] = num_split
     end
     op = Operation(desc)
-    [Tensor(op, _) for _ in 1:num_split]
+    [Tensor(op, x) for x in 1:num_split]
 end
 
 """
@@ -167,7 +167,7 @@ https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#concat
     with_op_name(name, "Concat") do
         desc = NodeDescription("Concat")
         add_input(desc, Tensor(convert_number(Int32, dim - 1)))
-        add_input(desc, [Tensor(_) for _ in values])
+        add_input(desc, [Tensor(x) for x in values])
         desc["N"] = length(values)
     end
     Tensor(Operation(desc), 1)
@@ -191,7 +191,7 @@ https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#pack
     local desc
     with_op_name(name, "Pack") do
         desc = NodeDescription("Pack")
-        add_input(desc, [Tensor(_) for _ in nodes])
+        add_input(desc, [Tensor(x) for x in nodes])
         desc["N"] = length(nodes)
         desc["axis"] = axis -1
     end
@@ -246,7 +246,7 @@ Raises:
         desc["axis"] = axis - 1
     end
     op = Operation(desc)
-    [Tensor(op, _) for _ in 1:num_split]
+    [Tensor(op, x) for x in 1:num_split]
 end
 
 """
@@ -699,7 +699,7 @@ https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#dynamic
         desc["num_partitions"] = Int64(num_partitions)
     end
     op = Operation(desc)
-    [Tensor(op, _) for _ in 1:num_partitions]
+    [Tensor(op, x) for x in 1:num_partitions]
 end
 
 """

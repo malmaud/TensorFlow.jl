@@ -32,6 +32,7 @@ sampled_softmax_loss,
 batch_normalization,
 seq2seq
 
+using Compat
 import TensorFlow
 const tf = TensorFlow
 import ..TensorFlow: Operation, NodeDescription, get_def_graph, capitalize, add_input, Port, get_name, set_attr_list, get_shape, variable_scope, shape, random_uniform, AbstractTensor, Tensor, reduce_sum, @not_implemented, with_op_name, @op
