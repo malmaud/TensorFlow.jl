@@ -20,24 +20,37 @@ for (func, op) in [
 
 end
 
-import Base: .==, .!=, .>, .<, .≥, .≤, >, <, ≥, ≤
-
-for (func, sym) in [
-    (:equal, :.==),
-    (:not_equal, :.!=),
-    (:less, :.<),
-    (:less_equal, :.≤),
-    (:greater, :.>),
-    (:greater_equal, :.≥),
+const undotted_func_list = [
     (:less, :<),
     (:less_equal, :≤),
     (:greater, :>),
     (:greater_equal, :≥)
-    ]
+]
 
+const func_list = copy(undotted_func_list)
+
+import Base: >, <, ≥, ≤
+
+if VERSION < v"0.6-"
+    import Base: .==, .!=, .>, .<, .≥, .≤
+    for (func_name, sym) in undotted_func_list
+        push!(func_list, (func_name, Symbol(string(".", sym))))
+    end
+    push!(func_list, (:equal, :(.==)))
+end
+
+for (func, sym) in func_list
     @eval $sym(t1::AbstractTensor, t2::AbstractTensor) = $func(t1, t2)
     @eval $sym(t1::AbstractTensor, t2) = $func(t1, Tensor(t2))
     @eval $sym(t1, t2::AbstractTensor) = $func(Tensor(t1), t2)
+end
+
+@static if VERSION > v"0.6-"
+    for (func, sym) in undotted_func_list
+        @eval Base.broadcast(::typeof($sym), t1::AbstractTensor, t2::AbstractTensor) = $func(t1, t2)
+        @eval Base.broadcast(::typeof($sym), t1::AbstractTensor, t2) = $func(t1, Tensor(t2))
+        @eval Base.broadcast(::typeof($sym), t1, t2::AbstractTensor) = $func(Tensor(t1), t2)
+    end
 end
 
 @op function Base.select(condition::AbstractTensor, t, e; name=nothing)

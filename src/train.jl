@@ -53,7 +53,7 @@ macro advance_step()
         if global_step !== nothing
             push!(ops, tf.assign(global_step, global_step+1))
         end
-    end
+    end |> esc
 end
 
 type GradientDescentOptimizer <: Optimizer

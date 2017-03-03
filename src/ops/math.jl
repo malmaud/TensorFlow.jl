@@ -91,8 +91,8 @@ end
 for (bin_op, jl_func_name, tf_func_name) in [
     (:+, :add, "Add"),
     (:-, :sub, "Sub"),
-    (:(.*), :mul, "Mul"),
     (:*, :matmul, "MatMul"),
+    (:.*, :mul, "Mul"),
     (:/, :div, "Div"),
     (:^, :pow, "Pow")]
     @eval function $jl_func_name(n1::AbstractTensor, n2::AbstractTensor; name=nothing)
@@ -106,10 +106,20 @@ for (bin_op, jl_func_name, tf_func_name) in [
         end
         Tensor(Operation(desc), 1)
     end
-
+    jl_func_name == :mul && continue  # Defined below
     @eval $bin_op(n1::AbstractTensor, n2::AbstractTensor) = $jl_func_name(n1, n2)
     @eval $bin_op(n1::AbstractTensor, n2) = $jl_func_name(n1, tf_promote(n1, n2))
     @eval $bin_op(n1, n2::AbstractTensor) = $jl_func_name(tf_promote(n2, n1), n2)
+end
+
+@static if VERSION > v"0.6-"  # Cope with changes in broadcasting in Julia 0.6
+    Base.broadcast(::typeof(*), n1::AbstractTensor, n2::AbstractTensor) = mul(n1, n2)
+    Base.broadcast(::typeof(*), n1::AbstractTensor, n2) = mul(n1, tf_promote(n1, n2))
+    Base.broadcast(::typeof(*), n1, n2::AbstractTensor) = mul(tf_promote(n2, n1), n2)
+else
+    .*(n1::AbstractTensor, n2::AbstractTensor) = mul(n1, n2)
+    .*(n1::AbstractTensor, n2) = mul(n1, tf_promote(n1, n2))
+    .*(n1, n2::AbstractTensor) = mul(tf_promote(n2, n1), n2)
 end
 
 # TO DO provide the aliases for Base functions
@@ -185,11 +195,15 @@ end
     Tensor(Operation(desc), 1)
 end
 
-*(x::Number, n::AbstractTensor) = x.*n
+*(x::Number, n::AbstractTensor) = x.*n    # For supporting notation like `2x`
 
-  # For supporting notation like `2x`
 ^(n::AbstractTensor, x::Int) = invoke(^, (AbstractTensor, Any), n, x)
-.^(n::AbstractTensor, x::Number) = n^x
+
+@static if VERSION < v"0.6-"
+    .^(n::AbstractTensor, x) = n^x
+else
+    Base.broadcast(::typeof(^), n::AbstractTensor, x) = n^x
+end
 
 for (jl_func_name, tf_func_name) in [
     (:sign, "Sign"),

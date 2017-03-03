@@ -1,4 +1,8 @@
-import Base: log, exp, +, -, *, /, .*, .+, ./, .-, ^, .^, sin, cos, tan, asin, acos, atan, div, tanh, sqrt, abs, floor, .==, ceil, floor, sign
+import Base: log, exp, +, -, *, /, ^, sin, cos, tan, asin, acos, atan, div, tanh, sqrt, abs, floor, ceil, floor, sign
+
+if VERSION < v"0.6.0-"
+    import Base: .*, .+, ./, .-, .^, .==
+end
 
 const op_funcs = Set{Any}()
 
@@ -18,6 +22,10 @@ end
 
 function tf_promote(t, x::Number)
     return Tensor(eltype(t)(x))
+end
+
+function tf_promote{T}(t, ::Type{Val{T}})  # Work around a^b->Val lowering
+    return tf_promote(t, T)
 end
 
 tf_promote(t, x) = Tensor(x)

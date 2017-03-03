@@ -79,7 +79,7 @@ function device_index_from_zero(device::Device)
         print(b, "/")
         print(b, device_index_from_zero(part))
     end
-    takebuf_string(b)
+    @compat String(take!(b))
 end
 
 Base.show(io::IO, part::DevicePart) = print(io, "$(part.name):$(part.index)")
@@ -1092,7 +1092,7 @@ end
 function get_proto(w::tensorflow.WhileContextDef)
     b = IOBuffer()
     writeproto(b, w)
-    takebuf_array(b)
+    @compat take!(b)
 end
 
 get_def_type(::Type{Operation}) = tensorflow.NodeDef
@@ -1157,7 +1157,7 @@ function gradients(y, x::AbstractArray)
     meta_graph = train.export_meta_graph()
     b = IOBuffer()
     writeproto(b, meta_graph)
-    graph_proto = takebuf_array(b)
+    graph_proto = @compat take!(b)
     node_protos, grad_names = @py_proc py_gradients($graph_proto, $x_names, $y_name)
     extend_graph(node_protos)
     out = []
