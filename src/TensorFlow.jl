@@ -111,9 +111,8 @@ with_device,
 TensorShape,
 get_shape
 
-if !isdefined(Base, :⊻)
-    export ⊻
-end
+isdefined(Base, :⊻) || (export ⊻)
+isdefined(Base, :slice) || (export slice)
 
 const pyproc = Ref(0)
 

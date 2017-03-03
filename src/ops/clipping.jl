@@ -13,7 +13,7 @@ Base.clamp(t::AbstractTensor, min_value, max_value) = clip_by_value(t, min_value
     t = Tensor(t)
     with_op_name(name, "ClipByNorm") do
         clip_norm = cast(Tensor(clip_norm), eltype(t))
-        norm = sqrt(reduce_sum(t.*t, reduction_indices=axes))
+        norm = sqrt(reduce_sum(mul(t, t), reduction_indices=axes))
         factor = min(clip_norm/norm, cast(constant(1), eltype(t)))
         out = t .* factor
     end

@@ -584,7 +584,7 @@ function RawTensor(data::Array{String}, is_scalar=false)
         dims = [size(data)...]
     end
     data = convert_major_order(data)
-    data = map(tf_string_encode, data)
+    data = map(tf_string_encode ,data)
     encoded_buf = IOBuffer()
     pos = 0
     for str in data

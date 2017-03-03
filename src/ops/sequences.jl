@@ -16,17 +16,17 @@ Base.convert(::Type{Tensor}, x::Union{Number, String}) = constant(x)
 Base.convert{T<:Union{Number, String}}(::Type{Tensor}, x::Array{T}) = constant(x)
 
 
-function Base.zeros(::Type{Tensor}, T, shape)
+function Base.zeros(::Type{Tensor}, T, shape::Tuple)
     constant(zeros(T, shape))
 end
 
-Base.zeros(::Type{Tensor}, shape) = zeros(Tensor, Float32, shape)
+Base.zeros(::Type{Tensor}, shape::Tuple) = zeros(Tensor, Float32, shape)
 
-function Base.ones(::Type{Tensor}, T, shape)
+function Base.ones(::Type{Tensor}, T, shape::Tuple)
     constant(ones(T, shape))
 end
 
-Base.ones(::Type{Tensor}, shape) = ones(Tensor, Float32, shape)
+Base.ones(::Type{Tensor}, shape::Tuple) = ones(Tensor, Float32, shape)
 
 """
 Outputs random values from a uniform distribution.
