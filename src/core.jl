@@ -526,6 +526,53 @@ function varint_decode(b::IO)
     return n
 end
 
+function tf_string_encode(src::Vector{UInt8})
+    dest_length = ccall((:TF_StringEncodedSize, LIBTF), Csize_t, (Csize_t,), length(src)) |> Int
+    dest = Vector{UInt8}(dest_length)
+    status = Status()
+    ccall((:TF_StringEncode, LIBTF), Csize_t,
+        (Ptr{Void}, Csize_t, Ptr{Void}, Csize_t, Ptr{Void}),
+        src, length(src), dest, length(dest), status.ptr)
+    check_status(status)
+    dest
+end
+
+tf_string_encode(src) = tf_string_encode(Vector{UInt8}(src))
+
+function tf_string_decode(src::Vector{UInt8})
+    status = Status()
+    dst = Ref{Ptr{UInt8}}()
+    dst_len = Ref{Csize_t}()
+    ccall((:TF_StringDecode, LIBTF), Csize_t,
+        (Ptr{Void}, Csize_t, Ref{Ptr{UInt8}}, Ref{Csize_t}, Ptr{Void}),
+        src, length(src), dst, dst_len, status.ptr)
+    check_status(status)
+    copy(unsafe_wrap(Array, dst[], Int(dst_len[])))
+end
+
+tf_string_decode(src) = tf_string_decode(Vector{UInt8}(src))
+tf_string_decode(T, src) = T(tf_string_decode(src))
+
+# cf this section of c_api.h in upstream tensorflow/c_api.h
+#=
+// --------------------------------------------------------------------------
+// TF_Tensor holds a multi-dimensional array of elements of a single data type.
+// For all types other than TF_STRING, the data buffer stores elements
+// in row major order.  E.g. if data is treated as a vector of TF_DataType:
+//
+//   element 0:   index (0, ..., 0)
+//   element 1:   index (0, ..., 1)
+//   ...
+//
+// The format for TF_STRING tensors is:
+//   start_offset: array[uint64]
+//   data:         byte[...]
+//
+//   The string length (as a varint), followed by the contents of the string
+//   is encoded at data[start_offset[i]]]. TF_StringEncode and TF_StringDecode
+//   facilitate this encoding.
+
+=#
 function RawTensor(data::Array{String}, is_scalar=false)
     # TODO make work for multidimensional arrays
     # Currently only works for vectors and scalars
@@ -537,17 +584,17 @@ function RawTensor(data::Array{String}, is_scalar=false)
         dims = [size(data)...]
     end
     data = convert_major_order(data)
-    b_data = IOBuffer()
-    b = IOBuffer()
+    data = map(tf_string_encode, data)
+    encoded_buf = IOBuffer()
+    pos = 0
     for str in data
-        write(b, UInt64(length(b_data.data)))
-        varint_encode(b_data, sizeof(str))
-        write(b_data, Vector{UInt8}(str))
+        write(encoded_buf, UInt64(pos))
+        pos += length(str)
     end
-    seekstart(b_data)
-    write(b, read(b_data))
-    seekstart(b)
-    data_encoded = read(b)
+    for str in data
+        write(encoded_buf, str)
+    end
+    data_encoded = @compat take!(encoded_buf)
     dt = jl_to_df_type(String)
     ptr = ccall((:TF_NewTensor, LIBTF), Ptr{Void}, (Cint, Ptr{Int64}, Cint, Ptr{Void}, Csize_t, Ptr{Void}, Ptr{Void}),
         Int(dt),
