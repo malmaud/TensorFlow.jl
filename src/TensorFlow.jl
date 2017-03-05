@@ -22,7 +22,7 @@ constant,
 concat,
 cast,
 read_file,
-pack,
+stack,
 expand_dims,
 argmin,
 argmax,
@@ -69,7 +69,7 @@ logical_not,
 logical_or,
 logical_xor,
 strided_slice,
-unpack,
+unstack,
 tile,
 pad,
 gather,
@@ -112,6 +112,9 @@ TensorShape,
 get_shape,
 batch_matmul,
 squared_difference
+multiply,
+subtract,
+divide
 
 isdefined(Base, :⊻) || (export ⊻)
 isdefined(Base, :slice) || (export slice)

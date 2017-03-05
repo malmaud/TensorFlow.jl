@@ -14,7 +14,7 @@ grayscale_to_rgb,
 rgb_to_hsv,
 hsv_to_rgb
 
-import ..TensorFlow: NodeDescription, get_def_graph, get_name, add_input, Operation, pack, convert_number, AbstractOperation, Tensor, with_op_name, constant, @op
+import ..TensorFlow: NodeDescription, get_def_graph, get_name, add_input, Operation, stack, convert_number, AbstractOperation, Tensor, with_op_name, constant, @op
 
 """
 `function decode_jpeg(contents, channels=1, ratio=1, fancy_upscaling=true, try_recover_truncated=false, acceptable_fraction=1.0)`
@@ -184,7 +184,7 @@ A `Tensor` of the resized `images`.
     with_op_name(name, "ResizeImages") do
         desc = NodeDescription(op_names[method])
         add_input(desc, images)
-        dims = pack([convert_number(Int32,new_height), convert_number(Int32,new_width)])
+        dims = stack([convert_number(Int32,new_height), convert_number(Int32,new_width)])
         add_input(desc, dims)
         desc["align_corners"] = align_corners
     end

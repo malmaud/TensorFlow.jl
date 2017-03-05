@@ -467,7 +467,7 @@ end
     # TODO take into account epsilon
     local out
     tf.with_op_name(name, "L2Normalize") do
-        sums = tf.reduce_sum(x.*x, reduction_indices=[dim], keep_dims=true)
+        sums = tf.reduce_sum(x.*x, axis=[dim], keep_dims=true)
         norm = sqrt(sums)
         out = x/norm
     end

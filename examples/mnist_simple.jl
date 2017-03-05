@@ -15,7 +15,7 @@ run(sess, initialize_all_variables())
 
 y = nn.softmax(x*W + b)
 
-cross_entropy = reduce_mean(-reduce_sum(y_ .* log(y), reduction_indices=[2]))
+cross_entropy = reduce_mean(-reduce_sum(y_ .* log(y), axis=[2]))
 train_step = train.minimize(train.GradientDescentOptimizer(.00001), cross_entropy)
 
 correct_prediction = indmax(y, 2) .== indmax(y_, 2)

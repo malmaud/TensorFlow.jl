@@ -153,43 +153,90 @@ https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#split
 end
 
 """
-concat(dim, values; name="")
+    concat(vaues, axis; name="concat")
 
-Concatenates the list of tensors `values` along dimension `dim` (1-based).  If
-`values[i].shape = [D1, D2, ... Daxis(i), ...Dn]`, the concatenated
-result has shape `[D1, D2, ... Rdim, ...Dn]`,
-where `Rdim=sum(Daxis(i))`.
+Concatenates tensors along one dimension.
 
-https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#concat
+Concatenates the list of tensors `values` along dimension `axis` (1-based).  If
+`values[i].shape = [D0, D1, ... Daxis(i), ...Dn]`, the concatenated
+result has shape
+
+    [D0, D1, ... Raxis, ...Dn]
+
+where
+
+    Raxis = sum(Daxis(i))
+
+That is, the data from the input tensors is joined along the `axis`
+dimension.
+
+The number of dimensions of the input tensors must match, and all dimensions
+except `axis` must be equal.
+
+For example:
+
+```python
+t1 = [[1, 2, 3], [4, 5, 6]]
+t2 = [[7, 8, 9], [10, 11, 12]]
+tf.concat([t1, t2], 0) ==> [[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]]
+tf.concat([t1, t2], 1) ==> [[1, 2, 3, 7, 8, 9], [4, 5, 6, 10, 11, 12]]
+
+# tensor t3 with shape [2, 3]
+# tensor t4 with shape [2, 3]
+tf.shape(tf.concat([t3, t4], 0)) ==> [4, 3]
+tf.shape(tf.concat([t3, t4], 1)) ==> [2, 6]
+```
+
+Note: If you are concatenating along a new axis consider using stack.
+E.g.
+
+```python
+tf.concat([tf.expand_dims(t, axis) for t in tensors], axis)
+```
+
+can be rewritten as
+
+```python
+tf.stack(tensors, axis=axis)
+```
+
+Args:
+  values: A list of `Tensor` objects or a single `Tensor`.
+  axis: 0-D `int32` `Tensor`.  Dimension along which to concatenate.
+  name: A name for the operation (optional).
+
+Returns:
+  A `Tensor` resulting from concatenation of the input tensors.
 """
-@op function concat(dim, values; name=nothing)
+@op function concat(values, axis; name=nothing)
     local desc
     with_op_name(name, "Concat") do
-        desc = NodeDescription("Concat")
-        add_input(desc, Tensor(convert_number(Int32, dim - 1)))
+        desc = NodeDescription("ConcatV2")
         add_input(desc, [Tensor(x) for x in values])
+        add_input(desc, cast(Tensor(axis), Int32)-1)
         desc["N"] = length(values)
     end
     Tensor(Operation(desc), 1)
 end
 
-Base.cat(::Type{Tensor}, dim, values...) = concat(dim, values)
-Base.cat(dim, values::AbstractTensor...) = concat(dim, values)
+Base.cat(::Type{Tensor}, dim, values...) = concat(values, dim)
+Base.cat(dim, values::AbstractTensor...) = concat(values, dim)
 
 """
-pack(values; axis=1, name="")
+    stack(values; axis=1, name="")
 
 Packs a list of rank-R tensors into one rank-(R+1) tensor.
 
 Packs the list of tensors in values into a tensor with rank one higher than each tensor in values, by packing them along the axis dimension. Given a list of length N of tensors of shape (A, B, C);
 
-if axis == 1 then the output tensor will have the shape (N, A, B, C). if axis == 2 then the output tensor will have the shape (A, N, B, C). Etc.
+If axis == 1 then the output tensor will have the shape (N, A, B, C).
+If axis == 2 then the output tensor will have the shape (A, N, B, C). Etc.
 
 https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#pack
 """
-@op function pack(nodes; axis=1, name=nothing)
+@op function stack(nodes; axis=1, name=nothing)
     local desc
-    with_op_name(name, "Pack") do
+    with_op_name(name, "Stack") do
         desc = NodeDescription("Pack")
         add_input(desc, [Tensor(x) for x in nodes])
         desc["N"] = length(nodes)
@@ -199,7 +246,7 @@ https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#pack
 end
 
 """
-unpack(value; num=nothing, axis=1, name="Unpack")
+    unstack(value; num=nothing, axis=1, name="Unpack")
 
 Unpacks the given dimension of a rank-`R` tensor into rank-`(R-1)` tensors.
 
@@ -236,10 +283,10 @@ Raises:
   ValueError: If `num` is unspecified and cannot be inferred.
   ValueError: If `axis` is out of the range [-R, R).
 """
-@op function unpack(value; num=nothing, axis=1, name=nothing)
+@op function unstack(value; num=nothing, axis=1, name=nothing)
     num_split = num==nothing ? get_shape(value, axis) : num
     local desc
-    with_op_name(name, "Unpack") do
+    with_op_name(name, "Unstack") do
         desc = NodeDescription("Unpack")
         add_input(desc, value)
         desc["num"] = num_split

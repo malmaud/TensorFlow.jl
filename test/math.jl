@@ -101,7 +101,7 @@ a = TensorFlow.constant(a_raw)
 for (jl_func, red_func) in [(sum, reduce_sum), (prod, reduce_prod), (minimum, reduce_min), (maximum, reduce_max), (mean, reduce_mean)]
     result = run(sess, red_func(a))
     @test jl_func(a_raw) ≈ result
-    result = run(sess, red_func(a, reduction_indices=0))
+    result = run(sess, red_func(a, axis=0))
     @test jl_func(a_raw, 1)[1] ≈ result
 end
 

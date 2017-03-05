@@ -185,6 +185,22 @@ of `tensor` must equal the number of elements in `dims`. In other words:
 For example:
 
 ```prettyprint
+Reverses specific dimensions of a tensor.
+
+NOTE `tf.reverse` has now changed behavior in preparation for 1.0.
+`tf.reverse_v2` is currently an alias that will be deprecated before TF 1.0.
+
+Given a `tensor`, and a `int32` tensor `axis` representing the set of
+dimensions of `tensor` to reverse. This operation reverses each dimension
+`i` for which there exists `j` s.t. `axis[j] == i`.
+
+`tensor` can have up to 8 dimensions. The number of dimensions specified
+in `axis` may be 0 or more entries. If an index is specified more than
+once, a InvalidArgument error is raised.
+
+For example:
+
+```prettyprint
 # tensor 't' is [[[[ 0,  1,  2,  3],
 #                  [ 4,  5,  6,  7],
 #                  [ 8,  9, 10, 11]],
@@ -193,7 +209,7 @@ For example:
 #                  [20, 21, 22, 23]]]]
 # tensor 't' shape is [1, 2, 3, 4]
 
-# 'dims' is [False, False, False, True]
+# 'dims' is [3] or 'dims' is -1
 reverse(t, dims) ==> [[[[ 3,  2,  1,  0],
                         [ 7,  6,  5,  4],
                         [ 11, 10, 9, 8]],
@@ -201,7 +217,7 @@ reverse(t, dims) ==> [[[[ 3,  2,  1,  0],
                         [19, 18, 17, 16],
                         [23, 22, 21, 20]]]]
 
-# 'dims' is [False, True, False, False]
+# 'dims' is '[1]' (or 'dims' is '[-3]')
 reverse(t, dims) ==> [[[[12, 13, 14, 15],
                         [16, 17, 18, 19],
                         [20, 21, 22, 23]
@@ -209,7 +225,7 @@ reverse(t, dims) ==> [[[[12, 13, 14, 15],
                         [ 4,  5,  6,  7],
                         [ 8,  9, 10, 11]]]]
 
-# 'dims' is [False, False, True, False]
+# 'dims' is '[2]' (or 'dims' is '[-2]')
 reverse(t, dims) ==> [[[[8, 9, 10, 11],
                         [4, 5, 6, 7],
                         [0, 1, 2, 3]]
@@ -221,7 +237,8 @@ reverse(t, dims) ==> [[[[8, 9, 10, 11],
 Args:
   tensor: A `Tensor`. Must be one of the following types: `uint8`, `int8`, `int32`, `int64`, `bool`, `half`, `float32`, `float64`, `complex64`, `complex128`.
     Up to 8-D.
-  dims: A `Tensor` of type `bool`. 1-D. The dimensions to reverse.
+  axis: A `Tensor`. Must be one of the following types: `int32`, `int64`.
+    1-D. The indices of the dimensions to reverse.
   name: A name for the operation (optional).
 
 Returns:
@@ -230,9 +247,9 @@ Returns:
 @op function Base.reverse(x::AbstractTensor, indices; name=nothing)
     local desc
     with_op_name(name, "Reverse") do
-        desc = NodeDescription("Reverse")
+        desc = NodeDescription("ReverseV2")
         add_input(desc, Tensor(x))
-        add_input(desc, Tensor(indices))
+        add_input(desc, cast(Tensor(indices), Int32)-1)
     end
     Tensor(Operation(desc))
 end
