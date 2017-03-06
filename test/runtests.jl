@@ -31,6 +31,14 @@ tests = [
     "summary.jl"
 ]
 
+# @test_nowarn was added in Julia 0.6.
+# We make it a no-op on earlier versions.
+if !isdefined(Base.Test, Symbol("@test_nowarn"))
+    macro test_nowarn(ex)
+        esc(ex)
+    end
+end
+
 for filename in tests
     name = first(splitext(filename))
     @testset "$name" begin
