@@ -153,7 +153,7 @@ library loaded.
 macro py_proc(expr)
     quote
         eval(Main, quote
-            remotecall_fetch($(load_python_process())) do
+            remotecall_fetch($(TensorFlow.load_python_process())) do
                 $($(Expr(:quote, expr)))
             end
         end)
