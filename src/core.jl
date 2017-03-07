@@ -1297,21 +1297,49 @@ end
     import_graph_def(graph, data, options)
 end
 
-@with_def_graph function get_operations(g::Graph)
-    # TODO switch to iterator
-    ops = Operation[]
-    pos = Ref{Csize_t}(0)
-    while true
-        op_ptr = ccall((:TF_GraphNextOperation, LIBTF), Ptr{Void},
-            (Ptr{Void}, Ref{Csize_t}),
-            g.ptr, pos)
-        op_ptr == C_NULL && break
+immutable OperationIterator
+    graph::Graph
+end
+
+immutable OperationIteratorState
+    next_op::Nullable{Operation}
+    pos::Int
+end
+
+function Base.start(iter::OperationIterator)
+    state = OperationIteratorState(Nullable{Operation}(), 0)
+    _next(iter, state)[2]
+end
+
+function _next(iter::OperationIterator, state)
+    pos = Ref{Csize_t}(state.pos)
+    op_ptr = ccall((:TF_GraphNextOperation, LIBTF), Ptr{Void},
+        (Ptr{Void}, Ref{Csize_t}),
+        iter.graph.ptr, pos)
+    if op_ptr == C_NULL
+        next_op = Nullable{Operation}()
+    else
         op = Operation()
         op.ptr = op_ptr
-        op.graph = Nullable(g)
-        push!(ops, op)
+        op.graph = iter.graph
+        next_op = Nullable(op)
     end
-    ops
+    next_state = OperationIteratorState(next_op, pos[])
+    (state.next_op, next_state)
+end
+
+function Base.next(iter::OperationIterator, state)
+    value, new_state = _next(iter, state)
+    (get(value), new_state)
+end
+
+Base.done(iter::OperationIterator, state) = isnull(state.next_op)
+
+Base.iteratorsize(::Type{OperationIterator}) = Base.SizeUnknown()
+Base.eltype(::Type{OperationIterator}) = Operation
+
+@with_def_graph function get_operations(g::Graph)
+    OperationIterator(g)
 end
 
 get_name(t::Tensor) = "$(get_name(t.op)):$(t.value_index-1)"
