@@ -14,15 +14,12 @@ b = TensorFlow.constant(b_raw)
 @test (a_raw .> b_raw) == run(sess, TensorFlow.greater(a,b))
 @test (a_raw .>= b_raw) == run(sess, TensorFlow.greater_equal(a,b))
 
-
 @test (a_raw .== b_raw) == run(sess, a .== b)
 @test (a_raw .!= b_raw) == run(sess, a .!= b)
 @test (a_raw .< b_raw) == run(sess, a .< b)
 @test (a_raw .<= b_raw) == run(sess, a .<= b)
 @test (a_raw .> b_raw) == run(sess, a .> b)
 @test (a_raw .>= b_raw) == run(sess, a .>= b)
-
-
 
 
 cond = [true; false; true; true; false]
