@@ -37,6 +37,7 @@ if VERSION < v"0.6-"
         push!(func_list, (func_name, Symbol(string(".", sym))))
     end
     push!(func_list, (:equal, :(.==)))
+    push!(func_list, (:not_equal, :(.!=)))
 end
 
 for (func, sym) in func_list
