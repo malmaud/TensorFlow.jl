@@ -46,6 +46,16 @@ Pkg.build("TensorFlow")
 CUDA 8.0 and cudnn are required for GPU usage.
 If you need to use a different version of CUDA you can [compile libtensorflow from source](#optional-building-the-tensorflow-library)
 
+## Installation via Docker
+
+Simply run `docker run -it malmaud/julia:tf` to open a Julia REPL that already
+has TensorFlow installed:
+
+```julia
+julia> using TensorFlow
+julia>
+```
+
 ## Logistic regression example
 
 Realistic demonstration of using variable scopes and advanced optimizers
