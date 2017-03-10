@@ -118,11 +118,7 @@ const pyproc = Ref(0)
 
 function __init__()
     c_deallocator[] = cfunction(deallocator, Void, (Ptr{Void}, Csize_t, Ptr{Void}))
-    try
-        set_def_graph(Graph())
-    catch err
-        warn("Couldn't set default graph: $err")
-    end
+    set_def_graph(Graph())
 end
 
 function load_python_process()

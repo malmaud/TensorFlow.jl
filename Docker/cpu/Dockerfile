@@ -5,3 +5,4 @@ ADD setup.jl .
 RUN julia setup.jl
 ADD .bashrc /root
 ADD .jupyter /root/.jupyter
+EXPOSE 8888

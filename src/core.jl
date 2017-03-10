@@ -346,7 +346,10 @@ const def_graph = Ref{Graph}()
 """
 Returns the default computation graph, an object of type `Graph`.
 """
-get_def_graph() = def_graph[]
+function get_def_graph()
+    has_def_graph() || (def_graph[] = Graph())        
+    def_graph[]
+end
 has_def_graph() = isdefined(def_graph, :x)
 
 function set_def_graph(g)
