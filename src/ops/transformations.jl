@@ -62,7 +62,6 @@ https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#reshape
     Tensor(Operation(desc), 1)
 end
 
-@op Base.length(::Type{Tensor}, n::AbstractTensor; name=nothing) = size(n, name)
 
 # if isdefined(Base, :slice)  # Removed in .6
 #     import Base: slice
@@ -425,11 +424,23 @@ end
 
 """
 Base.size(n::AbstractTensor; name="")
-Returns the total number of elements in a Tensor.
+Returns the shape of the Tensor.
+WARNING: this does not match the python TensorFlow `size` -- for that functionality, use `Base.length`
+Returns the total number of elements in a Tensor.W
 (Like julia `Base.length` does for an `Array`)
 https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#size
 """
-@op function Base.size(n::AbstractTensor; name=nothing)
+@op Base.size(n::AbstractTensor; name=nothing) = shape(n; name=name)
+@op Base.size(n::AbstractTensor, i; name=nothing) = shape(n; name=name)[i]
+# size(X, dim) must be implemented for indexing with X[..,end,...] to work
+
+"""
+Base.length(n::AbstractTensor; name="")
+Returns the total number of elements in a Tensor.
+This matchs python TensorFlow `size` operation
+https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#size
+"""
+@op function Base.length(n::AbstractTensor; name=nothing)
     local desc
     with_op_name(name, "Size") do
         desc = NodeDescription("Size")
@@ -437,6 +448,8 @@ https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#size
     end
     Tensor(Operation(desc), 1)
 end
+@op Base.endof(n::AbstractTensor; name=nothing) = length(n; name=name)
+# endof(X) must be implemented for indexing with X[end] to work
 
 """
 tile(input, multiples; name="")
@@ -507,6 +520,18 @@ https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#pad
 end
 
 
+# Colon promotion rules -- mostly this will make Ints into constants
+immutable TensorRange
+    start::Tensor
+    stop::Tensor
+end
+Base.first(tr::TensorRange)=tr.start
+Base.last(tr::TensorRange)=tr.stop
+
+Base.colon(x,y::Tensor) = colon(Tensor(x), y)
+Base.colon(x::AbstractTensor, y) = colon(Tensor(x), Tensor(y)) #HACK brake symetry by using AbstractTensor for 1 and Tensor for the other
+Base.colon(x::Tensor,y::Tensor) = TensorRange(x,y)
+
 #For x[[1,2,3]] etc
 function Base.getindex(params::AbstractTensor, indices)
     if eltype(indices) == Bool
@@ -515,6 +540,37 @@ function Base.getindex(params::AbstractTensor, indices)
         gather(params, indices)
     end
 end
+
+#for slices eg X[1:end] etc
+function Base.getindex(params::AbstractTensor, indices::Vararg{Union{TensorRange, UnitRange, Colon}})
+    # This function is all about slices
+    # NOTE: slice is still 0 based for begins
+
+    # TODO: Assign a name prefix to all the tensors made as art of this section, including constants
+    begins = Tensor[]
+    sizes = Tensor[]
+
+    function proc_ind!(ind::Colon)
+        push!(begins, Int32(0))
+        push!(sizes, Int32(-1)) # Slice mark for go to end
+    end
+    function proc_ind!(ind::Union{UnitRange, TensorRange})
+        #NOTE: end has now been replace with `endof(X)` or `size(X,d)` giving the actual size
+        begin_ =  convert_number(Int32, first(ind) - Int32(1))
+        push!(begins, begin_)
+        end_ = convert_number(Int32, last(ind))
+        push!(sizes, end_ - begin_)
+    end
+
+    for ind in indices
+        proc_ind!(ind)
+    end
+
+    begins_tensor = pack(begins)
+    sizes_tensor = pack(sizes)
+    slice(params, begins_tensor, sizes_tensor)
+end
+
 
 #For x[1,2,3] etc
 function Base.getindex(params::AbstractTensor, indices...)
@@ -525,6 +581,8 @@ function Base.getindex(params::AbstractTensor, indices...)
         error("julia style indexing is not currently supported for indicies $inferred")
     end
 end
+
+
 
 
 """
