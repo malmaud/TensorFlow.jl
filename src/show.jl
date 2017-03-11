@@ -141,6 +141,7 @@ function get_tensorboard()
         tensorboard[] = Tensorboard(proc, logdir, 6006)
         atexit() do
             kill(proc, 2)
+            rm(logdir, recursive=true, force=true)
         end
         sleep(3)
     end
