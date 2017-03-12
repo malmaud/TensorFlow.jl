@@ -15,10 +15,43 @@ function _tf(ex)
     end
 end
 
+function tf_while(ex)
+    ex.head == :while || error("tf_while expects a `while` loop")
+    cond = ex.args[1]
+    block = ex.args[2]
+    return_val = block.args[end]
+    @assert return_val.head == :vect
+    vars = []
+    for item in return_val.args
+        @assert item.head == Symbol("=>")
+        var_name = item.args[1]
+        var_value = item.args[2]
+        push!(vars, (var_name=>var_value))
+    end
+    while_expr = Expr(:call, :while_loop)
+    loop_func = Expr(:->, Expr(:tuple, [var[1] for var in vars]...))
+    cond_func = deepcopy(loop_func)
+    push!(cond_func.args, cond)
+    push!(while_expr.args, cond_func)
+    iter_func = deepcopy(loop_func)
+    vec_part = Expr(:vect, [var[2] for var in vars]...)
+    block_part = Expr(:block)
+    for arg in block.args[1:end-1]
+        arg.head == :line && continue
+        push!(block_part.args, arg)
+    end
+    push!(block_part.args, vec_part)
+    push!(iter_func.args, block_part)
+    push!(while_expr.args, iter_func)
+    var_list = Expr(:vect, [var[1] for var in vars]...)
+    push!(while_expr.args, var_list)
+    while_expr
+end
+
 """
     @tf
 
-Automatically name a tensor by the name of the variable it is assigned to.
+When applied to assignment, automatically name a tensor by the name of the variable it is assigned to.
 
 For example,
 `@tf i = constant(1)` creates a node with name "i", exactly as if you
@@ -30,7 +63,21 @@ Can also be applied to a block of assignments:
   i = constant(1)
   j = constant(2)
 end
+
+When applied to a `while` loops, automatically transform the loop to a TensorFlow
+`while_loop`.
+
+For example,
+
 ```
+i = constant(0)
+loop_sum = constant(0)
+@tf while i<10
+  [i=>i+1, loop_sum=>loop_sum+i]
+end
+```
+
+becomes `while_loop((i,loop_sum)->i<10, (i,loop_sum)->[i+1, loop_sum+i], [i, loop_sum])`.
 """
 macro tf(ex)
     is_assign(arg::Expr) = arg.head == Symbol("=")
@@ -44,8 +91,13 @@ macro tf(ex)
                 push!(res.args, arg)
             end
         end
-    else
+    elseif ex.head == Symbol("=")
         res = _tf(ex)
+    elseif ex.head == :while
+        res = tf_while(ex)
+    else
+        warn("@tf macro had no effect")
+        res = ex
     end
     esc(res)
 end
