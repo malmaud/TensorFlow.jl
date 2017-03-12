@@ -122,6 +122,53 @@ else
     .*(n1, n2::AbstractTensor) = mul(tf_promote(n2, n1), n2)
 end
 
+function batch_matmul(x::AbstractTensor,y::AbstractTensor; adj_x=false, adj_y=false, name=nothing)
+    if tf_version() >= v"1.0.0-"
+        Base.depwarn("""
+        batch_matmul is deprecated. It's functionality is now subsumed by matmul.
+        """)
+    end
+    local desc
+    with_op_name(name, "BatchMatMul") do
+        x = Tensor(x)
+        y = Tensor(y)
+        desc = NodeDescription("BatchMatMul")
+        add_input(desc, x)
+        add_input(desc, y)
+        desc["adj_x"] = adj_x
+        desc["adj_y"] = adj_y
+    end
+    Tensor(Operation(desc), 1)
+end
+
+"""
+    squared_difference(x, y; name=nothing)
+
+Returns (x - y)(x - y) element-wise.
+
+*NOTE*: `SquaredDifference` supports broadcasting. More about broadcasting
+[here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html)
+
+Args:
+  x: A `Tensor`. Must be one of the following types: `half`, `float32`, `float64`, `int32`, `int64`, `complex64`, `complex128`.
+  y: A `Tensor`. Must have the same type as `x`.
+  name: A name for the operation (optional).
+
+Returns:
+  A `Tensor`. Has the same type as `x`.
+ """
+function squared_difference(x, y; name=nothing)
+    local desc
+    with_op_name(name, "SquaredDifference") do
+        x = Tensor(x)
+        y = Tensor(y)
+        desc = NodeDescription("SquaredDifference")
+        add_input(desc, x)
+        add_input(desc, y)
+    end
+    Tensor(Operation(desc), 1)
+end
+
 # TO DO provide the aliases for Base functions
 @op function matrix_solve(matrix, rhs; adjoint=false, name=nothing)
     local desc

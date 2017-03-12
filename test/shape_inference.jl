@@ -124,3 +124,5 @@ let
     y = TensorFlow.slice(x, [0, 1], [-1, 2])
     @test get_shape(y) == TensorShape([2, 2])
 end
+
+@test get_shape(squared_difference([1,2], 3)) == TensorShape([2])

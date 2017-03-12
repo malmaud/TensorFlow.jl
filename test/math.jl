@@ -169,3 +169,5 @@ result = run(sess, TensorFlow.scatter_add(a, [1; 5], [1.; 1.]; use_locking=true)
 
 result = run(sess, TensorFlow.sign(constant([-1, 2, 0])))
 @test [-1, 1, 0] == result
+
+@test run(sess, squared_difference([1,2], 5)) == [16, 9]

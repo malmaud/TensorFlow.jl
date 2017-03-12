@@ -182,7 +182,7 @@ register_shape("SparseSoftmaxCrossEntropyWithLogits") do op
     return [TensorShape([s1.dims[1]]), copy(s1)]
 end
 
-for func in ["Add", "Sub", "Mul", "Div", "Pow"]
+for func in ["Add", "Sub", "Mul", "Div", "Pow", "SquaredDifference"]
     register_shape(func) do op
         s1 = _get_shape(get_input(op, 1))
         s2 = _get_shape(get_input(op, 2))

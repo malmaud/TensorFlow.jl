@@ -109,7 +109,9 @@ visualize_graph,
 with_device,
 @device_str,
 TensorShape,
-get_shape
+get_shape,
+batch_matmul,
+squared_difference
 
 isdefined(Base, :⊻) || (export ⊻)
 isdefined(Base, :slice) || (export slice)
