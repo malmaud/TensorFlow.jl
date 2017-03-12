@@ -30,7 +30,8 @@ log_poisson_loss,
 nce_loss,
 sampled_softmax_loss,
 batch_normalization,
-seq2seq
+seq2seq,
+conv2d_transpose
 
 using Compat
 import TensorFlow
@@ -472,6 +473,20 @@ end
         add_input(desc, Tensor(logits))
         add_input(desc, Tensor(targets))
         add_input(desc, Tensor(pos_weight))
+    end
+    Tensor(Operation(desc))
+end
+
+@op function conv2d_transpose(value, filter, output_shape, strides; padding="SAME", data_format="NHWC", name=nothing)
+    local desc
+    with_op_name(name, "conv2d_transpose") do
+        desc = NodeDescription("Conv2DBackpropInput")
+        add_input(desc, Tensor(output_shape))
+        add_input(desc, Tensor(filter))
+        add_input(desc, Tensor(value))
+        desc["data_format"] = data_format
+        desc["padding"] = padding
+        set_attr_list(desc, "strides", strides)
     end
     Tensor(Operation(desc))
 end

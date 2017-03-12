@@ -28,7 +28,8 @@ tests = [
     "meta.jl",
     "control.jl",
     "ops.jl",
-    "summary.jl"
+    "summary.jl",
+    "nn.jl"
 ]
 
 # @test_nowarn was added in Julia 0.6.
