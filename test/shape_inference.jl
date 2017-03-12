@@ -110,3 +110,17 @@ end
 @test get_shape(1+k) == get_shape(k)
 @test get_shape(1-k) == get_shape(k)
 @test get_shape(2*k) == get_shape(k)
+
+## Squeeze
+let
+    x = placeholder(Float64, shape=[5, 1, 4, 1, 3])
+    y = squeeze(x, [2, 4])
+    @test get_shape(y) == TensorShape([5, 4, 3])
+end
+
+## Slice
+let
+    x = placeholder(Float64, shape=[2, 3])
+    y = slice(x, [0, 1], [-1, 2])
+    @test get_shape(y) == TensorShape([2, 1])
+end

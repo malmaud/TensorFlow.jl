@@ -64,9 +64,9 @@ end
 
 @op Base.length(::Type{Tensor}, n::AbstractTensor; name=nothing) = size(n, name)
 
-if isdefined(Base, :slice)  # Removed in .6
-    import Base: slice
-end
+# if isdefined(Base, :slice)  # Removed in .6
+#     import Base: slice
+# end
 """
 slice(n::AbstractTensor, begin_, size_; name="")
 

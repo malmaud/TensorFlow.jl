@@ -36,7 +36,7 @@ conv2d_transpose
 using Compat
 import TensorFlow
 const tf = TensorFlow
-import ..TensorFlow: Operation, NodeDescription, get_def_graph, capitalize, add_input, Port, get_name, set_attr_list, get_shape, variable_scope, shape, random_uniform, AbstractTensor, Tensor, reduce_sum, @not_implemented, with_op_name, @op
+import ..TensorFlow: Operation, NodeDescription, get_def_graph, capitalize, add_input, Port, get_name, set_attr_list, get_shape, variable_scope, shape, random_uniform, AbstractTensor, Tensor, reduce_sum, @not_implemented, with_op_name, @op, @tf
 
 for f in [:relu, :relu6, :elu, :softplus, :softsign, :softmax, :sigmoid, :tanh]
     @eval @op function $f(n::AbstractTensor; name=nothing)
@@ -153,8 +153,40 @@ all elements but all later dimensions may vary.
 * `time_major`: Shape format for `inputs` and `outputs` `Tensor`s. Determines whether the first dimension of each is `max_time` (`true`) or `batch_size` (`false`, default). `true` is more efficient but is the transpose of most TensorFlow operations.
 * `scope`: `VariableScope` for the subgraph. Defaults to `RNN`.
 """
-@not_implemented function dynamic_rnn(cell, inputs; sequence_length=nothing, initial_state=nothing, dtype=nothing, parallel_iterations=nothing, swap_memory=false, time_major=false, scope="RNN")
+@op function dynamic_rnn(cell, inputs; sequence_length=nothing, initial_state=nothing, dtype=nothing, parallel_iterations=nothing, swap_memory=false, time_major=false, scope="RNN")
+    sequence_length === nothing || error("sequence_length parameter not supported yet")
+    time_major == false || error("Time-major order not supported yet")
+    time_step = tf.constant(1)
+    num_steps = tf.cast(tf.shape(inputs)[2], Int64)
 
+    if initial_state === nothing
+        if dtype === nothing
+            error("dtype must be set if initial_state is not provided")
+        end
+        batch_size = get_shape(first(inputs), 1)
+        initial_state = zero_state(cell, batch_size, dtype)
+    end
+
+    state = initial_state
+    input_dim = get_shape(inputs, 3)
+    
+    output = tf.zeros(Tensor, eltype(state), (get_shape(inputs, 1), output_size(cell)))
+
+    while_output = @tf while time_step ≤ num_steps
+        slice_start = tf.pack([0, time_step-1, 0])
+        slice_size = tf.pack([-1, 1, -1])
+        data = tf.slice(inputs, slice_start, slice_size)
+        data = tf.squeeze(data, [2])
+        local new_state
+        variable_scope(scope) do
+            output, new_state = cell(data, state, input_dim)
+        end
+        [time_step=>time_step+1, state=>new_state, output=>output]
+    end
+
+    final_state = while_output[2]
+    final_output = while_output[3]
+    final_output, final_state
 end
 
 @not_implemented function state_saving_rnn()

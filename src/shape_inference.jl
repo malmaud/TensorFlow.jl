@@ -20,7 +20,6 @@ function Base.hash(ts::TensorShape, h::UInt64)
     end
 end
 
-
 function Base.show(io::IO, shape::TensorShape)
     get_dim_name = x->begin
         if isnull(x)
@@ -104,7 +103,6 @@ end
 # Overload `Base.size` so that [3:4, 1:end] etc works
 Base.size(n::tf.AbstractTensor, dim::Integer) = get_shape(n, dim)
 
-
 function _get_shape(n::tf.AbstractTensor)
     t = Tensor(n)
     cache_key = (t.op.name, t.value_index)
@@ -131,7 +129,6 @@ end
 function _get_shape(v::Variable)
     return _get_shape(get_input(v.assign_node, 2))
 end
-
 
 const shape_inferer = Dict{String, Function}()
 
@@ -209,7 +206,6 @@ register_shape("Transpose") do op
     [TensorShape(reverse(_get_shape(get_input(op, 1)).dims))]
 end
 
-
 """
 `load_const(op::Operation)`
 
@@ -257,6 +253,22 @@ function load_const(op)
         else
             value = Nullable(collect(get(start)[]:get(delta)[]:(get(limit)[]-1)))
         end
+    elseif op.op_name == "Pack"
+        n_inputs = tf.get_input_list_length(op, "values")
+        inputs = [get_input(op, i) for i in 1:n_inputs]
+        maybe_vals = load_const.(inputs)
+        if any(isnull.(maybe_vals))
+            value = Nullable()
+        else
+            vals = get.(maybe_vals)
+            # We only handle packing scalars for now, so bail is anything else
+            # is encountered.
+            if any(size.(vals) .!= ())
+                value = Nullable()
+            else
+                value = Nullable([x[1] for x in vals])
+            end
+        end
     else
         value = Nullable()
     end
@@ -283,7 +295,6 @@ end
 register_shape("ScatterNd") do op
     get_shape_from_explict_shape_input(op, 3)
 end
-
 
 register_shape("MatMul") do op
     shape1 = _get_shape(get_input(op, 1))
@@ -529,24 +540,42 @@ register_shape("Split") do op
     [value_shape for i in 1:num_split]
 end
 
-
-
 register_shape("Slice") do op
-    slices = get_input(op, 3)
-    slice_value = load_const(slices)
-    if isnull(slice_value)
-        slice_shape = _get_shape(slices)
-        if slice_shape.unknown_rank
-            return [TensorShape(nothing)]
+    input = get_input(op, 1)
+    begin_ = get_input(op, 2)
+    size_ = get_input(op, 3)
+    input_shape = _get_shape(input)
+    maybe_begin_value = load_const(begin_)
+    maybe_size_value = load_const(size_)
+
+    if isnull(maybe_begin_value) || isnull(maybe_size_value)
+        if input_shape.rank_unknown
+            [TensorShape(nothing)]
         else
-            return [TensorShape([Nullable{Int}() for i in 1:length(slice_shape.dims)])]
+            [TensorShape([-1 for i in 1:length(input_shape.dims)])]
         end
     else
-        return [TensorShape(get(slice_value))]
+        begin_value = get(maybe_begin_value)
+        size_value = get(maybe_size_value)
+        for i in 1:length(size_value)
+            # -1 is equivalent to Julia's `end`
+            if size_value[i] == -1
+                if !isnull(input_shape.dims[i])
+                    size_value[i] = get(input_shape.dims[i]) - begin_value[i]
+                end
+            end
+        end
+        out_shape = Vector{Int}(length(input_shape.dims))
+        for i in 1:length(out_shape)
+            if size_value[i] == -1
+                out_shape[i] = -1
+            else
+                out_shape[i] = size_value[i]
+            end
+        end
+        [TensorShape(out_shape)]
     end
 end
-
-
 
 register_shape("Pad") do op
     tensor_shape = copy(_get_shape(get_input(op, 1)))
@@ -584,14 +613,12 @@ register_shape("GatherNd") do op
     [TensorShape(vcat(index_dims.dims[1:end-1], value_dims.dims[rr+1:end]))]
 end
 
-
 function todo_register_shape(name)
 end
 
 todo_register_shape("DynamicPartition")
 todo_register_shape("DynamicStitch")
 todo_register_shape("Tile")
-
 
 register_shape("Pack") do op
     axis = get_attr(op, "axis", Int) + 1
@@ -643,7 +670,6 @@ for func in ["RandomStandardNormal", "RandomUniform"]
     end
 end
 
-
 register_shape("Where") do op
     input = get_input(op, 1)
     shape = _get_shape(input)
@@ -651,6 +677,18 @@ register_shape("Where") do op
         [TensorShape(nothing)]
     else
         [TensorShape([Nullable{Int64}(), Nullable(length(shape.dims))])]
+    end
+end
+
+register_shape("Squeeze") do op
+    input_shape = _get_shape(get_input(op, 1))
+    squeeze_dims = get_attr(op, "squeeze_dims", Vector{Int})
+    if input_shape.rank_unknown
+        [TensorShape(nothing)]
+    else
+        new_shape = copy(input_shape)
+        deleteat!(new_shape.dims, squeeze_dims+1)
+        [new_shape]
     end
 end
 

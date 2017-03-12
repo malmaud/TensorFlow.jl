@@ -32,8 +32,16 @@ end
 output_size(cell::BasicRNNCell) = cell.hidden_size
 state_size(cell::BasicRNNCell) = cell.hidden_size
 
-function (cell::BasicRNNCell)(input, state)
-    N = get_shape(input, 2) + cell.hidden_size
+function get_input_dim(input, input_dim)
+    if input_dim == -1
+        get_shape(input, 2)
+    else
+        input_dim
+    end
+end
+
+function (cell::BasicRNNCell)(input, state, input_dim=-1)
+    N = get_input_dim(input, input_dim) + cell.hidden_size
     T = eltype(state)
     W = get_variable("weights", [N, cell.hidden_size], T)
     B = get_variable("bias", [cell.hidden_size], T)
@@ -84,8 +92,8 @@ function zero_state(cell::LSTMCell, batch_size, T)
         zeros(Tensor, T, (batch_size, cell.hidden_size)))
 end
 
-function (cell::LSTMCell)(input, state)
-    N = get_shape(input, 2) + cell.hidden_size
+function (cell::LSTMCell)(input, state, input_dim=1)
+    N = get_input_dim(input, input_dim) + cell.hidden_size
     T = eltype(state)
     X = cat(Tensor, 2, input, state.h)
 
@@ -120,9 +128,9 @@ end
 output_size(cell::GRUCell) = cell.hidden_size
 state_size(cell::GRUCell) = cell.hidden_size
 
-function (cell::GRUCell)(input, state)
+function (cell::GRUCell)(input, state, input_dim=-1)
     T = eltype(state)
-    N = get_shape(input, 2) + cell.hidden_size
+    N = get_input_dim(input, input_dim) + cell.hidden_size
     X = cat(Tensor, 2, input, state)
     Wz = get_variable("Wz", [N, cell.hidden_size], T)
     Wr = get_variable("Wr", [N, cell.hidden_size], T)
@@ -157,11 +165,11 @@ function zero_state(cell::MultiRNNCell, batch_size, T)
     [zero_state(subcell, batch_size, T) for subcell in cell.cells]
 end
 
-function (cell::MultiRNNCell)(input, state)
+function (cell::MultiRNNCell)(input, state, input_dim=-1)
     states = []
     for (i, (subcell, substate)) in enumerate(zip(cell.cells, state))
         tf.variable_scope("cell$i") do
-            input, state = subcell(input, substate)
+            input, state = subcell(input, substate, input_dim)
         end
         push!(states, state)
     end
@@ -179,11 +187,10 @@ output_size(cell::DropoutWrapper) = output_size(cell.cell)
 state_size(cell::DropoutWrapper) = state_size(cell.cell)
 zero_state(cell::DropoutWrapper, batch_size, T) = zero_state(cell.cell, batch_size, T)
 
-function (wrapper::DropoutWrapper)(input, state)
-    output, new_state = wrapper.cell(input, state)
+function (wrapper::DropoutWrapper)(input, state, input_dim=-1)
+    output, new_state = wrapper.cell(input, state, input_dim)
     dropped_output = nn.dropout(output, wrapper.output_keep_prob)
     dropped_output, new_state
 end
-
 
 end

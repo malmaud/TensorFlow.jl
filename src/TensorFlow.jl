@@ -159,6 +159,7 @@ macro py_proc(expr)
     end
 end
 
+include("meta.jl")
 include("constants.jl")
 include("tensorflow_protos.jl")
 include("core.jl")
@@ -169,6 +170,6 @@ include("ops.jl")
 include("train.jl")
 include("io.jl")
 include("show.jl")
-include("meta.jl")
+
 
 end

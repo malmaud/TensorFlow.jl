@@ -22,7 +22,7 @@ function build_output end
 function get_inputs end
 
 
-function get_tensors(tensors::Vector)
+function get_tensors(tensors::Union{Vector, Tuple})
     out = []
     for subtensor in tensors
         append!(out, get_tensors(subtensor))
@@ -30,7 +30,7 @@ function get_tensors(tensors::Vector)
     out
 end
 
-function build_output(tensors::Vector, values, pos=Ref(1))
+function build_output(tensors::Union{Vector, Tuple}, values, pos=Ref(1))
     [build_output(subtensor, values, pos) for subtensor in tensors]
 end
 

@@ -35,7 +35,7 @@ function tf_while(ex)
         var_value = item.args[2]
         push!(vars, (var_name=>var_value))
     end
-    while_expr = Expr(:call, :while_loop)
+    while_expr = Expr(:call, :(TensorFlow.while_loop))
     loop_func = Expr(:->, Expr(:tuple, [var[1] for var in vars]...))
     cond_func = deepcopy(loop_func)
     push!(cond_func.args, cond)
