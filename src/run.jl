@@ -167,3 +167,7 @@ function run(sess::Session, output, input_dict)
 end
 
 run(sess::Session, outputs) = run(sess, outputs, Dict())
+
+# Add ability to 'run' a numeric literal (for testing, generally)
+run(sess::Session, output::Number) = run(sess, Tensor(output))
+run{T<:Number}(sess::Session, output::Array{T}) = run(sess, Tensor(output))
