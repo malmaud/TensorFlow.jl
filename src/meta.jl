@@ -3,13 +3,20 @@ function _tf(ex)
     name = ex.args[1]
     call = copy(ex.args[2])
     @assert call.head == :call
-    if length(call.args) >=2 && isa(call.args[2], Expr) && call.args[2].head == :parameters
-        params = call.args[2]
+
+    # Special-case :get_variable, which takes `name` as its first argument instead
+    # of a keyword argument
+    if call.args[1] == :get_variable
+        insert!(call.args, 2, string(name))
     else
-        params = Expr(:parameters)
-        insert!(call.args, 2, params)
+        if length(call.args) >=2 && isa(call.args[2], Expr) && call.args[2].head == :parameters
+            params = call.args[2]
+        else
+            params = Expr(:parameters)
+            insert!(call.args, 2, params)
+        end
+        push!(params.args, Expr(:kw, :name, string(name)))
     end
-    push!(params.args, Expr(:kw, :name, string(name)))
     quote
         $name = $call
     end
