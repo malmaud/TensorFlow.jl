@@ -63,6 +63,7 @@ Can also be applied to a block of assignments:
   i = constant(1)
   j = constant(2)
 end
+```
 
 When applied to a `while` loops, automatically transform the loop to a TensorFlow
 `while_loop`.
