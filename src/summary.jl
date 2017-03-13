@@ -1,7 +1,7 @@
 module summary
 
 export
-SummaryWriter,
+FileWriter,
 scalar,
 audio,
 histogram,

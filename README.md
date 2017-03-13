@@ -12,7 +12,11 @@ A wrapper around [TensorFlow](https://www.tensorflow.org/), a popular open sourc
 ## Why use TensorFlow.jl?
 
 See a [list of advantages](https://github.com/malmaud/TensorFlow.jl/blob/master/docs/src/why_julia.md)
-over the Python API. 
+over the Python API.
+
+## What's changed recently?
+
+See [NEWS](https://github.com/malmaud/TensorFlow.jl/blob/master/NEWS.md)
 
 ## Basic usage
 

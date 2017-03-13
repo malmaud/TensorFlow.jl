@@ -1,0 +1,25 @@
+TensorFlow v0.6 Release Notes
+=============================
+
+API deprecations
+------------
+
+The API has changed to resemble the finalized TensorFlow 1.0 API. See [the TensorFlow release notes](https://github.com/tensorflow/tensorflow/blob/master/RELEASE.md) for a list of the changes.
+
+In particular for TensorFlow.jl:
+
+* The summary operations, like `train.scalary_summary`, have moved to `summary.scalar`.
+* `train.SummaryWriter` has moved to `summary.FileWriter`.
+* The `reduction_indices` keyword argument have changed to `axis`in every function which used to take a `reduction_indices` argument.
+* `mul` has changed to `multiply`, and likewise for `sub` and `neg`.
+* `pack` is now `stack` and `unpack` is now `unstack`.
+* The `*_cross_entropy_with_logits` family of functions has changed to only accept keyword arguments instead of positional arguments.
+
+
+New functionality
+----------------
+
+* `dynamic_rnn` has been added
+* `while_loop` has been added, with a convenient `@tf while ... end` syntax
+* Many new ops
+* Support for Docker via official Docker images
