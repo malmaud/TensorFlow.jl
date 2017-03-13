@@ -111,7 +111,7 @@ with_device,
 TensorShape,
 get_shape,
 batch_matmul,
-squared_difference
+squared_difference,
 multiply,
 subtract,
 divide

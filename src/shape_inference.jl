@@ -253,7 +253,7 @@ function load_const(op)
         else
             value = Nullable(collect(get(start)[]:get(delta)[]:(get(limit)[]-1)))
         end
-    elseif op.op_name == "Pack"
+    elseif op.op_name == "Stack"
         n_inputs = tf.get_input_list_length(op, "values")
         inputs = [get_input(op, i) for i in 1:n_inputs]
         maybe_vals = load_const.(inputs)
