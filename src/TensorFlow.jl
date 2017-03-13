@@ -109,7 +109,9 @@ batch_matmul,
 squared_difference,
 multiply,
 subtract,
-divide
+divide,
+ones_initializer,
+zeros_initializer
 
 isdefined(Base, :⊻) || (export ⊻)
 isdefined(Base, :slice) || (export slice)

@@ -253,11 +253,3 @@ function get_variable(var_name, shape, dtype; trainable=true, kwargs...)
     end
     return v
 end
-
-type ConstantInitializer{T}
-    value::T
-end
-
-function Base.rand(c::ConstantInitializer, shape...)
-    fill(c.value, shape)
-end
