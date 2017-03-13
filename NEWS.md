@@ -14,6 +14,7 @@ In particular for TensorFlow.jl:
 * `mul` has changed to `multiply`, and likewise for `sub` and `neg`.
 * `pack` is now `stack` and `unpack` is now `unstack`.
 * The `*_cross_entropy_with_logits` family of functions has changed to only accept keyword arguments instead of positional arguments.
+* The order of arguments to `concat` has switched (tensors to concatenate come first, followed by the concetenation axis).
 
 
 New functionality
