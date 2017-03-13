@@ -16,7 +16,7 @@ import .tf: @not_implemented, @op
         scores = tf.Tensor[]
         for (logit, target, weight) in zip(logits, targets, weights)
             if softmax_loss_function === nothing
-                push!(scores, tf.sparse_softmax_cross_entropy_with_logits(logit, target) .* weight)
+                push!(scores, tf.sparse_softmax_cross_entropy_with_logits(logits=logit, labels=target) .* weight)
             else
                 push!(scores, softmax_loss_function(logit, target) .* weight)
             end
