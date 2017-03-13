@@ -2,7 +2,7 @@
 
 * Use Julia's JIT for fast ingestion of data, especially data in uncommon formats. With Python TensorFlow, you generally have to wait for the Python devs to create custom IO kernels in C.
 
-* Use Julia for fast postprocessing of data, such as calculating various statistics and visualizations which don't have a canned vectorized implementation.
+* Use Julia for fast postprocessing of inference results, such as calculating various statistics and visualizations which don't have a canned vectorized implementation.
 
 * Use Julia's multiple dispatch to make it easy to specify models with native-looking Julia code. For example, native functions and operations like `sin`, `*` (matrix multiplication), `.*` (element-wise multiplication), etc work just as well on tensors as they do on native Julia values. Compare to Python, which requires learning specialized namespaced functions like `tf.matmul`.
 
