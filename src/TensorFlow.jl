@@ -173,5 +173,6 @@ include("train.jl")
 include("io.jl")
 include("show.jl")
 include("summary.jl")
+include("deprecated.jl")
 
 end

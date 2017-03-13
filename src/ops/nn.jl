@@ -566,4 +566,10 @@ end
 
 include("seq2seq.jl")
 
+## Deprecations
+
+Base.@deprecate sigmoid_cross_entropy_with_logits(logits, targets; kwargs...) sigmoid_cross_entropy_with_logits(;logits=logits, targets=targets, kwargs...)
+
+Base.@deprecate sparse_softmax_cross_entropy_with_logits(logits, labels; kwargs...) sparse_softmax_cross_entropy_with_logits(;logits=logits, labels=labels, kwargs...)
+
 end

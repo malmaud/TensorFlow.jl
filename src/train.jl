@@ -382,4 +382,11 @@ end
 
 include("train/pipeline.jl")
 
+## Deprecations
+
+function SummaryWriter(args...; kwargs...)
+    Base.depwarn("train.SummaryWriter is deprecated. Use summary.SummaryWriter instead.", :SummaryWriter)
+    TensorFlow.summary.SummaryWriter(args...; kwargs...)
+end
+
 end
