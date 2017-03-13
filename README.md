@@ -7,7 +7,7 @@ A wrapper around [TensorFlow](https://www.tensorflow.org/), a popular open sourc
 
 ## Documentation
 
-[Documentation available here](https://malmaud.github.io/tfdocs/index.html)
+[Documentation available here](https://malmaud.github.io/tfdocs/index.html).
 
 ## Why use TensorFlow.jl?
 
@@ -16,7 +16,7 @@ over the Python API.
 
 ## What's changed recently?
 
-See [NEWS](https://github.com/malmaud/TensorFlow.jl/blob/master/NEWS.md)
+See [NEWS](https://github.com/malmaud/TensorFlow.jl/blob/master/NEWS.md).
 
 ## Basic usage
 
