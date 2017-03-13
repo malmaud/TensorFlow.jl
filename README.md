@@ -9,6 +9,9 @@ A wrapper around [TensorFlow](https://www.tensorflow.org/), a popular open sourc
 
 [Documentation available here](https://malmaud.github.io/tfdocs/index.html)
 
+## Why use TenorFlow.jl?
+
+
 ## Basic usage
 
 ```julia
@@ -55,6 +58,10 @@ has TensorFlow installed:
 julia> using TensorFlow
 julia>
 ```
+
+For a version of TensorFlow.jl that utilizes GPUs, use `nvidia-docker run -it malmaud/jula:tf_gpu`.
+Download [nvidia-docker](https://github.com/NVIDIA/nvidia-docker) if you don't
+already have it.
 
 ## Logistic regression example
 
