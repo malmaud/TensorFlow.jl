@@ -380,7 +380,6 @@ function export_meta_graph(filepath::String="")
     meta_graph
 end
 
-include("train/summary_writer.jl")
 include("train/pipeline.jl")
 
 end

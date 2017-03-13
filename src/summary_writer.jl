@@ -1,4 +1,6 @@
 using ProtoBuf
+import TensorFlow
+const tf = TensorFlow
 import ..TensorFlow: tensorflow, Graph, get_def_graph, @py_proc
 
 type SummaryWriter
@@ -50,6 +52,6 @@ function Base.write(writer::SummaryWriter, graph::Graph)
 end
 
 function Base.close(writer::SummaryWriter)
-    @py_proc close_events_file()    
+    @py_proc close_events_file()
     nothing
 end

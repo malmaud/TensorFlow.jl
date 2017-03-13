@@ -1,4 +1,4 @@
-module summary
+module summary_ops
 
 export
 scalar,
