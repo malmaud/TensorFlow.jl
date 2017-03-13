@@ -42,7 +42,7 @@ run(sess, initialize_all_variables())
 
 ```julia
 y = nn.softmax(x*W + b)
-cross_entropy = reduce_mean(-reduce_sum(y_ .* log(y), reduction_indices=[2]))
+cross_entropy = reduce_mean(-reduce_sum(y_ .* log(y), axis=[2]))
 ```
 
 Note several differences from the Python version of the tutorial:
@@ -133,7 +133,7 @@ b_fc2 = bias_variable([10])
 
 y_conv = nn.softmax(h_fc1_drop * W_fc2 + b_fc2)
 
-cross_entropy = reduce_mean(-reduce_sum(y_.*log(y_conv), reduction_indices=[2]))
+cross_entropy = reduce_mean(-reduce_sum(y_.*log(y_conv), axis=[2]))
 
 train_step = train.minimize(train.AdamOptimizer(1e-4), cross_entropy)
 

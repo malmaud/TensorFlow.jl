@@ -22,7 +22,7 @@ constant,
 concat,
 cast,
 read_file,
-pack,
+stack,
 expand_dims,
 argmin,
 argmax,
@@ -69,7 +69,7 @@ logical_not,
 logical_or,
 logical_xor,
 strided_slice,
-unpack,
+unstack,
 tile,
 pad,
 gather,
@@ -81,11 +81,6 @@ where,
 is_inf,
 is_finite,
 is_nan,
-scalar_summary,
-histogram_summary,
-merge_summary,
-merge_all_summaries,
-image_summary,
 io,
 AbstractTensor,
 Tensor,
@@ -111,7 +106,12 @@ with_device,
 TensorShape,
 get_shape,
 batch_matmul,
-squared_difference
+squared_difference,
+multiply,
+subtract,
+divide,
+ones_initializer,
+zeros_initializer
 
 isdefined(Base, :⊻) || (export ⊻)
 isdefined(Base, :slice) || (export slice)
@@ -172,6 +172,7 @@ include("ops.jl")
 include("train.jl")
 include("io.jl")
 include("show.jl")
-
+include("summary.jl")
+include("deprecated.jl")
 
 end

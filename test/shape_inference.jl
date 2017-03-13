@@ -24,33 +24,33 @@ i = placeholder(Int32; shape=[])
 @test get_shape(find(placeholder(Bool; shape=[10, 20, -1]))) == TensorShape([-1,3])
 @test get_shape(find(placeholder(Bool))) == TensorShape(nothing)
 
-## Pack
-@test get_shape(pack([m,m,m])) == TensorShape([3, 10, 20, 30])
-@test get_shape(pack([m,m,m],axis=2)) == TensorShape([10, 3, 20, 30])
-@test get_shape(pack([m,k])) == TensorShape([2, 10, 20, 30])
-@test get_shape(pack([k,m])) == TensorShape([2, 10, 20, 30])
-@test get_shape(pack([m,n])) == TensorShape([2, 10, 20, 30])
-@test get_shape(pack([n,n])).rank_unknown
-@test get_shape(pack([k,k])) == TensorShape([2, 10, 20, -1])
+## stack
+@test get_shape(stack([m,m,m])) == TensorShape([3, 10, 20, 30])
+@test get_shape(stack([m,m,m],axis=2)) == TensorShape([10, 3, 20, 30])
+@test get_shape(stack([m,k])) == TensorShape([2, 10, 20, 30])
+@test get_shape(stack([k,m])) == TensorShape([2, 10, 20, 30])
+@test get_shape(stack([m,n])) == TensorShape([2, 10, 20, 30])
+@test get_shape(stack([n,n])).rank_unknown
+@test get_shape(stack([k,k])) == TensorShape([2, 10, 20, -1])
 
-## Unpack
+## unstack
 for ii in 1:10
-    @test get_shape(unpack(m)[ii]) == TensorShape([20, 30])
+    @test get_shape(unstack(m)[ii]) == TensorShape([20, 30])
 end
 
 for ii in 1:20
-    @test get_shape(unpack(k, axis=2)[ii]) == TensorShape([10, -1])
+    @test get_shape(unstack(k, axis=2)[ii]) == TensorShape([10, -1])
 end
 
 for ii in 1:3
-    @test get_shape(unpack(n, num=3)[ii]) == TensorShape(nothing)
+    @test get_shape(unstack(n, num=3)[ii]) == TensorShape(nothing)
 end
 
 
 
-### Pack/UnPack
-@test get_shape(pack(unpack(m))) == get_shape(m)
-@test get_shape(pack(unpack(k))) == get_shape(k)
+### stack/unstack
+@test get_shape(stack(unstack(m))) == get_shape(m)
+@test get_shape(stack(unstack(k))) == get_shape(k)
 
 
 ## Add

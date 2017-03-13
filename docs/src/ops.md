@@ -8,7 +8,7 @@ See the official TensorFlow documentation for a complete description of these op
 placeholder
 constant
 concat
-pack
+stack
 split
 expand_dims
 argmin

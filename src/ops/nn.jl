@@ -169,12 +169,12 @@ all elements but all later dimensions may vary.
 
     state = initial_state
     input_dim = get_shape(inputs, 3)
-    
+
     output = tf.zeros(Tensor, eltype(state), (get_shape(inputs, 1), output_size(cell)))
 
     while_output = @tf while time_step ≤ num_steps
-        slice_start = tf.pack([0, time_step-1, 0])
-        slice_size = tf.pack([-1, 1, -1])
+        slice_start = tf.stack([0, time_step-1, 0])
+        slice_size = tf.stack([-1, 1, -1])
         data = tf.slice(inputs, slice_start, slice_size)
         data = tf.squeeze(data, [2])
         local new_state
@@ -221,7 +221,7 @@ Args:
     y
 end
 
-@op function sigmoid_cross_entropy_with_logits(logits, targets; name=nothing)
+@op function sigmoid_cross_entropy_with_logits(;logits=nothing, targets=nothing, name=nothing)
     #  TODO make numerically stable
     local out
     with_op_name(name, "SigmoidCrossEntropyWithLogits") do
@@ -230,7 +230,48 @@ end
     out
 end
 
-@op function sparse_softmax_cross_entropy_with_logits(logits, labels; name=nothing)
+"""
+    sparse_softmax_cross_entropy_with_logits(; labels=nothing, logits=nothing, name=nothing)
+
+Computes sparse softmax cross entropy between `logits` and `labels`.
+
+Measures the probability error in discrete classification tasks in which the
+classes are mutually exclusive (each entry is in exactly one class).  For
+example, each CIFAR-10 image is labeled with one and only one label: an image
+can be a dog or a truck, but not both.
+
+**NOTE:**  For this operation, the probability of a given label is considered
+exclusive.  That is, soft classes are not allowed, and the `labels` vector
+must provide a single specific index for the true class for each row of
+`logits` (each minibatch entry).  For soft softmax classification with
+a probability distribution for each entry, see
+`softmax_cross_entropy_with_logits`.
+
+**WARNING:** This op expects unscaled logits, since it performs a softmax
+on `logits` internally for efficiency.  Do not call this op with the
+output of `softmax`, as it will produce incorrect results.
+
+A common use case is to have logits of shape `[batch_size, num_classes]` and
+labels of shape `[batch_size]`. But higher dimensions are supported.
+
+**Note that to avoid confusion, it is required to pass only named arguments to
+this function.**
+
+Args:
+  labels: `Tensor` of shape `[d_0, d_1, ..., d_{r-1}]` (where `r` is rank of
+    `labels` and result) and dtype `int32` or `int64`. Each entry in `labels`
+    must be an index in `[0, num_classes)`. Other values will raise an
+    exception when this op is run on CPU, and return `NaN` for corresponding
+    loss and gradient rows on GPU.
+  logits: Unscaled log probabilities of shape
+    `[d_0, d_1, ..., d_{r-1}, num_classes]` and dtype `float32` or `float64`.
+  name: A name for the operation (optional).
+
+Returns:
+  A `Tensor` of the same shape as `labels` and of the same type as `logits`
+  with the softmax cross entropy loss.
+"""
+@op function sparse_softmax_cross_entropy_with_logits(;logits=nothing, labels=nothing, name=nothing)
     local desc
     with_op_name(name, "SparseSoftmaxCrossEntropyWithLogits") do
         desc = NodeDescription("SparseSoftmaxCrossEntropyWithLogits")
@@ -467,7 +508,7 @@ end
     # TODO take into account epsilon
     local out
     tf.with_op_name(name, "L2Normalize") do
-        sums = tf.reduce_sum(x.*x, reduction_indices=[dim], keep_dims=true)
+        sums = tf.reduce_sum(x.*x, axis=[dim], keep_dims=true)
         norm = sqrt(sums)
         out = x/norm
     end
@@ -524,5 +565,11 @@ end
 end
 
 include("seq2seq.jl")
+
+## Deprecations
+
+Base.@deprecate sigmoid_cross_entropy_with_logits(logits, targets; kwargs...) sigmoid_cross_entropy_with_logits(;logits=logits, targets=targets, kwargs...)
+
+Base.@deprecate sparse_softmax_cross_entropy_with_logits(logits, labels; kwargs...) sparse_softmax_cross_entropy_with_logits(;logits=logits, labels=labels, kwargs...)
 
 end

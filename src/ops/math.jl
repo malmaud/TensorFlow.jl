@@ -33,12 +33,12 @@ Args:
 Returns:
 A `Tensor` of type `Int64`.
 """
-@op function argmin(n::AbstractTensor, dim; name=nothing)
+@op function argmin(n::AbstractTensor, axis; name=nothing)
     local desc
     with_op_name(name, "ArgMin") do
         desc = NodeDescription("ArgMin")
         add_input(desc, Tensor(n))
-        add_input(desc, Tensor(convert_number(Int32,dim)))
+        add_input(desc, Tensor(convert_number(Int32, axis)))
     end
     Tensor(Operation(desc), 1)
 end
@@ -55,12 +55,12 @@ Args:
 Returns:
 A `Tensor` of type `Int64`.
 """
-@op function argmax(n::AbstractTensor, dim; name=nothing)
+@op function argmax(n::AbstractTensor, axis; name=nothing)
     local desc
     with_op_name(name, "ArgMax") do
         desc = NodeDescription("ArgMax")
         add_input(desc, Tensor(n))
-        add_input(desc, Tensor(convert_number(Int32, dim)))
+        add_input(desc, Tensor(convert_number(Int32, axis)))
     end
     Tensor(Operation(desc), 1)
 end
@@ -90,10 +90,10 @@ end
 
 for (bin_op, jl_func_name, tf_func_name) in [
     (:+, :add, "Add"),
-    (:-, :sub, "Sub"),
+    (:-, :subtract, "Sub"),
     (:*, :matmul, "MatMul"),
-    (:.*, :mul, "Mul"),
-    (:/, :div, "Div"),
+    (:.*, :multiply, "Mul"),
+    (:/, :divide, "Div"),
     (:^, :pow, "Pow")]
     @eval function $jl_func_name(n1::AbstractTensor, n2::AbstractTensor; name=nothing)
         local desc
@@ -106,20 +106,20 @@ for (bin_op, jl_func_name, tf_func_name) in [
         end
         Tensor(Operation(desc), 1)
     end
-    jl_func_name == :mul && continue  # Defined below
+    jl_func_name == :multiply && continue  # Defined below
     @eval $bin_op(n1::AbstractTensor, n2::AbstractTensor) = $jl_func_name(n1, n2)
     @eval $bin_op(n1::AbstractTensor, n2) = $jl_func_name(n1, tf_promote(n1, n2))
     @eval $bin_op(n1, n2::AbstractTensor) = $jl_func_name(tf_promote(n2, n1), n2)
 end
 
 @static if VERSION > v"0.6-"  # Cope with changes in broadcasting in Julia 0.6
-    Base.broadcast(::typeof(*), n1::AbstractTensor, n2::AbstractTensor) = mul(n1, n2)
-    Base.broadcast(::typeof(*), n1::AbstractTensor, n2) = mul(n1, tf_promote(n1, n2))
-    Base.broadcast(::typeof(*), n1, n2::AbstractTensor) = mul(tf_promote(n2, n1), n2)
+    Base.broadcast(::typeof(*), n1::AbstractTensor, n2::AbstractTensor) = multiply(n1, n2)
+    Base.broadcast(::typeof(*), n1::AbstractTensor, n2) = multiply(n1, tf_promote(n1, n2))
+    Base.broadcast(::typeof(*), n1, n2::AbstractTensor) = multiply(tf_promote(n2, n1), n2)
 else
-    .*(n1::AbstractTensor, n2::AbstractTensor) = mul(n1, n2)
-    .*(n1::AbstractTensor, n2) = mul(n1, tf_promote(n1, n2))
-    .*(n1, n2::AbstractTensor) = mul(tf_promote(n2, n1), n2)
+    .*(n1::AbstractTensor, n2::AbstractTensor) = multiply(n1, n2)
+    .*(n1::AbstractTensor, n2) = multiply(n1, tf_promote(n1, n2))
+    .*(n1, n2::AbstractTensor) = multiply(tf_promote(n2, n1), n2)
 end
 
 function batch_matmul(x::AbstractTensor,y::AbstractTensor; adj_x=false, adj_y=false, name=nothing)
@@ -254,7 +254,7 @@ end
 
 for (jl_func_name, tf_func_name) in [
     (:sign, "Sign"),
-    (:neg, "Neg"),
+    (:negative, "Neg"),
     (:square, "Square"),
     (:shape, "Shape")]
     @eval @op function $jl_func_name(n::AbstractTensor; name=nothing)
@@ -327,7 +327,7 @@ for (jl_func_name, tf_func_name) in [
     @eval $jl_func_name(x::AbstractTensor, q) = $jl_func_name(x, tf_promote(x, q))
 end
 
--(n::AbstractTensor) = neg(n)
+-(n::AbstractTensor) = negative(n)
 
 @op function Base.complex(x_r::AbstractTensor, x_i::AbstractTensor; name=nothing)
     local desc
@@ -362,11 +362,11 @@ end
 # Reductions
 
 for reduction in [:sum, :prod, :min, :max, :all, :any, :mean]
-    @eval @op function $(Symbol("reduce_", reduction))(n::AbstractTensor; reduction_indices=nothing, keep_dims=false, name=nothing)
+    @eval @op function $(Symbol("reduce_", reduction))(n::AbstractTensor; axis=nothing, keep_dims=false, name=nothing)
         if name === nothing
             name = get_name("reduce")
         end
-        if reduction_indices == nothing
+        if axis == nothing
             n = Tensor(n)  # TODO: rewrite this
             range_start = constant(Int32(0))
             range_delta = constant(Int32(1))
@@ -383,13 +383,13 @@ for reduction in [:sum, :prod, :min, :max, :all, :any, :mean]
             add_input(desc, range)
             Tensor(Operation(desc), 1)
         else
-            if isa(reduction_indices, Number)
-                reduction_indices = [reduction_indices]
+            if isa(axis, Number)
+                axis = [axis]
             end
-            reduction_indices = [Int32(idx-1) for idx in reduction_indices]
+            axis = [Int32(idx-1) for idx in axis]
             desc = NodeDescription($(capitalize(reduction)), name)
             add_input(desc, Tensor(n))
-            add_input(desc, Tensor(reduction_indices))
+            add_input(desc, Tensor(axis))
             desc["keep_dims"] = keep_dims
             Tensor(Operation(desc), 1)
         end

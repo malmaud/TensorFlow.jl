@@ -10,10 +10,9 @@ one_tens = ones(Tensor, (5,5))
 @test ones(25) == run(sess, reshape(one_tens, 25))
 
 
-@test Int32[5,5,1] == run(sess, TensorFlow.shape(pack(split(2, 5, one_tens), axis=1)))
+@test Int32[5,5,1] == run(sess, TensorFlow.shape(stack(split(2, 5, one_tens), axis=1)))
 
-@test ones(Float32, 5,5) == run(sess, pack(unpack(one_tens, num=5)))
-# @test ones(Float32, 5,5) == run(sess, pack(unpack(one_tens, axis=1)))
+@test ones(Float32, 5,5) == run(sess, stack(unstack(one_tens, num=5)))
 
 @test ones(1,5,5) == run(sess, expand_dims(one_tens, 1))
 @test ones(5,1,5) == run(sess, expand_dims(one_tens, 2))
@@ -102,7 +101,7 @@ run(sess2, initialize_all_variables())
 sess3 = Session(Graph())
 x1 = constant(rand(20,10))
 x2 = get_variable("x2", (50,10), Float64)
-xs = concat(1, [x1,x2])
+xs = concat([x1,x2], 1)
 cost = reduce_sum(xs)
 optimizer = train.minimize(train.AdamOptimizer(0.1), cost)
 run(sess3, initialize_all_variables())

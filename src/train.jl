@@ -380,7 +380,13 @@ function export_meta_graph(filepath::String="")
     meta_graph
 end
 
-include("train/summary_writer.jl")
 include("train/pipeline.jl")
+
+## Deprecations
+
+function SummaryWriter(args...; kwargs...)
+    Base.depwarn("train.SummaryWriter is deprecated. Use summary.FileWriter instead.", :SummaryWriter)
+    TensorFlow.summary.FileWriter(args...; kwargs...)
+end
 
 end
