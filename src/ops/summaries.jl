@@ -1,3 +1,18 @@
+module summary
+
+export
+scalar,
+audio,
+histogram,
+merge,
+merge_all,
+image
+
+import TensorFlow
+const tf = TensorFlow
+import TensorFlow: with_op_name, NodeDescription, add_input, Tensor,
+                   add_to_collection, Operation, get_collection, @op
+
 """
 Outputs a `Summary` protocol buffer with scalar values.
 
@@ -14,7 +29,7 @@ Returns:
   A scalar `Tensor` of type `string`. The serialized `Summary` protocol
   buffer.
 """
-@op function scalar_summary(tags, values; collections=[:Summaries], name=nothing)
+@op function scalar(tags, values; collections=[:Summaries], name=nothing)
     local desc
     with_op_name(name, "ScalarSummary") do
         desc = NodeDescription("ScalarSummary")
@@ -43,7 +58,7 @@ Returns:
   A scalar `Tensor` of type `string`. The serialized `Summary` protocol
   buffer.
 """
-@op function audio_summary(tag, tensor, sample_rate; max_outputs=3, collections=[:Summaries], name=nothing)
+@op function audio(tag, tensor, sample_rate; max_outputs=3, collections=[:Summaries], name=nothing)
     local desc
     with_op_name(name, "AudioSummary") do
         desc = NodeDescription("AudioSummary")
@@ -80,7 +95,7 @@ Returns:
   A scalar `Tensor` of type `string`. The serialized `Summary` protocol
   buffer.
 """
-@op function histogram_summary(tag, values; collections=[:Summaries], name=nothing)
+@op function histogram(tag, values; collections=[:Summaries], name=nothing)
     local desc
     with_op_name(name, "HistogramSummary") do
         desc = NodeDescription("HistogramSummary")
@@ -106,7 +121,7 @@ Returns:
   A scalar `Tensor` of type `string`. The serialized `Summary` protocol
   buffer resulting from the merge.
 """
-@op function merge_summary(inputs; collections=[:Summaries], name=nothing)
+@op function merge(inputs; collections=[:Summaries], name=nothing)
     local desc
     with_op_name(name, "MergeSummary") do
         desc = NodeDescription("MergeSummary")
@@ -131,8 +146,8 @@ Returns:
   `Tensor` of type `String` containing the serialized `Summary` protocol
   buffer resulting from the merging.
 """
-function merge_all_summaries(key=:Summaries)
-    merge_summary(get_collection(key), collections=[])
+function merge_all(key=:Summaries)
+    merge(get_collection(key), collections=[])
 end
 
 """
@@ -179,7 +194,7 @@ Returns:
   A scalar `Tensor` of type `string`. The serialized `Summary` protocol
   buffer.
 """
-@op function image_summary(tag, tensor; max_images=3, collections=[:Summaries], name=nothing)
+@op function image(tag, tensor; max_images=3, collections=[:Summaries], name=nothing)
     local desc
     with_op_name(name, "ImageSummary") do
         desc = NodeDescription("ImageSummary")
@@ -190,4 +205,6 @@ Returns:
     t = Tensor(Operation(desc))
     foreach(c->add_to_collection(c, t), collections)
     t
+end
+
 end
