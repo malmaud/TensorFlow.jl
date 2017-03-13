@@ -9,8 +9,10 @@ A wrapper around [TensorFlow](https://www.tensorflow.org/), a popular open sourc
 
 [Documentation available here](https://malmaud.github.io/tfdocs/index.html)
 
-## Why use TenorFlow.jl?
+## Why use TensorFlow.jl?
 
+See a [list of advantages](https://github.com/malmaud/TensorFlow.jl/blob/master/docs/src/why_julia.md)
+over the Python API. 
 
 ## Basic usage
 
