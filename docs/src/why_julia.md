@@ -1,4 +1,4 @@
-# Why Julia?
+# Why use the Julia TensorFlow API?
 
 * Use Julia's JIT for fast ingestion of data, especially data in uncommon formats. With Python TensorFlow, you generally have to wait for the Python devs to create custom IO kernels in C.
 
