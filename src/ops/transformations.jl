@@ -566,8 +566,8 @@ function Base.getindex(params::AbstractTensor, indices::Vararg{Union{TensorRange
         proc_ind!(ind)
     end
 
-    begins_tensor = pack(begins)
-    sizes_tensor = pack(sizes)
+    begins_tensor = stack(begins)
+    sizes_tensor = stack(sizes)
     slice(params, begins_tensor, sizes_tensor)
 end
 
