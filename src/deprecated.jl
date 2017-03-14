@@ -7,5 +7,5 @@ import Base: @deprecate, depwarn
 @deprecate merge_summary(args...; kwargs...) summary.merge(args...; kwargs...)
 @deprecate merge_all_summaries(args...; kwargs...) summary.merge_all(args...; kwargs...)
 
-@deprecate stack(args...; kwargs...) pack(args...; kwargs...)
-@deprecate unstack(args...; kwargs...) unpack(args...; kwargs...)
+@deprecate pack(args...; kwargs...) stack(args...; kwargs...)
+@deprecate unpack(args...; kwargs...) unstack(args...; kwargs...)
