@@ -6,4 +6,3 @@ src/scratch.jl
 tfdocs
 docs/build
 *.DS_Store
-Docker/build_images.jl
