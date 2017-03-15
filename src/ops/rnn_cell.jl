@@ -92,7 +92,7 @@ function zero_state(cell::LSTMCell, batch_size, T)
         zeros(Tensor, T, (batch_size, cell.hidden_size)))
 end
 
-function (cell::LSTMCell)(input, state, input_dim=1)
+function (cell::LSTMCell)(input, state, input_dim=-1)
     N = get_input_dim(input, input_dim) + cell.hidden_size
     T = eltype(state)
     X = cat(Tensor, 2, input, state.h)
