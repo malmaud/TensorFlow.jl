@@ -125,11 +125,11 @@ end
 If you see issues from the ccall or python interop, try updating TensorFlow both in Julia and in the global python install:
 
 ```julia
-Pkg.build("TensorFlow")
+julia> Pkg.build("TensorFlow")
 ```
+
 ```bash
-export TF_BINARY_URL = ... # see https://www.tensorflow.org/install/
-sudo pip3 install --upgrade $TF_BINARY_URL
+$ pip install --upgrade tensorflow
 ```
 
 ## Optional: Building the TensorFlow library
