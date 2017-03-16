@@ -157,7 +157,7 @@ all elements but all later dimensions may vary.
     sequence_length === nothing || error("sequence_length parameter not supported yet")
     time_major == false || error("Time-major order not supported yet")
     time_step = tf.constant(1)
-    num_steps = tf.cast(tf.shape(inputs)[2], Int64)
+    num_steps = convert(Tensor{Int64}, tf.shape(inputs)[2])
 
     if initial_state === nothing
         if dtype === nothing
@@ -210,7 +210,7 @@ Args:
 @op function dropout(x, keep_prob; noise_shape=nothing, seed=0, name=nothing)
     local y
     with_op_name(name, "Dropout") do
-        keep_prob = tf.cast(Tensor(keep_prob), eltype(x))
+        keep_prob = convert(Tensor{eltype(x)}, keep_prob)
         x_scaled = x/keep_prob
         if noise_shape == nothing
             noise_shape = shape(x)
@@ -333,7 +333,7 @@ Args:
     with_op_name(name, "TopKV2") do
         desc = NodeDescription("TopKV2")
         add_input(desc, Tensor(input))
-        add_input(desc, tf.cast(Tensor(k), Int32))
+        add_input(desc, convert(Tensor{Int32}, k))
         desc["sorted"] = sorted
     end
     op = Operation(desc)
@@ -355,7 +355,7 @@ Args:
     local desc
     with_op_name(name, "InTopK") do
         desc = NodeDescription("InTopK")
-        add_input(desc, cast(Tensor(predictions), Float32))
+        add_input(desc, convert(Tensor{Float32}, predictions))
         add_input(desc, Tensor(targets)-1)
         desc["k"] = Int64(k)
     end

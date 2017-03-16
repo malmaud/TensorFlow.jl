@@ -99,8 +99,8 @@ https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#slice
     with_op_name(name, "Slice") do
         desc = NodeDescription("Slice")
         add_input(desc, Tensor(n))
-        add_input(desc, cast(Tensor(begin_), Int32))
-        add_input(desc, cast(Tensor(size_), Int32))
+        add_input(desc, convert(Tensor{Int32}, begin_))
+        add_input(desc, convert(Tensor{Int32}, size_))
     end
     Tensor(Operation(desc), 1)
 end
@@ -213,7 +213,7 @@ Returns:
     with_op_name(name, "Concat") do
         desc = NodeDescription("ConcatV2")
         add_input(desc, [Tensor(x) for x in values])
-        add_input(desc, cast(Tensor(axis), Int32)-1)
+        add_input(desc, convert(Tensor{Int32}, axis) - 1)
         desc["N"] = length(values)
     end
     Tensor(Operation(desc), 1)
@@ -463,7 +463,7 @@ https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#tile
     with_op_name(name, "Tile") do
         desc = NodeDescription("Tile")
         add_input(desc, Tensor(input))
-        add_input(desc, cast(Tensor(multiples), Int32))
+        add_input(desc, convert(Tensor{Int32}, multiples))
     end
     Tensor(Operation(desc), 1)
 end
@@ -501,7 +501,7 @@ https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#pad
     with_op_name(name, "Pad") do
         desc = NodeDescription("Pad")
         add_input(desc, Tensor(tensor))
-        add_input(desc, cast(Tensor(paddings), Int32))
+        add_input(desc, convert(Tensor{Int32}, paddings))
     end
     # TODO pay attention to mode
     mode != "CONSTANT" && warn("pad does not yet pay attention to mode")
@@ -623,7 +623,7 @@ Slice indexing into a matrix:
     with_op_name(name, "GatherNd") do
         desc = NodeDescription("GatherNd")
         add_input(desc, Tensor(params))
-        add_input(desc, cast(Tensor(indicies)-1, Int32))
+        add_input(desc, convert(Tensor{Int32}, indicies) - 1)
     end
     Tensor(Operation(desc), 1)
 end

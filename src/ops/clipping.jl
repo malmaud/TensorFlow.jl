@@ -12,9 +12,9 @@ Base.clamp(t::AbstractTensor, min_value, max_value) = clip_by_value(t, min_value
     local out
     t = Tensor(t)
     with_op_name(name, "ClipByNorm") do
-        clip_norm = cast(Tensor(clip_norm), eltype(t))
+        clip_norm = convert(Tensor{eltype(t)}, clip_norm)
         norm = sqrt(reduce_sum(multiply(t, t), axis=axes))
-        factor = min(clip_norm/norm, cast(constant(1), eltype(t)))
+        factor = min(clip_norm/norm, convert(Tensor{eltype(t)}, 1))
         out = t .* factor
     end
     out
@@ -35,7 +35,7 @@ end
     clip_tensor(t, ratio) = t .* ratio
     clip_tensor(t::IndexedSlices, ratio) = IndexedSlices(t.values .* ratio, t.indices)
     with_op_name(name, "ClipByGlobalNorm") do
-        clip_norm = cast(Tensor(clip_norm), eltype(t_list[1]))
+        clip_norm = convert(Tensor{eltype(t_list[1])}, clip_norm)
         if use_norm === nothing
             gn = global_norm(t_list)
         else
