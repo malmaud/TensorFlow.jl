@@ -127,28 +127,3 @@ macro tf(ex)
         end
     end |> esc
 end
-
-#=
-macro tf(ex)
-    is_assign(arg::Expr) = arg.head == Symbol("=")
-    is_assign(arg) = false
-    if ex.head == :block
-        res = Expr(:block)
-        for arg in ex.args
-            if is_assign(arg)
-                push!(res.args, _tf(arg))
-            else
-                push!(res.args, arg)
-            end
-        end
-    elseif ex.head == Symbol("=")
-        res = _tf(ex)
-    elseif ex.head == :while
-        res = tf_while(ex)
-    else
-        warn("@tf macro had no effect")
-        res = ex
-    end
-    esc(res)
-end
-=#
