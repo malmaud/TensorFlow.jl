@@ -110,7 +110,7 @@ function _get_shape(n::tf.AbstractTensor)
         return shape_cache[cache_key]
     end
     op = t.op
-    if op.op_name == "Variable"
+    if op.op_name ∈ ["Variable", "VariableV2"]
         maybe_node = get_node_by_name("$(op.name)/Assign")
         if !isnull(maybe_node)
             node = get(maybe_node)

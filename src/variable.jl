@@ -33,7 +33,7 @@ function Variable(initial_value; name="", trainable=true, literal_name=false)
     if !literal_name
         name = get_name(name)
     end
-    desc = NodeDescription("Variable", name)
+    desc = NodeDescription("VariableV2", name)
     desc["dtype"] = eltype(initial_value)
     desc["shape"] = size(initial_value)
     self.var_node = Operation(desc)
