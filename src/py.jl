@@ -2,11 +2,13 @@
 using PyCall
 
 const py_tf = Ref{PyObject}()
+const py_tf_core = Ref{PyObject}()
 const pywrap_tensorflow = Ref{PyObject}()
 
 function init()
     try
         py_tf[] = pyimport("tensorflow")
+        py_tf_core[] = pyimport("tensorflow.core")
         pywrap_tensorflow[] = pyimport("tensorflow.python.pywrap_tensorflow")
     catch err
         error("The Python TensorFlow package could not be imported. You must install Python TensorFlow before using this package.")
@@ -44,7 +46,7 @@ function make_py_graph(graph_proto)
     py_graph = py_tf[][:Graph]()
     py_with(py_graph[:as_default]()) do
         # graph_def = py_tf[][:GraphDef]()
-        graph_def = py_tf[][:core][:protobuf][:meta_graph_pb2][:MetaGraphDef]()
+        graph_def = py_tf_core[][:protobuf][:meta_graph_pb2][:MetaGraphDef]()
         graph_def[:ParseFromString](graph_proto|>py_bytes)
         # @py_catch py_tf[][:import_graph_def](graph_def, name="")
         @py_catch py_tf[][:train][:import_meta_graph](graph_def)
