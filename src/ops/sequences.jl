@@ -103,9 +103,9 @@ end
     local desc
     with_op_name(name, "LinSpace") do
         desc = NodeDescription("LinSpace")
-        add_input(desc, Tensor(convert_number(Float32, start)))
-        add_input(desc, Tensor(convert_number(Float32, stop)))
-        add_input(desc, Tensor(convert_number(Int32, num)))
+        add_input(desc, convert(Tensor{Float32}, start))
+        add_input(desc, convert(Tensor{Float32}, stop))
+        add_input(desc, convert(Tensor{Int32}, num))
     end
     Tensor(Operation(desc), 1)
 end
@@ -119,9 +119,9 @@ end
     local desc
     with_op_name(name, "Range") do
         desc = NodeDescription("Range")
-        add_input(desc, cast(Tensor(start), Int32))
-        add_input(desc, cast(Tensor(limit), Int32))
-        add_input(desc, cast(Tensor(delta), Int32))
+        add_input(desc, convert(Tensor{Int32}, start))
+        add_input(desc, convert(Tensor{Int32}, limit))
+        add_input(desc, convert(Tensor{Int32}, delta))
     end
     Tensor(Operation(desc), 1)
 end

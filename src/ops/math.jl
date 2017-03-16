@@ -38,7 +38,7 @@ A `Tensor` of type `Int64`.
     with_op_name(name, "ArgMin") do
         desc = NodeDescription("ArgMin")
         add_input(desc, Tensor(n))
-        add_input(desc, Tensor(convert_number(Int32, axis)))
+        add_input(desc, convert(Tensor{Int32}, axis))
     end
     Tensor(Operation(desc), 1)
 end
@@ -60,7 +60,7 @@ A `Tensor` of type `Int64`.
     with_op_name(name, "ArgMax") do
         desc = NodeDescription("ArgMax")
         add_input(desc, Tensor(n))
-        add_input(desc, Tensor(convert_number(Int32, axis)))
+        add_input(desc, convert(Tensor{Int32}, axis))
     end
     Tensor(Operation(desc), 1)
 end

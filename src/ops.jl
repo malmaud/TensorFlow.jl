@@ -30,10 +30,10 @@ end
 
 tf_promote(t, x) = Tensor(x)
 
-convert_number(t, n) = n
-convert_number(t, x::Number) =  t(x)
-convert_number(t, x::Union{AbstractArray, Tuple}) = map(t, x)
-
+# convert_number(t, n) = n
+# convert_number(t, x::Number) =  t(x)
+# convert_number(t, x::Union{AbstractArray, Tuple}) = map(t, x)
+#
 
 macro not_implemented(f)
     if f.head != :function

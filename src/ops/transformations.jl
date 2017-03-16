@@ -144,7 +144,7 @@ https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#split
     local desc
     with_op_name(name, "Split") do
         desc = NodeDescription("Split")
-        add_input(desc, Tensor(convert_number(Int32, split_dim))-1)
+        add_input(desc, convert(Tensor{Int32}, split_dim)-1)
         add_input(desc, Tensor(value))
         desc["num_split"] = num_split
     end
@@ -343,7 +343,7 @@ https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#expand_
     with_op_name(name, "ExpandDims") do
         desc = NodeDescription("ExpandDims")
         add_input(desc, Tensor(input))
-        add_input(desc, Tensor(convert_number(Int32,dim-1)))
+        add_input(desc, convert(Tensor{Int32}, dim)-1)
     end
     Tensor(Operation(desc), 1)
 end
@@ -866,10 +866,9 @@ Returns:
             r = range(Tensor, 0, limit=rank(n))
             perm = reverse(r, [true])
         end
-        perm = convert_number(Int32, perm)
         desc = NodeDescription("Transpose")
         add_input(desc, Tensor(n))
-        add_input(desc, Tensor(perm))
+        add_input(desc, convert(Tensor{Int32}, perm))
     end
     Tensor(Operation(desc))
 end
