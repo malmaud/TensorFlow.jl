@@ -45,7 +45,9 @@ function compute_gradients(optimizer::Optimizer, loss, var_list=nothing)
     if var_list === nothing
         var_list = get_def_graph().collections[:TrainableVariables]
     end
-    zip(gradients(loss, var_list), var_list) |> collect
+    vars = zip(gradients(loss, var_list), var_list) |> collect
+    filter!(x->x[1]!==nothing, vars)  # Remove variables uninvolved in loss calculation
+    vars
 end
 
 macro advance_step()

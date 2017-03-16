@@ -1243,6 +1243,8 @@ function gradients(y, x::AbstractArray)
     for name in grad_names
         if isa(name, String)
             push!(out, get_tensor_by_name(name))
+        elseif isa(name, Void)
+            push!(out, nothing)
         else
             push!(out, IndexedSlices(get_tensor_by_name(name[1]), get_tensor_by_name(name[2])+1))
         end
