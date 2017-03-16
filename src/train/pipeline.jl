@@ -71,7 +71,7 @@ Args:
 function input_producer(input; element_shape=nothing, num_epochs=nothing, do_shuffle=true, seed=0, capacity=32, name=nothing)
     local queue
     with_op_name(name, "InputProducer") do
-        input = tf.to_tensor(input)
+        input = convert(Tensor, input)
         if element_shape === nothing
             queue = tf.FIFOQueue(capacity, eltype(input))
         else
@@ -107,7 +107,7 @@ Args:
 * `capacity`: Sets the queue capacity. Default is 32.
 """
 function slice_input_producer(input; num_epochs=nothing, do_shuffle=true, seed=0, capacity=32, name=nothing)
-    input_producer(tf.to_tensor(input), num_epochs=num_epochs, do_shuffle=do_shuffle, seed=seed, capacity=capacity, name=name)
+    input_producer(convert(Tensor, input), num_epochs=num_epochs, do_shuffle=do_shuffle, seed=seed, capacity=capacity, name=name)
 end
 
 """
@@ -123,7 +123,7 @@ Args:
 * `capacity`: Sets the queue capacity. Default is 32.
 """
 function string_input_producer(string_tensor; num_epochs=nothing, do_shuffle=true, seed=0, capacity=32, name=nothing)
-    input_producer(tf.to_tensor(string_tensor), num_epochs=num_epochs, do_shuffle=do_shuffle, seed=seed, capacity=capacity, name=name)
+    input_producer(convert(Tensor,string_tensor), num_epochs=num_epochs, do_shuffle=do_shuffle, seed=seed, capacity=capacity, name=name)
 end
 
 """

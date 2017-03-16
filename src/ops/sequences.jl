@@ -12,10 +12,6 @@ Creates a constant `Tensor`.
     Tensor(Operation(desc), 1)
 end
 
-Base.convert(::Type{Tensor}, x::Union{Number, String}) = constant(x)
-Base.convert{T<:Union{Number, String}}(::Type{Tensor}, x::Array{T}) = constant(x)
-
-
 function Base.zeros(::Type{Tensor}, T, shape::Tuple)
     constant(zeros(T, shape))
 end

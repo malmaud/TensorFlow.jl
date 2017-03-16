@@ -347,7 +347,7 @@ const def_graph = Ref{Graph}()
 Returns the default computation graph, an object of type `Graph`.
 """
 function get_def_graph()
-    has_def_graph() || (def_graph[] = Graph())        
+    has_def_graph() || (def_graph[] = Graph())
     def_graph[]
 end
 has_def_graph() = isdefined(def_graph, :x)
@@ -960,7 +960,7 @@ const proto_type_map = Dict(dt.DT_FLOAT=>Float32, dt.DT_INT32=>Int32, dt.DT_DOUB
 """
 Represents the output of an operation in the computation graph
 """
-immutable Tensor <: AbstractTensor
+immutable Tensor{T} <: AbstractTensor
     op::Operation
     value_index::Int
 end
@@ -975,16 +975,45 @@ end
 
 node_name(t::AbstractTensor) = (node_name(Tensor(t).op), Tensor(t).value_index)
 
+function Tensor(op::Operation, value_index::Int)
+    base_tensor = Tensor{Any}(op, value_index)
+    Tensor{eltype(base_tensor)}(op, value_index)
+end
+
 Tensor(op::Operation) = Tensor(op, 1)
 
+Base.convert{T}(::Type{Tensor{T}}, value::AbstractTensor) = convert(Tensor{T}, convert(Tensor, value))
+Base.convert(::Type{Tensor}, value) = constant(value)
+Base.convert(::Type{Tensor}, value::Tensor) = value
+
+function Base.convert{T, R}(::Type{Tensor{T}}, value::Tensor{R})
+    if T==R  # Don't insert unnecessary casts into type graph
+        value
+    else
+        cast(value, T)
+    end
+end
+
+function Base.convert{T}(::Type{Tensor{T}}, value)
+    convert(Tensor{T}, constant(value))
+end
+
+function operation_output_type(port::Port)
+    ccall((:TF_OperationOutputType, LIBTF), TF_DataType, (Port,), port)
+end
+
 function Base.eltype(t::AbstractTensor)
-    tf_type = ccall((:TF_OperationOutputType, LIBTF), TF_DataType, (Port,), Port(Tensor(t)))
+    tf_type = operation_output_type(Port(Tensor(t)))
     if !haskey(type_map, tf_type)
         local dtype
         try
             dtype = get_op(t)["T"]._type
         catch
-            dtype = get_op(t)["dtype"]._type
+            try
+                dtype = get_op(t)["dtype"]._type
+            catch
+                return Any
+            end
         end
         return proto_type_map[dtype]
     else

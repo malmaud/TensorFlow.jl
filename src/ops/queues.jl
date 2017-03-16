@@ -58,7 +58,7 @@ end
     with_op_name(name, "QueueEnqueue") do
         desc = NodeDescription("QueueEnqueue")
         add_input(desc, queue.op)
-        add_input(desc, map(to_tensor, values))
+        add_input(desc, map(x->convert(Tensor, x), values))
         set_attr_list(desc, "Tcomponents", queue.dtypes)
     end
     Tensor(Operation(desc))
