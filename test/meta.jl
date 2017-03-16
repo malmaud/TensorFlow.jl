@@ -30,6 +30,7 @@ using TensorFlow
 
         @test i == get_tensor_by_name(g, "i")
         @test j == get_tensor_by_name(g, "j")
+        dump(get_tensor_by_name(g, "k"))
         @test Tensor(k.var_node) == get_tensor_by_name(g, "k")
         @test Tensor(k.assign_node) == get_tensor_by_name(g, "k/Assign")
         @test ijk == get_tensor_by_name(g, "ijk")

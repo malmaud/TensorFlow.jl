@@ -1232,6 +1232,16 @@ Throws a `NodeNameNotFound` exception if there is no such tensor.
     return Tensor(node, port)
 end
 
+Base.getindex(graph::Graph, name) = get_tensor_by_name(graph, name)
+Base.getindex(sess::Session, name) = sess.graph[name]
+
+Base.keys(graph::Graph) = get_operations(graph)
+Base.keys(sess::Session) = keys(sess.graph)
+
+Base.haskey(graph::Graph, name) = isnull(get_node_by_name(graph, name))
+Base.haskey(sess::Session, name) = haskey(graph, name)
+
+
 function gradients(y, x::AbstractArray)
     x_names = [node_name(node) for node in x]
     y_name = node_name(y)
