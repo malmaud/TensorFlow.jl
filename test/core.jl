@@ -55,3 +55,14 @@ let
     end
     @test run(sess, x) == 1
 end
+
+## Disconnected gradients
+
+let
+    as_default(Graph()) do
+        unused = get_variable("unused", [], Float64)
+        used = get_variable("used", [], Float64)
+        loss = used.^2
+        optimizer = train.minimize(train.AdamOptimizer(), loss)
+    end
+end

@@ -74,6 +74,10 @@ function py_gradients(jl_graph_proto, x_names, y_name)
     py_graph_def = py_graph[:as_graph_def]()
     grad_names = []
     for node in grad_node
+        if node === nothing
+            push!(grad_names, nothing)
+            continue
+        end
         try
             push!(grad_names, (node[:values][:name], node[:indices][:name]))
         catch

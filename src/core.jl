@@ -347,7 +347,7 @@ const def_graph = Ref{Graph}()
 Returns the default computation graph, an object of type `Graph`.
 """
 function get_def_graph()
-    has_def_graph() || (def_graph[] = Graph())        
+    has_def_graph() || (def_graph[] = Graph())
     def_graph[]
 end
 has_def_graph() = isdefined(def_graph, :x)
@@ -1214,6 +1214,8 @@ function gradients(y, x::AbstractArray)
     for name in grad_names
         if isa(name, String)
             push!(out, get_tensor_by_name(name))
+        elseif isa(name, Void)
+            push!(out, nothing)
         else
             push!(out, IndexedSlices(get_tensor_by_name(name[1]), get_tensor_by_name(name[2])+1))
         end
