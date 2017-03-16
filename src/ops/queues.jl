@@ -18,7 +18,7 @@ end
 
 @op function FIFOQueue(capacity, dtypes; name=nothing, shapes=nothing)
     self = FIFOQueue()
-    dtypes = to_list(dtypes)
+    dtypes = vcat(dtypes)
     local desc
     with_op_name(name, "FIFOQueue") do
         desc = NodeDescription("FIFOQueue")
@@ -53,7 +53,7 @@ end
 end
 
 @op function enqueue(queue::AbstractQueue, values; name=nothing)
-    values = to_list(values)
+    values = vcat(values)
     local desc
     with_op_name(name, "QueueEnqueue") do
         desc = NodeDescription("QueueEnqueue")
