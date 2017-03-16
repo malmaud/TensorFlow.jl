@@ -15,6 +15,9 @@ rgb_to_hsv,
 hsv_to_rgb
 
 import ..TensorFlow: NodeDescription, get_def_graph, get_name, add_input, Operation, stack, AbstractOperation, Tensor, with_op_name, constant, @op
+import ..TensorFlow
+const tf = TensorFlow
+
 
 """
 `function decode_jpeg(contents, channels=1, ratio=1, fancy_upscaling=true, try_recover_truncated=false, acceptable_fraction=1.0)`

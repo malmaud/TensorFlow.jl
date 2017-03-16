@@ -34,9 +34,9 @@ seq2seq,
 conv2d_transpose
 
 using Compat
+import ..TensorFlow: Operation, NodeDescription, get_def_graph, capitalize, add_input, Port, get_name, set_attr_list, get_shape, variable_scope, shape, random_uniform, AbstractTensor, Tensor, reduce_sum, @not_implemented, with_op_name, @op, @tf
 import TensorFlow
 const tf = TensorFlow
-import ..TensorFlow: Operation, NodeDescription, get_def_graph, capitalize, add_input, Port, get_name, set_attr_list, get_shape, variable_scope, shape, random_uniform, AbstractTensor, Tensor, reduce_sum, @not_implemented, with_op_name, @op, @tf
 
 for f in [:relu, :relu6, :elu, :softplus, :softsign, :softmax, :sigmoid, :tanh]
     @eval @op function $f(n::AbstractTensor; name=nothing)

@@ -99,6 +99,8 @@ while_loop,
 get_tensor_by_name,
 as_default,
 @tf,
+withname,
+tf_while,
 visualize,
 visualize_graph,
 with_device,
@@ -112,6 +114,7 @@ subtract,
 divide,
 ones_initializer,
 zeros_initializer
+
 
 isdefined(Base, :⊻) || (export ⊻)
 isdefined(Base, :slice) || (export slice)
@@ -161,13 +164,14 @@ macro py_proc(expr)
     end
 end
 
-include("meta.jl")
+
 include("constants.jl")
 include("tensorflow_protos.jl")
 include("core.jl")
 include("run.jl")
 include("variable.jl")
 include("shape_inference.jl")
+include("meta.jl")
 include("ops.jl")
 include("train.jl")
 include("io.jl")

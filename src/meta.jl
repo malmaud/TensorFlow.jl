@@ -1,26 +1,53 @@
-function _tf(ex)
-    @assert ex.head == Symbol("=")
-    name = ex.args[1]
-    call = copy(ex.args[2])
-    @assert call.head == :call
+using MacroTools
 
-    # Special-case :get_variable, which takes `name` as its first argument instead
-    # of a keyword argument
-    if call.args[1] == :get_variable
-        insert!(call.args, 2, string(name))
-    else
-        if length(call.args) >=2 && isa(call.args[2], Expr) && call.args[2].head == :parameters
-            params = call.args[2]
-        else
-            params = Expr(:parameters)
-            insert!(call.args, 2, params)
-        end
-        push!(params.args, Expr(:kw, :name, string(name)))
-    end
+# Use Holy traits to make if something is a known Op or not
+abstract OpRegistration
+immutable RegisteredOp<:OpRegistration end
+immutable NotRegisteredOp<:OpRegistration end
+
+is_registered_op(::DataType) = NotRegisteredOp() # By default nothing is registered
+
+
+macro op(f)
+    f = longdef(f) #convert to long form function
+    opname = f.args[1].args[1]
+    @assert(isdefined(:tf)) # Need tf as name for module where this code is located
     quote
-        $name = $call
+        @Base.__doc__ $f
+
+        tf.is_registered_op(::Type{typeof($(opname))}) = tf.RegisteredOp()
+        # Mark it as registered by giving its type the trait
+        # Need  the `Type{...}` so that both DataTypes constructors (eg FIFOQueue), and functions work
+
+        $(opname)
+    end |> esc
+end
+
+
+# How to insert the  name into functions etc
+# This function takes in a function and its posible name
+# and returns a new function that will call to the orginal
+# with the function name inserted as appropriate
+
+
+withname(::typeof(get_variable), name) = (args...; kwargs...) -> begin
+    if typeof(args[1])<:AbstractString
+        get_variable(args...; kwargs...)
+    else # No name provided
+        get_variable(name, args...; kwargs...)
     end
 end
+
+withname{F}(f::F, name) = withname(is_registered_op(F), f, name) # Should be at compile time converted to one of the two below
+withname(::NotRegisteredOp, f, name) = (args...; kws...) -> f(args...; kws...)
+withname(::RegisteredOp, f, name) = (args...; kws...) -> begin
+    if !any(first.(kws) .== :name) #name is not already there
+        push!(kws, (:name, name))
+    end
+    f(args...; kws...)
+end
+
+
 
 function tf_while(ex)
     ex.head == :while || error("tf_while expects a `while` loop")
@@ -88,6 +115,21 @@ end
 becomes `while_loop((i,loop_sum)->i<10, (i,loop_sum)->[i+1, loop_sum+i], [i, loop_sum])`.
 """
 macro tf(ex)
+    if ex.head == :while
+        tf_while(ex)
+    else
+        MacroTools.prewalk(ex) do x
+            if @capture(x, X_ = f_(args__))
+                :($X = withname($f, $(string(X)))($(args...)))
+            else
+                x
+            end
+        end
+    end |> esc
+end
+
+#=
+macro tf(ex)
     is_assign(arg::Expr) = arg.head == Symbol("=")
     is_assign(arg) = false
     if ex.head == :block
@@ -109,3 +151,4 @@ macro tf(ex)
     end
     esc(res)
 end
+=#
