@@ -23,7 +23,7 @@ random_normal
 
 ```@docs
 Variable
-initialize_all_variables
+global_variables_initializer
 variable_scope
 get_variable
 ConstantInitializer

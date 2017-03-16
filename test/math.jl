@@ -151,7 +151,7 @@ result = run(sess, TensorFlow.cholesky(constant(M_raw)))
 @test cholfact(M_raw)[:L] ≈ result
 
 a = TensorFlow.Variable(ones(6))
-run(sess, initialize_all_variables())
+run(sess, global_variables_initializer())
 result = run(sess, TensorFlow.scatter_update(a, [1; 5], [2.; 2.]))
 @test [2; 1; 1; 1; 2; 1] == result
 

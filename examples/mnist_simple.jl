@@ -11,7 +11,7 @@ y_ = placeholder(Float32)
 W = Variable(zeros(Float32, 784, 10))
 b = Variable(zeros(Float32, 10))
 
-run(sess, initialize_all_variables())
+run(sess, global_variables_initializer())
 
 y = nn.softmax(x*W + b)
 

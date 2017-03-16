@@ -94,7 +94,7 @@ embs = get_variable("tt2", (10,10), Float64)
 vals = gather_nd(embs,[2])
 cost = reduce_sum(vals)
 optimizer = train.minimize(train.AdamOptimizer(0.1), cost)
-run(sess2, initialize_all_variables())
+run(sess2, global_variables_initializer())
 @test length(run(sess2, vals)) == 10
 
 # Check concat can make a network Issue #147
@@ -104,5 +104,5 @@ x2 = get_variable("x2", (50,10), Float64)
 xs = concat([x1,x2], 1)
 cost = reduce_sum(xs)
 optimizer = train.minimize(train.AdamOptimizer(0.1), cost)
-run(sess3, initialize_all_variables())
+run(sess3, global_variables_initializer())
 @test size(run(sess3, xs)) == (70, 10)

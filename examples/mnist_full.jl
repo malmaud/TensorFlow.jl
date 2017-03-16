@@ -63,7 +63,7 @@ correct_prediction = indmax(y_conv, 2) .== indmax(y_, 2)
 
 accuracy = reduce_mean(cast(correct_prediction, Float32))
 
-run(session, initialize_all_variables())
+run(session, global_variables_initializer())
 
 for i in 1:1000
     batch = next_batch(loader, 50)

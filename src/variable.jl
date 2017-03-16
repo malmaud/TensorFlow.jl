@@ -167,7 +167,7 @@ Base.convert(::Type{Tensor}, v::Variable) = Tensor(v.var_node, 1)
 """
 Returns an `Operation` that initializes all TensorFlow `Variable`s.
 """
-function initialize_all_variables()
+function global_variables_initializer()
     return group([Tensor(var.assign_node) for var in get_collection(:Variables)]...)
 end
 

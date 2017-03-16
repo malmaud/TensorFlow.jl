@@ -34,7 +34,7 @@ optimizer = train.AdamOptimizer()
 minimize_op = train.minimize(optimizer, Loss)
 saver = train.Saver()
 # Run training
-run(sess, initialize_all_variables())
+run(sess, global_variables_initializer())
 checkpoint_path = mktempdir()
 info("Checkpoint files saved in $checkpoint_path")
 for epoch in 1:100

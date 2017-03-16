@@ -9,3 +9,5 @@ import Base: @deprecate, depwarn
 
 @deprecate pack(args...; kwargs...) stack(args...; kwargs...)
 @deprecate unpack(args...; kwargs...) unstack(args...; kwargs...)
+
+@deprecate initialize_all_variables() global_variables_initializer()

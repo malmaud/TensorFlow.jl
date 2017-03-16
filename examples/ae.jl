@@ -52,7 +52,7 @@ l_out = l_dec*W1o + B1o |> nn.sigmoid
 loss_MSE = reduce_mean((x-l_out).^2)
 train_step = train.minimize(train.AdamOptimizer(5e-4), loss_MSE)
 
-run(session, initialize_all_variables())
+run(session, global_variables_initializer())
 saver = train.Saver()
 checkpoint_path = mktempdir()
 
