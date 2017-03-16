@@ -38,7 +38,7 @@ A `Tensor` of type `Int64`.
     with_op_name(name, "ArgMin") do
         desc = NodeDescription("ArgMin")
         add_input(desc, Tensor(n))
-        add_input(desc, Tensor(convert_number(Int32, axis)))
+        add_input(desc, convert(Tensor{Int32}, axis))
     end
     Tensor(Operation(desc), 1)
 end
@@ -60,7 +60,7 @@ A `Tensor` of type `Int64`.
     with_op_name(name, "ArgMax") do
         desc = NodeDescription("ArgMax")
         add_input(desc, Tensor(n))
-        add_input(desc, Tensor(convert_number(Int32, axis)))
+        add_input(desc, convert(Tensor{Int32}, axis))
     end
     Tensor(Operation(desc), 1)
 end
@@ -399,7 +399,7 @@ end
 for reduction in [:sum, :prod, :min, :max, :mean]
     func_name = ucfirst(string(reduction))
     @eval @op function $(Symbol("segment_", reduction))(n::AbstractTensor, segment_indices; name=nothing)
-        segment_indices = cast(Tensor(segment_indices), Int32) - 1
+        segment_indices = convert(Tensor{Int32}, segment_indices) - 1
         local desc
         with_op_name(name, string("Segment", $func_name)) do
             desc = NodeDescription("Segment"*$func_name)

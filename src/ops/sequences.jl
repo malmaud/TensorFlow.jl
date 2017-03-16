@@ -12,10 +12,6 @@ Creates a constant `Tensor`.
     Tensor(Operation(desc), 1)
 end
 
-Base.convert(::Type{Tensor}, x::Union{Number, String}) = constant(x)
-Base.convert{T<:Union{Number, String}}(::Type{Tensor}, x::Array{T}) = constant(x)
-
-
 function Base.zeros(::Type{Tensor}, T, shape::Tuple)
     constant(zeros(T, shape))
 end
@@ -61,8 +57,8 @@ A `Tensor` of the specified `shape` and `dtype` containing random values.
         # TODO use global seed
         desc["seed"] = 0
         r = Tensor(Operation(desc), 1)
-        minval = cast(Tensor(minval), dtype)
-        maxval = cast(Tensor(maxval), dtype)
+        minval = convert(Tensor{dtype}, minval)
+        maxval = convert(Tensor{dtype}, maxval)
         out = r .* (maxval-minval) + minval
     end
     out
@@ -107,9 +103,9 @@ end
     local desc
     with_op_name(name, "LinSpace") do
         desc = NodeDescription("LinSpace")
-        add_input(desc, Tensor(convert_number(Float32, start)))
-        add_input(desc, Tensor(convert_number(Float32, stop)))
-        add_input(desc, Tensor(convert_number(Int32, num)))
+        add_input(desc, convert(Tensor{Float32}, start))
+        add_input(desc, convert(Tensor{Float32}, stop))
+        add_input(desc, convert(Tensor{Int32}, num))
     end
     Tensor(Operation(desc), 1)
 end
@@ -123,9 +119,9 @@ end
     local desc
     with_op_name(name, "Range") do
         desc = NodeDescription("Range")
-        add_input(desc, cast(Tensor(start), Int32))
-        add_input(desc, cast(Tensor(limit), Int32))
-        add_input(desc, cast(Tensor(delta), Int32))
+        add_input(desc, convert(Tensor{Int32}, start))
+        add_input(desc, convert(Tensor{Int32}, limit))
+        add_input(desc, convert(Tensor{Int32}, delta))
     end
     Tensor(Operation(desc), 1)
 end
@@ -158,7 +154,7 @@ Returns:
     local desc
     with_op_name(name, "Fill") do
         desc = NodeDescription("Fill")
-        add_input(desc, cast(dims, Int32))
+        add_input(desc, convert(Tensor{Int32}, dims))
         add_input(desc, n)
     end
     Tensor(Operation(desc), 1)
@@ -249,7 +245,7 @@ Returns:
     with_op_name(name, "Reverse") do
         desc = NodeDescription("ReverseV2")
         add_input(desc, Tensor(x))
-        add_input(desc, cast(Tensor(indices), Int32)-1)
+        add_input(desc, convert(Tensor{Int32}, indices) - 1)
     end
     Tensor(Operation(desc))
 end

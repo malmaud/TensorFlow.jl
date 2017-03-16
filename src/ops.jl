@@ -30,17 +30,6 @@ end
 
 tf_promote(t, x) = Tensor(x)
 
-
-convert_number(t, n) = n
-convert_number(t, x::Number) =  t(x)
-convert_number(t, x::Union{AbstractArray, Tuple}) = map(t, x)
-
-to_tensor(x::Union{Number, String, AbstractTensor}) = Tensor(x)
-to_tensor(x::AbstractArray) = Tensor(x)
-
-to_list(x::AbstractArray) = x
-to_list(x) = [x]
-
 macro not_implemented(f)
     if f.head != :function
         error("Invalid use of not_implemented")

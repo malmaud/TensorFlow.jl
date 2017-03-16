@@ -64,11 +64,11 @@ end
 GradientDescentOptimizer(learning_rate; name="descent") = GradientDescentOptimizer(Tensor(learning_rate), name)
 
 function general_assign_sub(var, learning_rate, grad::Tensor)
-    tf.assign_sub(var, cast(learning_rate, eltype(var)) .* grad)
+    tf.assign_sub(var, convert(Tensor{eltype(var)}, learning_rate) .* grad)
 end
 
 function general_assign_sub(var, learning_rate, grad::tf.IndexedSlices)
-    tf.scatter_sub(var.var_node, grad.indices, cast(learning_rate, eltype(var)) .* grad.values)
+    tf.scatter_sub(var.var_node, grad.indices, convert(Tensor{eltype(var)}, learning_rate) .* grad.values)
 end
 
 function apply_gradients(optimizer::GradientDescentOptimizer, grads_and_vars; global_step=nothing, name="descent")
@@ -98,8 +98,8 @@ function apply_gradients(optimizer::MomentumOptimizer, grads_and_vars; global_st
                 momentum = get_variable("momentum", get_shape(var), eltype(var), initializer=ConstantInitializer(0.0), trainable=false)
             end
         end
-        learning_rate = cast(optimizer.learning_rate, eltype(var))
-        momentum_rate = cast(optimizer.momentum, eltype(var))
+        learning_rate = convert(Tensor{eltype(var)}, optimizer.learning_rate)
+        momentum_rate = convert(Tensor{eltype(var)}, optimizer.momentum)
         if isa(grad, tf.IndexedSlices)
             momentum_slice = tf.gather(momentum, grad.indices) # TODO should reduce?
             step = learning_rate .* grad.values + momentum_rate .* momentum_slice
@@ -141,7 +141,7 @@ function apply_gradients(optimizer::AdamOptimizer, grads_and_vars; global_step=n
         β2 = eltype(var)(optimizer.β2)
         ϵ = eltype(var)(optimizer.ϵ)
         η = eltype(var)(optimizer.η)
-        t = cast(Tensor(T), eltype(var))
+        t = convert(Tensor{eltype(var)}, T)
         push!(ops, tf.assign(T, T+1))
         lr = η*sqrt(1-β2^t)/(1-β1^t)
         if isa(grad, tf.IndexedSlices)

@@ -446,10 +446,10 @@ register_shape("ExpandDims") do op
     if x_shape.rank_unknown
         return [TensorShape(nothing)]
     end
-
     dim = get_input(op, 2)
-    if dim.op.op_name == "Const"
-        dim_value = get(load_const(dim.op))[] # [] is to dereference the Array{Int32,0} returned
+    maybe_dim_value = load_const(dim)
+    if !isnull(maybe_dim_value)
+        dim_value = get(maybe_dim_value)[]  # [] is to dereference the Array{Int32,0} returned
         dim_value = mod(dim_value, length(x_shape.dims) + 1) + 1 #allow inserting at `end-dim`
         insert!(x_shape.dims, dim_value, Nullable(1))
         [x_shape]
