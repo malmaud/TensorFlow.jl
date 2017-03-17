@@ -58,41 +58,40 @@ end
 @testset "Graph Node Access By Name" begin
     srand(2)
     s = Session(Graph())
-    
-	fixed_bias = rand(10)
+
+    fixed_bias = rand(10)
     @tf begin
-		X = placeholder(Float64; shape=[-1, 50])
+        X = placeholder(Float64; shape=[-1, 50])
         W = get_variable([50, 10], Float64)
-		B = constant(fixed_bias)
+        B = constant(fixed_bias)
         Y_pred_onehot = nn.softmax(X * W + B)
     end
-	run(s, global_variables_initializer())
-	
-	#Every name should show up in the session
-	@test Set(["X", "W", "B", "Y_pred_onehot"]) ⊆ Set(keys(s)) 
-	@test length(collect(values(s))) > 5
+    run(s, global_variables_initializer())
+    
+    #Every name should show up in the session
+    @test Set(["X", "W", "B", "Y_pred_onehot"]) ⊆ Set(keys(s))
+    @test length(collect(values(s))) > 5
 
-	# Should get back constant
-	@test fixed_bias == run(s, s["B"])
-	
-	# Should get back output
-	x_val = rand(100, 50)
-	pred_oh = run(s, s["Y_pred_onehot"], Dict(s["X"] => x_val))
-	@test size(pred_oh) == (100, 10)
-	
-	# Should be able to use output for math still
-	pred = run(s, indmax(s["Y_pred_onehot"], 2), Dict(s["X"] => x_val))
-	@test length(pred) == 100
+    # Should get back constant
+    @test fixed_bias == run(s, s["B"])
+    
+    # Should get back output
+    x_val = rand(100, 50)
+    pred_oh = run(s, s["Y_pred_onehot"], Dict(s["X"] => x_val))
+    @test size(pred_oh) == (100, 10)
+    
+    # Should be able to use output for math still
+    pred = run(s, indmax(s["Y_pred_onehot"], 2), Dict(s["X"] => x_val))
+    @test length(pred) == 100
 end
 
 @testset "Disconnected gradients" begin
-	let
-		as_default(Graph()) do
-			unused = get_variable("unused", [], Float64)
-			used = get_variable("used", [], Float64)
-			loss = used.^2
-			optimizer = train.minimize(train.AdamOptimizer(), loss)
-			# This would have thrown an error if Disconnected gradients were causing issues
-		end
-	end
+    let as_default(Graph()) do
+        unused = get_variable("unused", [], Float64)
+        used = get_variable("used", [], Float64)
+        loss = used.^2
+        optimizer = train.minimize(train.AdamOptimizer(), loss)
+        # This would have thrown an error if Disconnected gradients were causing issues
+        end
+    end
 end
