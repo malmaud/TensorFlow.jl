@@ -522,14 +522,14 @@ end
 
 # Colon promotion rules -- mostly this will make Ints into constants
 immutable TensorRange
-    start::Tensor
-    stop::Tensor
+	start::Tensor{Int32}
+	stop::Tensor{Int32}
 end
 Base.first(tr::TensorRange)=tr.start
 Base.last(tr::TensorRange)=tr.stop
 
 Base.colon(x,y::Tensor) = colon(Tensor(x), y)
-Base.colon(x::AbstractTensor, y) = colon(Tensor(x), Tensor(y)) #HACK brake symetry by using AbstractTensor for 1 and Tensor for the other
+Base.colon(x::Tensor, y) = colon(x, Tensor(y))
 Base.colon(x::Tensor,y::Tensor) = TensorRange(x,y)
 
 #For x[[1,2,3]] etc
@@ -547,18 +547,18 @@ function Base.getindex(params::AbstractTensor, indices::Vararg{Union{TensorRange
     # NOTE: slice is still 0 based for begins
 
     # TODO: Assign a name prefix to all the tensors made as art of this section, including constants
-    begins = Tensor[]
-    sizes = Tensor[]
+	begins = Tensor{Int32}[]
+	sizes = Tensor{Int32}[]
 
     function proc_ind!(ind::Colon)
-        push!(begins, Int32(0))
-        push!(sizes, Int32(-1)) # Slice mark for go to end
+		push!(begins, 0)
+		push!(sizes, -1) # Slice mark for go to end
     end
     function proc_ind!(ind::Union{UnitRange, TensorRange})
         #NOTE: end has now been replace with `endof(X)` or `size(X,d)` giving the actual size
-        begin_ =  convert_number(Int32, first(ind) - Int32(1))
+		begin_ =  first(ind) - 1
         push!(begins, begin_)
-        end_ = convert_number(Int32, last(ind))
+        end_ = last(ind)
         push!(sizes, end_ - begin_)
     end
 
