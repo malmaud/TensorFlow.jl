@@ -68,8 +68,9 @@ end
     end
 	run(s, global_variables_initializer())
 	
-	#Every name should show up in the keys of the session
-	@test  length(collect(keys(s))) >= 4
+	#Every name should show up in the session
+	@test Set(["X", "W", "B", "Y_pred_onehot"]) ⊆ Set(keys(s)) 
+	@test length(collect(values(s))) > 5
 
 	# Should get back constant
 	@test fixed_bias == run(s, s["B"])
