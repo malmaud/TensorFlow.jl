@@ -55,30 +55,43 @@ end
 end
 
 
-@testset "Index" begin
+@testset "Graph Node Access By Name" begin
     srand(2)
-    sess = Session(Graph())
-    local X, W, B, Y
-    @tf begin
-        X = constant(rand(50);)
-        W = get_variable([50, 10], Float64)
-        B = get_variable([10], Float64)
-        Y = nn.softmax(X * W + B)
-    end
-    @test sess["X"] == X
-    @test sess["W"] == Tensor(W.var_node)
-    @test sess["B"] == Tensor(B.var_node)
-    @test sess["Y"] == Y
+    s = Session(Graph())
     
+	fixed_bias = rand(10)
+    @tf begin
+		X = placeholder(Float64; shape=[-1, 50])
+        W = get_variable([50, 10], Float64)
+		B = constant(fixed_bias)
+        Y_pred_onehot = nn.softmax(X * W + B)
+    end
+	run(s, global_variables_initializer())
+	
+	#Every name should show up in the keys of the session
+	@test  length(collect(keys(s))) >= 4
+
+	# Should get back constant
+	@test fixed_bias == run(s, s["B"])
+	
+	# Should get back output
+	x_val = rand(100, 50)
+	pred_oh = run(s, s["Y_pred_onehot"], Dict(s["X"] => x_val))
+	@test size(pred_oh) == (100, 10)
+	
+	# Should be able to use output for math still
+	pred = run(s, indmax(s["Y_pred_onehot"], 2), Dict(s["X"] => x_val))
+	@test length(pred) == 100
 end
 
-## Disconnected gradients
-
-let
-    as_default(Graph()) do
-        unused = get_variable("unused", [], Float64)
-        used = get_variable("used", [], Float64)
-        loss = used.^2
-        optimizer = train.minimize(train.AdamOptimizer(), loss)
-    end
+@testset "Disconnected gradients" begin
+	let
+		as_default(Graph()) do
+			unused = get_variable("unused", [], Float64)
+			used = get_variable("used", [], Float64)
+			loss = used.^2
+			optimizer = train.minimize(train.AdamOptimizer(), loss)
+			# This would have thrown an error if Disconnected gradients were causing issues
+		end
+	end
 end
