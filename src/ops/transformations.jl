@@ -675,9 +675,9 @@ rank-3 tensor with two matrices of new values.
     local desc
     with_op_name(name, "ScatterNd") do
         desc = NodeDescription("ScatterNd")
-        add_input(desc, Tensor(convert_number(Int32, indices-Int32(1))))
-        add_input(desc, Tensor(updates))
-        add_input(desc, Tensor(convert_number(Int32, (shape))))  # Must be same type as indicies
+		add_input(desc, convert(Tensor{Int32}, indices-1))
+		add_input(desc, Tensor(updates))
+		add_input(desc, convert(Tensor{Int32}, shape))  # Must be same type as indicies
     end
     Tensor(Operation(desc), 1)
 end
