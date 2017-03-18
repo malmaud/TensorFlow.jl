@@ -578,7 +578,7 @@ function Base.getindex(params::AbstractTensor, indices...)
     if eltype.(inds) ⊆ (Int32, Int64)
         gather_nd(params, inds)
     else
-        error("julia style indexing is not currently supported for indicies $inferred")
+        error("julia style indexing is not currently supported for indicies $indices")
     end
 end
 
