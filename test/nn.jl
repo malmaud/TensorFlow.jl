@@ -24,11 +24,11 @@ end
         variable_scope("rnn", initializer=ConstantInitializer(.1)) do
             y = nn.dynamic_rnn(cell, data, initial_state=s0)
         end
-        # Disable until the flakiness of the test is resolved
-        # run(sess, global_variables_initializer())  # This is flakily failing.
-        # output = run(sess, y)[1]
-        # expected_output = tanh(1*.1+tanh(1*.1+.1)*.1+.1)
-        # @test output[1,1] ≈ expected_output
+
+        run(sess, global_variables_initializer())
+        output = run(sess, y)[1]
+        expected_output = tanh(1*.1+tanh(1*.1+.1)*.1+.1)
+        @test output[1,1] ≈ expected_output
     end
 end
 
