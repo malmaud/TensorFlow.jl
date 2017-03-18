@@ -175,41 +175,27 @@ all elements but all later dimensions may vary.
     time_step = tf.constant(1)
     num_steps = convert(Tensor{Int64}, tf.shape(inputs)[2])
 
-    while_output = if isa(sequence_length, Void) #This should be removed by the julia lowering process
-        #Don't use seq_length
-        @tf while time_step ≤ num_steps
-            slice_start = tf.stack([0, time_step-1, 0])
-            slice_size = tf.stack([-1, 1, -1])
-            data = tf.slice(inputs, slice_start, slice_size)
-            data = tf.squeeze(data, [2])
-            #TODO: Once indexing supports it, the whole of the above can be replaced with: `data=inputs[:, timestep, :]`
-            local new_state
-            variable_scope(scope) do
-                output, new_state = cell(data, state, input_dim)
-            end
-            [time_step=>time_step+1, state=>new_state, output=>output]
-        end
-    else
-        #use sequence_length
-        @tf while time_step ≤ num_steps
-            slice_start = tf.stack([0, time_step-1, 0])
-            slice_size = tf.stack([-1, 1, -1])
-            data = tf.slice(inputs, slice_start, slice_size)
-            data = tf.squeeze(data, [2])
-            #TODO: Once indexing supports it, the whole of the above can be replaced with: `data=inputs[:, timestep, :]`
+    while_output = @tf while time_step ≤ num_steps
+        slice_start = tf.stack([0, time_step-1, 0])
+        slice_size = tf.stack([-1, 1, -1])
+        data = tf.slice(inputs, slice_start, slice_size)
+        data = tf.squeeze(data, [2])
+        #TODO: Once indexing supports it, the whole of the above can be replaced with: `data=inputs[:, timestep, :]`
+        local new_state
+        new_output = output
 
-            have_passed_end = sequence_length .< time_step
-            local new_state
-            local new_output
-            variable_scope(scope) do
-                r_new_output, r_new_state = cell(data, state, input_dim)
+
+        variable_scope(scope) do
+            new_output, new_state = cell(data, state, input_dim)
+            if !isa(sequence_length, Void) #This should be removed by the julia lowering process
                 #Only update output and state for rows that are not yet passed their ends
-                new_output = select(have_passed_end, output,  r_new_output)
-                new_state = select(have_passed_end, state,  r_new_state)
+                have_passed_end = sequence_length .< time_step
+                new_output = select(have_passed_end, output, new_output)
+                new_state = select(have_passed_end, state, new_state)
             end
-            [time_step=>time_step+1, state=>new_state, output=>new_output]
         end
 
+        [time_step=>time_step+1, state=>new_state, output=>new_output]
     end
 
     final_state = while_output[2]
