@@ -62,6 +62,8 @@ function tf_while(ex)
     block = ex.args[2]
     return_val = block.args[end]
     @assert return_val.head == :vect
+
+    # derive the variables involved from the last expression
     vars = []
     for item in return_val.args
         @assert item.head == Symbol("=>")
@@ -69,23 +71,32 @@ function tf_while(ex)
         var_value = item.args[2]
         push!(vars, (var_name=>var_value))
     end
+
     while_expr = Expr(:call, :(TensorFlow.while_loop))
+
     loop_func = Expr(:->, Expr(:tuple, [var[1] for var in vars]...))
+
+    # condition argument in TensorFlow.while_loop
     cond_func = deepcopy(loop_func)
     push!(cond_func.args, cond)
     push!(while_expr.args, cond_func)
+
+    # body argument in TensorFlow.while_loop
     iter_func = deepcopy(loop_func)
-    vec_part = Expr(:vect, [var[2] for var in vars]...)
     block_part = Expr(:block)
     for arg in block.args[1:end-1]
         arg.head == :line && continue
         push!(block_part.args, arg)
     end
-    push!(block_part.args, vec_part)
+    block_return_part = Expr(:vect, [var[2] for var in vars]...)
+    push!(block_part.args, block_return_part)
     push!(iter_func.args, block_part)
     push!(while_expr.args, iter_func)
+
+    # variables argument in TensorFlow.while_loop
     var_list = Expr(:vect, [var[1] for var in vars]...)
     push!(while_expr.args, var_list)
+
     while_expr
 end
 
