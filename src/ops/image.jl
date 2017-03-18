@@ -184,7 +184,7 @@ A `Tensor` of the resized `images`.
     with_op_name(name, "ResizeImages") do
         desc = NodeDescription(op_names[method])
         add_input(desc, images)
-        dims = stack([conver(Tensor{Int32}, new_height), convert(Tensor{Int32}, new_width)])
+        dims = stack([convert(Tensor{Int32}, new_height), convert(Tensor{Int32}, new_width)])
         add_input(desc, dims)
         desc["align_corners"] = align_corners
     end
