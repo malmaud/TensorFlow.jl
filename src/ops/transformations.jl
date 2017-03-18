@@ -522,8 +522,8 @@ end
 
 # Colon promotion rules -- mostly this will make Ints into constants
 immutable TensorRange
-	start::Tensor{Int32}
-	stop::Tensor{Int32}
+    start::Tensor{Int32}
+    stop::Tensor{Int32}
 end
 Base.first(tr::TensorRange)=tr.start
 Base.last(tr::TensorRange)=tr.stop
@@ -547,16 +547,16 @@ function Base.getindex(params::AbstractTensor, indices::Vararg{Union{TensorRange
     # NOTE: slice is still 0 based for begins
 
     # TODO: Assign a name prefix to all the tensors made as art of this section, including constants
-	begins = Tensor{Int32}[]
-	sizes = Tensor{Int32}[]
+    begins = Tensor{Int32}[]
+    sizes = Tensor{Int32}[]
 
     function proc_ind!(ind::Colon)
-		push!(begins, 0)
-		push!(sizes, -1) # Slice mark for go to end
+        push!(begins, 0)
+        push!(sizes, -1) # Slice mark for go to end
     end
     function proc_ind!(ind::Union{UnitRange, TensorRange})
         #NOTE: end has now been replace with `endof(X)` or `size(X,d)` giving the actual size
-		begin_ =  first(ind) - 1
+        begin_ =  first(ind) - 1
         push!(begins, begin_)
         end_ = last(ind)
         push!(sizes, end_ - begin_)
