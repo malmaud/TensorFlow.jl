@@ -1,5 +1,7 @@
 import Base: log, exp, +, -, *, /, ^, sin, cos, tan, asin, acos, atan, div, tanh, sqrt, abs, floor, ceil, floor, sign
 
+using MacroTools
+
 if VERSION < v"0.6.0-"
     import Base: .*, .+, ./, .-, .^, .==
 end
@@ -34,7 +36,11 @@ macro not_implemented(f)
     if f.head != :function
         error("Invalid use of not_implemented")
     end
-    func_name = f.args[1].args[1]
+    func_name = @match f begin
+        function name_(args__)
+            body__
+        end => name
+    end
     quote
         function $(esc(func_name))(args...; kwargs...)
             error("Not implemented yet")
