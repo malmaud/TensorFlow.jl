@@ -137,7 +137,7 @@ function rnn(cell, inputs; initial_state=nothing, dtype=nothing, sequence_length
 end
 
 """
-`dynamic_rnn(cell, inputs; sequence_length=nothing, initial_state=nothing, dtype=nothing, parallel_iterations=nothing, swap_memory=false, time_major=false, scope="RNN")`
+`dynamic_rnn(cell, inputs, sequence_length, initial_state=nothing, dtype=nothing, parallel_iterations=nothing, swap_memory=false, time_major=false, scope="RNN")`
 
 Creates a *dynamic* recurrent neural network. Performs full dynamic unrolling of `inputs`.
 
@@ -145,7 +145,7 @@ Args:
 * `cell`: An instance of `RNNCell`.
 * `inputs`: A `Tensor` of shape `[max_time, batch_size, ..., ...]` or `[batch_size, max_time, ..., ...]` (see `time_major`). May also be a nested `Tuple` with the same property. The first two dimensions *must* be the same across
 all elements but all later dimensions may vary.
-* `sequence_length`: Specifies length of each sequence in `inputs`.
+* `sequence_length`: Specifies length of each sequence in `inputs`. se
 * `initial_state`: A starting state for the RNN. If not provided, the initial state is `zero_state`.
 * `dtype`: Data type of the initial state and output, in case it cannot be inferred.
 * `parallel_iterations`: Number of iterations to run in parallel, defaulting to `32`. Ops that have no temporal dependency can be run in parallel and will be. Trades time for space - larger values use more memory.
@@ -153,35 +153,63 @@ all elements but all later dimensions may vary.
 * `time_major`: Shape format for `inputs` and `outputs` `Tensor`s. Determines whether the first dimension of each is `max_time` (`true`) or `batch_size` (`false`, default). `true` is more efficient but is the transpose of most TensorFlow operations.
 * `scope`: `VariableScope` for the subgraph. Defaults to `RNN`.
 """
-@op function dynamic_rnn(cell, inputs; sequence_length=nothing, initial_state=nothing, dtype=nothing, parallel_iterations=nothing, swap_memory=false, time_major=false, scope="RNN")
-    sequence_length === nothing || error("sequence_length parameter not supported yet")
-    time_major == false || error("Time-major order not supported yet")
-    time_step = tf.constant(1)
-    num_steps = convert(Tensor{Int64}, tf.shape(inputs)[2])
+@op function dynamic_rnn(cell, inputs, sequence_length=nothing; initial_state=nothing, dtype=nothing, parallel_iterations=nothing, swap_memory=false, time_major=false, scope="RNN")
+    #TODO Make this all work with non-3D inputs
+
+    if time_major
+        inputs=permutedims([2,1,3])
+    end
 
     if initial_state === nothing
         if dtype === nothing
             error("dtype must be set if initial_state is not provided")
         end
-        batch_size = get_shape(first(inputs), 1)
+        batch_size = get_shape(inputs, 1)
         initial_state = zero_state(cell, batch_size, dtype)
     end
 
     state = initial_state
     input_dim = get_shape(inputs, 3)
-
     output = tf.zeros(Tensor{eltype(state)}, get_shape(inputs, 1), output_size(cell))
 
-    while_output = @tf while time_step ≤ num_steps
-        slice_start = tf.stack([1, time_step, 1])
-        slice_size = tf.stack([-1, 1, -1])
-        data = tf.slice(inputs, slice_start, slice_size)
-        data = tf.squeeze(data, [2])
-        local new_state
-        variable_scope(scope) do
-            output, new_state = cell(data, state, input_dim)
+    time_step = tf.constant(1)
+    num_steps = convert(Tensor{Int64}, tf.shape(inputs)[2])
+
+    while_output = if isa(sequence_length, Void) #This should be removed by the julia lowering process
+        #Don't use seq_length
+        @tf while time_step ≤ num_steps
+            slice_start = tf.stack([0, time_step-1, 0])
+            slice_size = tf.stack([-1, 1, -1])
+            data = tf.slice(inputs, slice_start, slice_size)
+            data = tf.squeeze(data, [2])
+            #TODO: Once indexing supports it, the whole of the above can be replaced with: `data=inputs[:, timestep, :]`
+            local new_state
+            variable_scope(scope) do
+                output, new_state = cell(data, state, input_dim)
+            end
+            [time_step=>time_step+1, state=>new_state, output=>output]
         end
-        [time_step=>time_step+1, state=>new_state, output=>output]
+    else
+        #use sequence_length
+        @tf while time_step ≤ num_steps
+            slice_start = tf.stack([0, time_step-1, 0])
+            slice_size = tf.stack([-1, 1, -1])
+            data = tf.slice(inputs, slice_start, slice_size)
+            data = tf.squeeze(data, [2])
+            #TODO: Once indexing supports it, the whole of the above can be replaced with: `data=inputs[:, timestep, :]`
+
+            have_passed_end = sequence_length .< time_step
+            local new_state
+            local new_output
+            variable_scope(scope) do
+                r_new_output, r_new_state = cell(data, state, input_dim)
+                #Only update output and state for rows that are not yet passed their ends
+                new_output = select(have_passed_end, output,  r_new_output)
+                new_state = select(have_passed_end, state,  r_new_state)
+            end
+            [time_step=>time_step+1, state=>new_state, output=>new_output]
+        end
+
     end
 
     final_state = while_output[2]
