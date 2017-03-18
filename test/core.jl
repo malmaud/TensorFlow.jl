@@ -86,12 +86,13 @@ end
 end
 
 @testset "Disconnected gradients" begin
-    let as_default(Graph()) do
-        unused = get_variable("unused", [], Float64)
-        used = get_variable("used", [], Float64)
-        loss = used.^2
-        optimizer = train.minimize(train.AdamOptimizer(), loss)
-        # This would have thrown an error if Disconnected gradients were causing issues
+    let 
+        as_default(Graph()) do
+            unused = get_variable("unused", [], Float64)
+            used = get_variable("used", [], Float64)
+            loss = used.^2
+            optimizer = train.minimize(train.AdamOptimizer(), loss)
+            # This would have thrown an error if Disconnected gradients were causing issues
         end
     end
 end
