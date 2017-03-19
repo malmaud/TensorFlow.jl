@@ -1,5 +1,6 @@
 
 using PyCall
+using MacroTools
 
 const py_tf = Ref{PyObject}()
 const py_tf_core = Ref{PyObject}()
@@ -26,10 +27,13 @@ function py_bytes(b::Vector{UInt8})
 end
 
 macro py_catch(ex)
-    if ex.head == Symbol("=") && isa(ex.args[1], Symbol)
-        local_block = Expr(:local, esc(ex.args[1]))
+    target = @match ex begin
+        (target_ = value_) => target
+    end
+    if target !== nothing
+        local_block = :(local $(esc(target)))
     else
-        local_block = Expr(:block)
+        local_block = nothing
     end
     quote
         $local_block

@@ -33,16 +33,15 @@ end
 tf_promote(t, x) = Tensor(x)
 
 macro not_implemented(f)
-    if f.head != :function
-        error("Invalid use of not_implemented")
-    end
-    func_name = @match f begin
+    res = @match f begin
         function name_(args__)
             body__
-        end => name
+        end => name, args
     end
+    res === nothing && error("Invalid use of not_implemented")
+    func_name, args = res
     quote
-        function $(esc(func_name))(args...; kwargs...)
+        function $(esc(func_name))(args...)
             error("Not implemented yet")
         end
     end
