@@ -150,7 +150,7 @@ register_shape("Const") do op
     [TensorShape([size(value)...])]
 end
 
- # Simple 1-input 1-output functions that preserve the input shape
+# Simple 1-input 1-output functions that preserve the input shape
 for func in ["Log", "Exp", "Neg", "Ceil", "Floor", "Sqrt", "Square",
     "Cos", "Sin", "Tan", "Atan", "Asin", "Acos", "Tanh",
     "Cast", "Relu", "Relu6", "Elu", "Softplus", "Softsign",
@@ -182,7 +182,9 @@ register_shape("SparseSoftmaxCrossEntropyWithLogits") do op
     return [TensorShape([s1.dims[1]]), copy(s1)]
 end
 
-for func in ["Add", "Sub", "Mul", "Div", "Pow", "SquaredDifference"]
+# Binary functions that broadcast
+for func in ["Add", "Sub", "Mul", "Div", "Pow", "SquaredDifference", "Less",
+             "LessEqual", "Greater", "GreaterEqual", "Equal", "NotEqual"]
     register_shape(func) do op
         s1 = _get_shape(get_input(op, 1))
         s2 = _get_shape(get_input(op, 2))
