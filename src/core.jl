@@ -837,6 +837,8 @@ function load_proto(tensor::tensorflow.TensorProto)
         val = tensor.double_val
     elseif dtype == tensorflow._DataType.DT_STRING
         val = tensor.string_val
+    elseif dtype == tensorflow._DataType.DT_BOOL
+        val = tensor.bool_val
     else
         warn("Unrecognized datatype $dtype")
     end
