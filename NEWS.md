@@ -24,3 +24,13 @@ New functionality
 * `while_loop` has been added, with a convenient `@tf while ... end` syntax
 * Many new ops
 * Support for Docker via official Docker images
+
+Switch to 1-based indexing
+---------------
+
+Operations which take indices as arguments now expect the arguments to be
+1-based instead of 0-based, which was a hold-over of TensorFlow's Python
+legacy. This affects the following functions:
+
+* The `axis` parameter for any operation which takes an `axis` parameter
+* The `begin_` argument of `slice`

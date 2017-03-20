@@ -78,7 +78,7 @@ mask = constant([true, false, true])
 
 ### Slice
 # to do make sure we slice the right indices
-@test ones(Float32, 5).' == run(sess, TensorFlow.slice(one_tens, [0, 0], [1, -1]))
+@test ones(Float32, 5).' == run(sess, TensorFlow.slice(one_tens, [1, 1], [1, -1]))
 
 ### ScatterNd
 

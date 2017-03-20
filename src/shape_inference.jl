@@ -229,10 +229,14 @@ function load_const(op)
         if isnull(x1) || isnull(x2)
             return Nullable()
         else
+            tf_get(x) = get(x)
+            # We need this since element-wise operations between Array{..., N}
+            # and Array{..., 0} raises a deprecation error.
+            tf_get{T}(x::Nullable{Array{T, 0}}) = get(x)[1]
             if op.op_name == "Sub"
-                value = Nullable(get(x1) - get(x2))
+                value = Nullable(tf_get(x1) .- tf_get(x2))
             elseif op.op_name == "Add"
-                value = Nullable(get(x1) + get(x2))
+                value = Nullable(tf_get(x1) .+ tf_get(x2))
             end
         end
     elseif op.op_name == "Shape"

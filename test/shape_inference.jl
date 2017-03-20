@@ -121,7 +121,7 @@ end
 ## Slice
 let
     x = placeholder(Float64, shape=[2, 3])
-    y = TensorFlow.slice(x, [0, 1], [-1, 2])
+    y = TensorFlow.slice(x, [1, 2], [-1, 2])
     @test get_shape(y) == TensorShape([2, 2])
 end
 
