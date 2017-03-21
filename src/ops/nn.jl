@@ -176,7 +176,7 @@ all elements but all later dimensions may vary.
     num_steps = convert(Tensor{Int64}, tf.shape(inputs)[2])
 
     while_output = @tf while time_step ≤ num_steps
-        slice_start = tf.stack([0, time_step-1, 0])
+        slice_start = tf.stack([1, time_step, 1])
         slice_size = tf.stack([-1, 1, -1])
         data = tf.slice(inputs, slice_start, slice_size)
         data = tf.squeeze(data, [2])
