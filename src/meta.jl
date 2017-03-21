@@ -1,29 +1,44 @@
 using MacroTools
+using Compat
 
 # Use Holy traits to define if something is a known Op or not
-abstract OpRegistration
+@compat abstract type OpRegistration end
 immutable RegisteredOp <: OpRegistration end
 immutable NotRegisteredOp <: OpRegistration end
 
 is_registered_op(::DataType) = NotRegisteredOp() # By default nothing is registered
 
+const registered_ops = Set()
 
 macro op(f)
     f = longdef(f) #convert to long form function
-    opname = f.args[1].args[1]
+    opname = @match f begin
+        function opname_(args__)
+            body_
+        end => opname
+    end
+    opname === nothing && error("Invalid usage of @op")
+    # opname = f.args[1].args[1]
+    already_registered = opname ∈ registered_ops
+    push!(registered_ops, opname)
     @assert(isdefined(:tf)) # Need tf as name for module where this code is located
+    if already_registered
+        register_block = nothing
+    else
+        register_block = quote
+            # Mark it as registered by giving its type the trait
+            if isa($(opname), Function)
+                tf.is_registered_op(::Type{typeof($(opname))}) = tf.RegisteredOp()
+            elseif isa($(opname), DataType)
+                tf.is_registered_op(::Type{$(opname)}) = tf.RegisteredOp()
+            else
+                warn("@op used on " * string($(opname)) * " which does not seem to be a suitable type for an operation.")
+            end
+        end
+    end
     quote
         @Base.__doc__ $f
-        # Mark it as registered by giving its type the trait
-
-        if isa($(opname), Function)
-            tf.is_registered_op(::Type{typeof($(opname))}) = tf.RegisteredOp()
-        elseif isa($(opname), DataType)
-            tf.is_registered_op(::Type{$(opname)}) = tf.RegisteredOp()
-        else
-            warn("@op used on " * string($(opname)) * " which does not seem to be a suitable type for an operation.")
-        end
-
+        $register_block
         $(opname)
     end |> esc
 end
