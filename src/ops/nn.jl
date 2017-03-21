@@ -38,6 +38,9 @@ import ..TensorFlow: Operation, NodeDescription, get_def_graph, capitalize, add_
 import TensorFlow
 const tf = TensorFlow
 
+import ..TensorFlow: Operation, NodeDescription, get_def_graph, capitalize, add_input, Port, get_name, set_attr_list, get_shape, variable_scope, shape, random_uniform, AbstractTensor, Tensor, reduce_sum, @not_implemented, with_op_name, @op, @tf, unstack
+
+
 for f in [:relu, :relu6, :elu, :softplus, :softsign, :softmax, :sigmoid, :tanh]
     @eval @op function $f(n::AbstractTensor; name=nothing)
         local desc
@@ -115,8 +118,7 @@ Args:
 * `sequence_length`: Specifies length of each sequence in `inputs`.
 * `scope`: `VariableScope` for the subgraph. Defaults to `RNN`.
 """
-function rnn(cell, inputs; initial_state=nothing, dtype=nothing, sequence_length=nothing, scope="RNN")
-    # TODO use sequence length
+function rnn(cell, inputs::Vector, sequence_length=nothing; initial_state=nothing, dtype=nothing, scope="RNN")
     if initial_state === nothing
         if dtype === nothing
             error("dtype must be set if initial_state is not provided")
@@ -125,19 +127,30 @@ function rnn(cell, inputs; initial_state=nothing, dtype=nothing, sequence_length
         initial_state = zero_state(cell, batch_size, dtype)
     end
     outputs = Tensor[]
-    local output
     state = initial_state
-    for (idx, input) in enumerate(inputs)
-        variable_scope(scope; reuse=idx>1) do
-            output, state = cell(input, state)
+    for (time_step, input) in enumerate(inputs)
+        variable_scope(scope; reuse=time_step>1) do
+            new_output, new_state = cell(input, state)
         end
-        push!(outputs, output)
+        if sequence_length!==nothing && time_step > 1 # This should be removed by the julia lowering process
+            # Only update output and state for rows that are not yet passed their ends
+            have_passed_end = sequence_length .< time_step
+            new_output = select(have_passed_end, outputs[end], new_output)
+            new_state = select(have_passed_end, state, new_state)
+        end
+        state = new_state
+        push!(outputs, new_output)
     end
     return outputs, state
 end
 
+function rnn(cell, inputs::Tensor, sequence_length=nothing; time_major=false, kwargs...)
+    input_list = unstack(inputs; axis = (time_major ? 1 : 2))
+    rnn(cell, input_list, sequence_length; kwargs...)
+end
+
 """
-`dynamic_rnn(cell, inputs; sequence_length=nothing, initial_state=nothing, dtype=nothing, parallel_iterations=nothing, swap_memory=false, time_major=false, scope="RNN")`
+`dynamic_rnn(cell, inputs, sequence_length, initial_state=nothing, dtype=nothing, parallel_iterations=nothing, swap_memory=false, time_major=false, scope="RNN")`
 
 Creates a *dynamic* recurrent neural network. Performs full dynamic unrolling of `inputs`.
 
@@ -153,35 +166,50 @@ all elements but all later dimensions may vary.
 * `time_major`: Shape format for `inputs` and `outputs` `Tensor`s. Determines whether the first dimension of each is `max_time` (`true`) or `batch_size` (`false`, default). `true` is more efficient but is the transpose of most TensorFlow operations.
 * `scope`: `VariableScope` for the subgraph. Defaults to `RNN`.
 """
-@op function dynamic_rnn(cell, inputs; sequence_length=nothing, initial_state=nothing, dtype=nothing, parallel_iterations=nothing, swap_memory=false, time_major=false, scope="RNN")
-    sequence_length === nothing || error("sequence_length parameter not supported yet")
-    time_major == false || error("Time-major order not supported yet")
-    time_step = tf.constant(1)
-    num_steps = convert(Tensor{Int64}, tf.shape(inputs)[2])
+@op function dynamic_rnn(cell, inputs, sequence_length=nothing; initial_state=nothing, dtype=nothing, parallel_iterations=nothing, swap_memory=false, time_major=false, scope="RNN")
+    #TODO Make this all work with non-3D inputs
+
+    if time_major
+        inputs=permutedims(inputs, [2,1,3])
+    end
+
+    batch_size = get_shape(inputs, 1)
 
     if initial_state === nothing
         if dtype === nothing
             error("dtype must be set if initial_state is not provided")
         end
-        batch_size = get_shape(first(inputs), 1)
         initial_state = zero_state(cell, batch_size, dtype)
     end
 
     state = initial_state
     input_dim = get_shape(inputs, 3)
+    output = tf.zeros(Tensor{eltype(state)}, batch_size, output_size(cell))
 
-    output = tf.zeros(Tensor{eltype(state)}, get_shape(inputs, 1), output_size(cell))
+    time_step = tf.constant(1)
+    num_steps = convert(Tensor{Int64}, tf.shape(inputs)[2])
 
     while_output = @tf while time_step ≤ num_steps
         slice_start = tf.stack([1, time_step, 1])
         slice_size = tf.stack([-1, 1, -1])
         data = tf.slice(inputs, slice_start, slice_size)
         data = tf.squeeze(data, [2])
+        #TODO: Once indexing supports it, the whole of the above can be replaced with: `data=inputs[:, timestep, :]`
         local new_state
+        new_output = output
+
+
         variable_scope(scope) do
-            output, new_state = cell(data, state, input_dim)
+            new_output, new_state = cell(data, state, input_dim)
+            if sequence_length !== nothing # This branch should be removed by the julia lowering process
+                # Only update output and state for rows that are not yet passed their ends
+                have_passed_end = sequence_length .< time_step
+                new_output = select(have_passed_end, output, new_output)
+                new_state = select(have_passed_end, state, new_state)
+            end
         end
-        [time_step=>time_step+1, state=>new_state, output=>output]
+
+        [time_step=>time_step+1, state=>new_state, output=>new_output]
     end
 
     final_state = while_output[2]

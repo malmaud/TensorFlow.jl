@@ -7,7 +7,8 @@ state_size,
 LSTMCell,
 GRUCell,
 BasicRNNCell,
-RNNCell
+RNNCell,
+IdentityRNNCell
 
 using Compat
 import ....Main: TensorFlow
@@ -15,22 +16,17 @@ import .TensorFlow: Operation, get_shape, get_variable, tanh, Tensor, nn
 import .nn: sigmoid
 const tf = TensorFlow
 
+"""
+Abstract Parent Class for all RNNCells.
+
+Types that implement this type (`T<:RNNCell`) are expected to provide methods for:
+
+ - `nn.rnn_cell.output_size(c::T)` returning an Integer
+ - `nn.rnn_cell.output_size(c::T)` returning an Integer of the output size
+ - `(cell::T)(input, state, input_dim)`, returning a Vector of length 2, of the output tensor and the state, after running the cell
+"""
 @compat abstract type RNNCell end
 
-type BasicRNNCell <: RNNCell
-    hidden_size::Int
-end
-
-
-"""
-Form a `RNNCell` with all states initialized to zero.
-"""
-function zero_state(cell::RNNCell, batch_size, T)
-    zeros(Tensor{T}, batch_size, state_size(cell))
-end
-
-output_size(cell::BasicRNNCell) = cell.hidden_size
-state_size(cell::BasicRNNCell) = cell.hidden_size
 
 function get_input_dim(input, input_dim)
     if input_dim == -1
@@ -39,6 +35,35 @@ function get_input_dim(input, input_dim)
         input_dim
     end
 end
+
+"""
+Form a `RNNCell` with all states initialized to zero.
+"""
+function zero_state(cell::RNNCell, batch_size, T)
+    zeros(Tensor{T}, batch_size, state_size(cell))
+end
+
+
+
+"""
+Dummy RNN cell for testing, always gives back its input
+"""
+immutable IdentityRNNCell <: nn.rnn_cell.RNNCell
+    input_and_output_size::Int64
+end
+(cell::IdentityRNNCell)(input, state, input_dim=-1) = [input, input]
+output_size(c::IdentityRNNCell)=c.input_and_output_size
+state_size(c::IdentityRNNCell)=c.input_and_output_size
+
+
+
+immutable BasicRNNCell <: RNNCell
+    hidden_size::Int
+end
+output_size(cell::BasicRNNCell) = cell.hidden_size
+state_size(cell::BasicRNNCell) = cell.hidden_size
+
+
 
 function (cell::BasicRNNCell)(input, state, input_dim=-1)
     N = get_input_dim(input, input_dim) + cell.hidden_size
