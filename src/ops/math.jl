@@ -65,7 +65,7 @@ A `Tensor` of type `Int64`.
     Tensor(Operation(desc), 1)
 end
 
-Base.indmax(n::AbstractTensor, dim) = argmax(n, dim-1)
+@op Base.indmax(n::AbstractTensor, dim; name=nothing) = argmax(n, dim-1; name=name)
 
 @op function Base.max(x::AbstractTensor, y, name=nothing)
     local desc

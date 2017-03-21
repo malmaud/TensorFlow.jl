@@ -1,26 +1,60 @@
-function _tf(ex)
-    @assert ex.head == Symbol("=")
-    name = ex.args[1]
-    call = copy(ex.args[2])
-    @assert call.head == :call
+using MacroTools
 
-    # Special-case :get_variable, which takes `name` as its first argument instead
-    # of a keyword argument
-    if call.args[1] == :get_variable
-        insert!(call.args, 2, string(name))
-    else
-        if length(call.args) >=2 && isa(call.args[2], Expr) && call.args[2].head == :parameters
-            params = call.args[2]
-        else
-            params = Expr(:parameters)
-            insert!(call.args, 2, params)
-        end
-        push!(params.args, Expr(:kw, :name, string(name)))
-    end
+# Use Holy traits to define if something is a known Op or not
+abstract OpRegistration
+immutable RegisteredOp <: OpRegistration end
+immutable NotRegisteredOp <: OpRegistration end
+
+is_registered_op(::DataType) = NotRegisteredOp() # By default nothing is registered
+
+
+macro op(f)
+    f = longdef(f) #convert to long form function
+    opname = f.args[1].args[1]
+    @assert(isdefined(:tf)) # Need tf as name for module where this code is located
     quote
-        $name = $call
+        @Base.__doc__ $f
+        # Mark it as registered by giving its type the trait
+
+        if isa($(opname), Function)
+            tf.is_registered_op(::Type{typeof($(opname))}) = tf.RegisteredOp()
+        elseif isa($(opname), DataType)
+            tf.is_registered_op(::Type{$(opname)}) = tf.RegisteredOp()
+        else
+            warn("@op used on " * string($(opname)) * " which does not seem to be a suitable type for an operation.")
+        end
+
+        $(opname)
+    end |> esc
+end
+
+
+# How to insert the  name into functions etc
+# This function takes in a function and its posible name
+# and returns a new function that will call to the orginal
+# with the function name inserted as appropriate
+
+
+withname(::typeof(get_variable), name) = (args...; kwargs...) -> begin
+    if isa(args[1], AbstractString)
+        get_variable(args...; kwargs...)
+    else # No name provided
+        get_variable(name, args...; kwargs...)
     end
 end
+
+withname(d::DataType, name) = withname(is_registered_op(d), d, name) # will do a static(?) dispatch to one of the two traited methods
+withname{F<:Function}(f::F, name) = withname(is_registered_op(F), f, name) # will do a static dispatch to one of the two traited methods
+
+withname(::NotRegisteredOp, f, name) = (args...; kws...) -> f(args...; kws...)
+withname(::RegisteredOp, f, name) = (args...; kws...) -> begin
+    if !any(first.(kws) .== :name) # name is not already there
+        push!(kws, (:name, name))
+    end
+    f(args...; kws...)
+end
+
+
 
 function tf_while(ex)
     ex.head == :while || error("tf_while expects a `while` loop")
@@ -88,24 +122,18 @@ end
 becomes `while_loop((i,loop_sum)->i<10, (i,loop_sum)->[i+1, loop_sum+i], [i, loop_sum])`.
 """
 macro tf(ex)
-    is_assign(arg::Expr) = arg.head == Symbol("=")
-    is_assign(arg) = false
-    if ex.head == :block
-        res = Expr(:block)
-        for arg in ex.args
-            if is_assign(arg)
-                push!(res.args, _tf(arg))
+    if ex.head == :while
+        TensorFlow.tf_while(ex)
+    else
+        # Recursively search the expression, looking for assignments of function calls
+        # If they are found replace them with `withname` wrapped calls
+        # and then search with in them
+        MacroTools.prewalk(ex) do x
+            if @capture(x, X_ = f_(args__))
+                :($X = TensorFlow.withname($f, $(string(X)))($(args...)))
             else
-                push!(res.args, arg)
+                x
             end
         end
-    elseif ex.head == Symbol("=")
-        res = _tf(ex)
-    elseif ex.head == :while
-        res = tf_while(ex)
-    else
-        warn("@tf macro had no effect")
-        res = ex
-    end
-    esc(res)
+    end |> esc
 end

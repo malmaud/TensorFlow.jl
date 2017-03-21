@@ -1,4 +1,7 @@
+using MacroTools
 import Base: log, exp, +, -, *, /, ^, sin, cos, tan, asin, acos, atan, div, tanh, sqrt, abs, floor, ceil, floor, sign
+import TensorFlow
+const tf = TensorFlow # so know where op_funcs is defined
 
 using MacroTools
 
@@ -6,21 +9,7 @@ if VERSION < v"0.6.0-"
     import Base: .*, .+, ./, .-, .^, .==
 end
 
-const op_funcs = Set{Any}()
 
-macro op(f)
-    if f.head == :function
-        op_name = f.args[1].args[1]
-    elseif f.head == Symbol("=") && f.args[1].head == :call
-        op_name = f.args[1].args[1]
-    else
-        error("Inproper use of `op`")
-    end
-    push!(op_funcs, op_name)
-    quote
-        @Base.__doc__ $f
-    end |> esc
-end
 
 function tf_promote(t, x::Number)
     return Tensor(eltype(t)(x))
