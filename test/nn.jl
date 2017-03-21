@@ -48,7 +48,7 @@ end
         data = constant(data_jl)
         lens_jl = collect(1:2:20) #1 for each element in the batch (x) saying how far to go down the time (y)
         lens = constant(lens_jl)
-        cell = IdentityRNNCell(10)
+        cell = nn.rnn_cell.IdentityRNNCell(10)
         y, s_last = nn.dynamic_rnn(cell, data, lens; dtype=Float32)
 
         if FLAKEY_TESTS_ENABLED
@@ -64,7 +64,7 @@ end
         data = constant(data_jl)
         lens_jl = collect(1:2:20) #1 for each element in the batch (x) saying how far to go down the time (y)
         lens = constant(lens_jl)
-        cell = IdentityRNNCell(10)
+        cell = nn.rnn_cell.IdentityRNNCell(10)
         y, s_last = nn.dynamic_rnn(cell, data, lens; dtype=Float32, time_major=true)
 
         if FLAKEY_TESTS_ENABLED
