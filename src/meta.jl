@@ -72,22 +72,23 @@ end
 
 
 function tf_while(ex)
-    ex.head == :while || error("tf_while expects a `while` loop")
-    cond = ex.args[1]
-    block = ex.args[2]
+    (@capture ex begin
+        while cond_
+            block_
+        end
+    end) || error("tf_while expects a `while` loop")
+
     return_val = block.args[end]
-    @assert return_val.head == :vect
+    (@capture return_val [return_items__]) || error("loop must end with a list of pairs")
 
     # derive the variables involved from the last expression
     vars = []
-    for item in return_val.args
-        @assert item.head == Symbol("=>")
-        var_name = item.args[1]
-        var_value = item.args[2]
+    for item in return_items
+        (@capture item (var_name_=>var_value_)) || error("loop must end with a list of pairs")
         push!(vars, (var_name=>var_value))
     end
 
-    while_expr = Expr(:call, :(TensorFlow.while_loop))
+    while_expr = :(TensorFlow.while_loop())
 
     loop_func = Expr(:->, Expr(:tuple, [var[1] for var in vars]...))
 
@@ -98,18 +99,18 @@ function tf_while(ex)
 
     # body argument in TensorFlow.while_loop
     iter_func = deepcopy(loop_func)
-    block_part = Expr(:block)
+    block_part = :(begin end)
     for arg in block.args[1:end-1]
         arg.head == :line && continue
         push!(block_part.args, arg)
     end
-    block_return_part = Expr(:vect, [var[2] for var in vars]...)
+    block_return_part = :([$((var[2] for var in vars)...)])
     push!(block_part.args, block_return_part)
     push!(iter_func.args, block_part)
     push!(while_expr.args, iter_func)
 
     # variables argument in TensorFlow.while_loop
-    var_list = Expr(:vect, [var[1] for var in vars]...)
+    var_list = :([$([var[1] for var in vars]...)])
     push!(while_expr.args, var_list)
 
     while_expr
