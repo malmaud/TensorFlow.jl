@@ -72,8 +72,6 @@ withname(::RegisteredOp, f, name) = (args...; kws...) -> begin
     f(args...; kws...)
 end
 
-
-
 function tf_while(ex)
     (@capture ex begin
         while cond_
@@ -82,12 +80,13 @@ function tf_while(ex)
     end) || error("tf_while expects a `while` loop")
 
     return_val = block.args[end]
-    (@capture return_val [return_items__]) || error("loop must end with a list of pairs")
+    loop_err() = error("loop must end with a list of pairs")
+    (@capture return_val [return_items__]) || loop_err()
 
     # derive the variables involved from the last expression
     vars = []
     for item in return_items
-        (@capture item (var_name_=>var_value_)) || error("loop must end with a list of pairs")
+        (@capture item (var_name_=>var_value_)) || loop_err()
         push!(vars, (var_name=>var_value))
     end
 
@@ -113,7 +112,7 @@ function tf_while(ex)
     push!(while_expr.args, iter_func)
 
     # variables argument in TensorFlow.while_loop
-    var_list = :([$([var[1] for var in vars]...)])
+    var_list = :([$((var[1] for var in vars)...)])
     push!(while_expr.args, var_list)
 
     while_expr
