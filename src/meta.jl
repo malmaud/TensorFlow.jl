@@ -14,10 +14,15 @@ macro op(f)
     @assert(isdefined(:tf)) # Need tf as name for module where this code is located
     quote
         @Base.__doc__ $f
-        
-        tf.is_registered_op(::Type{typeof($(opname))}) = tf.RegisteredOp()
         # Mark it as registered by giving its type the trait
-        # Need  the `Type{...}` so that both DataTypes constructors (eg FIFOQueue), and functions work
+
+        if isa($(opname), Function)
+            tf.is_registered_op(::Type{typeof($(opname))}) = tf.RegisteredOp()
+        elseif isa($(opname), DataType)
+            tf.is_registered_op(::Type{$(opname)}) = tf.RegisteredOp()
+        else
+            warn("@op used on " * string($(opname)) * " which does not seem to be a suitable type for an operation.")
+        end
 
         $(opname)
     end |> esc
@@ -38,7 +43,9 @@ withname(::typeof(get_variable), name) = (args...; kwargs...) -> begin
     end
 end
 
-withname{F}(f::F, name) = withname(is_registered_op(F), f, name) # Should be at compile time converted to one of the two below
+withname(d::DataType, name) = withname(is_registered_op(d), d, name) # will do a static(?) dispatch to one of the two traited methods
+withname{F<:Function}(f::F, name) = withname(is_registered_op(F), f, name) # will do a static dispatch to one of the two traited methods
+
 withname(::NotRegisteredOp, f, name) = (args...; kws...) -> f(args...; kws...)
 withname(::RegisteredOp, f, name) = (args...; kws...) -> begin
     if !any(first.(kws) .== :name) # name is not already there

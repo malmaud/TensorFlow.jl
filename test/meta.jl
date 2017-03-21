@@ -1,6 +1,18 @@
 using Base.Test
 using TensorFlow
 
+@testset "Registering Ops" begin
+
+    @test TensorFlow.is_registered_op(TensorFlow.FIFOQueue) == TensorFlow.RegisteredOp()
+    @test TensorFlow.is_registered_op(nn.rnn_cell.GRUCell) == TensorFlow.NotRegisteredOp()
+
+    @test TensorFlow.is_registered_op(typeof(add_n)) == TensorFlow.RegisteredOp()
+    @test TensorFlow.is_registered_op(typeof(nn.softmax)) == TensorFlow.RegisteredOp()
+
+    @test_throws MethodError TensorFlow.is_registered_op(add_n)
+    @test_throws MethodError TensorFlow.is_registered_op(nn.softmax)
+end
+
 
 @testset "Naming" begin
     let
@@ -16,7 +28,8 @@ using TensorFlow
 
                 ijk = add_n([i,j,k])
                 ij = add_n([i,j]; name="namefor_ij")
-                fq = TensorFlow.FIFOQueue(10, [Int32, Int64]);
+                fq = TensorFlow.FIFOQueue(10, [Int32, Int64]); #This datatype should be an Op
+                cc = nn.rnn_cell.GRUCell(40) #this Datatype should not be an Op
 
                 X = get_variable([50], Float64)
                 variable_scope("logisitic_model") do
