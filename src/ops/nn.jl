@@ -38,6 +38,9 @@ import ..TensorFlow: Operation, NodeDescription, get_def_graph, capitalize, add_
 import TensorFlow
 const tf = TensorFlow
 
+import ..TensorFlow: Operation, NodeDescription, get_def_graph, capitalize, add_input, Port, get_name, set_attr_list, get_shape, variable_scope, shape, random_uniform, AbstractTensor, Tensor, reduce_sum, @not_implemented, with_op_name, @op, @tf, unstack
+
+
 for f in [:relu, :relu6, :elu, :softplus, :softsign, :softmax, :sigmoid, :tanh]
     @eval @op function $f(n::AbstractTensor; name=nothing)
         local desc
@@ -115,8 +118,7 @@ Args:
 * `sequence_length`: Specifies length of each sequence in `inputs`.
 * `scope`: `VariableScope` for the subgraph. Defaults to `RNN`.
 """
-function rnn(cell, inputs::Vector{Tensor}, sequence_length=nothing; initial_state=nothing, dtype=nothing, scope="RNN")
-    # TODO use sequence length
+function rnn(cell, inputs::Vector, sequence_length=nothing; initial_state=nothing, dtype=nothing, scope="RNN")
     if initial_state === nothing
         if dtype === nothing
             error("dtype must be set if initial_state is not provided")
@@ -125,22 +127,26 @@ function rnn(cell, inputs::Vector{Tensor}, sequence_length=nothing; initial_stat
         initial_state = zero_state(cell, batch_size, dtype)
     end
     outputs = Tensor[]
-    local output
     state = initial_state
-    for (idx, input) in enumerate(inputs)
-        variable_scope(scope; reuse=idx>1) do
-            new_output, new_state = cell(data, state, input_dim)
+    for (time_step, input) in enumerate(inputs)
+        variable_scope(scope; reuse=time_step>1) do
+            new_output, new_state = cell(input, state)
         end
-        if sequence_length!==nothing # This should be removed by the julia lowering process
+        if sequence_length!==nothing && time_step > 1 # This should be removed by the julia lowering process
             # Only update output and state for rows that are not yet passed their ends
             have_passed_end = sequence_length .< time_step
-            new_output = select(have_passed_end, output, new_output)
+            new_output = select(have_passed_end, outputs[end], new_output)
             new_state = select(have_passed_end, state, new_state)
         end
         state = new_state
         push!(outputs, new_output)
     end
     return outputs, state
+end
+
+function rnn(cell, inputs::Tensor, sequence_length=nothing; time_major=false, kwargs...)
+    input_list = unstack(inputs; axis = (time_major ? 1 : 2))
+    rnn(cell, input_list, sequence_length; kwargs...)
 end
 
 """
