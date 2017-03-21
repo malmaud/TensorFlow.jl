@@ -1,6 +1,10 @@
 using TensorFlow
 using Base.Test
 
+#TODO workout why these tests sometimes break
+#Remove this hack that stops them running in CI
+const FLAKEY_TESTS_ENABLED = !haskey(ENV,"TRAVIS_JULIA_VERSION")
+
 @testset "conv2d_transpose" begin
     let
         sess = Session(Graph())
@@ -25,21 +29,16 @@ end
             y = nn.dynamic_rnn(cell, data, initial_state=s0)
         end
 
-        #TODO uncomment out Flaky tests
-        #run(sess, global_variables_initializer()) #This line is flakily breaking on Travis
-        #output = run(sess, y)[1]
-        #expected_output = tanh(1*.1+tanh(1*.1+.1)*.1+.1)
-        #@test output[1,1] ≈ expected_output
+        if FLAKEY_TESTS_ENABLED
+            run(sess, global_variables_initializer()) #This line is flakily breaking on Travis
+            output = run(sess, y)[1]
+            expected_output = tanh(1*.1+tanh(1*.1+.1)*.1+.1)
+            @test output[1,1] ≈ expected_output
+        end
     end
 end
 
-"Dummy cell for testing, always gives back its input"
-immutable IdentityRNNCell <: nn.rnn_cell.RNNCell
-    input_and_output_size::Int64
-end
-(cell::IdentityRNNCell)(input, state, input_dim=-1) = [input, input]
-TensorFlow.nn.rnn_cell.state_size(c::IdentityRNNCell)=c.input_and_output_size
-TensorFlow.nn.rnn_cell.output_size(c::IdentityRNNCell)=c.input_and_output_size
+
 
 
 @testset "dynamic_rnn sequence_length" begin
@@ -51,9 +50,27 @@ TensorFlow.nn.rnn_cell.output_size(c::IdentityRNNCell)=c.input_and_output_size
         lens = constant(lens_jl)
         cell = IdentityRNNCell(10)
         y, s_last = nn.dynamic_rnn(cell, data, lens; dtype=Float32)
-        #TODO uncomment out Flaky tests
-        #run(sess, global_variables_initializer()) #This line is flakily breaking on Travis
-        #y_o = run(sess, y)
-        #@test y_o == [data_jl[xi, lens_jl[xi], zi] for xi in 1:10, zi in 1:10]
+
+        if FLAKEY_TESTS_ENABLED
+            run(sess, global_variables_initializer()) #This line is flakily breaking on Travis
+            y_o = run(sess, y)
+            @test y_o == [data_jl[xi, lens_jl[xi], zi] for xi in 1:10, zi in 1:10]
+        end
+    end
+
+    let
+        sess = Session(Graph())
+        data_jl = Float32[100*x+10y+z for x in 1:20, y in 1:10, z in 1:10] #Time first dim, batch second
+        data = constant(data_jl)
+        lens_jl = collect(1:2:20) #1 for each element in the batch (x) saying how far to go down the time (y)
+        lens = constant(lens_jl)
+        cell = IdentityRNNCell(10)
+        y, s_last = nn.dynamic_rnn(cell, data, lens; dtype=Float32, time_major=true)
+
+        if FLAKEY_TESTS_ENABLED
+            run(sess, global_variables_initializer()) #This line is flakily breaking on Travis
+            y_o = run(sess, y)
+            @test y_o == [data_jl[lens_jl[xi], xi, zi] for xi in 1:10, zi in 1:10]
+        end
     end
 end
