@@ -1,9 +1,9 @@
 using MacroTools
 
-# Use Holy traits to make if something is a known Op or not
+# Use Holy traits to define if something is a known Op or not
 abstract OpRegistration
-immutable RegisteredOp<:OpRegistration end
-immutable NotRegisteredOp<:OpRegistration end
+immutable RegisteredOp <: OpRegistration end
+immutable NotRegisteredOp <: OpRegistration end
 
 is_registered_op(::DataType) = NotRegisteredOp() # By default nothing is registered
 
@@ -14,7 +14,7 @@ macro op(f)
     @assert(isdefined(:tf)) # Need tf as name for module where this code is located
     quote
         @Base.__doc__ $f
-
+        
         tf.is_registered_op(::Type{typeof($(opname))}) = tf.RegisteredOp()
         # Mark it as registered by giving its type the trait
         # Need  the `Type{...}` so that both DataTypes constructors (eg FIFOQueue), and functions work
@@ -31,7 +31,7 @@ end
 
 
 withname(::typeof(get_variable), name) = (args...; kwargs...) -> begin
-    if typeof(args[1])<:AbstractString
+    if isa(args[1], AbstractString)
         get_variable(args...; kwargs...)
     else # No name provided
         get_variable(name, args...; kwargs...)
@@ -41,7 +41,7 @@ end
 withname{F}(f::F, name) = withname(is_registered_op(F), f, name) # Should be at compile time converted to one of the two below
 withname(::NotRegisteredOp, f, name) = (args...; kws...) -> f(args...; kws...)
 withname(::RegisteredOp, f, name) = (args...; kws...) -> begin
-    if !any(first.(kws) .== :name) #name is not already there
+    if !any(first.(kws) .== :name) # name is not already there
         push!(kws, (:name, name))
     end
     f(args...; kws...)
@@ -116,15 +116,17 @@ becomes `while_loop((i,loop_sum)->i<10, (i,loop_sum)->[i+1, loop_sum+i], [i, loo
 """
 macro tf(ex)
     if ex.head == :while
-        tf_while(ex)
+        TensorFlow.tf_while(ex)
     else
+        # Recursively search the expression, looking for assignments of function calls
+        # If they are found replace them with `withname` wrapped calls
+        # and then search with in them
         MacroTools.prewalk(ex) do x
             if @capture(x, X_ = f_(args__))
-                :($X = withname($f, $(string(X)))($(args...)))
+                :($X = TensorFlow.withname($f, $(string(X)))($(args...)))
             else
                 x
             end
         end
     end |> esc
 end
-
