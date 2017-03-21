@@ -188,8 +188,8 @@ all elements but all later dimensions may vary.
 
         variable_scope(scope) do
             new_output, new_state = cell(data, state, input_dim)
-            if !isa(sequence_length, Void) #This should be removed by the julia lowering process
-                #Only update output and state for rows that are not yet passed their ends
+            if sequence_length !== nothing) # This branch should be removed by the julia lowering process
+                # Only update output and state for rows that are not yet passed their ends
                 have_passed_end = sequence_length .< time_step
                 new_output = select(have_passed_end, output, new_output)
                 new_state = select(have_passed_end, state, new_state)
