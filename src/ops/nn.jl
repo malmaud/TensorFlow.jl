@@ -170,7 +170,7 @@ all elements but all later dimensions may vary.
     state = initial_state
     input_dim = get_shape(inputs, 3)
 
-    output = tf.zeros(Tensor, eltype(state), (get_shape(inputs, 1), output_size(cell)))
+    output = tf.zeros(Tensor{eltype(state)}, get_shape(inputs, 1), output_size(cell))
 
     while_output = @tf while time_step ≤ num_steps
         slice_start = tf.stack([1, time_step, 1])

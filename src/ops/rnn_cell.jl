@@ -26,7 +26,7 @@ end
 Form a `RNNCell` with all states initialized to zero.
 """
 function zero_state(cell::RNNCell, batch_size, T)
-    zeros(Tensor, T, (batch_size, state_size(cell)))
+    zeros(Tensor{T}, batch_size, state_size(cell))
 end
 
 output_size(cell::BasicRNNCell) = cell.hidden_size
@@ -88,8 +88,8 @@ state_size(cell::LSTMCell) = LSTMStateTuple(cell.hidden_size, cell.hidden_size)
 Form a `LSTMCell` with all states initialized to zero.
 """
 function zero_state(cell::LSTMCell, batch_size, T)
-    LSTMStateTuple(zeros(Tensor, T, (batch_size, cell.hidden_size)),
-        zeros(Tensor, T, (batch_size, cell.hidden_size)))
+    LSTMStateTuple(zeros(Tensor{T}, batch_size, cell.hidden_size),
+        zeros(Tensor{T}, batch_size, cell.hidden_size))
 end
 
 function (cell::LSTMCell)(input, state, input_dim=-1)

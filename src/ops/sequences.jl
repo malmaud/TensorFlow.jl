@@ -12,17 +12,10 @@ Creates a constant `Tensor`.
     Tensor(Operation(desc), 1)
 end
 
-function Base.zeros(::Type{Tensor}, T, shape::Tuple)
-    constant(zeros(T, shape))
+for f in [:zeros, :ones]
+    @eval Base.$f{T}(::Type{Tensor{T}}, shape...) = constant($f(T, shape...))
+    @eval Base.$f(::Type{Tensor}, args...) = $f(Tensor{Float32}, args...)
 end
-
-Base.zeros(::Type{Tensor}, shape::Tuple) = zeros(Tensor, Float32, shape)
-
-function Base.ones(::Type{Tensor}, T, shape::Tuple)
-    constant(ones(T, shape))
-end
-
-Base.ones(::Type{Tensor}, shape::Tuple) = ones(Tensor, Float32, shape)
 
 """
 Outputs random values from a uniform distribution.

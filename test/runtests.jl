@@ -29,7 +29,8 @@ tests = [
     "control.jl",
     "ops.jl",
     "summary.jl",
-    "nn.jl"
+    "nn.jl",
+    "sequences.jl"
 ]
 
 # @test_nowarn was added in Julia 0.6.
