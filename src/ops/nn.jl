@@ -145,7 +145,7 @@ Args:
 * `cell`: An instance of `RNNCell`.
 * `inputs`: A `Tensor` of shape `[max_time, batch_size, ..., ...]` or `[batch_size, max_time, ..., ...]` (see `time_major`). May also be a nested `Tuple` with the same property. The first two dimensions *must* be the same across
 all elements but all later dimensions may vary.
-* `sequence_length`: Specifies length of each sequence in `inputs`. se
+* `sequence_length`: Specifies length of each sequence in `inputs`.
 * `initial_state`: A starting state for the RNN. If not provided, the initial state is `zero_state`.
 * `dtype`: Data type of the initial state and output, in case it cannot be inferred.
 * `parallel_iterations`: Number of iterations to run in parallel, defaulting to `32`. Ops that have no temporal dependency can be run in parallel and will be. Trades time for space - larger values use more memory.
@@ -157,20 +157,21 @@ all elements but all later dimensions may vary.
     #TODO Make this all work with non-3D inputs
 
     if time_major
-        inputs=permutedims([2,1,3])
+        inputs=permutedims(inputs, [2,1,3])
     end
+
+    batch_size = get_shape(inputs, 1)
 
     if initial_state === nothing
         if dtype === nothing
             error("dtype must be set if initial_state is not provided")
         end
-        batch_size = get_shape(inputs, 1)
         initial_state = zero_state(cell, batch_size, dtype)
     end
 
     state = initial_state
     input_dim = get_shape(inputs, 3)
-    output = tf.zeros(Tensor{eltype(state)}, get_shape(inputs, 1), output_size(cell))
+    output = tf.zeros(Tensor{eltype(state)}, batch_size, output_size(cell))
 
     time_step = tf.constant(1)
     num_steps = convert(Tensor{Int64}, tf.shape(inputs)[2])
