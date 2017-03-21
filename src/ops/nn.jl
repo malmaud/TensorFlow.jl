@@ -115,7 +115,7 @@ Args:
 * `sequence_length`: Specifies length of each sequence in `inputs`.
 * `scope`: `VariableScope` for the subgraph. Defaults to `RNN`.
 """
-function rnn(cell, inputs; initial_state=nothing, dtype=nothing, sequence_length=nothing, scope="RNN")
+function rnn(cell, inputs::Vector{Tensor}, sequence_length=nothing; initial_state=nothing, dtype=nothing, scope="RNN")
     # TODO use sequence length
     if initial_state === nothing
         if dtype === nothing
@@ -129,9 +129,16 @@ function rnn(cell, inputs; initial_state=nothing, dtype=nothing, sequence_length
     state = initial_state
     for (idx, input) in enumerate(inputs)
         variable_scope(scope; reuse=idx>1) do
-            output, state = cell(input, state)
+            new_output, new_state = cell(data, state, input_dim)
         end
-        push!(outputs, output)
+        if sequence_length!==nothing # This should be removed by the julia lowering process
+            # Only update output and state for rows that are not yet passed their ends
+            have_passed_end = sequence_length .< time_step
+            new_output = select(have_passed_end, output, new_output)
+            new_state = select(have_passed_end, state, new_state)
+        end
+        state = new_state
+        push!(outputs, new_output)
     end
     return outputs, state
 end
