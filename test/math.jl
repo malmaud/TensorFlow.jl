@@ -90,9 +90,9 @@ end
     a_raw = rand(10)
     a = TensorFlow.constant(a_raw)
     result = run(sess, indmin(a, 1))
-    @test indmin(a_raw) == result+1
+    @test indmin(a_raw) == result
     result = run(sess, indmax(a, 1))
-    @test indmax(a_raw) == result+1
+    @test indmax(a_raw) == result
 end
 
 @testset "logic" begin
