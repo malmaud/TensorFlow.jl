@@ -354,7 +354,10 @@ end
 
 register_shape("Shape") do op
     s = _get_shape(get_input(op, 1))
-    return [TensorShape([s.rank_unknown ? nothing : length(s.dims)])]
+    if s.rank_unknown
+        return [TensorShape(nothing)]
+    end
+    return [TensorShape([length(s.dims)])]
 end
 
 register_shape("Concat") do op
