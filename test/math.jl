@@ -93,6 +93,11 @@ end
     @test indmin(a_raw) == result
     result = run(sess, indmax(a, 1))
     @test indmax(a_raw) == result
+
+    #check it find the first instance of lowest/highers number as the result for indmin/indmax
+    x=constant([1 2 3; 0 2 3; 0 0 3; 0 0 0]')
+    @test [2, 3, 4] == run(sess, indmin(x, 2))
+    @test [1, 1, 1] == run(sess, indmax(x, 2))
 end
 
 @testset "logic" begin
