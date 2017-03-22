@@ -50,6 +50,13 @@ function Variable(initial_value; name="", trainable=true, literal_name=false)
     return self
 end
 
+@with_def_graph function Variable(graph::Graph, s::AbstractString)
+    var = Variable()
+    var.var_node = get(get_node_by_name(graph, s))
+    var.assign_node = get(get_node_by_name(graph, "$s/Assign"))
+    var
+end
+
 """
 Update `v` by assigning `value` to it.
 
@@ -220,7 +227,7 @@ or create a new one.
 """
 function get_variable(var_name, shape, dtype; trainable=true, kwargs...)
     local v
-    with_top_level() do        
+    with_top_level() do
         shape = get_dims(shape)
         scope = make_scope(var_name; kwargs...)
         push!(scope_stack, scope)
@@ -237,10 +244,7 @@ function get_variable(var_name, shape, dtype; trainable=true, kwargs...)
                 end
             end
             if reuse
-                n = get_node_by_name(get_def_graph(), name)
-                v = Variable()
-                v.var_node = get_node_by_name(name) |> get
-                v.assign_node = get_node_by_name("$name/Assign") |> get
+                v = Variable(name)
             else
                 if length(shape) > 0
                     iv = rand(initializer, shape...)

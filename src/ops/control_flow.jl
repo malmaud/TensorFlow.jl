@@ -423,6 +423,29 @@ Example using shape_invariants:
                     push!(body_val, next_iteration_op)
                 end
                 g_def = get_def(g)
+
+                # Transfer the top-level values in the while loop body from the
+                # while-loop graph to the main graph. Used when new variables
+                # are defined inside the loop via `get_variable`.
+                to_delete = Int[]
+                for (op_idx, op) in enumerate(g_def.node)
+                    for top_op in get_collection(:TopLevel)
+                        if get_def(top_op).name == op.name
+                            push!(to_delete, op_idx)
+                        end
+                    end
+                end
+                extend_graph(def_graph, g_def.node[to_delete])
+                deleteat!(g_def.node, unique(to_delete))
+                for collection in [:Variables, :TrainableVariables]
+                    for var in get_collection(g, collection)
+                        name = get_def(var.var_node).name
+                        as_default(def_graph) do
+                            Variable(name)
+                        end
+                    end
+                end
+
                 for var_idx in eachindex(variables)
                     for op in g_def.node
                         if op.name == merge_names[var_idx]
