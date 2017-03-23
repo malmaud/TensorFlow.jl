@@ -1,10 +1,6 @@
 using TensorFlow
 using Base.Test
 
-#TODO workout why these tests sometimes break
-#Remove this hack that stops them running in CI
-const FLAKEY_TESTS_ENABLED = !haskey(ENV,"TRAVIS_JULIA_VERSION")
-
 @testset "conv2d_transpose" begin
     let
         sess = Session(Graph())
@@ -31,14 +27,14 @@ for (rnn_fun, post_proc_outputs) in ((nn.dynamic_rnn, identity), (nn.rnn, last))
                 y = rnn_fun(cell, data, initial_state=s0)
             end
 
-            if FLAKEY_TESTS_ENABLED
-                run(sess, global_variables_initializer()) #This line is flakily breaking on Travis
-                outputs = run(sess, y)[1]
-                output = post_proc_outputs(outputs)
 
-                expected_output = tanh(1*.1+tanh(1*.1+.1)*.1+.1)
-                @test output[1,1] ≈ expected_output
-            end
+            run(sess, global_variables_initializer())
+            outputs = run(sess, y)[1]
+            output = post_proc_outputs(outputs)
+
+            expected_output = tanh(1*.1+tanh(1*.1+.1)*.1+.1)
+            @test output[1,1] ≈ expected_output
+
         end
     end
 
@@ -55,12 +51,11 @@ for (rnn_fun, post_proc_outputs) in ((nn.dynamic_rnn, identity), (nn.rnn, last))
             cell = nn.rnn_cell.IdentityRNNCell(10)
             y, s_last = rnn_fun(cell, data, lens; dtype=Float32)
 
-            if FLAKEY_TESTS_ENABLED
-                run(sess, global_variables_initializer()) #This line is flakily breaking on Travis
-                outputs = run(sess, y)
-                output = post_proc_outputs(outputs)
-                @test output == [data_jl[xi, lens_jl[xi], zi] for xi in 1:10, zi in 1:10]
-            end
+            run(sess, global_variables_initializer())
+            outputs = run(sess, y)
+            output = post_proc_outputs(outputs)
+            @test output == [data_jl[xi, lens_jl[xi], zi] for xi in 1:10, zi in 1:10]
+
         end
 
         let
@@ -72,12 +67,23 @@ for (rnn_fun, post_proc_outputs) in ((nn.dynamic_rnn, identity), (nn.rnn, last))
             cell = nn.rnn_cell.IdentityRNNCell(10)
             y, s_last = rnn_fun(cell, data, lens; dtype=Float32, time_major=true)
 
-            if FLAKEY_TESTS_ENABLED
-                run(sess, global_variables_initializer()) #This line is flakily breaking on Travis
-                outputs = run(sess, y)
-                output = post_proc_outputs(outputs)
-                @test output == [data_jl[lens_jl[xi], xi, zi] for xi in 1:10, zi in 1:10]
-            end
+            run(sess, global_variables_initializer())
+            outputs = run(sess, y)
+            output = post_proc_outputs(outputs)
+            @test output == [data_jl[lens_jl[xi], xi, zi] for xi in 1:10, zi in 1:10]
         end
     end
+end
+
+@testset "rnn gradients" begin
+    sess = Session(Graph())
+    cell = nn.rnn_cell.BasicRNNCell(10)
+    s0 = nn.zero_state(cell, 5, Float32)
+    inputs = constant(randn(Float32, 5, 32, 5))
+    out = nn.dynamic_rnn(cell, inputs, initial_state=s0)
+    loss = reduce_sum(out[1]).^2
+    W = get_collection(:Variables)[1]
+    grads = gradients(loss, W)
+    run(sess, global_variables_initializer())
+    run(sess, grads)
 end

@@ -177,6 +177,7 @@ all elements but all later dimensions may vary.
     if sequence_length === nothing
         # Works around a bug in upstream TensorFlow's while-loop
         # gradient calculation
+        max_time = convert(Tensor{Int}, shape(inputs)[2])
         sequence_length = max_time
     end
 
