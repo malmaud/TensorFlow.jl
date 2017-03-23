@@ -1544,7 +1544,7 @@ function Operation(node_def::tensorflow.NodeDef)
             add_input(desc, get_tensor(inputs[input_idx]))
             input_idx += 1
         else
-            N = load_proto(node_def.attr["N"])
+            N = load_proto(node_def.attr[number_attr])
             tensors = []
             for n in 1:N
                 push!(tensors, get_tensor(inputs[input_idx]))
