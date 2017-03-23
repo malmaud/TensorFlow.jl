@@ -143,6 +143,16 @@ end
         result = run(sess, red_func(b))
         @test jl_func(b_raw) == result
     end
+
+    # Unsorted segment sum
+    a = TensorFlow.constant(eye(5))
+    idxs = TensorFlow.constant([1,1,2,3,1])
+    n = TensorFlow.constant(Int32(3))
+    d = unsorted_segment_sum(X,idxs,n)
+    results = [1.0  1.0  0.0  0.0  1.0;
+               0.0  0.0  1.0  0.0  0.0;
+               0.0  0.0  0.0  1.0  0.0]
+    @test all(run(sess,d).==results)
 end
 
 @testset "linear algebra" begin

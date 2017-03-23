@@ -409,3 +409,25 @@ for reduction in [:sum, :prod, :min, :max, :mean]
         Tensor(Operation(desc), 1)
     end
 end
+
+"""
+    unsorted_segment_sum(data::AbstractTensor,segment_ids,nbuckets; name=nothing)
+
+    Computes the sum along segments of a tensor, i.e. tensor such that (output[i] = sum_{j...} data[j...] where the sum is over tuples j... such that segment_ids[j...] == i. Unlike SegmentSum, segment_ids need not be sorted and need not cover all values in the full range of valid values.
+    If the sum is empty for a given segment ID i, output[i] = 0.
+    num_segments should equal the number of distinct segment IDs.
+
+    It is assumed the segment_ids to start by one as is common in Julia
+"""
+
+@eval @op function unsorted_segment_sum(data::AbstractTensor,segment_ids,nbuckets; name=nothing)
+    if name === nothing
+        name = get_name("unsorted_segment_sum")
+    end
+    desc = NodeDescription("UnsortedSegmentSum", name)
+    segment_ids0=segment_ids-constant([1])
+    add_input(desc,Tensor(data))
+    add_input(desc,Tensor(segment_ids0))
+    add_input(desc,Tensor(nbuckets))
+    Tensor(Operation(desc), 1)
+end
