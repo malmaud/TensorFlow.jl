@@ -371,6 +371,7 @@ end
             end
         end
     end
+    global a=new_graph
     import_graph_def(graph, new_graph, import_options)
 end
 
@@ -477,6 +478,8 @@ type Buffer
         end)
         return self
     end
+
+    Buffer(ptr) = new(ptr)
 end
 
 immutable BufferStruct
@@ -1471,3 +1474,19 @@ end
 get_name(t::Tensor) = "$(get_name(t.op)):$(t.value_index-1)"
 get_name(op::Operation) = get_def(op).name
 get_name(i::IndexedSlices) = get_name(i.values)
+
+const op_list = Dict{String, tensorflow.OpDef}()
+
+function get_all_op_list()
+    !isempty(op_list) && return op_list
+    buf_ptr = ccall((:TF_GetAllOpList, LIBTF), Ptr{Void}, ())
+    buffer = Buffer(buf_ptr)
+    data = convert(Array, buffer)
+    b = IOBuffer(data)
+    ops = tensorflow.OpList()
+    readproto(b, ops)
+    for op in ops.op
+        op_list[op.name] = op
+    end
+    op_list
+end

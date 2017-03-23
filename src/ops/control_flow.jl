@@ -369,7 +369,8 @@ Example using shape_invariants:
       shape_invariants=[i0.get_shape(), tensor_shape.TensorShape([None, 2])])
   ```
 """
-@op function while_loop(condition, body, variables; name=nothing, shape_invariants=nothing, parallel_iterations=10, back_prop=true, swap_memory=false)
+@op function while_loop(condition, body, variables; name=nothing, shape_invariants=nothing,
+                        parallel_iterations=10, back_prop=true, swap_memory=false)
     g = Graph()
     def_graph = get_def_graph()
     g.op_context = def_graph.op_context
