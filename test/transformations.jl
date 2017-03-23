@@ -100,12 +100,17 @@ mask = constant(mask_jl)
 @test x_jl[2:3, :] ==  run(sess, x[2:3, :])
 @test x_jl[2:end, :] ==  run(sess, x[Int32(2):end, :])
 
+@test w_jl[:,:,:] ==  run(sess, w[:, :, :])
 
 ##Mixed slice with index
 @test x_jl[2, :] ==  run(sess, x[2, :])
 @test x_jl[2, :] ==  run(sess, x[constant(2), :])
 
 @test w_jl[2:4, 3, :] ==  run(sess, w[2:4, 3, :])
+@test w_jl[:, 3, :] ==  run(sess, w[:, 3, :])
+@test w_jl[:, end, :] ==  run(sess, w[:, end, :])
+@test w_jl[1:1, :, :] ==  run(sess, w[1:1, :, :])
+
 
 ### ScatterNd
 
