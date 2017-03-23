@@ -767,7 +767,7 @@ mask = [True, False, True]
 boolean_mask(tensor, mask) ==> [[1, 2], [5, 6]]
 ```
 """
-@op function boolean_mask(tensor, mask; name=nothing)
+@op function boolean_mask(tensor, mask::AbstractTensor; name=nothing)
     local result
     with_op_name(name, "BooleanMask") do
         indices = find(mask)  # TODO generalize to more dimensions
@@ -776,6 +776,17 @@ boolean_mask(tensor, mask) ==> [[1, 2], [5, 6]]
     end
     result
 end
+
+@op function boolean_mask(tensor, mask::AbstractArray; name=nothing)
+    local result
+    with_op_name(name, "BooleanMask") do
+        indices = find(mask)  # TODO generalize to more dimensions
+        result = tensor[indices]
+    end
+    result
+end
+
+
 
 """
 `transpose(n::AbstractTensor, perm=nothing)`
