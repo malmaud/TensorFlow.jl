@@ -170,7 +170,14 @@ all elements but all later dimensions may vary.
     #TODO Make this all work with non-3D inputs
 
     if time_major
+        # TODO Do this in a more efficient way
         inputs=permutedims(inputs, [2,1,3])
+    end
+
+    if sequence_length === nothing
+        # Works around a bug in upstream TensorFlow's while-loop
+        # gradient calculation
+        sequence_length = max_time
     end
 
     batch_size = get_shape(inputs, 1)
@@ -201,12 +208,10 @@ all elements but all later dimensions may vary.
 
         variable_scope(scope) do
             new_output, new_state = cell(data, state, input_dim)
-            if sequence_length !== nothing # This branch should be removed by the julia lowering process
-                # Only update output and state for rows that are not yet passed their ends
-                have_passed_end = sequence_length .< time_step
-                new_output = select(have_passed_end, output, new_output)
-                new_state = select(have_passed_end, state, new_state)
-            end
+            # Only update output and state for rows that are not yet passed their ends
+            have_passed_end = sequence_length .< time_step
+            new_output = select(have_passed_end, output, new_output)
+            new_state = select(have_passed_end, state, new_state)
         end
 
         [time_step=>time_step+1, state=>new_state, output=>new_output]
