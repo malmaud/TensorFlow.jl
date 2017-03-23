@@ -35,7 +35,7 @@ function Variable(initial_value; name="", trainable=true, literal_name=false)
     end
     desc = NodeDescription("VariableV2", name)
     desc["dtype"] = eltype(initial_value)
-    desc["shape"] = size(initial_value)
+    desc["shape"] = TensorShape([size(initial_value)...])
     self.var_node = Operation(desc)
 
     desc = NodeDescription("Assign", "$name/Assign")

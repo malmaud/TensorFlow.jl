@@ -304,12 +304,16 @@ end
     for node_bytes in node_defs
         node_def = convert(tensorflow.NodeDef, node_bytes)
         if isnull(get_node_by_name(graph, node_def.name))
+            # First try to directly add this node to the graph
             try
                 Operation(node_def)
                 continue
             catch err
-                info(err)
             end
+
+            # If that doesn't work (for example, the node has a
+            # back edge), then import the node instead.
+
             # Hack to deal with imported nodes which have
             # colocation dependencies on existing nodes
             if has_field(node_def, :attr) && haskey(node_def.attr, "_class")
@@ -680,6 +684,10 @@ end
 
 function RawTensor(data::String)
     RawTensor([data], true)
+end
+
+function RawTensor(data::Array{Vector{UInt8}})
+    RawTensor(String.(data))
 end
 
 
