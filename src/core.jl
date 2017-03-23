@@ -304,6 +304,12 @@ end
     for node_bytes in node_defs
         node_def = convert(tensorflow.NodeDef, node_bytes)
         if isnull(get_node_by_name(graph, node_def.name))
+            try
+                Operation(node_def)
+                continue
+            catch err
+                info(err)
+            end
             # Hack to deal with imported nodes which have
             # colocation dependencies on existing nodes
             if has_field(node_def, :attr) && haskey(node_def.attr, "_class")
@@ -371,7 +377,6 @@ end
             end
         end
     end
-    global a=new_graph
     import_graph_def(graph, new_graph, import_options)
 end
 
@@ -961,9 +966,9 @@ function load_proto(tensor::tensorflow.TensorProto)
         end
     end
     if length(val) == 0 && length(dim) == 0
-        zeros(eltype(val),0)
+        RawTensor(zeros(eltype(val),0))
     elseif length(dim) == 0
-        val[1]
+        RawTensor(val[1])
     else
         # https://www.tensorflow.org/api_docs/python/constant_op/constant_value_tensors#constant
         if length(val) < prod(dim)
@@ -974,7 +979,7 @@ function load_proto(tensor::tensorflow.TensorProto)
                 val[i] = last_val
             end
         end
-        reshape(val, reverse(dim)) |> convert_major_order
+        RawTensor(reshape(val, reverse(dim)) |> convert_major_order)
     end
 end
 
@@ -1147,12 +1152,17 @@ function setindex!(desc::NodeDescription, dtype::DataType, attr_name)
     @tfcall(:TF_SetAttrType, Void, (Ptr{Void}, Cstring, TF_DataType), desc.ptr, attr_name, dtype|>jl_to_df_type)
 end
 
-function setindex!(desc::NodeDescription, value::Int, attr_name)
-    @tfcall(:TF_SetAttrInt, Void, (Ptr{Void}, Cstring, Int64), desc.ptr, attr_name, value)
+function setindex!(desc::NodeDescription, value::Integer, attr_name)
+    value = Int64(value)
+    @tfcall(:TF_SetAttrInt, Void, (Ptr{Void}, Cstring, Int64), desc.ptr, attr_name, value)    ccall((:TF_SetAttrInt, LIBTF), Void, (Ptr{Void}, Cstring, Int64), desc.ptr, attr_name, value)
 end
 
-function setindex!(desc::NodeDescription, value::Tuple, attr_name)
-    dims = Int[value...]
+function setindex!(desc::NodeDescription, value::TensorShape, attr_name)
+    if value.rank_unknown
+        dims = Int[]
+    else
+        dims = Int[(isnull(dim) ? -1 : get(dim)) for dim in value.dims]
+    end
     @tfcall(:TF_SetAttrShape, Void, (Ptr{Void}, Cstring, Ptr{Int64}, Cint), desc.ptr, attr_name, dims, length(dims))
 end
 
@@ -1160,7 +1170,8 @@ function setindex!(desc::NodeDescription, value::Bool, attr_name)
     @tfcall(:TF_SetAttrBool, Void, (Ptr{Void}, Cstring, Cuchar), desc.ptr, attr_name, value)
 end
 
-function setindex!(desc::NodeDescription, value::Float32, attr_name)
+function setindex!(desc::NodeDescription, value::AbstractFloat, attr_name)
+    value = Float32(value)
     @tfcall(:TF_SetAttrFloat, Void, (Ptr{Void}, Cstring, Cfloat), desc.ptr, attr_name, value)
 end
 
@@ -1173,8 +1184,14 @@ function setindex!(desc::NodeDescription, value::Vector, attr_name)
     set_attr_list(desc, attr_name, value)
 end
 
-function set_attr_list(desc::NodeDescription, attr_name, list::Vector{Int})
+function set_attr_list{T<:Integer}(desc::NodeDescription, attr_name, list::Vector{T})
+    list = Int64[Int64(x) for x in list]
     @tfcall(:TF_SetAttrIntList, Void, (Ptr{Void}, Cstring, Ptr{Int64}, Cint), desc.ptr, attr_name, list, length(list))
+end
+
+function set_attr_list{T<:AbstractFloat}(desc::NodeDescription, attr_name, list::Vector{T})
+    list = Float32[Float32(x) for x in list]
+    ccall((:TF_SetAttrFloatList, LIBTF), Void, (Ptr{Void}, Cstring, Ptr{Float32}, Cint), desc.ptr, attr_name, list, length(list))
 end
 
 function set_attr_list{T<:DataType}(desc::NodeDescription, attr_name, list::Vector{T})
