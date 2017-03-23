@@ -1,0 +1,12 @@
+diff --git a/tensorflow/core/graph/graph_constructor.cc b/tensorflow/core/graph/graph_constructor.cc
+index 6b27e4e..9b1e826 100644
+--- a/tensorflow/core/graph/graph_constructor.cc
++++ b/tensorflow/core/graph/graph_constructor.cc
+@@ -418,6 +418,7 @@ Status GraphConstructor::MakeNode(const NodeDef& node_def, Node** node) {
+ }
+ 
+ Status GraphConstructor::ValidateShape(Node* node) {
++  return Status::OK();
+   if (!opts_.importing) return Status::OK();
+   TF_RETURN_IF_ERROR(refiner_->AddNode(node));
+   // For nodes with the _output_shapes atttribute, override the shape.
