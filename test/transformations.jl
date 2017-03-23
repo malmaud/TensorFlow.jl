@@ -58,8 +58,12 @@ y = constant(y_jl)
 
 ### Mask (bool array)
 
-mask = constant([true, false, true,false])
-@test run(sess, boolean_mask(y,mask))  == run(sess, y[mask]) == [1, 3]
+mask_jl=[true, false, true,false]
+mask = constant(mask_jl)
+@test run(sess, boolean_mask(y,mask)) == [1, 3]
+@test run(sess, y[mask]) == [1, 3]
+@test run(sess, boolean_mask(y,mask_jl)) == [1, 3]
+@test run(sess, y[mask_jl]) == [1, 3]
 
 ### Gather (int/ int array) / Index
 
@@ -96,6 +100,12 @@ mask = constant([true, false, true,false])
 @test x_jl[2:3, :] ==  run(sess, x[2:3, :])
 @test x_jl[2:end, :] ==  run(sess, x[Int32(2):end, :])
 
+
+##Mixed slice with index
+@test x_jl[2, :] ==  run(sess, x[2, :])
+@test x_jl[2, :] ==  run(sess, x[constant(2), :])
+
+@test w_jl[2:4, 3, :] ==  run(sess, w[2:4, 3, :])
 
 ### ScatterNd
 
