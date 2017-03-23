@@ -406,10 +406,24 @@ end
 
 const def_graph = Ref{Graph}()
 
+const upgrade_check_needed = Ref(true)
+
+function upgrade_check(v)
+    if upgrade_check_needed[]
+        if tf_version() < v
+            warn("You are using an old version version of the TensorFlow binary library. It is recommened that you upgrade with Pkg.build(\"TensorFlow\") or various
+            errors may be encountered.\n You have $(tf_version()) and the new version is $v.")
+        end
+        upgrade_check_needed[] = false
+    end
+end
+
 """
 Returns the default computation graph, an object of type `Graph`.
 """
 function get_def_graph()
+    upgrade_check(v"1.0.1")  # This is here instead of in __init__ to avoid issues
+                             # with precompilation.
     has_def_graph() || (def_graph[] = Graph())
     def_graph[]
 end
