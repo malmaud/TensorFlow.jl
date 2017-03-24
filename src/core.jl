@@ -2,6 +2,7 @@ using ProtoBuf
 using PyCall
 using Compat
 using Compat.Iterators
+using MacroTools
 
 import Base: setindex!, getindex, run, ==
 
@@ -184,20 +185,25 @@ type Graph
 end
 
 function with_def_graph(ex)
-    ex.head == :function || error("Improper use of with_def_graph")
-    new_func = Expr(:function)
-    old_call_sig = ex.args[1]
-    new_call_sig = Expr(:call, old_call_sig.args[1], old_call_sig.args[3:end]...)
-    push!(new_func.args, new_call_sig)
-    new_body = Expr(:call, old_call_sig.args[1], Expr(:call, :get_def_graph))
-    extract_arg(x::Symbol) = x
-    extract_arg(x::Expr) = x.args[1]
-    for arg in old_call_sig.args[3:end]
-        push!(new_body.args, extract_arg(arg))
+    ex = longdef(ex)
+    (@capture ex begin
+        function f_(args__; kwargs__)
+            body_
+        end
+    end) ||
+    (@capture ex begin
+        function f_(args__)
+            body_
+        end
+    end) ||
+    error("Improper use of with_def_graph")
+    (kwargs === nothing) && (kwargs = [])
+    new_args = args[2:end]
+    quote
+        function $f($(new_args...); $(kwargs...))
+            $f(TensorFlow.get_def_graph(), $(new_args...); $(kwargs...))
+        end
     end
-
-    push!(new_func.args, new_body)
-    new_func
 end
 
 """
