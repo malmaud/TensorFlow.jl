@@ -1,4 +1,4 @@
-FROM tensorflow/tensorflow:latest-devel-gpu
+FROM tensorflow/tensorflow:1.1.0-rc0-devel-gpu
 ADD upstream_patch /tensorflow
 ADD build_libtf.sh /tensorflow
 WORKDIR /tensorflow
