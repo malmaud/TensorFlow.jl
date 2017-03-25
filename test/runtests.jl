@@ -30,7 +30,8 @@ tests = [
     "ops.jl",
     "summary.jl",
     "nn.jl",
-    "sequences.jl"
+    "sequences.jl",
+    "run.jl",
 ]
 
 # @test_nowarn was added in Julia 0.6.

@@ -152,9 +152,15 @@ function TensorShape(dims::Vector)
     TensorShape([x<0 ? Nullable{Int64}() : Nullable{Int64}(x) for x in dims])
 end
 
-function TensorShape(dim::Void)
+function TensorShape(::typeof(collect(tuple())))
+    TensorShape(Nullable{Int}[], false)
+end
+
+
+function TensorShape(::Void)
     TensorShape(Nullable{Int}[], true)
 end
+
 
 function get_shape end
 

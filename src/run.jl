@@ -72,10 +72,13 @@ function build_input(tensor_map::Dict)
         append!(input_tensors, get_tensors(k))
         append!(input_values, get_inputs(v,k))
     end
+
     input_tensors, input_values
 end
 
 function run(sess::Session, inputs, input_values, outputs, targets)
+    #Low level run, without size checking, and type conversion etc.
+
     status = Status()
     output_values = fill(C_NULL, length(outputs))
     input_tensors = [RawTensor(x) for x in input_values]
@@ -118,6 +121,26 @@ end
 
 cast_type(T, val) = val
 
+"""
+    check_shape(tensor, value)
+
+Throws an error if the size of the value is not a possile shape for the tensor
+"""
+function check_shape(tensor, value)
+    tensor_shape = get_shape(tensor)
+    value_shape = TensorShape(collect(size(value)))
+
+    try
+        unified_shape = ShapeInference.unify(tensor_shape, value_shape)
+        @assert unified_shape==value_shape
+    catch ex
+        isa(ex, DimensionMismatch) || rethrow(ex)
+        name = get_name(tensor)
+        throw(DimensionMismatch("Failed to set  input \"$name\",  as $(ex.msg)"))
+    end
+end
+
+
 function run(sess::Session, outputs::AbstractVector, input_dict)
     output_map = Dict{Tensor, Tuple{Symbol, Int}}()
     output_ports = Port[]
@@ -137,7 +160,9 @@ function run(sess::Session, outputs::AbstractVector, input_dict)
     input_tensors, uncast_input_values = build_input(input_dict)
     input_values = []
     for (input_tensor, input_value) in zip(input_tensors, uncast_input_values)
+        check_shape(input_tensor, input_value)
         push!(input_values, cast_type(eltype(input_tensor), input_value))
+
     end
     input_ports = [Port(tensor) for tensor in input_tensors]
     unique_output_values = run(sess, input_ports, input_values, output_ports, target_ptrs)
