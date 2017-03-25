@@ -1,6 +1,8 @@
 using MacroTools
 using Compat
 
+const tf = TensorFlow
+
 # Use Holy traits to define if something is a known Op or not
 @compat abstract type OpRegistration end
 immutable RegisteredOp <: OpRegistration end
@@ -49,6 +51,7 @@ end
 # and returns a new function that will call to the orginal
 # with the function name inserted as appropriate
 
+function get_variable end # pre-declare.
 
 withname(::typeof(get_variable), name) = (args...; kwargs...) -> begin
     if isa(args[1], AbstractString)

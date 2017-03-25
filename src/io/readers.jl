@@ -16,7 +16,7 @@ end
 @reader TFRecordReader
 @reader FixedLengthRecordReader
 
-function WholeFileReader(; name="WholeFileReader")
+@op function WholeFileReader(; name="WholeFileReader")
     local desc
     with_op_name(name) do
         desc = NodeDescription("WholeFileReader")
@@ -24,7 +24,7 @@ function WholeFileReader(; name="WholeFileReader")
     return WholeFileReader(Operation(desc))
 end
 
-function TextLineReader(skip_header_lines::Int=0; name="TextLineReader")
+@op function TextLineReader(skip_header_lines::Int=0; name="TextLineReader")
     local desc
     with_op_name(name) do
         desc = NodeDescription("TextLineReader")
@@ -33,7 +33,7 @@ function TextLineReader(skip_header_lines::Int=0; name="TextLineReader")
     return TextLineReader(Operation(desc))
 end
 
-function Base.read(reader::AbstractReader, queue::tf.AbstractQueue; name=nothing)
+@op function Base.read(reader::AbstractReader, queue::tf.AbstractQueue; name=nothing)
     local desc
     with_op_name(name, "ReaderRead") do
         desc = NodeDescription("ReaderRead")

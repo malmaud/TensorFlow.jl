@@ -259,7 +259,7 @@ end
 end
 
 """
-    sparse_softmax_cross_entropy_with_logits(; labels=nothing, logits=nothing, name=nothing)
+    sparse_softmax_cross_entropy_with_logits(; labels=nothing, logits=nothing)
 
 Computes sparse softmax cross entropy between `logits` and `labels`.
 

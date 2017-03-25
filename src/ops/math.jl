@@ -122,7 +122,7 @@ else
     .*(n1, n2::AbstractTensor) = multiply(tf_promote(n2, n1), n2)
 end
 
-function batch_matmul(x::AbstractTensor,y::AbstractTensor; adj_x=false, adj_y=false, name=nothing)
+@op function batch_matmul(x::AbstractTensor,y::AbstractTensor; adj_x=false, adj_y=false, name=nothing)
     if tf_version() >= v"1.0.0-"
         Base.depwarn("""
         batch_matmul is deprecated. It's functionality is now subsumed by matmul.
@@ -142,7 +142,7 @@ function batch_matmul(x::AbstractTensor,y::AbstractTensor; adj_x=false, adj_y=fa
 end
 
 """
-    squared_difference(x, y; name=nothing)
+    squared_difference(x, y)
 
 Returns (x - y)(x - y) element-wise.
 
@@ -157,7 +157,7 @@ Args:
 Returns:
   A `Tensor`. Has the same type as `x`.
  """
-function squared_difference(x, y; name=nothing)
+@op function squared_difference(x, y; name=nothing)
     local desc
     with_op_name(name, "SquaredDifference") do
         x = Tensor(x)
