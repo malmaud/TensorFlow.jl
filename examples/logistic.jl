@@ -1,3 +1,4 @@
+using TensorFlow
 using Distributions
 
 # Generate some synthetic data
@@ -19,20 +20,22 @@ y = draw(y_prob)
 
 # Build the model
 sess = Session(Graph())
-X = placeholder(Float64, shape=[nothing, 10])
-Y_obs = placeholder(Float64, shape=[100])
+@tf begin
+    X = placeholder(Float64, shape=[-1, 50])
+    Y_obs = placeholder(Float64, shape=[-1, 10])
 
-variable_scope("logisitic_model", initializer=Normal(0, .001)) do
-    global W = get_variable("weights", [50, 10], Float64)
-    global B = get_variable("bias", [10], Float64)
+    variable_scope("logisitic_model") do
+        global W = get_variable([50, 10], Float64)
+        global B = get_variable([10], Float64)
+    end
+
+    Y=nn.softmax(X*W + B)
+
+    Loss = -reduce_sum(log(Y).*Y_obs)
+    optimizer = train.AdamOptimizer()
+    minimize_op = train.minimize(optimizer, Loss)
+    saver = train.Saver()
 end
-
-Y=nn.softmax(X*W + B)
-
-Loss = -reduce_sum(log(Y).*Y_obs)
-optimizer = train.AdamOptimizer()
-minimize_op = train.minimize(optimizer, Loss)
-saver = train.Saver()
 # Run training
 run(sess, global_variables_initializer())
 checkpoint_path = mktempdir()
