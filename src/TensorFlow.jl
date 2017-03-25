@@ -118,7 +118,8 @@ FIFOQueue,
 enqueue,
 enqueue_many,
 dequeue,
-dequeue_many
+dequeue_many,
+get_all_op_list
 
 
 isdefined(Base, :⊻) || (export ⊻)
