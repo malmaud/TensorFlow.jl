@@ -103,15 +103,14 @@ function getindex_polyfunction(params::AbstractTensor, indices...)
 end
 
 
-# SLICE_OR_INDEX_TYPES is the types for which getindex_polyfunction was designed
+# Union{Slice, Index} is the types for which getindex_polyfunction was designed
 # Note: need to exclude Bools, because that is in Integer in 0.5
 # This can be a lot cleaner all round in 0.6
-const SLICE_TYPES = Union{TensorRange, UnitRange, Colon}
-const INDEX_TYPES = Union{Int16, Int32, Int64,
+const Slice = Union{TensorRange, UnitRange, Colon}
+const Index = Union{Int16, Int32, Int64,
                           AbstractArray{Int16}, AbstractArray{Int32}, AbstractArray{Int64},
                           Tensor{Int16}, Tensor{Int32}, Tensor{Int64}}
 
-const SLICE_OR_INDEX_TYPES = Union{SLICE_TYPES.types..., INDEX_TYPES.types...}
 
 
 
@@ -121,18 +120,18 @@ function Base.getindex(params::AbstractTensor, indices::Union{Tensor{Bool}, Abst
 end
 
 #For x[[1,2,3]] and x[2] etc
-function Base.getindex(params::AbstractTensor, indices::INDEX_TYPES)
+function Base.getindex(params::AbstractTensor, indices::Index)
     gather(params, indices)
 end
 
 
 # If have one argument, then only use polyfunction if it is a Slice
-function Base.getindex(params::AbstractTensor, ind::SLICE_TYPES)
+function Base.getindex(params::AbstractTensor, ind::Slice)
     getindex_polyfunction(params, ind)
 end
 
 # If have 2+ argument can use the Polyfunction
-function Base.getindex(params::AbstractTensor, ind1::SLICE_OR_INDEX_TYPES, ind2::SLICE_OR_INDEX_TYPES,  inds::Vararg{SLICE_OR_INDEX_TYPES})
+function Base.getindex(params::AbstractTensor, ind1::Union{Slice, Index}, ind2::Union{Slice, Index},  inds::Vararg{Union{Slice, Index}})
     getindex_polyfunction(params, ind1, ind2, inds...)
 end
 
