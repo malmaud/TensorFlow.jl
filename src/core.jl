@@ -502,6 +502,8 @@ type RawTensor
     end
 end
 
+RawTensor(data::AbstractArray) = RawTensor(collect(data))
+
 RawTensor(t::RawTensor) = t
 
 function varint_encode(b::IO, n::Integer)
