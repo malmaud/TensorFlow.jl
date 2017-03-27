@@ -352,6 +352,13 @@ for func in ["Sum", "Prod", "Min", "Max", "All", "Any", "Mean"]
     end
 end
 
+# register_shape("UnsortedSegmentSum") do op
+#     # TODO handle case of partial reduction
+#     value_shape = copy(_get_shape(get_input(op, 1)))
+#     value_shape.dims[1] = get_attr(op, "num_segments", Int64)
+#     return [value_shape]
+# end
+
 register_shape("Shape") do op
     s = _get_shape(get_input(op, 1))
     return [TensorShape([s.rank_unknown ? nothing : length(s.dims)])]

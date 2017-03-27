@@ -410,14 +410,15 @@ for reduction in [:sum, :prod, :min, :max, :mean]
     end
 end
 
-@eval @op function unsorted_segment_sum(data::AbstractTensor, segment_ids, nbuckets; name=nothing)
-    if name === nothing
-        name = get_name("unsorted_segment_sum")
+@op function unsorted_segment_sum(data::AbstractTensor, segment_ids, num_segments; name=nothing)
+    local desc
+    with_op_name(name,"UnsortedSegmentSum") do 
+        desc = NodeDescription("UnsortedSegmentSum")
+        # segment_ids0 = segment_ids - constant([1])
+        segment_ids0 = segment_ids - 1
+        add_input(desc,Tensor(data))
+        add_input(desc,Tensor(segment_ids0))
+        add_input(desc,Tensor(num_segments))
+        Tensor(Operation(desc), 1)
     end
-    desc = NodeDescription("UnsortedSegmentSum", name)
-    segment_ids0=segment_ids.-1
-    add_input(desc,Tensor(data))
-    add_input(desc,Tensor(segment_ids0))
-    add_input(desc,Tensor(nbuckets))
-    Tensor(Operation(desc), 1)
 end
