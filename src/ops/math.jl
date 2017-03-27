@@ -419,6 +419,6 @@ end
         add_input(desc,Tensor(data))
         add_input(desc,Tensor(segment_ids0))
         add_input(desc,Tensor(num_segments))
-        Tensor(Operation(desc), 1)
     end
+    Tensor(Operation(desc), 1)
 end
