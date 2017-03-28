@@ -498,7 +498,7 @@ function conv_sizer(widths, strides, filter_shape)
         end
         pos[2] += strides[2]
     end
-    return div(pos-1, strides)+1
+    return div.(pos-1, strides)+1
 end
 
 register_shape("Conv2D") do op

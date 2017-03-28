@@ -244,7 +244,7 @@ end
 
 *(x::Number, n::AbstractTensor) = x.*n    # For supporting notation like `2x`
 
-^(n::AbstractTensor, x::Int) = invoke(^, (AbstractTensor, Any), n, x)
+^(n::AbstractTensor, x::Int) = invoke(^, Tuple{AbstractTensor, Any}, n, x)
 
 @static if VERSION < v"0.6-"
     .^(n::AbstractTensor, x) = n^x

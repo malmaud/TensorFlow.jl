@@ -17,7 +17,7 @@ sess = TensorFlow.Session(TensorFlow.Graph())
     x_i = Tensor(x_i_raw)
 
     result = run(sess, complex(x_r, x_i))
-    @test complex(x_r_raw, x_i_raw) == result
+    @test complex.(x_r_raw, x_i_raw) == result
 end
 
 @testset "SpecialFuns" begin
@@ -111,7 +111,7 @@ end
     end
 
     result = run(sess, ~a)
-    @test ~a_raw == result
+    @test map(~, a_raw) == result  # Use map for .5 comptability 
 end
 
 @testset "reduce" begin
