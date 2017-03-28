@@ -5,21 +5,6 @@ using ..TensorFlow
 import TensorFlow: get_input, get_attr, TensorShape, get_shape
 const tf = TensorFlow
 
-function Base.isequal(ts1::TensorShape, ts2::TensorShape)
-    ts1.rank_unknown && ts2.rank_unknown ||
-    !ts1.rank_unknown && !ts2.rank_unknown && isequal(ts1.dims, ts2.dims)
-end
-
-Base.:(==)(ts1::TensorShape, ts2::TensorShape) = isequal(ts1, ts2)
-
-function Base.hash(ts::TensorShape, h::UInt64)
-    if ts.rank_unknown
-        h #All tensors with unknown rank hash the same, as they are equal
-    else
-        hash(ts.dims, h)
-    end
-end
-
 function Base.show(io::IO, shape::TensorShape)
     get_dim_name = x->begin
         if isnull(x)

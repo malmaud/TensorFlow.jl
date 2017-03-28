@@ -3,6 +3,7 @@ using PyCall
 using Compat
 using Compat.Iterators
 using MacroTools
+using AutoHashEquals
 
 import Base: setindex!, getindex, run, ==
 
@@ -139,7 +140,7 @@ immutable OperationContext
     devices::Vector{Device}
 end
 
-immutable TensorShape
+@auto_hash_equals immutable TensorShape
     dims::Vector{Nullable{Int}}
     rank_unknown::Bool
 end
@@ -700,6 +701,9 @@ type Operation <: AbstractOperation
     Operation() = new()
 end
 
+==(op1::Operation, op2::Operation) = op1.ptr == op2.ptr
+Base.hash(op::Operation, h::UInt) = hash(Operation, hash(op.ptr, h))
+
 immutable Port
     node_ptr::Ptr{Void}
     index::Int
@@ -970,17 +974,9 @@ const proto_type_map = Dict(dt.DT_FLOAT=>Float32, dt.DT_INT32=>Int32, dt.DT_DOUB
 """
 Represents the output of an operation in the computation graph
 """
-immutable Tensor{T} <: AbstractTensor
+@auto_hash_equals immutable Tensor{T} <: AbstractTensor
     op::Operation
     value_index::Int
-end
-
-function ==(t1::Tensor, t2::Tensor)
-    t1.op.ptr == t2.op.ptr && t1.value_index==t2.value_index
-end
-
-function Base.hash(t::Tensor, h::UInt64)
-    hash(t.op.ptr, hash(t.value_index, h))
 end
 
 node_name(t::AbstractTensor) = (node_name(Tensor(t).op), Tensor(t).value_index)
