@@ -410,7 +410,7 @@ for reduction in [:sum, :prod, :min, :max, :mean]
     end
 end
 
-@op function unsorted_segment_sum(data::AbstractTensor, segment_ids, num_segments; name=nothing)
+@op function unsorted_segment_sum(data, segment_ids, num_segments; name=nothing)
     local desc
     with_op_name(name,"UnsortedSegmentSum") do 
         desc = NodeDescription("UnsortedSegmentSum")

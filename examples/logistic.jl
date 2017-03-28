@@ -1,5 +1,4 @@
 using Distributions
-using TensorFlow
 
 # Generate some synthetic data
 x = randn(100, 50)

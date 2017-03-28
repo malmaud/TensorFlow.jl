@@ -357,11 +357,11 @@ register_shape("UnsortedSegmentSum") do op
     if value_shape.rank_unknown
         return [TensorShape(nothing)]
     end
-    b=load_const(get_input(op,3))
-    if b.isnull
-        value_shape.dims[1]=Nullable{Int}()
+    b = load_const(get_input(op,3))
+    if isnull(b)
+        value_shape.dims[1] = Nullable{Int}()
     else
-        value_shape.dims[1]=b.value[1]
+        value_shape.dims[1] = b.value[1]
     end
     return [value_shape]
 end
