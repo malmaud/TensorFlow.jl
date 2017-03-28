@@ -125,7 +125,7 @@ end
 @op function batch_matmul(x::AbstractTensor,y::AbstractTensor; adj_x=false, adj_y=false, name=nothing)
     if tf_version() >= v"1.0.0-"
         Base.depwarn("""
-        batch_matmul is deprecated. It's functionality is now subsumed by matmul.
+        batch_matmul is deprecated. Its functionality is now subsumed by matmul.
         """)
     end
     local desc
