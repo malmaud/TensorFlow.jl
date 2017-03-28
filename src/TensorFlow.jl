@@ -79,7 +79,6 @@ gather_nd,
 dynamic_partition,
 dynamic_stitch,
 boolean_mask,
-where,
 is_inf,
 is_finite,
 is_nan,
@@ -113,7 +112,13 @@ multiply,
 subtract,
 divide,
 ones_initializer,
-zeros_initializer
+zeros_initializer,
+RandomShuffleQueue,
+FIFOQueue,
+enqueue,
+enqueue_many,
+dequeue,
+dequeue_many
 
 
 isdefined(Base, :⊻) || (export ⊻)
