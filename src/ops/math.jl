@@ -43,7 +43,7 @@ A `Tensor` of type `Int64`.
     Tensor(Operation(desc), 1)
 end
 
-Base.indmin(n::AbstractTensor, dim) = argmin(n, dim-1)
+@op Base.indmin(n::AbstractTensor, dim; name=nothing) = argmin(n, dim-1; name=name)+1
 
 """
 Returns the index with the largest value across dimensions of a tensor.
@@ -65,7 +65,7 @@ A `Tensor` of type `Int64`.
     Tensor(Operation(desc), 1)
 end
 
-@op Base.indmax(n::AbstractTensor, dim; name=nothing) = argmax(n, dim-1; name=name)
+@op Base.indmax(n::AbstractTensor, dim; name=nothing) = argmax(n, dim-1; name=name)+1
 
 @op function Base.max(x::AbstractTensor, y, name=nothing)
     local desc
