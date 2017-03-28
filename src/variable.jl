@@ -62,7 +62,7 @@ Args:
 Returns:
 `v`, the updated `Variable`.
 """
-function assign(v::Variable, value; validate_shape=true, use_locking=true, name=nothing)
+@op function assign(v::Variable, value; validate_shape=true, use_locking=true, name=nothing)
     local desc
     with_op_name(name, "Assign") do
         desc = NodeDescription("Assign")
@@ -85,7 +85,7 @@ Args:
 Returns:
 `v`, the updated `Variable`.
 """
-function assign_add(v::Variable, value; use_locking=false, name=nothing)
+@op function assign_add(v::Variable, value; use_locking=false, name=nothing)
     local desc
     with_op_name(name, "AssignAdd") do
         desc = NodeDescription("AssignAdd")
@@ -107,7 +107,7 @@ Args:
 Returns:
 `v`, the updated `Variable`.
 """
-function assign_sub(v::Variable, value; use_locking=false, name=nothing)
+@op function assign_sub(v::Variable, value; use_locking=false, name=nothing)
     local desc
     with_op_name(name, "AssignSub") do
         desc = NodeDescription("AssignSub")
@@ -129,7 +129,7 @@ Args:
 Returns:
 `ref`, the updated `Variable`.
 """
-function scatter_update(ref, indices, updates; name=nothing)
+@op function scatter_update(ref, indices, updates; name=nothing)
     local desc
     with_op_name(name, "ScatterUpdate") do
         desc = NodeDescription("ScatterUpdate")
@@ -146,7 +146,7 @@ for (func, name) in [
     (:scatter_mul, "ScatterMul"),
     (:scatter_div, "ScatterDiv")]
     @eval begin
-        function $func(ref, indices, updates; use_locking=false, name=nothing)
+        @op function $func(ref, indices, updates; use_locking=false, name=nothing)
             local desc
             with_op_name(name, $name) do
                 desc = NodeDescription($name)

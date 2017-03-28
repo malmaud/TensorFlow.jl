@@ -69,7 +69,7 @@ end
 """
 A named `Operation` that does nothing.
 """
-function no_op(name=nothing)
+@op function no_op(name=nothing)
     local desc
     with_op_name(name, "NoOp") do
         desc = NodeDescription("NoOp")

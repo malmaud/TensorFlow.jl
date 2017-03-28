@@ -680,7 +680,7 @@ rank-3 tensor with two matrices of new values.
     Tensor(Operation(desc), 1)
 end
 
-function scatter_nd(indices, updates, shape::TensorFlow.ShapeInference.TensorShape; name=nothing)
+@op function scatter_nd(indices, updates, shape::TensorFlow.ShapeInference.TensorShape; name=nothing)
     if shape.rank_unknown || any(isnull.(shape.dims))
         error("TensorShape provided to scatter_nd not statically fully known ($shape). Consider using the dynamic `shape` operation instead of the static `get_shape` operation")
     end

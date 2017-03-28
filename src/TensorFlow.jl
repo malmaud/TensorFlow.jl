@@ -1,6 +1,7 @@
 __precompile__(true)
 module TensorFlow
 
+
 export
 Graph,
 get_collection,
@@ -163,13 +164,13 @@ macro py_proc(expr)
 end
 
 
+include("meta.jl")
 include("constants.jl")
 include("tensorflow_protos.jl")
 include("core.jl")
 include("run.jl")
 include("variable.jl")
 include("shape_inference.jl")
-include("meta.jl")
 include("ops.jl")
 include("train.jl")
 include("io.jl")

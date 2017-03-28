@@ -26,15 +26,15 @@ using JLD
 using FileIO
 using ProtoBuf
 
-import ..TensorFlow: Graph, Operation, get_def_graph, extend_graph, gradients, variable_scope, ConstantInitializer, node_name, get_variable, get_shape, get_collection, Session, placeholder, Tensor, Variable, cast, group, @not_implemented, AbstractQueue, tensorflow, add_to_collection, get_proto, get_def
+import ..TensorFlow: Graph, Operation, get_def_graph, extend_graph, gradients, variable_scope, ConstantInitializer, node_name, get_variable, get_shape, get_collection, Session, placeholder, Tensor, Variable, cast, group, @not_implemented, AbstractQueue, tensorflow, add_to_collection, get_proto, get_def, @op
 
 import TensorFlow
 const tf = TensorFlow
 
 @compat abstract type Optimizer end
 
-function minimize(optimizer::Optimizer, loss; global_step=nothing, var_list=nothing, name="")
-    if name == ""
+@op function minimize(optimizer::Optimizer, loss; global_step=nothing, var_list=nothing, name=nothing)
+    if name == nothing
         name = optimizer.name
     end
     grads = compute_gradients(optimizer, loss, var_list)
