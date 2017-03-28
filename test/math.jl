@@ -148,7 +148,7 @@ end
     a = TensorFlow.constant(eye(5))
     idxs = TensorFlow.constant(map(Int64, [1,1,2,3,1]))
     n = TensorFlow.constant(Int32(3))
-    d = unsorted_segment_sum(X,idxs,n)
+    d = unsorted_segment_sum(a, idxs, n)
     results = [1.0  1.0  0.0  0.0  1.0;
                0.0  0.0  1.0  0.0  0.0;
                0.0  0.0  0.0  1.0  0.0]

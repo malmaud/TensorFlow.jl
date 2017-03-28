@@ -414,7 +414,6 @@ end
     local desc
     with_op_name(name,"UnsortedSegmentSum") do 
         desc = NodeDescription("UnsortedSegmentSum")
-        # segment_ids0 = segment_ids - constant([1])
         segment_ids0 = segment_ids - 1
         add_input(desc,Tensor(data))
         add_input(desc,Tensor(segment_ids0))
