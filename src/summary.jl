@@ -5,7 +5,6 @@ FileWriter,
 scalar,
 audio,
 histogram,
-merge,
 merge_all,
 image
 
