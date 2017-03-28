@@ -42,13 +42,9 @@ function Base.show(io::IO, n::Operation)
     print(io, "<Operation '$(node_name(n))'>")
 end
 
-function Base.show(io::IO, t::Tensor)
-    local dtype
-    try
-        dtype = eltype(t)
-    catch
-        dtype = "?"
-    end
+function Base.show{T}(io::IO, t::Tensor{T})
+    @assert T==eltype(t)
+
     s = get_shape(t)
     if s.rank_unknown
         shape = "unknown"
@@ -63,7 +59,7 @@ function Base.show(io::IO, t::Tensor)
         end
         shape = string("(", join(dims, ", "), ")")
     end
-    print(io, "<Tensor $(node_name(t.op)):$(t.value_index) shape=$(shape) dtype=$(dtype)>")
+    print(io, "<Tensor $(node_name(t.op)):$(t.value_index) shape=$(shape) dtype=$(T)>")
 end
 
 function Base.show(io::IO, desc::tensorflow.NodeDef)

@@ -62,7 +62,6 @@ https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#reshape
     Tensor(Operation(desc), 1)
 end
 
-@op Base.length(::Type{Tensor}, n::AbstractTensor; name=nothing) = size(n, name)
 
 # if isdefined(Base, :slice)  # Removed in .6
 #     import Base: slice
@@ -423,20 +422,6 @@ https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#rank
     Tensor(Operation(desc), 1)
 end
 
-"""
-Base.size(n::AbstractTensor; name="")
-Returns the total number of elements in a Tensor.
-(Like julia `Base.length` does for an `Array`)
-https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#size
-"""
-@op function Base.size(n::AbstractTensor; name=nothing)
-    local desc
-    with_op_name(name, "Size") do
-        desc = NodeDescription("Size")
-        add_input(desc, Tensor(n))
-    end
-    Tensor(Operation(desc), 1)
-end
 
 """
 tile(input, multiples; name="")
@@ -507,24 +492,6 @@ https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#pad
 end
 
 
-#For x[[1,2,3]] etc
-function Base.getindex(params::AbstractTensor, indices)
-    if eltype(indices) == Bool
-        boolean_mask(params, indices)
-    else
-        gather(params, indices)
-    end
-end
-
-#For x[1,2,3] etc
-function Base.getindex(params::AbstractTensor, indices...)
-    inds::Vector = collect(indices) # Want Vector, not tuple. Could be a vector of Tensors though
-    if eltype.(inds) ⊆ (Int32, Int64)
-        gather_nd(params, inds)
-    else
-        error("julia style indexing is not currently supported for indicies $inferred")
-    end
-end
 
 
 """
@@ -800,7 +767,7 @@ mask = [True, False, True]
 boolean_mask(tensor, mask) ==> [[1, 2], [5, 6]]
 ```
 """
-@op function boolean_mask(tensor, mask; name=nothing)
+@op function boolean_mask(tensor, mask::AbstractTensor; name=nothing)
     local result
     with_op_name(name, "BooleanMask") do
         indices = find(mask)  # TODO generalize to more dimensions
@@ -809,6 +776,17 @@ boolean_mask(tensor, mask) ==> [[1, 2], [5, 6]]
     end
     result
 end
+
+@op function boolean_mask(tensor, mask::AbstractArray; name=nothing)
+    local result
+    with_op_name(name, "BooleanMask") do
+        indices = find(mask)  # TODO generalize to more dimensions
+        result = tensor[indices]
+    end
+    result
+end
+
+
 
 """
 `transpose(n::AbstractTensor, perm=nothing)`
@@ -876,3 +854,5 @@ end
 end
 
 Base.ctranspose(n::AbstractTensor) = transpose(n)
+
+include("indexing.jl")

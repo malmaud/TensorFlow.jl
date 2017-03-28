@@ -53,18 +53,29 @@ x_jl = [10x+y for x in 1:5, y in 1:7]
 x = constant(x_jl)
 w_jl = [100x+10y+z for x in 1:5, y in 1:7, z in 1:3]
 w = constant(w_jl)
-y = constant([1, 2, 3])
+y_jl = Int32[1,2,3,4]
+y = constant(y_jl)
 
 ### Mask (bool array)
 
-mask = constant([true, false, true])
-@test run(sess, boolean_mask(y,mask))  == run(sess, y[mask]) == [1, 3]
+mask_jl=[true, false, true,false]
+mask = constant(mask_jl)
+@test run(sess, boolean_mask(y,mask)) == [1, 3]
+@test run(sess, y[mask]) == [1, 3]
+@test run(sess, boolean_mask(y,mask_jl)) == [1, 3]
+@test run(sess, y[mask_jl]) == [1, 3]
 
 ### Gather (int/ int array) / Index
 
 @test ones(Float32, 2, 5) == run(sess, gather(one_tens, [1, 2]))
 @test run(sess, y[[1, 3]]) == [1, 3]
 @test run(sess, y[2]) == 2
+
+@test y_jl[end] == run(sess, y[end])
+@test y_jl[end-1] == run(sess, y[end-1])
+@test y_jl[end-2] == run(sess, y[end-2])
+@test y_jl[end÷2] == run(sess, y[end/2])
+@test y_jl[end-y_jl[1]] == run(sess, y[end-y[1]])
 
 ### Gather-nd / Cartean Index/Slice
 @test run(sess, gather_nd(x, [2, 3])) == x_jl[2,3]
@@ -79,6 +90,27 @@ mask = constant([true, false, true])
 ### Slice
 # to do make sure we slice the right indices
 @test ones(Float32, 5).' == run(sess, TensorFlow.slice(one_tens, [1, 1], [1, -1]))
+
+@test y_jl[2:3] ==  run(sess, y[2:3])
+@test y_jl[2:end] ==  run(sess, y[Int32(2):end])
+@test y_jl[2:end] ==  run(sess, y[2:end])
+@test y_jl[:] ==  run(sess, y[:])
+
+@test x_jl[2:3, :] ==  run(sess, x[Int32(2):Int32(3), :])
+@test x_jl[2:3, :] ==  run(sess, x[2:3, :])
+@test x_jl[2:end, :] ==  run(sess, x[Int32(2):end, :])
+
+@test w_jl[:,:,:] ==  run(sess, w[:, :, :])
+
+##Mixed slice with index
+@test x_jl[2, :] ==  run(sess, x[2, :])
+@test x_jl[2, :] ==  run(sess, x[constant(2), :])
+
+@test w_jl[2:4, 3, :] ==  run(sess, w[2:4, 3, :])
+@test w_jl[:, 3, :] ==  run(sess, w[:, 3, :])
+@test w_jl[:, end, :] ==  run(sess, w[:, end, :])
+@test w_jl[1:1, :, :] ==  run(sess, w[1:1, :, :])
+
 
 ### ScatterNd
 
