@@ -126,3 +126,6 @@ let
 end
 
 @test get_shape(squared_difference([1,2], 3)) == TensorShape([2])
+
+@test isnull(get_shape(unsorted_segment_sum(m, placeholder(Int64), placeholder(Int32))).dims[1])
+@test get_shape(unsorted_segment_sum(m, placeholder(Int64), Int32(5))).dims[1].value==5

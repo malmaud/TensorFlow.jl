@@ -352,6 +352,20 @@ for func in ["Sum", "Prod", "Min", "Max", "All", "Any", "Mean"]
     end
 end
 
+register_shape("UnsortedSegmentSum") do op
+    value_shape = copy(_get_shape(get_input(op, 1)))
+    if value_shape.rank_unknown
+        return [TensorShape(nothing)]
+    end
+    b = load_const(get_input(op,3))
+    if isnull(b)
+        value_shape.dims[1] = Nullable{Int}()
+    else
+        value_shape.dims[1] = b.value[1]
+    end
+    return [value_shape]
+end
+
 register_shape("Shape") do op
     s = _get_shape(get_input(op, 1))
     return [TensorShape([s.rank_unknown ? nothing : length(s.dims)])]
