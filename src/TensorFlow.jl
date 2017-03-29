@@ -128,6 +128,9 @@ const pyproc = Ref(0)
 
 function __init__()
     c_deallocator[] = cfunction(deallocator, Void, (Ptr{Void}, Csize_t, Ptr{Void}))
+    global const LIBTF = get(ENV,
+        "LIBTENSORFLOW",
+        joinpath(LIB_BASE, "usr", "bin", "libtensorflow"))
 end
 
 function load_python_process()
