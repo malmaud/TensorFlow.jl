@@ -185,25 +185,47 @@ type Graph
     end
 end
 
-function with_def_graph(ex)
-    ex = longdef(ex)
-    (@capture ex begin
-        function f_(args__; kwargs__)
-            body_
+# There is a bug in Julia v0.5 that requires using the
+# the non-MacroTools version of this function. The old
+# branch will be eliminated eventually.
+if VERSION >= v"0.5.1"
+    function with_def_graph(ex)
+        ex = longdef(ex)
+        (@capture ex begin
+            function f_(args__; kwargs__)
+                body_
+            end
+        end) ||
+        (@capture ex begin
+            function f_(args__)
+                body_
+            end
+        end) ||
+        error("Improper use of with_def_graph")
+        (kwargs === nothing) && (kwargs = [])
+        new_args = args[2:end]
+        quote
+            function $f($(new_args...); $(kwargs...))
+                $f(TensorFlow.get_def_graph(), $(new_args...); $(kwargs...))
+            end
         end
-    end) ||
-    (@capture ex begin
-        function f_(args__)
-            body_
+    end
+else
+    function with_def_graph(ex)
+        ex.head == :function || error("Improper use of with_def_graph")
+        new_func = Expr(:function)
+        old_call_sig = ex.args[1]
+        new_call_sig = Expr(:call, old_call_sig.args[1], old_call_sig.args[3:end]...)
+        push!(new_func.args, new_call_sig)
+        new_body = Expr(:call, old_call_sig.args[1], Expr(:call, :get_def_graph))
+        extract_arg(x::Symbol) = x
+        extract_arg(x::Expr) = x.args[1]
+        for arg in old_call_sig.args[3:end]
+            push!(new_body.args, extract_arg(arg))
         end
-    end) ||
-    error("Improper use of with_def_graph")
-    (kwargs === nothing) && (kwargs = [])
-    new_args = args[2:end]
-    quote
-        function $f($(new_args...); $(kwargs...))
-            $f(TensorFlow.get_def_graph(), $(new_args...); $(kwargs...))
-        end
+
+        push!(new_func.args, new_body)
+        new_func
     end
 end
 
