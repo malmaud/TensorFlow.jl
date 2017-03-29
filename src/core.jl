@@ -152,7 +152,7 @@ function TensorShape(dims::Vector)
     TensorShape([x<0 ? Nullable{Int64}() : Nullable{Int64}(x) for x in dims])
 end
 
-function TensorShape(::typeof(collect(tuple())))
+function TensorShape(::Vector{Union{}}) # NB: `Vector{Union{}} == typeof(collect(tuple())))`
     TensorShape(Nullable{Int}[], false)
 end
 
