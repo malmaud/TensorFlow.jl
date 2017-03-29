@@ -8,7 +8,9 @@ using AutoHashEquals
 import Base: setindex!, getindex, run, ==
 
 const LIB_BASE = joinpath(dirname(@__FILE__), "..", "deps")
-const LIBTF = joinpath(LIB_BASE, "usr", "bin", "libtensorflow")
+const LIBTF = get(ENV,
+    "LIBTENSORFLOW",
+    joinpath(LIB_BASE, "usr", "bin", "libtensorflow"))
 
 include("py.jl")
 

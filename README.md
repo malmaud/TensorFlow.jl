@@ -132,7 +132,9 @@ julia> Pkg.build("TensorFlow")
 $ pip install --upgrade tensorflow
 ```
 
-## Optional: Building the TensorFlow library
+## Optional: Using a custom TensorFlow binary
+
+If you already have a version of `libtensorflow.so` or `libtensorflow.dylib` that you would like to use, you can set the environment variable `LIBTENSORFLOW` to its path. By default, TensorFlow.jl will use the library in `TensorFlow.jl/deps/usr/bin`.
 
 If you want to build your own version of the TensorFlow binary library instead of relying on the one that is installed with
 `Pkg.build("TensorFlow")`, follow the instructions from https://www.tensorflow.org/install/install_sources, except:
