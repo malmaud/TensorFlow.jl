@@ -8,7 +8,7 @@
 
 * Use Julia metaprogramming to simplify graph construction that requires code repetition in Python. For example, creating a named tensor in Python often takes the form `i = tf.constant(1, name="i")`. In Julia, you can just write `@tf i = constant(1)` for the same effect.
 
-* Another example is while loops. Considering taking the sum of the square of the first ten integers. In Python, this is
+* Another example is while loops. Consider taking the sum of the square of the first ten integers. In Python, this is
 
 ```python
 i = tf.constant(0, name="i")
