@@ -189,6 +189,10 @@ type Graph
     end
 end
 
+function Base.show(io::IO, g::Graph)
+    print(io, "Graph($(g.ptr))")
+end
+
 # There is a bug in Julia v0.5 that requires using the
 # the non-MacroTools version of this function. The old
 # branch will be eliminated eventually.
