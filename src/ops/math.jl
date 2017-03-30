@@ -126,7 +126,7 @@ end
     if tf_version() >= v"1.0.0-"
         Base.depwarn("""
         batch_matmul is deprecated. Its functionality is now subsumed by matmul.
-        """)
+        """, :batch_matmul)
     end
     local desc
     with_op_name(name, "BatchMatMul") do
