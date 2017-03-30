@@ -200,6 +200,7 @@ Load an op which is literally a constant or evaluated to a constant after
 a small amount of constant propogation.
 """
 function load_const(op)
+    op = tf.get_op(op)
     if op.op_name == "Const"
         value = TensorFlow.load_proto(get_def(op).attr["value"].tensor)
         if !isa(value, Array)

@@ -65,6 +65,20 @@ end
 
 GradientDescentOptimizer(learning_rate; name="descent") = GradientDescentOptimizer(Tensor(learning_rate), name)
 
+function GradientDescentOptimizer(; α=.01, kwargs...)
+    GradientDescentOptimizer(α; kwargs...)
+end
+
+function Base.show(io::IO, optimizer::GradientDescentOptimizer)
+    maybe_rate = tf.ShapeInference.load_const(optimizer.learning_rate)
+    if isnull(maybe_rate)
+        rate = optimizer.learning_rate
+    else
+        rate = get(maybe_rate)[1]
+    end
+    print(io, "GradientDescentOptimizer(α=$rate)")
+end
+
 function general_assign_sub(var, learning_rate, grad::Tensor)
     tf.assign_sub(var, convert(Tensor{eltype(var)}, learning_rate) .* grad)
 end
