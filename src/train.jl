@@ -139,7 +139,15 @@ type AdamOptimizer <: Optimizer
     name::String
 end
 
-AdamOptimizer(learning_rate=.001; β1=.9, β2=.999, ϵ=1e-8, name="adam") = AdamOptimizer(learning_rate, β1, β2, ϵ, name)
+AdamOptimizer(learning_rate; β1=.9, β2=.999, ϵ=1e-8, name="adam") = AdamOptimizer(learning_rate, β1, β2, ϵ, name)
+
+function AdamOptimizer(; η=.001, kwargs...)
+    AdamOptimizer(η; kwargs...)
+end
+
+function Base.show(io::IO, optim::AdamOptimizer)
+    print(io, "AdamOptimizer(η=$(optim.η), β1=$(optim.β1), β2=$(optim.β2), ϵ=$(optim.ϵ))")
+end
 
 function apply_gradients(optimizer::AdamOptimizer, grads_and_vars; global_step=nothing, name="adam")
     ops = Tensor[]
