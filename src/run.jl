@@ -34,13 +34,14 @@ function build_output(tensors::Union{Vector, Tuple}, values, pos=Ref(1))
     [build_output(subtensor, values, pos) for subtensor in tensors]
 end
 
+
 function get_tensors(tensor::Union{Tensor, Number})
     return [tensor]
 end
 
 get_tensors(tensor::IndexedSlices) = [tensor.values, tensor.indices]
 
-function build_output(tensor::Tensor, values, pos)
+function build_output(tensor, values, pos=Ref(1))
     out = values[pos[]]
     pos[] += 1
     out

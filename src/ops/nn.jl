@@ -207,8 +207,11 @@ all elements but all later dimensions may vary.
             new_output, new_state = cell(data, state, input_dim)
             # Only update output and state for rows that are not yet passed their ends
             have_passed_end = sequence_length .< time_step
-            new_output = select(have_passed_end, output, new_output)
-            new_state = select(have_passed_end, state, new_state)
+            # new_output = select(have_passed_end, output, new_output)
+            # new_state = select(have_passed_end, state, new_state)
+            f(old_arg, new_arg) = select(have_passed_end, old_arg, new_arg)
+            new_output = tf.struct_map(f, output, new_output)
+            new_state = tf.struct_map(f, state, new_state)
         end
 
         [time_step=>time_step+1, state=>new_state, output=>new_output]

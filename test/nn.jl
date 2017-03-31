@@ -77,13 +77,13 @@ end
 
 @testset "rnn gradients" begin
     sess = Session(Graph())
-    cell = nn.rnn_cell.BasicRNNCell(10)
+    cell = nn.rnn_cell.LSTMCell(10)
     s0 = nn.zero_state(cell, 5, Float32)
     inputs = constant(randn(Float32, 5, 32, 5))
     out = nn.dynamic_rnn(cell, inputs, initial_state=s0)
     loss = reduce_sum(out[1]).^2
-    W = get_collection(:Variables)[1]
-    grads = gradients(loss, W)
+    minimizer = train.GradientDescentOptimizer(.01)
+    minimize_op = train.minimize(minimizer, loss)
     run(sess, global_variables_initializer())
-    run(sess, grads)
+    run(sess, minimize_op)
 end

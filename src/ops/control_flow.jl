@@ -376,8 +376,9 @@ Example using shape_invariants:
     g.op_context = def_graph.op_context
     g.name_idx = def_graph.name_idx
     g.collections = def_graph.collections
-    variables = map(Tensor, variables)
+    # variables = map(Tensor, variables)
     local output, g_def
+    variable_tensors = Tensor.(get_tensors(variables))
     as_default(g) do
         with_op_name(name, "while") do
             with_frame(parallel_iterations, back_prop, swap_memory) do
@@ -387,7 +388,7 @@ Example using shape_invariants:
                 output = Tensor[]
                 body_input = Tensor[]
                 enter_nodes = Tensor[]
-                for var in variables
+                for var in variable_tensors
                     enter_op = make_enter_op(var, context.context_name)
                     push!(enter_nodes, enter_op)
                     merge_op = make_merge_op([enter_op, enter_op])
@@ -398,12 +399,13 @@ Example using shape_invariants:
                 set_field!(context, :pivot_for_pred_name, get_name(merge_nodes[1]))
                 local condition_out
                 with_op_control([tensor.op for tensor in merge_nodes]) do
-                    condition_out = condition(merge_nodes...)
+                    merge_node_structs = build_output(variables, merge_nodes)
+                    condition_out = condition(merge_node_structs...)
                 end
                 pred = make_loop_cond(condition_out)
                 set_field!(context, :pivot_name, get_name(pred))
                 body_pivots = Tensor[]
-                for var_idx in eachindex(variables)
+                for var_idx in eachindex(variable_tensors)
                     switch_false, switch_true = make_switch_op(merge_nodes[var_idx], pred)
                     exit_op = make_exit_op(switch_false)
                     push!(context.loop_exit_names, get_name(exit_op))
@@ -416,10 +418,12 @@ Example using shape_invariants:
                 set_field!(context, :pivot_for_body_name, get_name(body_pivots[1]))
                 local body_output
                 with_op_control([tensor.op for tensor in body_input]) do
-                    body_output = body(body_input...)
+                    body_input_structs = build_output(variables, body_input)
+                    body_output = body(body_input_structs...)
                 end
+                body_output_tensors = get_tensors(body_output)
                 body_val = Tensor[]
-                for tensor in body_output
+                for tensor in body_output_tensors
                     next_iteration_op = make_next_iteration_op(tensor)
                     push!(body_val, next_iteration_op)
                 end
@@ -447,7 +451,7 @@ Example using shape_invariants:
                     end
                 end
 
-                for var_idx in eachindex(variables)
+                for var_idx in eachindex(variable_tensors)
                     for op in g_def.node
                         if op.name == merge_names[var_idx]
                             v = body_val[var_idx]
@@ -468,7 +472,7 @@ Example using shape_invariants:
                         maybe_op = get_node_by_name(def_graph, name)
                         isnull(maybe_op) && continue
                         is_var = false
-                        for var in variables
+                        for var in variable_tensors
                             if name == var.op.name && port == var.value_index
                                 is_var = true
                                 break
@@ -492,5 +496,5 @@ Example using shape_invariants:
     end  # as_default
 
     extend_graph(get_def_graph(), g_def.node)
-    output
+    build_output(variables, output)
 end
