@@ -1176,7 +1176,7 @@ end
 
 function setindex!(desc::NodeDescription, value::Integer, attr_name)
     value = Int64(value)
-    @tfcall(:TF_SetAttrInt, Void, (Ptr{Void}, Cstring, Int64), desc.ptr, attr_name, value)    ccall((:TF_SetAttrInt, LIBTF), Void, (Ptr{Void}, Cstring, Int64), desc.ptr, attr_name, value)
+    @tfcall(:TF_SetAttrInt, Void, (Ptr{Void}, Cstring, Int64), desc.ptr, attr_name, value)
 end
 
 function setindex!(desc::NodeDescription, value::TensorShape, attr_name)
@@ -1213,7 +1213,7 @@ end
 
 function set_attr_list{T<:AbstractFloat}(desc::NodeDescription, attr_name, list::Vector{T})
     list = Float32[Float32(x) for x in list]
-    ccall((:TF_SetAttrFloatList, LIBTF), Void, (Ptr{Void}, Cstring, Ptr{Float32}, Cint), desc.ptr, attr_name, list, length(list))
+    @tfcall(:TF_SetAttrFloatList, Void, (Ptr{Void}, Cstring, Ptr{Float32}, Cint), desc.ptr, attr_name, list, length(list))
 end
 
 function set_attr_list{T<:DataType}(desc::NodeDescription, attr_name, list::Vector{T})
@@ -1525,7 +1525,7 @@ const op_list = Dict{String, tensorflow.OpDef}()
 
 function get_all_op_list()
     !isempty(op_list) && return op_list
-    buf_ptr = ccall((:TF_GetAllOpList, LIBTF), Ptr{Void}, ())
+    buf_ptr = @tfcall(:TF_GetAllOpList, Ptr{Void}, ())
     buffer = Buffer(buf_ptr)
     data = convert(Array, buffer)
     b = IOBuffer(data)
