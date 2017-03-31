@@ -82,7 +82,7 @@ function run(sess::Session, inputs, input_values, outputs, targets)
     status = Status()
     output_values = fill(C_NULL, length(outputs))
     input_tensors = [RawTensor(x) for x in input_values]
-    ccall((:TF_SessionRun, LIBTF), Void,
+    @tfcall(:TF_SessionRun, Void,
     (Ptr{Void}, Ptr{Void}, Ptr{Void}, Ptr{Void}, Cint, Ptr{Void}, Ptr{Ptr{Void}}, Cint, Ptr{Void}, Cint, Ptr{Void}, Ptr{Void}),
         sess.ptr,
         C_NULL,

@@ -10,13 +10,28 @@ import Base: setindex!, getindex, run, ==
 const LIB_BASE = joinpath(dirname(@__FILE__), "..", "deps")
 include("py.jl")
 
+const LIBTF_PTR = Base.RefValue(C_NULL)
+
+macro tfcall(sym, ret, args, vals...)
+    quote
+        tf_path = get(ENV,
+            "LIBTENSORFLOW",
+            joinpath(LIB_BASE, "usr", "bin", "libtensorflow"))
+        if LIBTF_PTR[] == C_NULL
+            LIBTF_PTR[] = Libdl.dlopen(tf_path)
+        end
+        func = Libdl.dlsym(LIBTF_PTR[], $sym)
+        ccall(func, $ret, $args, $(vals...))
+    end
+end
+
 """
     tf_version()
 
 Return the version number of the C tensorflow library.
 """
 function tf_version()
-    res = ccall((:TF_Version, LIBTF), Cstring, ()) |> unsafe_string
+    res = @tfcall(:TF_Version, Cstring, ()) |> unsafe_string
     # Deal with version strings like "0.12.head"
     res = replace(res, r"\.head$", "")
     VersionNumber(res)
@@ -31,17 +46,17 @@ end
 type Status
     ptr::Ptr{Void}
     function Status()
-        ptr = ccall((:TF_NewStatus, LIBTF), Ptr{Void}, ())
+        ptr = @tfcall(:TF_NewStatus, Ptr{Void}, ())
         this = new(ptr)
         finalizer(this, status->begin
-            ccall((:TF_DeleteStatus, LIBTF), Void, (Ptr{Void},), status.ptr)
+            @tfcall(:TF_DeleteStatus, Void, (Ptr{Void},), status.ptr)
         end)
         this
     end
 end
 
 function get_code(s::Status)
-    code = ccall((:TF_GetCode, LIBTF), Cint, (Ptr{Void},), s.ptr)
+    code = @tfcall(:TF_GetCode, Cint, (Ptr{Void},), s.ptr)
     return TF_Code(code)
 end
 
@@ -174,7 +189,7 @@ type Graph
     op_context::OperationContext
 
     function Graph()
-        ptr = ccall((:TF_NewGraph, LIBTF), Ptr{Void}, ())
+        ptr = @tfcall(:TF_NewGraph, Ptr{Void}, ())
         collections = Dict{Symbol, Any}()
         collections[:Variables] = []
         collections[:TrainableVariables] = []
@@ -183,7 +198,7 @@ type Graph
         collections[:while_context] = []
         self = new(ptr, collections, Dict{String, TensorShape}(), Dict{String, Int}(), OperationContext(Vector{Operation}[], String[], tensorflow.WhileContextDef[], Device[]))
         finalizer(self, self->begin
-            ccall((:TF_DeleteGraph, LIBTF), Void, (Ptr{Void},), self.ptr)
+            @tfcall(:TF_DeleteGraph, Void, (Ptr{Void},), self.ptr)
         end)
         self
     end
@@ -362,7 +377,7 @@ type SessionOptions
     ptr::Ptr{Void}
 
     function SessionOptions()
-        ptr = ccall((:TF_NewSessionOptions, LIBTF), Ptr{Void}, ())
+        ptr = @tfcall(:TF_NewSessionOptions, Ptr{Void}, ())
         return new(ptr)
     end
 end
@@ -419,16 +434,16 @@ type Session
             seekstart(b)
             proto = read(b)
             config_status = Status()
-            ccall((:TF_SetConfig, LIBTF), Void, (Ptr{Void}, Ptr{Void}, Csize_t, Ptr{Void}), options.ptr, proto, sizeof(proto), config_status.ptr)
+            @tfcall(:TF_SetConfig, Void, (Ptr{Void}, Ptr{Void}, Csize_t, Ptr{Void}), options.ptr, proto, sizeof(proto), config_status.ptr)
             check_status(config_status)
         end
         status = Status()
-        ptr = ccall((:TF_NewSession, LIBTF), Ptr{Void}, (Ptr{Void}, Ptr{Void}, Ptr{Void}), graph.ptr, options.ptr, status.ptr)
+        ptr = @tfcall(:TF_NewSession, Ptr{Void}, (Ptr{Void}, Ptr{Void}, Ptr{Void}), graph.ptr, options.ptr, status.ptr)
         this = new(ptr, graph)
         check_status(status)
         finalizer(this, self->begin
             status = Status()
-            ccall((:TF_DeleteSession, LIBTF), Void, (Ptr{Void}, Ptr{Void}), self.ptr, status.ptr)
+            @tfcall(:TF_DeleteSession, Void, (Ptr{Void}, Ptr{Void}), self.ptr, status.ptr)
         end)
         return this
     end
@@ -449,15 +464,15 @@ type Buffer
     ptr::Ptr{Void}
 
     function Buffer(s::Vector{UInt8})
-        ptr = ccall((:TF_NewBufferFromString, LIBTF), Ptr{Void}, (Ptr{Void}, Csize_t), pointer(s), sizeof(s))
+        ptr = @tfcall(:TF_NewBufferFromString, Ptr{Void}, (Ptr{Void}, Csize_t), pointer(s), sizeof(s))
         return new(ptr)
     end
 
     function Buffer()
         self = new()
-        self.ptr = ccall((:TF_NewBuffer, LIBTF), Ptr{Void}, ())
+        self.ptr = @tfcall(:TF_NewBuffer, Ptr{Void}, ())
         finalizer(self, self->begin
-            ccall((:TF_DeleteBuffer, LIBTF), Void, (Ptr{Void},), self.ptr)
+            @tfcall(:TF_DeleteBuffer, Void, (Ptr{Void},), self.ptr)
         end)
         return self
     end
@@ -470,7 +485,7 @@ immutable BufferStruct
 end
 
 function getindex(b::Buffer)
-    ccall((:TF_GetBuffer, LIBTF), BufferStruct, (Ptr{Void},), b.ptr)
+    @tfcall(:TF_GetBuffer, BufferStruct, (Ptr{Void},), b.ptr)
 end
 
 function Base.convert(::Type{Array}, buf::Buffer)
@@ -504,7 +519,7 @@ type RawTensor
         dims = [size(data)...]
         dt = jl_to_df_type(eltype(data))
         data = convert_major_order(data)
-        ptr = ccall((:TF_NewTensor, LIBTF), Ptr{Void}, (Cint, Ptr{Cint}, Cint, Ptr{Void}, Csize_t, Ptr{Void}, Ptr{Void}),
+        ptr = @tfcall(:TF_NewTensor, Ptr{Void}, (Cint, Ptr{Cint}, Cint, Ptr{Void}, Csize_t, Ptr{Void}, Ptr{Void}),
             Int(dt),
             pointer(dims),
             length(dims),
@@ -519,7 +534,7 @@ type RawTensor
         dims = Cint[]
         dt = jl_to_df_type(eltype(data))
         data_boxed = [data]
-        ptr = ccall((:TF_NewTensor, LIBTF), Ptr{Void}, (Cint, Ptr{Void}, Cint, Ptr{Void}, Csize_t, Ptr{Void}, Ptr{Void}),
+        ptr = @tfcall(:TF_NewTensor, Ptr{Void}, (Cint, Ptr{Void}, Cint, Ptr{Void}, Csize_t, Ptr{Void}, Ptr{Void}),
             Int(dt),
             pointer(dims),
             length(dims),
@@ -533,7 +548,7 @@ type RawTensor
     function RawTensor(ptr::Ptr)
         this = new(ptr)
         finalizer(this, this->begin
-            ccall((:TF_DeleteTensor, LIBTF), Void, (Ptr{Void},), this.ptr)
+            @tfcall(:TF_DeleteTensor, Void, (Ptr{Void},), this.ptr)
         end)
         return this
     end
@@ -569,10 +584,10 @@ function varint_decode(b::IO)
 end
 
 function tf_string_encode(src::Vector{UInt8})
-    dest_length = ccall((:TF_StringEncodedSize, LIBTF), Csize_t, (Csize_t,), length(src)) |> Int
+    dest_length = @tfcall(:TF_StringEncodedSize, Csize_t, (Csize_t,), length(src)) |> Int
     dest = Vector{UInt8}(dest_length)
     status = Status()
-    ccall((:TF_StringEncode, LIBTF), Csize_t,
+    @tfcall(:TF_StringEncode, Csize_t,
         (Ptr{Void}, Csize_t, Ptr{Void}, Csize_t, Ptr{Void}),
         src, length(src), dest, length(dest), status.ptr)
     check_status(status)
@@ -585,7 +600,7 @@ function tf_string_decode(src::Vector{UInt8})
     status = Status()
     dst = Ref{Ptr{UInt8}}()
     dst_len = Ref{Csize_t}()
-    ccall((:TF_StringDecode, LIBTF), Csize_t,
+    @tfcall(:TF_StringDecode, Csize_t,
         (Ptr{Void}, Csize_t, Ref{Ptr{UInt8}}, Ref{Csize_t}, Ptr{Void}),
         src, length(src), dst, dst_len, status.ptr)
     check_status(status)
@@ -638,7 +653,7 @@ function RawTensor(data::Array{String}, is_scalar=false)
     end
     data_encoded = @compat take!(encoded_buf)
     dt = jl_to_df_type(String)
-    ptr = ccall((:TF_NewTensor, LIBTF), Ptr{Void}, (Cint, Ptr{Int64}, Cint, Ptr{Void}, Csize_t, Ptr{Void}, Ptr{Void}),
+    ptr = @tfcall(:TF_NewTensor, Ptr{Void}, (Cint, Ptr{Int64}, Cint, Ptr{Void}, Csize_t, Ptr{Void}, Ptr{Void}),
         Int(dt),
         dims,
         length(dims),
@@ -660,14 +675,14 @@ end
 
 
 function Base.ndims(t::RawTensor)
-    ccall((:TF_NumDims, LIBTF), Cint, (Ptr{Void},), t.ptr) |> Int
+    @tfcall(:TF_NumDims, Cint, (Ptr{Void},), t.ptr) |> Int
 end
 
 function Base.size(t::RawTensor, dim::Integer)
     n = ndims(t)
     dim -= 1
     @assert dim < n
-    ccall((:TF_Dim, LIBTF), Clonglong, (Ptr{Void}, Cint), t.ptr, dim)
+    @tfcall(:TF_Dim, Clonglong, (Ptr{Void}, Cint), t.ptr, dim)
 end
 
 function Base.size(t::RawTensor)
@@ -676,11 +691,11 @@ function Base.size(t::RawTensor)
 end
 
 function Base.sizeof(t::RawTensor)
-    ccall((:TF_TensorByteSize, LIBTF), Csize_t, (Ptr{Void},), t.ptr) |> Int
+    @tfcall(:TF_TensorByteSize, Csize_t, (Ptr{Void},), t.ptr) |> Int
 end
 
 function set_device(node_desc, device::String)
-    ccall((:TF_SetDevice, LIBTF), Void,
+    @tfcall(:TF_SetDevice, Void,
         (Ptr{Void}, Cstring),
         node_desc.ptr, device)
 end
@@ -692,7 +707,7 @@ type NodeDescription
     graph::Graph
 
     function NodeDescription(graph, op_type, full_name)
-        desc = ccall((:TF_NewOperation, LIBTF), Ptr{Void}, (Ptr{Void}, Cstring, Cstring), graph.ptr, op_type, full_name)
+        desc = @tfcall(:TF_NewOperation, Ptr{Void}, (Ptr{Void}, Cstring, Cstring), graph.ptr, op_type, full_name)
         self = new(desc, graph)
         for control_op_set in graph.op_context.control_ops
             for control_op in control_op_set
@@ -741,13 +756,13 @@ end
 
 function get_input(op::Operation, idx)
     port = Port(op.ptr, idx-1)
-    in_port = ccall((:TF_OperationInput, LIBTF), Port, (Port,), port)
+    in_port = @tfcall(:TF_OperationInput, Port, (Port,), port)
     Tensor(in_port)
 end
 
 function get_input_list_length(op::Operation, arg_name)
     status = Status()
-    out = ccall((:TF_OperationInputListLength, LIBTF), Cint, (Ptr{Void}, Cstring, Ptr{Void}), op.ptr, arg_name, status.ptr)
+    out = @tfcall(:TF_OperationInputListLength, Cint, (Ptr{Void}, Cstring, Ptr{Void}), op.ptr, arg_name, status.ptr)
     check_status(status)
     Int(out)
 end
@@ -761,7 +776,7 @@ end
 
 function get_attr_metadata(op::Operation, attr)
     status = Status()
-    out = ccall((:TF_OperationGetAttrMetadata, LIBTF), AttrMetadata, (Ptr{Void}, Cstring, Ptr{Void}), op.ptr, attr, status.ptr)
+    out = @tfcall(:TF_OperationGetAttrMetadata, AttrMetadata, (Ptr{Void}, Cstring, Ptr{Void}), op.ptr, attr, status.ptr)
     check_status(status)
     out
 end
@@ -769,7 +784,7 @@ end
 function get_attr(op::Operation, attr, ::Type{Int})
     out = Ref{Int}()
     status = Status()
-    ccall((:TF_OperationGetAttrInt, LIBTF), Void, (Ptr{Void}, Cstring, Ref{Int}, Ptr{Void}), op.ptr, attr, out, status.ptr)
+    @tfcall(:TF_OperationGetAttrInt, Void, (Ptr{Void}, Cstring, Ref{Int}, Ptr{Void}), op.ptr, attr, out, status.ptr)
     check_status(status)
     out[]
 end
@@ -777,7 +792,7 @@ end
 function get_attr(op::Operation, attr, ::Type{Array})
     out = Ref{Ptr{Void}}()
     status = Status()
-    ccall((:TF_OperationGetAttrTensor, LIBTF), Void, (Ptr{Void}, Cstring, Ptr{Ptr{Void}}, Ptr{Void}), op.ptr, attr, out, status.ptr)
+    @tfcall(:TF_OperationGetAttrTensor, Void, (Ptr{Void}, Cstring, Ptr{Ptr{Void}}, Ptr{Void}), op.ptr, attr, out, status.ptr)
     check_status(status)
     Array(RawTensor(out[]))
 end
@@ -785,7 +800,7 @@ end
 function get_attr(op::Operation, attr, ::Type{Bool})
     out = Ref{Bool}()
     status = Status()
-    ccall((:TF_OperationGetAttrBool, LIBTF), Void, (Ptr{Void}, Cstring, Ref{Bool}, Ptr{Void}), op.ptr, attr, out, status.ptr)
+    @tfcall(:TF_OperationGetAttrBool, Void, (Ptr{Void}, Cstring, Ref{Bool}, Ptr{Void}), op.ptr, attr, out, status.ptr)
     check_status(status)
     out[]
 end
@@ -794,7 +809,7 @@ function get_attr(op::Operation, attr, ::Type{Vector{Int}})
     meta = get_attr_metadata(op, attr)
     out = Vector{Int}(meta.list_size)
     status = Status()
-    ccall((:TF_OperationGetAttrIntList, LIBTF), Void, (Ptr{Void}, Cstring, Ptr{Int}, Cint, Ptr{Void}), op.ptr, attr, out, length(out), status.ptr)
+    @tfcall(:TF_OperationGetAttrIntList, Void, (Ptr{Void}, Cstring, Ptr{Int}, Cint, Ptr{Void}), op.ptr, attr, out, length(out), status.ptr)
     check_status(status)
     out
 end
@@ -803,14 +818,14 @@ function get_attr(op::Operation, attr, ::Type{String})
     meta = get_attr_metadata(op, attr)
     out = Vector{UInt8}(meta.total_size)
     status = Status()
-    ccall((:TF_OperationGetAttrString, LIBTF), Void, (Ptr{Void}, Cstring, Ptr{UInt8}, Cint, Ptr{Void}), op.ptr, attr, out, length(out), status.ptr)
+    @tfcall(:TF_OperationGetAttrString, Void, (Ptr{Void}, Cstring, Ptr{UInt8}, Cint, Ptr{Void}), op.ptr, attr, out, length(out), status.ptr)
     check_status(status)
     String(out)
 end
 
 function fillin(op::Operation)
-    op.name = ccall((:TF_OperationName, LIBTF), Cstring, (Ptr{Void},), op.ptr) |> unsafe_string
-    op.op_name = ccall((:TF_OperationOpType, LIBTF), Cstring, (Ptr{Void},), op.ptr) |> unsafe_string
+    op.name = @tfcall(:TF_OperationName, Cstring, (Ptr{Void},), op.ptr) |> unsafe_string
+    op.op_name = @tfcall(:TF_OperationOpType, Cstring, (Ptr{Void},), op.ptr) |> unsafe_string
 end
 
 
@@ -840,7 +855,7 @@ end
 function Operation(desc::NodeDescription)
     self = Operation()
     status = Status()
-    ptr = ccall((:TF_FinishOperation, LIBTF), Ptr{Void}, (Ptr{Void}, Ptr{Void}), desc.ptr, status.ptr)
+    ptr = @tfcall(:TF_FinishOperation, Ptr{Void}, (Ptr{Void}, Ptr{Void}), desc.ptr, status.ptr)
     check_status(status)
     self.ptr = ptr
     self.graph = Nullable(desc.graph)
@@ -977,13 +992,13 @@ end
 
 Returns the name of a node in the computation graph.
 """
-node_name(node::AbstractOperation) = ccall((:TF_OperationName, LIBTF), Cstring, (Ptr{Void},), Operation(node).ptr) |> unsafe_string
+node_name(node::AbstractOperation) = @tfcall(:TF_OperationName, Cstring, (Ptr{Void},), Operation(node).ptr) |> unsafe_string
 
 
 function get_attr_value_proto(node::Operation, attr_name)
     buf = Buffer()
     status = Status()
-    ccall((:TF_OperationGetAttrValueProto, LIBTF), Void, (Ptr{Void}, Cstring, Ptr{Void}, Ptr{Void}), node.ptr, attr_name, buf.ptr, status.ptr)
+    @tfcall(:TF_OperationGetAttrValueProto, Void, (Ptr{Void}, Cstring, Ptr{Void}, Ptr{Void}), node.ptr, attr_name, buf.ptr, status.ptr)
     check_status(status)
     proto = Array(buf)
     b = IOBuffer()
@@ -1035,7 +1050,7 @@ function Base.convert{T}(::Type{Tensor{T}}, value)
 end
 
 function operation_output_type(port::Port)
-    ccall((:TF_OperationOutputType, LIBTF), TF_DataType, (Port,), port)
+    @tfcall(:TF_OperationOutputType, TF_DataType, (Port,), port)
 end
 
 function Base.eltype(t::AbstractTensor)
@@ -1064,65 +1079,65 @@ Port(port::Port) = port
 Tensor(p::Port) = Tensor(Operation(p.node_ptr), p.index+1)
 
 function add_input(desc::NodeDescription, input::Union{Tensor, Operation})
-    ccall((:TF_AddInput, LIBTF), Void, (Ptr{Void}, Port), desc.ptr, Port(input))
+    @tfcall(:TF_AddInput, Void, (Ptr{Void}, Port), desc.ptr, Port(input))
 end
 
 function add_input(desc::NodeDescription, inputs::Vector)
     inputs = map(Port, inputs)
-    ccall((:TF_AddInputList, LIBTF), Void, (Ptr{Void}, Ptr{Void}, Cint), desc.ptr, inputs, length(inputs))
+    @tfcall(:TF_AddInputList, Void, (Ptr{Void}, Ptr{Void}, Cint), desc.ptr, inputs, length(inputs))
 end
 
 function add_control_input(desc::NodeDescription, op::Operation)
-    ccall((:TF_AddControlInput, LIBTF), Void, (Ptr{Void}, Ptr{Void}), desc.ptr, op.ptr)
+    @tfcall(:TF_AddControlInput, Void, (Ptr{Void}, Ptr{Void}), desc.ptr, op.ptr)
 end
 
 add_control_input(desc::NodeDescription, t::Tensor) = add_control_input(desc, t.op)
 
 function setindex!(desc::NodeDescription, tensor::RawTensor, attr_name)
     status = Status()
-    ccall((:TF_SetAttrTensor, LIBTF), Void, (Ptr{Void}, Cstring, Ptr{Void}, Ptr{Void}), desc.ptr, attr_name, tensor.ptr, status.ptr)
+    @tfcall(:TF_SetAttrTensor, Void, (Ptr{Void}, Cstring, Ptr{Void}, Ptr{Void}), desc.ptr, attr_name, tensor.ptr, status.ptr)
     check_status(status)
 end
 
 function setindex!(desc::NodeDescription, tensors::Vector{RawTensor}, attr_name)
     status = Status()
-    ccall((:TF_SetAttrTensorList, LIBTF), Void, (Ptr{Void}, Cstring, Ptr{Ptr{Void}}, Cint, Ptr{Void}), desc.ptr, attr_name, [x.ptr for x in tensors], length(tensors), status.ptr)
+    @tfcall(:TF_SetAttrTensorList, Void, (Ptr{Void}, Cstring, Ptr{Ptr{Void}}, Cint, Ptr{Void}), desc.ptr, attr_name, [x.ptr for x in tensors], length(tensors), status.ptr)
     check_status(status)
 end
 
 function setindex!(desc::NodeDescription, dtype::DataType, attr_name)
-    ccall((:TF_SetAttrType, LIBTF), Void, (Ptr{Void}, Cstring, TF_DataType), desc.ptr, attr_name, dtype|>jl_to_df_type)
+    @tfcall(:TF_SetAttrType, Void, (Ptr{Void}, Cstring, TF_DataType), desc.ptr, attr_name, dtype|>jl_to_df_type)
 end
 
 function setindex!(desc::NodeDescription, value::Int, attr_name)
-    ccall((:TF_SetAttrInt, LIBTF), Void, (Ptr{Void}, Cstring, Int64), desc.ptr, attr_name, value)
+    @tfcall(:TF_SetAttrInt, Void, (Ptr{Void}, Cstring, Int64), desc.ptr, attr_name, value)
 end
 
 function setindex!(desc::NodeDescription, value::Tuple, attr_name)
     dims = Int[value...]
-    ccall((:TF_SetAttrShape, LIBTF), Void, (Ptr{Void}, Cstring, Ptr{Int64}, Cint), desc.ptr, attr_name, dims, length(dims))
+    @tfcall(:TF_SetAttrShape, Void, (Ptr{Void}, Cstring, Ptr{Int64}, Cint), desc.ptr, attr_name, dims, length(dims))
 end
 
 function setindex!(desc::NodeDescription, value::Bool, attr_name)
-    ccall((:TF_SetAttrBool, LIBTF), Void, (Ptr{Void}, Cstring, Cuchar), desc.ptr, attr_name, value)
+    @tfcall(:TF_SetAttrBool, Void, (Ptr{Void}, Cstring, Cuchar), desc.ptr, attr_name, value)
 end
 
 function setindex!(desc::NodeDescription, value::Float32, attr_name)
-    ccall((:TF_SetAttrFloat, LIBTF), Void, (Ptr{Void}, Cstring, Cfloat), desc.ptr, attr_name, value)
+    @tfcall(:TF_SetAttrFloat, Void, (Ptr{Void}, Cstring, Cfloat), desc.ptr, attr_name, value)
 end
 
 function setindex!(desc::NodeDescription, value::AbstractString, attr_name)
     value = String(value)
-    ccall((:TF_SetAttrString, LIBTF), Void, (Ptr{Void}, Cstring, Ptr{Void}, Cint), desc.ptr, attr_name, Vector{UInt8}(value), sizeof(value))
+    @tfcall(:TF_SetAttrString, Void, (Ptr{Void}, Cstring, Ptr{Void}, Cint), desc.ptr, attr_name, Vector{UInt8}(value), sizeof(value))
 end
 
 function set_attr_list(desc::NodeDescription, attr_name, list::Vector{Int})
-    ccall((:TF_SetAttrIntList, LIBTF), Void, (Ptr{Void}, Cstring, Ptr{Int64}, Cint), desc.ptr, attr_name, list, length(list))
+    @tfcall(:TF_SetAttrIntList, Void, (Ptr{Void}, Cstring, Ptr{Int64}, Cint), desc.ptr, attr_name, list, length(list))
 end
 
 function set_attr_list{T<:DataType}(desc::NodeDescription, attr_name, list::Vector{T})
     list = map(jl_to_df_type, list)
-    ccall((:TF_SetAttrTypeList, LIBTF), Void, (Ptr{Void}, Cstring, Ptr{Void}, Cint), desc.ptr, attr_name, list, length(list))
+    @tfcall(:TF_SetAttrTypeList, Void, (Ptr{Void}, Cstring, Ptr{Void}, Cint), desc.ptr, attr_name, list, length(list))
 end
 
 function set_attr_shape_list(desc::NodeDescription, attr_name, list::Vector)
@@ -1130,7 +1145,7 @@ function set_attr_shape_list(desc::NodeDescription, attr_name, list::Vector)
     for shape in list
         push!(dims, [shape...])
     end
-    ccall((:TF_SetAttrShapeList, LIBTF), Void, (Ptr{Void}, Cstring, Ptr{Ptr{Int64}}, Ptr{Cint}, Cint),
+    @tfcall(:TF_SetAttrShapeList, Void, (Ptr{Void}, Cstring, Ptr{Ptr{Int64}}, Ptr{Cint}, Cint),
         desc.ptr,
         attr_name,
         dims,
@@ -1139,7 +1154,7 @@ function set_attr_shape_list(desc::NodeDescription, attr_name, list::Vector)
 end
 
 function Base.eltype(t::RawTensor)
-    tf_type = ccall((:TF_TensorType, LIBTF), TF_DataType, (Ptr{Void},), t.ptr)
+    tf_type = @tfcall(:TF_TensorType, TF_DataType, (Ptr{Void},), t.ptr)
     tf_to_jl_type(tf_type)
 end
 
@@ -1159,7 +1174,7 @@ end
 
 function Base.convert(::Type{Array}, t::RawTensor)
     dims = ndims(t)
-    data = ccall((:TF_TensorData, LIBTF), Ptr{Void}, (Ptr{Void},), t.ptr)
+    data = @tfcall(:TF_TensorData, Ptr{Void}, (Ptr{Void},), t.ptr)
     data = convert(Ptr{eltype(t)}, data)
     if eltype(t) == String
         d = size(t)
@@ -1191,7 +1206,7 @@ end
 function get_proto(graph::Graph)
     output = Buffer()
     status = Status()
-    ccall((:TF_GraphToGraphDef, LIBTF), Void, (Ptr{Void}, Ptr{Void}, Ptr{Void}), graph.ptr, output.ptr, status.ptr)
+    @tfcall(:TF_GraphToGraphDef, Void, (Ptr{Void}, Ptr{Void}, Ptr{Void}), graph.ptr, output.ptr, status.ptr)
     check_status(status)
     convert(Array, output)
 end
@@ -1199,7 +1214,7 @@ end
 function get_proto(node::Operation)
     output = Buffer()
     status = Status()
-    ccall((:TF_OperationToNodeDef, LIBTF), Void, (Ptr{Void}, Ptr{Void}, Ptr{Void}), node.ptr, output.ptr, status.ptr)
+    @tfcall(:TF_OperationToNodeDef, Void, (Ptr{Void}, Ptr{Void}, Ptr{Void}), node.ptr, output.ptr, status.ptr)
     check_status(status)
     convert(Array, output)
 end
@@ -1243,7 +1258,7 @@ Returns an operation by searching for its name in the given graph.
 """
 @with_def_graph function get_node_by_name(graph::Graph, name::AbstractString)
     name, port = parse_port_name(name)
-    node_ptr = ccall((:TF_GraphOperationByName, LIBTF), Ptr{Void}, (Ptr{Void}, Cstring), graph.ptr, name)
+    node_ptr = @tfcall(:TF_GraphOperationByName, Ptr{Void}, (Ptr{Void}, Cstring), graph.ptr, name)
     if node_ptr == C_NULL
         return Nullable{Operation}()
     else
@@ -1300,17 +1315,17 @@ end
 gradients(y, x) = gradients(y, [x])[1]
 
 function get_num_outputs(op::Operation)
-    ccall((:TF_OperationNumOutputs, LIBTF), Cint, (Ptr{Void},), op.ptr) |> Int
+    @tfcall(:TF_OperationNumOutputs, Cint, (Ptr{Void},), op.ptr) |> Int
 end
 
 function get_device(op::Operation)
-    ccall((:TF_OperationDevice, LIBTF), Cstring, (Ptr{Void},), op.ptr) |> String
+    @tfcall(:TF_OperationDevice, Cstring, (Ptr{Void},), op.ptr) |> String
 end
 
 get_device(t::Tensor) = get_device(t.op)
 
 function num_outputs(op::Operation)
-    ccall((:TF_OperationNumOutputs, LIBTF), Cint, (Ptr{Void},), op.ptr) |> Int
+    @tfcall(:TF_OperationNumOutputs, Cint, (Ptr{Void},), op.ptr) |> Int
 end
 
 get_op(op::Operation) = op
@@ -1338,33 +1353,33 @@ end
 
 @with_def_graph function import_graph_def(graph::Graph, graph_def::Vector{UInt8}, options=GraphImportOptions())
     version_check(v"1.0.0-rc1")
-    options_ptr = ccall((:TF_NewImportGraphDefOptions, LIBTF), Ptr{Void}, ())
+    options_ptr = @tfcall(:TF_NewImportGraphDefOptions, Ptr{Void}, ())
     for ((input_name, input_port), tensor) in options.input_mapping
-        ccall((:TF_ImportGraphDefOptionsAddInputMapping, LIBTF), Void,
+        @tfcall(:TF_ImportGraphDefOptionsAddInputMapping, Void,
             (Ptr{Void}, Cstring, Cint, Port),
             options_ptr, input_name, input_port-1, Port(tensor))
     end
     for (output_name, output_port) in options.return_output
-        ccall((:TF_ImportGraphDefOptionsAddReturnOutput, LIBTF), Void,
+        @tfcall(:TF_ImportGraphDefOptionsAddReturnOutput, Void,
             (Ptr{Void}, Cstring, Cint),
             options_ptr, output_name, output_port-1)
     end
     for operation in options.control_dependencies
-        ccall((:TF_ImportGraphDefOptionsAddControlDependency, LIBTF), Void,
+        @tfcall(:TF_ImportGraphDefOptionsAddControlDependency, Void,
             (Ptr{Void}, Ptr{Void}),
             options_ptr, operation.ptr)
     end
-    ccall((:TF_ImportGraphDefOptionsSetPrefix, LIBTF), Void,
+    @tfcall(:TF_ImportGraphDefOptionsSetPrefix, Void,
         (Ptr{Void}, Cstring),
         options_ptr, options.prefix)
     status = Status()
     buffer = Buffer(graph_def)
     output_ports = Vector{Port}(length(options.return_output))
-    ccall((:TF_GraphImportGraphDefWithReturnOutputs, LIBTF), Void,
+    @tfcall(:TF_GraphImportGraphDefWithReturnOutputs, Void,
         (Ptr{Void}, Ptr{Void}, Ptr{Void}, Ptr{Void}, Cint, Ptr{Void}),
         graph.ptr, buffer.ptr, options_ptr, output_ports, length(output_ports), status.ptr)
     check_status(status)
-    ccall((:TF_DeleteImportGraphDefOptions, LIBTF), Void, (Ptr{Void},), options_ptr)
+    @tfcall(:TF_DeleteImportGraphDefOptions, Void, (Ptr{Void},), options_ptr)
     output_tensors = map(Tensor, output_ports)
     output_tensors
 end
@@ -1392,7 +1407,7 @@ end
 
 function _next(iter::OperationIterator, state)
     pos = Ref{Csize_t}(state.pos)
-    op_ptr = ccall((:TF_GraphNextOperation, LIBTF), Ptr{Void},
+    op_ptr = @tfcall(:TF_GraphNextOperation, Ptr{Void},
         (Ptr{Void}, Ref{Csize_t}),
         iter.graph.ptr, pos)
     if op_ptr == C_NULL
