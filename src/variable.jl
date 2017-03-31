@@ -35,7 +35,7 @@ function Variable(initial_value; name="", trainable=true, literal_name=false)
     end
     desc = NodeDescription("VariableV2", name)
     desc["dtype"] = eltype(initial_value)
-    desc["shape"] = size(initial_value)
+    desc["shape"] = TensorShape([size(initial_value)...])
     self.var_node = Operation(desc)
 
     desc = NodeDescription("Assign", "$name/Assign")
@@ -48,6 +48,13 @@ function Variable(initial_value; name="", trainable=true, literal_name=false)
         add_to_collection(:TrainableVariables, self)
     end
     return self
+end
+
+@with_def_graph function Variable(graph::Graph, s::AbstractString)
+    var = Variable()
+    var.var_node = get(get_node_by_name(graph, s))
+    var.assign_node = get(get_node_by_name(graph, "$s/Assign"))
+    var
 end
 
 """
@@ -219,37 +226,36 @@ Gets an existing variable with these parameters (`shape`, `dtype`, `trainable`)
 or create a new one.
 """
 function get_variable(var_name, shape, dtype; trainable=true, kwargs...)
-    shape = get_dims(shape)
-    scope = make_scope(var_name; kwargs...)
-    push!(scope_stack, scope)
-    name = join([get(x.name) for x in scope_stack], "/")
     local v
-    try
-        initializer = Normal(0, .01)
-        reuse = false
-        for scope in scope_stack
-            if !isnull(scope.initializer)
-                initializer = get(scope.initializer)
+    with_top_level() do
+        shape = get_dims(shape)
+        scope = make_scope(var_name; kwargs...)
+        push!(scope_stack, scope)
+        name = join([get(x.name) for x in scope_stack], "/")
+        try
+            initializer = Normal(0, .01)
+            reuse = false
+            for scope in scope_stack
+                if !isnull(scope.initializer)
+                    initializer = get(scope.initializer)
+                end
+                if scope.reuse
+                    reuse = true
+                end
             end
-            if scope.reuse
-                reuse = true
-            end
-        end
-        if reuse
-            n = get_node_by_name(get_def_graph(), name)
-            v = Variable()
-            v.var_node = get_node_by_name(name) |> get
-            v.assign_node = get_node_by_name("$name/Assign") |> get
-        else
-            if length(shape) > 0
-                iv = rand(initializer, shape...)
+            if reuse
+                v = Variable(name)
             else
-                iv = rand(initializer, 1)[1]
+                if length(shape) > 0
+                    iv = rand(initializer, shape...)
+                else
+                    iv = rand(initializer, 1)[1]
+                end
+                v = Variable(map(dtype, iv), name=name, trainable=trainable, literal_name=true)
             end
-            v = Variable(map(dtype, iv), name=name, trainable=trainable, literal_name=true)
+        finally
+            pop!(scope_stack)
         end
-    finally
-        pop!(scope_stack)
     end
     return v
 end

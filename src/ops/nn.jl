@@ -170,7 +170,15 @@ all elements but all later dimensions may vary.
     #TODO Make this all work with non-3D inputs
 
     if time_major
+        # TODO Do this in a more efficient way
         inputs=permutedims(inputs, [2,1,3])
+    end
+
+    if sequence_length === nothing
+        # Works around a bug in upstream TensorFlow's while-loop
+        # gradient calculation
+        max_time = convert(Tensor{Int}, shape(inputs)[2])
+        sequence_length = max_time
     end
 
     batch_size = get_shape(inputs, 1)
@@ -190,23 +198,20 @@ all elements but all later dimensions may vary.
     num_steps = convert(Tensor{Int64}, tf.shape(inputs)[2])
 
     while_output = @tf while time_step ≤ num_steps
-        slice_start = tf.stack([1, time_step, 1])
-        slice_size = tf.stack([-1, 1, -1])
-        data = tf.slice(inputs, slice_start, slice_size)
-        data = tf.squeeze(data, [2])
-        #TODO: Once indexing supports it, the whole of the above can be replaced with: `data=inputs[:, timestep, :]`
+        data = inputs[:, time_step, :]
         local new_state
         new_output = output
 
 
         variable_scope(scope) do
             new_output, new_state = cell(data, state, input_dim)
-            if sequence_length !== nothing # This branch should be removed by the julia lowering process
-                # Only update output and state for rows that are not yet passed their ends
-                have_passed_end = sequence_length .< time_step
-                new_output = select(have_passed_end, output, new_output)
-                new_state = select(have_passed_end, state, new_state)
-            end
+            # Only update output and state for rows that are not yet passed their ends
+            have_passed_end = sequence_length .< time_step
+            # new_output = select(have_passed_end, output, new_output)
+            # new_state = select(have_passed_end, state, new_state)
+            f(old_arg, new_arg) = select(have_passed_end, old_arg, new_arg)
+            new_output = tf.struct_map(f, output, new_output)
+            new_state = tf.struct_map(f, state, new_state)
         end
 
         [time_step=>time_step+1, state=>new_state, output=>new_output]

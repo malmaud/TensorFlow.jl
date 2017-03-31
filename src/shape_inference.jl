@@ -202,11 +202,9 @@ a small amount of constant propogation.
 function load_const(op)
     op = tf.get_op(op)
     if op.op_name == "Const"
-        value = TensorFlow.load_proto(get_def(op).attr["value"].tensor)
-        if !isa(value, Array)
-            array = Array{typeof(value)}()
-            array[] = value
-            value = array
+        value = Array(TensorFlow.load_proto(get_def(op).attr["value"]))
+        if ndims(value) == 0
+            value = value[1]
         end
         value = Nullable(value)
     elseif op.op_name == "Cast"
@@ -354,7 +352,10 @@ end
 
 register_shape("Shape") do op
     s = _get_shape(get_input(op, 1))
-    return [TensorShape([s.rank_unknown ? nothing : length(s.dims)])]
+    if s.rank_unknown
+        return [TensorShape(nothing)]
+    end
+    return [TensorShape([length(s.dims)])]
 end
 
 register_shape("Concat") do op
@@ -623,7 +624,7 @@ register_shape("Pad") do op
     if paddings.op.op_name != "Const"
         return [TensorShape([Nullable{Int}() for dim in 1:length(tensor_shape.dims)])]
     end
-    padding_value = tf.load_proto(padding.attrs["value"])  # TODO: this might be transposed
+    padding_value = Array(tf.load_proto(padding.attrs["value"]))  # TODO: this might be transposed
     for dim in 1:length(tensor_shape.dims)
         if isnull(tensor_shape.dims[dim])
             continue

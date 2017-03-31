@@ -130,6 +130,31 @@ end
 
 Base.read(::Type{Tensor}, filename) = read_file(filename)
 
+"""
+    struct_map(operation, args...)
+
+Run `operation` separately over the deconstructed version of each arg in args,
+then reconstruct the output to be of the same struct type as the args
+(eg, LSTMStateTuple).
+"""
+function struct_map(op, args...)
+    @assert !isempty(args)
+    tensors = get_tensors.(args)
+    N = length(tensors[1])
+    for i in eachindex(tensors)
+        @assert length(tensors[i]) == N
+    end
+    mapped_tensors = []
+    for n in 1:N
+        tensor_list = []
+        for tensor in tensors
+            push!(tensor_list, tensor[n])
+        end
+        mapped_tensor = op(tensor_list...)
+        push!(mapped_tensors, mapped_tensor)
+    end
+    build_output(args[1], mapped_tensors)
+end
 
 include("ops/math.jl")
 include("ops/sequences.jl")

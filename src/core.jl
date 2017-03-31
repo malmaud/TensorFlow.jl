@@ -21,7 +21,7 @@ macro tfcall(sym, ret, args, vals...)
             LIBTF_PTR[] = Libdl.dlopen(tf_path)
         end
         func = Libdl.dlsym(LIBTF_PTR[], $sym)
-        ccall(func, $ret, $args, $(vals...))
+        ccall(func, $(esc(ret)), $(esc(args)), $(esc.(vals)...))
     end
 end
 
@@ -151,6 +151,7 @@ immutable OperationContext
     names::Vector{String}
     while_context::Vector{tensorflow.WhileContextDef}
     devices::Vector{Device}
+    is_top_level::Ref{Bool}
 end
 
 @auto_hash_equals immutable TensorShape
@@ -196,7 +197,7 @@ type Graph
         collections[:Summaries] = []
         collections[:QueueRunners] = []
         collections[:while_context] = []
-        self = new(ptr, collections, Dict{String, TensorShape}(), Dict{String, Int}(), OperationContext(Vector{Operation}[], String[], tensorflow.WhileContextDef[], Device[]))
+        self = new(ptr, collections, Dict{String, TensorShape}(), Dict{String, Int}(), OperationContext(Vector{Operation}[], String[], tensorflow.WhileContextDef[], Device[], Ref(false)))
         finalizer(self, self->begin
             @tfcall(:TF_DeleteGraph, Void, (Ptr{Void},), self.ptr)
         end)
@@ -303,6 +304,16 @@ end
     for node_bytes in node_defs
         node_def = convert(tensorflow.NodeDef, node_bytes)
         if isnull(get_node_by_name(graph, node_def.name))
+            # First try to directly add this node to the graph
+            try
+                Operation(node_def)
+                continue
+            catch err
+            end
+
+            # If that doesn't work (for example, the node has a
+            # back edge), then import the node instead.
+
             # Hack to deal with imported nodes which have
             # colocation dependencies on existing nodes
             if has_field(node_def, :attr) && haskey(node_def.attr, "_class")
@@ -395,10 +406,24 @@ end
 
 const def_graph = Ref{Graph}()
 
+const upgrade_check_needed = Ref(true)
+
+function upgrade_check(v)
+    if upgrade_check_needed[]
+        if tf_version() < v
+            warn("You are using an old version version of the TensorFlow binary library. It is recommened that you upgrade with Pkg.build(\"TensorFlow\") or various
+            errors may be encountered.\n You have $(tf_version()) and the new version is $v.")
+        end
+        upgrade_check_needed[] = false
+    end
+end
+
 """
 Returns the default computation graph, an object of type `Graph`.
 """
 function get_def_graph()
+    upgrade_check(v"1.0.1")  # This is here instead of in __init__ to avoid issues
+                             # with precompilation.
     has_def_graph() || (def_graph[] = Graph())
     def_graph[]
 end
@@ -476,6 +501,8 @@ type Buffer
         end)
         return self
     end
+
+    Buffer(ptr) = new(ptr)
 end
 
 immutable BufferStruct
@@ -673,6 +700,10 @@ function RawTensor(data::String)
     RawTensor([data], true)
 end
 
+function RawTensor(data::Array{Vector{UInt8}})
+    RawTensor(String.(data))
+end
+
 
 function Base.ndims(t::RawTensor)
     @tfcall(:TF_NumDims, Cint, (Ptr{Void},), t.ptr) |> Int
@@ -852,14 +883,45 @@ function with_op_control(f, control_ops)
     end
 end
 
+function with_top_level(f)
+    g = get_def_graph()
+    is_top_level = g.op_context.is_top_level
+    old_level = is_top_level[]
+    is_top_level[] = true
+    try
+        with_no_op_control() do
+            f()
+        end
+    finally
+        is_top_level[] = old_level
+    end
+end
+
+function with_no_op_control(f)
+    g = get_def_graph()
+    control_ops = deepcopy(g.op_context.control_ops)
+    empty!(g.op_context.control_ops)
+    try
+        f()
+    finally
+        append!(g.op_context.control_ops, control_ops)
+    end
+end
+
 function Operation(desc::NodeDescription)
     self = Operation()
     status = Status()
     ptr = @tfcall(:TF_FinishOperation, Ptr{Void}, (Ptr{Void}, Ptr{Void}), desc.ptr, status.ptr)
     check_status(status)
     self.ptr = ptr
-    self.graph = Nullable(desc.graph)
+    graph = desc.graph
+    self.graph = Nullable(graph)
     fillin(self)
+
+    if graph.op_context.is_top_level[]
+        add_to_collection(graph, :TopLevel, self)
+    end
+
     return self
 end
 
@@ -926,9 +988,9 @@ function load_proto(tensor::tensorflow.TensorProto)
         end
     end
     if length(val) == 0 && length(dim) == 0
-        zeros(eltype(val),0)
+        RawTensor(zeros(eltype(val),0))
     elseif length(dim) == 0
-        val[1]
+        RawTensor(val[1])
     else
         # https://www.tensorflow.org/api_docs/python/constant_op/constant_value_tensors#constant
         if length(val) < prod(dim)
@@ -939,7 +1001,7 @@ function load_proto(tensor::tensorflow.TensorProto)
                 val[i] = last_val
             end
         end
-        reshape(val, reverse(dim)) |> convert_major_order
+        RawTensor(reshape(val, reverse(dim)) |> convert_major_order)
     end
 end
 
@@ -984,6 +1046,9 @@ function load_proto(value::tensorflow.AttrValue)
         load_proto(value.shape)
     elseif has_field(value, :list)
         load_proto(value.list)
+    elseif has_field(value, :_type)
+        type_ = value._type
+        proto_type_map[type_]
     end
 end
 
@@ -1109,12 +1174,17 @@ function setindex!(desc::NodeDescription, dtype::DataType, attr_name)
     @tfcall(:TF_SetAttrType, Void, (Ptr{Void}, Cstring, TF_DataType), desc.ptr, attr_name, dtype|>jl_to_df_type)
 end
 
-function setindex!(desc::NodeDescription, value::Int, attr_name)
+function setindex!(desc::NodeDescription, value::Integer, attr_name)
+    value = Int64(value)
     @tfcall(:TF_SetAttrInt, Void, (Ptr{Void}, Cstring, Int64), desc.ptr, attr_name, value)
 end
 
-function setindex!(desc::NodeDescription, value::Tuple, attr_name)
-    dims = Int[value...]
+function setindex!(desc::NodeDescription, value::TensorShape, attr_name)
+    if value.rank_unknown
+        dims = Int[]
+    else
+        dims = Int[(isnull(dim) ? -1 : get(dim)) for dim in value.dims]
+    end
     @tfcall(:TF_SetAttrShape, Void, (Ptr{Void}, Cstring, Ptr{Int64}, Cint), desc.ptr, attr_name, dims, length(dims))
 end
 
@@ -1122,7 +1192,8 @@ function setindex!(desc::NodeDescription, value::Bool, attr_name)
     @tfcall(:TF_SetAttrBool, Void, (Ptr{Void}, Cstring, Cuchar), desc.ptr, attr_name, value)
 end
 
-function setindex!(desc::NodeDescription, value::Float32, attr_name)
+function setindex!(desc::NodeDescription, value::AbstractFloat, attr_name)
+    value = Float32(value)
     @tfcall(:TF_SetAttrFloat, Void, (Ptr{Void}, Cstring, Cfloat), desc.ptr, attr_name, value)
 end
 
@@ -1131,8 +1202,18 @@ function setindex!(desc::NodeDescription, value::AbstractString, attr_name)
     @tfcall(:TF_SetAttrString, Void, (Ptr{Void}, Cstring, Ptr{Void}, Cint), desc.ptr, attr_name, Vector{UInt8}(value), sizeof(value))
 end
 
-function set_attr_list(desc::NodeDescription, attr_name, list::Vector{Int})
+function setindex!(desc::NodeDescription, value::Vector, attr_name)
+    set_attr_list(desc, attr_name, value)
+end
+
+function set_attr_list{T<:Integer}(desc::NodeDescription, attr_name, list::Vector{T})
+    list = Int64[Int64(x) for x in list]
     @tfcall(:TF_SetAttrIntList, Void, (Ptr{Void}, Cstring, Ptr{Int64}, Cint), desc.ptr, attr_name, list, length(list))
+end
+
+function set_attr_list{T<:AbstractFloat}(desc::NodeDescription, attr_name, list::Vector{T})
+    list = Float32[Float32(x) for x in list]
+    @tfcall(:TF_SetAttrFloatList, Void, (Ptr{Void}, Cstring, Ptr{Float32}, Cint), desc.ptr, attr_name, list, length(list))
 end
 
 function set_attr_list{T<:DataType}(desc::NodeDescription, attr_name, list::Vector{T})
@@ -1439,3 +1520,67 @@ end
 get_name(t::Tensor) = "$(get_name(t.op)):$(t.value_index-1)"
 get_name(op::Operation) = get_def(op).name
 get_name(i::IndexedSlices) = get_name(i.values)
+
+const op_list = Dict{String, tensorflow.OpDef}()
+
+function get_all_op_list()
+    !isempty(op_list) && return op_list
+    buf_ptr = @tfcall(:TF_GetAllOpList, Ptr{Void}, ())
+    buffer = Buffer(buf_ptr)
+    data = convert(Array, buffer)
+    b = IOBuffer(data)
+    ops = tensorflow.OpList()
+    readproto(b, ops)
+    for op in ops.op
+        op_list[op.name] = op
+    end
+    op_list
+end
+
+function Operation(node_def::tensorflow.NodeDef)
+    function get_tensor(full_name)
+        name, port = parse_port_name(full_name)
+        get_tensor_by_name("$name:$(port-1)")
+    end
+
+    op = get_all_op_list()[node_def.op]
+    desc = NodeDescription(node_def.op, node_def.name)
+    inputs = String[]
+
+    # Process control inputs
+    for input in node_def.input
+        if input[1:1] == "^"
+            name = input[2:end]
+            control_op = get(get_node_by_name(name))
+            add_control_input(desc, control_op)
+        else
+            push!(inputs, input)
+        end
+    end
+
+    # Add regular inputs
+    input_idx = 1
+    for input in op.input_arg
+        number_attr = input.number_attr
+        if isempty(number_attr)
+            add_input(desc, get_tensor(inputs[input_idx]))
+            input_idx += 1
+        else
+            N = load_proto(node_def.attr[number_attr])
+            tensors = []
+            for n in 1:N
+                push!(tensors, get_tensor(inputs[input_idx]))
+                input_idx += 1
+            end
+            add_input(desc, tensors)
+        end
+    end
+
+    # Add attributes
+    for (key, attr) in node_def.attr
+        value = load_proto(attr)
+        desc[key] = value
+    end
+
+    Operation(desc)
+end
