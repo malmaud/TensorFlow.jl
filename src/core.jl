@@ -959,7 +959,7 @@ function load_proto(tensor::tensorflow.TensorProto)
     elseif dtype == tensorflow._DataType.DT_BOOL
         val = tensor.bool_val
     else
-        warn("Unrecognized datatype $dtype")
+        # warn("Unrecognized datatype $dtype")
     end
     # Sometimes Tensorflow store the tensor content in the 'tensor_content' byte array,
     # and sometimes in a typed field. Haven't figured out the rational yet.
@@ -1077,7 +1077,7 @@ end
 Base.getindex(node::Operation, attr_name) = get_attr_value_proto(node, attr_name)
 
 const dt = tensorflow._DataType
-const proto_type_map = Dict(dt.DT_FLOAT=>Float32, dt.DT_INT32=>Int32, dt.DT_DOUBLE=>Float64, dt.DT_INT64=>Int64, dt.DT_STRING=>String, dt.DT_BOOL=>Bool)
+const proto_type_map = Dict(dt.DT_FLOAT=>Float32, dt.DT_INT32=>Int32, dt.DT_DOUBLE=>Float64, dt.DT_INT64=>Int64, dt.DT_STRING=>String, dt.DT_BOOL=>Bool )
 
 @compat abstract type AbstractTensor end
 

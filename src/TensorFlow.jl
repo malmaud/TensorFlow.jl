@@ -119,7 +119,8 @@ enqueue,
 enqueue_many,
 dequeue,
 dequeue_many,
-get_all_op_list
+get_all_op_list,
+Ops
 
 
 isdefined(Base, :⊻) || (export ⊻)
@@ -129,6 +130,7 @@ const pyproc = Ref(0)
 
 function __init__()
     c_deallocator[] = cfunction(deallocator, Void, (Ptr{Void}, Csize_t, Ptr{Void}))
+    load_ops()
 end
 
 function load_python_process()
