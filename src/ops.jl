@@ -156,6 +156,103 @@ function struct_map(op, args...)
     build_output(args[1], mapped_tensors)
 end
 
+module Ops
+    import TensorFlow
+    const tf = TensorFlow
+end
+
+immutable OpFunc
+    expr::Expr
+    docstring::String
+    name::Symbol
+end
+
+function to_function(op::tensorflow.OpDef)
+    jl_name = Symbol(lowercase(op.name))
+    inputs = []
+    input_block = quote end
+    for input in op.input_arg
+        sym = gensym()
+        push!(inputs, sym)
+        if input.type_attr == "Index"
+            convert_target = tf.Tensor{Int32}
+            diff_expr = quote
+                converted = converted - 1
+            end
+        else
+            convert_target = tf.Tensor
+            diff_expr = quote end
+        end
+        push!(input_block.args, quote
+            if isa($sym, AbstractArray)
+                converted = convert.($(convert_target), $sym)
+            else
+                converted = convert($(convert_target), $sym)
+            end
+            $diff_expr
+            tf.add_input(desc, converted)
+        end)
+    end
+    kwargs = Expr(:parameters)
+    push!(kwargs.args, Expr(:kw, :name, nothing))
+    attr_block = quote end
+    for attr in op.attr
+        isdefined(attr, :default_value) || continue
+        push!(kwargs.args, Expr(:kw, Symbol(attr.name), nothing))
+        push!(attr_block.args, quote
+            if $(Symbol(attr.name)) !== nothing
+                desc[$(attr.name)] = $(Symbol(attr.name))
+            end
+        end)
+    end
+    unshift!(inputs, kwargs)
+    expr = quote
+        function $(jl_name)($(inputs...))
+            local desc
+            tf.with_op_name(name, $(op.name)) do
+                desc = tf.NodeDescription($(op.name))
+                $input_block
+                $attr_block
+            end
+            tf.Tensor(tf.Operation(desc))
+        end
+    end
+    posargs_str = join((arg.name for arg in op.input_arg), ", ")
+    kwargs_str = []
+    for arg in op.attr
+        isdefined(arg, :default_value) || continue
+        local default
+        try
+            default = load_proto(arg.default_value)
+        catch err
+            default = "?"
+        end
+        push!(kwargs_str, "$(arg.name)=$default")
+    end
+    if isempty(kwargs_str)
+        kwargs_str = ""
+    else
+        kwargs_str = string("; ", join(kwargs_str, ", "))
+    end
+
+    sig = "$jl_name($(posargs_str)$(kwargs_str))"
+    doc_str = string("     ", sig, "\n\n", op.summary, "\n\n", op.description)
+    OpFunc(expr, doc_str, jl_name)
+end
+
+function load_ops()
+    for (name, op) in get_all_op_list()
+        try
+            f = to_function(op)
+            eval(Ops, f.expr)
+            @eval @doc($(f.docstring), TensorFlow.Ops.$(f.name))
+        catch err
+            err_msg = sprint(showerror, err)
+            warn("Could not import operation $name: $err_msg")
+        end
+    end
+end
+
 include("ops/math.jl")
 include("ops/sequences.jl")
 include("ops/control_flow.jl")
