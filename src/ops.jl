@@ -162,6 +162,14 @@ immutable OpFunc
     name::Symbol
 end
 
+function keyword_escape(s)
+    keywords = ["const", "type"]
+    if s in keywords
+        s = string(s, "_")
+    end
+    s
+end
+
 """
     opname_to_jlname(name)
 
@@ -169,16 +177,12 @@ Converts a TensorFlow operation name `name` into a Julia
 function name. Eg UnsortedSegmentSum->unsorted_segment_sum.
 """
 function opname_to_jlname(name)
-    keywords = ["const"]
     tokens = []
     pos = 1
     while true
         m = match(r"([A-Z]{2,})|(V\d+$)|(\d+$)|(\d+.)|([A-Z][a-z]*)", name, pos)
         m === nothing && break
-        lowered = lowercase(m.match)
-        if lowered in keywords
-            lowered = "$(lowered)_"
-        end
+        lowered = keyword_escape(lowercase(m.match))
         push!(tokens, lowered)
         pos = m.offset + length(m.match)
     end
@@ -216,15 +220,28 @@ function to_function(op::tensorflow.OpDef)
     push!(kwargs.args, Expr(:kw, :name, nothing))
     attr_block = quote end
     for attr in op.attr
-        isdefined(attr, :default_value) || continue
-        push!(kwargs.args, Expr(:kw, Symbol(attr.name), nothing))
+        name = Symbol(keyword_escape(attr.name))
+        push!(kwargs.args, Expr(:kw, name, nothing))
         push!(attr_block.args, quote
-            if $(Symbol(attr.name)) !== nothing
-                desc[$(attr.name)] = $(Symbol(attr.name))
+            if $name !== nothing
+                desc[$(attr.name)] = $name
             end
         end)
     end
     unshift!(inputs, kwargs)
+    n_output = length(op.output_arg)
+    output_block = if n_output == 1
+        :(tf.Tensor(tf.Operation(desc)))
+    else
+        blocks = []
+        for n in 1:n_output
+            push!(blocks, :(tf.Tensor(op, $n)))
+        end
+        quote
+            op = tf.Operation(desc)
+            $(Expr(:tuple, blocks...))
+        end
+    end
     expr = quote
         function $(jl_name)($(inputs...))
             local desc
@@ -233,7 +250,7 @@ function to_function(op::tensorflow.OpDef)
                 $input_block
                 $attr_block
             end
-            tf.Tensor(tf.Operation(desc))
+            $output_block
         end
     end
     posargs_str = join((arg.name for arg in op.input_arg), ", ")

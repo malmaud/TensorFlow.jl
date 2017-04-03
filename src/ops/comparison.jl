@@ -2,27 +2,7 @@ import Base: less
 
 import .Ops: equal, not_equal, less_equal, greater, greater_equal, where
 
-Base.less(arg::AbstractTensor, args...; kwargs...) = Ops.less(arg, args...; kwargs...)
-#
-# for (func, op) in [
-#     (:equal, "Equal"),
-#     (:not_equal, "NotEqual"),
-#     (:less, "Less"),
-#     (:less_equal, "LessEqual"),
-#     (:greater, "Greater"),
-#     (:greater_equal, "GreaterEqual")]
-#
-#     @eval @op function $func(t1::AbstractTensor, t2::AbstractTensor; name=nothing)
-#         local desc
-#         with_op_name(name, $op) do
-#             desc = NodeDescription($op)
-#             add_input(desc, Tensor(t1))
-#             add_input(desc, Tensor(t2))
-#         end
-#         Tensor(Operation(desc), 1)
-#     end
-#
-# end
+Base.less(x::AbstractTensor, y::AbstractTensor; kwargs...) = Ops.less(x, y; kwargs...)
 
 const undotted_func_list = [
     (:less, :<),
@@ -60,27 +40,5 @@ end
 
 Base.select(condition::AbstractTensor, args...; kwargs...) = Ops.select(condition, args...; kwargs...)
 
-# @op function Base.select(condition::AbstractTensor, t, e; name=nothing)
-#     local desc
-#     with_op_name(name, "Select") do
-#         desc = NodeDescription("Select")
-#         add_input(desc, Tensor(condition))
-#         add_input(desc, Tensor(t))
-#         add_input(desc, Tensor(e))
-#     end
-#     Tensor(Operation(desc), 1)
-# end
-#
-# """
-# Returns locations of `true` values in a boolean `Tensor`.
-# """
-# @op function where(input; name=nothing)
-#     local desc
-#     with_op_name(name, "Where") do
-#         desc = NodeDescription("Where")
-#         add_input(desc, Tensor(input))
-#     end
-#     Tensor(Operation(desc), 1)
-# end
 
 Base.find(input::AbstractTensor) = Ops.where(input)+1  # Convert from 0-based indices
