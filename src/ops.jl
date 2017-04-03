@@ -167,8 +167,27 @@ immutable OpFunc
     name::Symbol
 end
 
+"""
+    opname_to_jlname(name)
+
+Converts a TensorFlow operation name `name` into a Julia
+function name. Eg UnsortedSegmentSum->unsorted_segment_sum.
+"""
+function opname_to_jlname(name)
+    tokens = []
+    pos = 1
+    while true
+        m = match(r"([A-Z]{2,})|(V\d+$)|(\d+$)|(\d+.)|([A-Z][a-z]*)", name, pos)
+        m === nothing && break
+        push!(tokens, lowercase(m.match))
+        pos = m.offset + length(m.match)
+    end
+    Symbol(join(tokens, "_"))
+end
+
 function to_function(op::tensorflow.OpDef)
     jl_name = Symbol(lowercase(op.name))
+    jl_name = opname_to_jlname(op.name)
     inputs = []
     input_block = quote end
     for input in op.input_arg
