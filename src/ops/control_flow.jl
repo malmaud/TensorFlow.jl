@@ -1,25 +1,6 @@
 using Compat
 
-"""
-`function identity(input)`
-
-Return a tensor with the same shape and contents as the input tensor or value.
-
-Args:
-  `input`: A `Tensor`.
-  `name`: A name for the operation (optional).
-
-Returns:
-  A `Tensor`. Has the same type as `input`.
-"""
-@op function identity(input; name=nothing)
-    local desc
-    with_op_name(name, "Identity") do
-        desc = NodeDescription("Identity")
-        add_input(desc, Tensor(input))
-    end
-    Tensor(Operation(desc))
-end
+import .Ops: identity, no_op, count_up_to
 
 @op function make_tuple(tensors; name="", control_inputs=Operation[])
     group_deps = group(vcat(tensors, control_inputs)...)
@@ -62,48 +43,6 @@ Raises:
         for tensor in tensors
             add_control_input(desc, tensor)
         end
-    end
-    Tensor(Operation(desc))
-end
-
-"""
-A named `Operation` that does nothing.
-"""
-@op function no_op(name=nothing)
-    local desc
-    with_op_name(name, "NoOp") do
-        desc = NodeDescription("NoOp")
-    end
-    Tensor(Operation(desc))
-end
-
-"""
-    count_up_to(ref, limit)
-
-Increments `ref` until it reaches `limit`.
-
-This operation outputs `ref` after the update is done.  This makes it
-easier to chain operations that need to use the updated value.
-
-Args:
-*  `ref`: A mutable `Tensor`. Must be one of the following types: `Int32`, `Int64`.
-    Should be from a scalar `Variable` node.
-*  `limit`: An `int`.
-    If incrementing `ref` would bring it above `limit`, instead generates an
-    `OutOfRange` error.
-*  `name`: A name for the operation (optional).
-
-Returns:
-*  A `Tensor`. Has the same type as `ref`.
-*  A copy of the input before increment. If nothing else modifies the
-   input, the values produced will all be distinct.
-"""
-@op function count_up_to(ref, limit; name=nothing)
-    local desc
-    with_op_name(name, "CountUpTo") do
-        desc = NodeDescription("CountUpTo")
-        add_input(desc, Tensor(ref))
-        desc["limit"] = Int64(limit)
     end
     Tensor(Operation(desc))
 end
@@ -196,65 +135,6 @@ function with_frame(f, parallel_iterations, back_prop, swap_memory)
     f()
     pop!(op_context.while_context)
 end
-
-@op function make_enter_op(input, frame; name=nothing, is_constant=false)
-    local desc
-    with_op_name(name, "Enter") do
-        desc = NodeDescription("Enter")
-        desc["frame_name"] = frame
-        desc["is_constant"] = is_constant
-        add_input(desc, input)
-    end
-    Tensor(Operation(desc), 1)
-end
-
-@op function make_exit_op(input; name=nothing)
-    local desc
-    with_op_name(name, "Exit") do
-        desc = NodeDescription("Exit")
-        add_input(desc, input)
-    end
-    Tensor(Operation(desc), 1)
-end
-
-@op function make_next_iteration_op(input; name=nothing)
-    local desc
-    with_op_name(name, "NextIteration") do
-        desc = NodeDescription("NextIteration")
-        add_input(desc, input)
-    end
-    Tensor(Operation(desc), 1)
-end
-
-@op function make_merge_op(inputs; name=nothing)
-    local desc
-    with_op_name(name, "Merge") do
-        desc = NodeDescription("Merge")
-        add_input(desc, inputs)
-    end
-    Tensor(Operation(desc), 1)
-end
-
-@op function make_switch_op(input, predicate; name=nothing)
-    local desc
-    with_op_name(name, "Switch") do
-        desc = NodeDescription("Switch")
-        add_input(desc, input)
-        add_input(desc, predicate)
-    end
-    op = Operation(desc)
-    [Tensor(op, 1), Tensor(op, 2)]
-end
-
-@op function make_loop_cond(input; name=nothing)
-    local desc
-    with_op_name(name, "LoopCond") do
-        desc = NodeDescription("LoopCond")
-        add_input(desc, input)
-    end
-    Tensor(Operation(desc), 1)
-end
-
 
 """
     while_loop(cond, body, loop_vars, shape_invariants=None, parallel_iterations=10, back_prop=True, swap_memory=False, name=None)
@@ -389,9 +269,9 @@ Example using shape_invariants:
                 body_input = Tensor[]
                 enter_nodes = Tensor[]
                 for var in variable_tensors
-                    enter_op = make_enter_op(var, context.context_name)
+                    enter_op = Ops.enter(var, frame_name=context.context_name)
                     push!(enter_nodes, enter_op)
-                    merge_op = make_merge_op([enter_op, enter_op])
+                    merge_op = Ops.merge([enter_op, enter_op])[1]
                     push!(merge_nodes, merge_op)
                     fillin(merge_op.op)
                     push!(merge_names, merge_op.op.name)
@@ -402,12 +282,13 @@ Example using shape_invariants:
                     merge_node_structs = build_output(variables, merge_nodes)
                     condition_out = condition(merge_node_structs...)
                 end
-                pred = make_loop_cond(condition_out)
+                pred = Ops.loop_cond(condition_out)
                 set_field!(context, :pivot_name, get_name(pred))
                 body_pivots = Tensor[]
                 for var_idx in eachindex(variable_tensors)
-                    switch_false, switch_true = make_switch_op(merge_nodes[var_idx], pred)
-                    exit_op = make_exit_op(switch_false)
+                    switch_false, switch_true = Ops.switch(merge_nodes[var_idx], pred)
+
+                    exit_op = Ops.exit(switch_false)
                     push!(context.loop_exit_names, get_name(exit_op))
                     push!(output, exit_op)
                     body_pivot = identity(switch_true)
@@ -424,7 +305,7 @@ Example using shape_invariants:
                 body_output_tensors = get_tensors(body_output)
                 body_val = Tensor[]
                 for tensor in body_output_tensors
-                    next_iteration_op = make_next_iteration_op(tensor)
+                    next_iteration_op = Ops.next_iteration(tensor)
                     push!(body_val, next_iteration_op)
                 end
                 g_def = get_def(g)
