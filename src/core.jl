@@ -1102,13 +1102,9 @@ Base.convert{T}(::Type{Tensor{T}}, value::AbstractTensor) = convert(Tensor{T}, c
 Base.convert(::Type{Tensor}, value) = constant(value)
 Base.convert(::Type{Tensor}, value::Tensor) = value
 
-function Base.convert{T, R}(::Type{Tensor{T}}, value::Tensor{R})
-    if T==R  # Don't insert unnecessary casts into type graph
-        value
-    else
-        cast(value, T)
-    end
-end
+Base.convert{T, R}(::Type{Tensor{T}}, value::Tensor{R}) = cast(value, T)
+Base.convert{T}(::Type{Tensor{T}}, value::Tensor{T}) = value
+Base.convert{R}(::Type{Tensor{Any}}, value::Tensor{R}) = convert(Tensor, value)
 
 function Base.convert{T}(::Type{Tensor{T}}, value)
     convert(Tensor{T}, constant(value))
