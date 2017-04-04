@@ -9,8 +9,6 @@ if VERSION < v"0.6.0-"
     import Base: .*, .+, ./, .-, .^, .==
 end
 
-
-
 function tf_promote(t, x::Number)
     return Tensor(eltype(t)(x))
 end
@@ -164,7 +162,7 @@ end
 
 function keyword_escape(s)
     keywords = ["const", "type"]
-    if s in keywords
+    if (s ∈ keywords) || Base.isoperator(s)
         s = string(s, "_")
     end
     s
@@ -243,7 +241,7 @@ function to_function(op::tensorflow.OpDef)
         end
     end
     expr = quote
-        function $(jl_name)($(inputs...))
+        @tf.op function $(jl_name)($(inputs...))
             local desc
             tf.with_op_name(name, $(op.name)) do
                 desc = tf.NodeDescription($(op.name))
@@ -289,6 +287,12 @@ function stringify_func(opfunc::OpFunc)
     join(lines, "\n")
 end
 
+"""
+    import_ops()
+
+Autogenerates Julia functions for all TensorFlow operations defined in the
+TensorFlow shared library.
+"""
 function import_ops()
     open(joinpath(dirname(@__FILE__), "ops/imported_ops.jl"), "w") do ops_file
         date = Dates.now()
