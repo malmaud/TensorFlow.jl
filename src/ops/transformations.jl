@@ -1,5 +1,4 @@
 import .Ops:
-    cast,
     slice,
     strided_slice,
     split,
@@ -18,6 +17,10 @@ import .Ops:
 
 const concat = Ops.concat_v2
 const stack = Ops.pack
+
+function cast(value, dst_t; kwargs...)
+    Ops.cast(value, DstT=dst_t, kwargs...)
+end
 
 """
 Base.reshape(n::AbstractTensor, dims; name="")

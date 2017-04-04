@@ -41,12 +41,13 @@ import .Ops:
 @op Base.max(x::AbstractTensor, y; kwargs...) = Ops.maximum(x, y; kwargs...)
 @op Base.min(x::AbstractTensor, y; kwargs...) = Ops.minimum(x, y; kwargs...)
 
+const multiply = Ops.mul
 
 for (bin_op, jl_func_name) in [
     (:+, :add),
     (:-, :sub),
     (:*, :mat_mul),
-    (:/, :div),
+    (:/, :(Ops.div)),
     (:^, :pow)]
 
     @eval $bin_op(n1::AbstractTensor, n2::AbstractTensor) = $jl_func_name(n1, n2)

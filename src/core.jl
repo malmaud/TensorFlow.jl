@@ -859,7 +859,6 @@ function fillin(op::Operation)
     op.op_name = @tfcall(:TF_OperationOpType, Cstring, (Ptr{Void},), op.ptr) |> unsafe_string
 end
 
-
 function with_op_name(f, name, def_name="Node")
     if name === nothing
         name = get_name(def_name)

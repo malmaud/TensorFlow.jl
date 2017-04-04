@@ -3,7 +3,12 @@ import .Ops:
     random_standard_normal,
     random_shuffle
 
-const constant = Ops.const_
+@op function constant(value; dtype=nothing, kwargs...)
+    if dtype === nothing
+        dtype = eltype(value)
+    end
+    Ops.const_(; value=value, dtype=dtype, kwargs...)
+end
 
 for f in [:zeros, :ones]
     @eval Base.$f{T}(::Type{Tensor{T}}, shape...) = constant($f(T, shape...))
