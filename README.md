@@ -53,7 +53,7 @@ Pkg.build("TensorFlow")
 ```
 
 CUDA 8.0 and cudnn are required for GPU usage.
-If you need to use a different version of CUDA you can [compile libtensorflow from source](#optional-building-the-tensorflow-library)
+If you need to use a different version of CUDA you can [compile libtensorflow from source](#optional-building-the-tensorflow-library).
 
 ## Installation via Docker
 
