@@ -162,7 +162,7 @@ end
 
 function keyword_escape(s)
     keywords = ["const", "type"]
-    if (s ∈ keywords) || Base.isoperator(s)
+    if (s ∈ keywords) || Base.isoperator(Symbol(s))
         s = string(s, "_")
     end
     s
@@ -205,11 +205,12 @@ function to_function(op::tensorflow.OpDef)
             diff_expr = quote end
         end
         push!(input_block.args, quote
-            if isa($sym, AbstractArray)
-                converted = convert.($(convert_target), $sym)
-            else
-                converted = convert($(convert_target), $sym)
-            end
+            # if typeof($sym) <: AbstractArray
+            #     converted = convert.($(convert_target), $sym)
+            # else
+            #     converted = convert($(convert_target), $sym)
+            # end
+            converted = convert($(convert_target), $sym)
             $diff_expr
             tf.add_input(desc, converted)
         end)
@@ -220,9 +221,24 @@ function to_function(op::tensorflow.OpDef)
     for attr in op.attr
         name = Symbol(keyword_escape(attr.name))
         push!(kwargs.args, Expr(:kw, name, nothing))
+
+        # Deal with attribute types like "list(int)"
+        m = match(r"list(\(.*\))|(.*)", attr._type)
+        t = m[1] !== nothing ? m[1] : m[2]
+
+        t_map = Dict("int"=>:(Base.Int),
+                     "bool"=>:(Base.Bool),
+                     "tensor"=>:(TensorFlow.RawTensor),
+                     "string"=>:(Base.String))
+        t_target = get(t_map, t, :(Base.identity))
+        if m[1] === nothing
+            source = :($(t_target)($name))
+        else
+            source = :($(t_target).$(name))
+        end
         push!(attr_block.args, quote
             if $name !== nothing
-                desc[$(attr.name)] = $name
+                desc[$(attr.name)] = $source
             end
         end)
     end
@@ -276,7 +292,7 @@ end
 
 function stringify_func(opfunc::OpFunc)
     s = sprint(show, opfunc.expr)
-    noquote = split(s, "\n")[2:end-1]
+    noquote = Base.split(s, "\n")[2:end-1]
     docstring = replace(opfunc.docstring, "\$", "")
     lines = ["\"\"\"\n$(docstring)\n\"\"\""]
     for line in noquote
@@ -308,7 +324,7 @@ function import_ops()
                 f = to_function(op)
                 s = stringify_func(f)
                 write(ops_file, s)
-                print(ops_file, "\n\n")
+                Base.print(ops_file, "\n\n")
             catch err
                 err_msg = sprint(showerror, err)
                 warn("Could not import operation $name: $err_msg")

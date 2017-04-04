@@ -1,6 +1,6 @@
 import .Ops: is_finite, is_nan, is_inf
 
-const print = Ops.print
+const Print = Ops.print
 
 for (func, name) in [
     (:is_finite, :isfinite),
