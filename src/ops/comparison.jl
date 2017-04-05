@@ -20,9 +20,6 @@ import Base: >, <, ≥, ≤
 end
 
 for (func, sym) in func_list
-    if sym ∈ [:(==), :(!=)]  # Don't override == to avoid confusion
-        continue
-    end
     @eval @define_binary($sym, $func)
 end
 
