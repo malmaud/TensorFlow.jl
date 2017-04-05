@@ -1,3 +1,5 @@
+using Base.Test
+
 sess = TensorFlow.Session(TensorFlow.Graph())
 
 blank_image = TensorFlow.constant(ones((5,5,5)))

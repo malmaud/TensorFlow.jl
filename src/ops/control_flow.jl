@@ -364,7 +364,8 @@ Example using shape_invariants:
                         tensor = Tensor(op, port)
                         local enter_op
                         as_default(def_graph) do
-                            enter_op = make_enter_op(tensor, context.context_name, is_constant=true)
+                            # enter_op = make_enter_op(tensor, context.context_name, is_constant=true)
+                            enter_op = Ops.enter(tensor, frame_name=context.context_name, is_constant=true)
                         end
                         context.values_def.external_values[get_name(tensor)] = get_name(enter_op)
                         push!(context.values_def.values, get_name(tensor))

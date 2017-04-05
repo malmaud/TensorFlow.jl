@@ -12,7 +12,6 @@ import .Ops:
     matrix_solve,
     matrix_triangular_solve,
     matrix_solve_ls,
-    self_adjoint_eig,
     cholesky,
     cross,
     neg,
@@ -34,14 +33,16 @@ import .Ops:
     segment_prod
 
 
-@op Base.indmin(n::AbstractTensor, dim; name=nothing) = argmin(n, dim-1; name=name)+1
+@op Base.indmin(n::AbstractTensor, dim; name=nothing) = Ops.arg_min(n, dim; name=name)+1
 
-@op Base.indmax(n::AbstractTensor, dim; name=nothing) = argmax(n, dim-1; name=name)+1
+@op Base.indmax(n::AbstractTensor, dim; name=nothing) = Ops.arg_max(n, dim; name=name)+1
 
 @op Base.max(x::AbstractTensor, y; kwargs...) = Ops.maximum(x, y; kwargs...)
 @op Base.min(x::AbstractTensor, y; kwargs...) = Ops.minimum(x, y; kwargs...)
 
 const multiply = Ops.mul
+const negative = Ops.neg
+const self_adjoint_eig = Ops.self_adjoint_eig_v2
 
 for (bin_op, jl_func_name) in [
     (:+, :add),
@@ -152,6 +153,15 @@ for jl_func_name in [
     :round]
     @eval @op function Base.$jl_func_name(n::AbstractTensor; kwargs...)
         Ops.$jl_func_name(n; kwargs...)
+    end
+end
+
+for jl_func_name in [
+    :lbeta,
+    :polygamma,
+    :zeta]
+    @eval @op function Base.$jl_func_name(x::AbstractTensor, y; kwargs...)
+        Ops.$jl_func_name(x, y; kwargs...)
     end
 end
 

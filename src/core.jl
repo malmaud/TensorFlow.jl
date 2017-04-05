@@ -1104,6 +1104,7 @@ Base.convert(::Type{Tensor}, value::Tensor) = value
 Base.convert{T, R}(::Type{Tensor{T}}, value::Tensor{R}) = cast(value, T)
 Base.convert{T}(::Type{Tensor{T}}, value::Tensor{T}) = value
 Base.convert{R}(::Type{Tensor{Any}}, value::Tensor{R}) = convert(Tensor, value)
+Base.convert(::Type{Tensor{Any}}, value::Tensor{Any}) = value
 
 function Base.convert{T}(::Type{Tensor{T}}, value)
     convert(Tensor{T}, constant(value))
