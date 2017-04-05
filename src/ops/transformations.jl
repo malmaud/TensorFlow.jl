@@ -198,14 +198,15 @@ Raises:
 """
 @op function unstack(value; num=nothing, axis=1, name=nothing)
     num_split = num==nothing ? get_shape(value, axis) : num
-    local desc
-    with_op_name(name, "Unstack") do
-        desc = NodeDescription("Unpack")
-        add_input(desc, value)
-        desc["num"] = num_split
-        desc["axis"] = axis - 1
-    end
-    op = Operation(desc)
+    op = get_op(Ops.unpack(value, num=num_split, axis=axis-1))
+    # local desc
+    # with_op_name(name, "Unstack") do
+    #     desc = NodeDescription("Unpack")
+    #     add_input(desc, value)
+    #     desc["num"] = num_split
+    #     desc["axis"] = axis - 1
+    # end
+    # op = Operation(desc)
     [Tensor(op, x) for x in 1:num_split]
 end
 
