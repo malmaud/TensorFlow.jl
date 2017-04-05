@@ -54,12 +54,21 @@ for (bin_op, jl_func_name) in [
     @eval @define_binary($bin_op, $jl_func_name)
 end
 
+
 const matmul = mat_mul
 
 @static if VERSION > v"0.6-"  # Cope with changes in broadcasting in Julia 0.6
     @define_broadcast(*, multiply)
+    @define_broadcast(+, add)
+    @define_broadcast(-, sub)
+    @define_broadcast(/, Ops.div)
+    @define_broadcast(^, pow)
 else
     @define_binary(.*, multiply)
+    @define_binary(.+, add)
+    @define_binary(.-, sub)
+    @define_binary(./, Ops.div)
+    @define_binary(.^, pow)
 end
 
 @op function batch_matmul(x::AbstractTensor,y::AbstractTensor; adj_x=false, adj_y=false, name=nothing)
