@@ -9,15 +9,43 @@ if VERSION < v"0.6.0-"
     import Base: .*, .+, ./, .-, .^, .==
 end
 
-function tf_promote(t, x::Number)
-    return Tensor(eltype(t)(x))
+function tf_promote(args...)
+    big_type = eltype(args[1])
+    for arg in args[2:end]
+        big_type = promote_type(big_type, eltype(arg))
+    end
+    new_args = []
+    for arg in args
+        push!(new_args, convert(Tensor{big_type}, arg))
+    end
+    (new_args...)
 end
 
-function tf_promote{T}(t, ::Type{Val{T}})  # Work around a^b->Val lowering
-    return tf_promote(t, T)
+macro define_binary(jl_func, tf_func)
+    quote
+        $jl_func(t1::AbstractTensor, t2::AbstractTensor) = $tf_func(tf_promote(t1, t2)...)
+        $jl_func(t1::AbstractTensor, t2) = $tf_func(t1, Tensor(t2))
+        $jl_func(t1, t2::AbstractTensor) = $tf_func(Tensor(t1), t2)
+    end |> esc
 end
 
-tf_promote(t, x) = Tensor(x)
+macro define_broadcast(jl_op, tf_func)
+    quote
+        Base.broadcast(::typeof($jl_op), t1::AbstractTensor, t2::AbstractTensor) = $tf_func(tf_promote(t1, t2)...)
+        Base.broadcast(::typeof($jl_op), t1::AbstractTensor, t2) = $tf_func(t1, Tensor(t2))
+        Base.broadcast(::typeof($jl_op), t1, t2::AbstractTensor) = $tf_func(Tensor(t1), t2)
+    end |> esc
+end
+
+# function tf_promote(t, x::Number)
+#     return Tensor(eltype(t)(x))
+# end
+#
+# function tf_promote{T}(t, ::Type{Val{T}})  # Work around a^b->Val lowering
+#     return tf_promote(t, T)
+# end
+#
+# tf_promote(t, x) = Tensor(x)
 
 macro not_implemented(f)
     res = @match f begin
