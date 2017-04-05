@@ -51,21 +51,15 @@ for (bin_op, jl_func_name) in [
     (:/, :(Ops.div)),
     (:^, :pow)]
 
-    @eval $bin_op(n1::AbstractTensor, n2::AbstractTensor) = $jl_func_name(n1, n2)
-    @eval $bin_op(n1::AbstractTensor, n2) = $jl_func_name(n1, tf_promote(n1, n2))
-    @eval $bin_op(n1, n2::AbstractTensor) = $jl_func_name(tf_promote(n2, n1), n2)
+    @eval @define_binary($bin_op, $jl_func_name)
 end
 
 const matmul = mat_mul
 
 @static if VERSION > v"0.6-"  # Cope with changes in broadcasting in Julia 0.6
-    Base.broadcast(::typeof(*), n1::AbstractTensor, n2::AbstractTensor) = multiply(n1, n2)
-    Base.broadcast(::typeof(*), n1::AbstractTensor, n2) = multiply(n1, tf_promote(n1, n2))
-    Base.broadcast(::typeof(*), n1, n2::AbstractTensor) = multiply(tf_promote(n2, n1), n2)
+    @define_broadcast(*, multiply)
 else
-    .*(n1::AbstractTensor, n2::AbstractTensor) = multiply(n1, n2)
-    .*(n1::AbstractTensor, n2) = multiply(n1, tf_promote(n1, n2))
-    .*(n1, n2::AbstractTensor) = multiply(tf_promote(n2, n1), n2)
+    @define_binary(.*, multiply)
 end
 
 @op function batch_matmul(x::AbstractTensor,y::AbstractTensor; adj_x=false, adj_y=false, name=nothing)
