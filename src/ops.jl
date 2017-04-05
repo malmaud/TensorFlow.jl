@@ -135,8 +135,7 @@ Returns:
     Tensor(node, 1)
 end
 
-import .Ops: read_file
-Base.read(::Type{Tensor}, filename) = read_file(filename)
+
 
 """
     struct_map(operation, args...)
@@ -367,3 +366,6 @@ include("ops/image.jl")
 include("ops/queues.jl")
 include("ops/clipping.jl")
 include("ops/init_ops.jl")
+
+import .Ops: read_file
+Base.read(::Type{Tensor}, filename) = read_file(filename)
