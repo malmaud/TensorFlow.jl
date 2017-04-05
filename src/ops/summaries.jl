@@ -10,10 +10,20 @@ image
 import TensorFlow
 const tf = TensorFlow
 
-const scalar = tf.Ops.scalar_summary
-const audio = tf.Ops.audio_summary_v2
-const histogram = tf.Ops.histogram_summary
-const image = tf.Ops.image_summary
+for (jl_func, op) in [
+    (:scalar, :scalar_summary),
+    (:audio, :audio_summary_v2),
+    (:histogram, :histogram_summary),
+    (:image, :image_summary)
+    ]
+    @eval @tf.op function $jl_func(args...; kwargs...)
+        res = tf.Ops.$op(args...; kwargs...)
+        tf.add_to_collection(:Summaries, res)
+        res
+    end
+end
+
+
 const merge = tf.Ops.merge_summary
 
 """
@@ -29,7 +39,8 @@ Returns:
   buffer resulting from the merging.
 """
 function merge_all(key=:Summaries)
-    merge(tf.get_collection(key), collections=[])
+    tensors = tf.get_collection(key)
+    merge(tensors)
 end
 
 end

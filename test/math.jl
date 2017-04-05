@@ -111,7 +111,7 @@ end
     end
 
     result = run(sess, ~a)
-    @test map(~, a_raw) == result  # Use map for .5 comptability 
+    @test map(~, a_raw) == result  # Use map for .5 comptability
 end
 
 @testset "reduce" begin

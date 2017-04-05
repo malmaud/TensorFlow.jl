@@ -39,7 +39,7 @@ end
 function Base.write(writer::FileWriter, bytes::String, global_step=0)
     b = IOBuffer()
     s = tensorflow.Summary()
-    write(b, bytes.data)
+    write(b, Vector{UInt8}(bytes))
     seekstart(b)
     readproto(b, s)
     write(writer, s, global_step)

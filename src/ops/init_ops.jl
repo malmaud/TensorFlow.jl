@@ -12,7 +12,7 @@ end
 Initializer that generates tensors initialized to 0.
 """
 function zeros_initializer(dtype=Float32)
-    size->zeros(Tensor, dtype, (size...))
+    size->zeros(Tensor{dtype}, size...)
 end
 
 """
@@ -21,5 +21,5 @@ end
 Initializer that generates tensors initialized to 1.
 """
 function ones_initializer(dtype=Float32)
-    size->ones(Tensor, dtype, (size...))
+    size->ones(Tensor{dtype}, size...)
 end

@@ -5,7 +5,11 @@ import .Ops:
 
 @op function constant(value; dtype=nothing, kwargs...)
     if dtype === nothing
-        dtype = eltype(value)
+        if isa(value, AbstractString)
+            dtype = String
+        else
+            dtype = eltype(value)
+        end
     end
     Ops.const_(; value=value, dtype=dtype, kwargs...)
 end

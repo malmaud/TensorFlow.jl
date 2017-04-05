@@ -195,7 +195,7 @@ function to_function(op::tensorflow.OpDef)
     for input in op.input_arg
         sym = gensym()
         push!(inputs, sym)
-        if input.type_attr == "Index"
+        if input.type_attr ∈ ["Index", "Tidx", "Tindices"]
             convert_target = tf.Tensor{Int32}
             diff_expr = quote
                 converted = converted - 1
@@ -204,13 +204,19 @@ function to_function(op::tensorflow.OpDef)
             convert_target = tf.Tensor{Any}
             diff_expr = quote end
         end
+        convert_expr = if isempty(input.number_attr) && isempty(input.type_list_attr)  # Scalar input
+                :(converted=convert($(convert_target), $sym))
+            else  # Array argument
+                :(converted=convert.($(convert_target), $sym))
+            end
         push!(input_block.args, quote
             # if typeof($sym) <: AbstractArray
             #     converted = convert.($(convert_target), $sym)
             # else
             #     converted = convert($(convert_target), $sym)
             # end
-            converted = convert($(convert_target), $sym)
+            #converted = convert($(convert_target), $sym)
+            $convert_expr
             $diff_expr
             tf.add_input(desc, converted)
         end)
@@ -302,6 +308,8 @@ function stringify_func(opfunc::OpFunc)
     end
     join(lines, "\n")
 end
+
+stringify_func(op::tensorflow.OpDef) = stringify_func(to_function(op))
 
 """
     import_ops()
