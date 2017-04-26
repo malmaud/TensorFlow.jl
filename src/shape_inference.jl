@@ -167,6 +167,24 @@ register_shape("SparseSoftmaxCrossEntropyWithLogits") do op
     return [TensorShape([s1.dims[1]]), copy(s1)]
 end
 
+register_shape("SoftmaxCrossEntropyWithLogits") do op
+    s1 = _get_shape(get_input(op, 1))
+    s2 = _get_shape(get_input(op, 2))
+    dim = Nullable{Int}()
+    if !s1.rank_unknown
+        dim = s1.dims[1]
+    end
+    if !s2.rank_unknown && !isnull(s2.dims[1])
+        if isnull(dim)
+            dim = s2.dims[1]
+        else
+            get(dim) == get(s2.dims[1]) || throw(DimensionMismatch("Tensors have incompatiable shapes ($(s1) vs $(s2))"))
+        end
+    end
+
+    return [TensorShape([dim])]
+end
+
 # Binary functions that broadcast
 for func in ["Add", "Sub", "Mul", "Div", "Pow", "SquaredDifference", "Less",
              "LessEqual", "Greater", "GreaterEqual", "Equal", "NotEqual"]

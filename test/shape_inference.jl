@@ -1,7 +1,6 @@
 using TensorFlow
 using Base.Test
 
-import TensorFlow.ShapeInference: TensorShape
 k = placeholder(Float32; shape=[10, 20, -1])
 m = placeholder(Float32; shape=[10, 20, 30])
 n = placeholder(Float32)
@@ -45,7 +44,6 @@ end
 for ii in 1:3
     @test get_shape(unstack(n, num=3)[ii]) == TensorShape(nothing)
 end
-
 
 
 ### stack/unstack
@@ -125,7 +123,31 @@ let
     @test get_shape(y) == TensorShape([2, 2])
 end
 
-@test get_shape(squared_difference([1,2], 3)) == TensorShape([2])
+@testset "nn.softmax_cross_entropy_with_logits" begin
+    a = placeholder(Float32; shape=[10, 20])
+    b = placeholder(Float32)
+    c = placeholder(Float32; shape=[-1, 20])
+    d = placeholder(Float32; shape=[100, 20])
 
-@test isnull(get_shape(unsorted_segment_sum(m, placeholder(Int64), placeholder(Int32))).dims[1])
-@test get_shape(unsorted_segment_sum(m, placeholder(Int64), Int32(5))).dims[1].value==5
+    for labels in [a,b,c]
+        for logits in [a,b,c]
+            res = get_shape(nn.softmax_cross_entropy_with_logits(logits=logits, labels=labels))
+            if labels !=a && logits != a
+                @test res == TensorShape([-1])
+            else
+                @test res == TensorShape([10])
+            end
+        end
+    end
+
+    @test_throws DimensionMismatch get_shape(nn.softmax_cross_entropy_with_logits(logits=a, labels=d))
+end
+
+@testset "squared_difference" begin
+    @test get_shape(squared_difference([1,2], 3)) == TensorShape([2])
+end
+
+@testset "unsorted_segment_sum" begin
+    @test isnull(get_shape(unsorted_segment_sum(m, placeholder(Int64), placeholder(Int32))).dims[1])
+    @test get_shape(unsorted_segment_sum(m, placeholder(Int64), Int32(5))).dims[1].value==5
+end
