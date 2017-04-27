@@ -14,6 +14,27 @@ using Base.Test
     end
 end
 
+
+@testset "Cross Entropy Loss" begin
+    srand(1)
+    let
+        sess = Session(Graph())
+        targets = constant(collect(1:10))
+        targets_hot = constant(Float64.(eye(10)))
+        logits_unscaled = constant(rand(10,10))
+
+
+        logits = nn.softmax(logits_unscaled)
+        loss_direct = -reduce_sum(log(logits).*targets_hot; axis=1)
+        loss_sparse = nn.sparse_softmax_cross_entropy_with_logits(logits=logits_unscaled, labels=targets)
+        loss_nonsparse = nn.softmax_cross_entropy_with_logits(logits=logits_unscaled, labels=targets_hot)
+        res_direct, res_sparse, res_nonsparse =  run(sess, [loss_direct, loss_sparse, loss_nonsparse])
+
+        @test res_direct ≈ res_sparse
+        @test res_direct ≈ res_nonsparse
+    end
+end
+
 for (rnn_fun, post_proc_outputs) in ((nn.dynamic_rnn, identity), (nn.rnn, last))
     testname = split(string(rnn_fun), ".")[end]
     @testset "$testname" begin
