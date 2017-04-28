@@ -259,29 +259,28 @@ Base.cat(::Type{Tensor}, dim, values...) = cat(dim, Tensor.(values)...)
 
 
 """
-Concatentate along dimension 2
-
-`hcat(a, b)` can also be written `[a b]` etc.
-"""
-Base.hcat(xs::AbstractTensor...) = cat(2, xs...)
-
-
-"""
 Concatentate along dimension 1
 
 `vcat(a, b)` can also be written `[a; b]` etc.
 """
 Base.vcat(xs::AbstractTensor...) = cat(1, xs...)
+# Catch common cases where not all args are Tensors, and convert them
+Base.vcat(x1::AbstractTensor, xs...) = vcat(x1, Tensor.(xs)...)
+Base.vcat(x1, x2::AbstractTensor, xs...) = vcat(Tensor(x1), x2, Tensor.(xs)...)
+Base.vcat(x1::AbstractTensor, x2::AbstractTensor, xs...) = vcat(x1, x2, Tensor.(xs)...)
 
 
+"""
+Concatentate along dimension 2
+
+`hcat(a, b)` can also be written `[a b]` etc.
+"""
+Base.hcat(xs::AbstractTensor...) = cat(2, xs...)
 # Catch common cases where not all args are Tensors, and convert them
 Base.hcat(x1::AbstractTensor, xs...) = hcat(x1, Tensor.(xs)...)
 Base.hcat(x1, x2::AbstractTensor, xs...) = hcat(Tensor(x1), x2, Tensor.(xs)...)
 Base.hcat(x1::AbstractTensor, x2::AbstractTensor, xs...) = hcat(x1, x2, Tensor.(xs)...)
 
-Base.vcat(x1::AbstractTensor, xs...) = vcat(x1, Tensor.(xs)...)
-Base.vcat(x1, x2::AbstractTensor, xs...) = vcat(Tensor(x1), x2, Tensor.(xs)...)
-Base.vcat(x1::AbstractTensor, x2::AbstractTensor, xs...) = vcat(x1, x2, Tensor.(xs)...)
 
 
 """
