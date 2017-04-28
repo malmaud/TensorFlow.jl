@@ -198,6 +198,13 @@ end
         @test [s_jl s_jl s_jl] == run(sess4, [s s s])
         @test [s_jl s_jl s_jl] == run(sess4, [s [s s]])
     end
+
+    @testset "nonconcatentating" begin
+        @test [s_jl, s_jl] == run(sess4, [s, s])
+        @test [a_jl, b_jl, c_jl, d_jl] == run(sess4, [a, b, c, d])
+
+    end
+
 end
 
 
