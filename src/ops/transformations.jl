@@ -216,8 +216,73 @@ Returns:
     Tensor(Operation(desc), 1)
 end
 
-Base.cat(::Type{Tensor}, dim, values...) = concat(values, dim)
-Base.cat(dim, values::AbstractTensor...) = concat(values, dim)
+
+"""
+Applies ExpandDims to the input Tensors `xs`,
+until they are all the same rank -- which must be at least `min_rank`
+"""
+function expand_to_same_ranks(min_rank, xs...)
+    compat_xs = collect(xs)
+    @label fix_dims
+    for (ii, x) in enumerate(compat_xs)
+        x_dims = get_shape(x)
+        x_dims.rank_unknown && continue
+        rank = length(x_dims.dims)
+        if rank > min_rank
+            min_rank = rank
+            @goto fix_dims # Have to restart
+            # since previous things were only expanded to some insurficient rank
+        elseif rank < min_rank
+            for new_dim in (rank + 1) : min_rank
+                x = expand_dims(x, new_dim) # have to add one at a time
+                # as can't use reshape, as don't nesc. fully know the shape of input
+            end
+            compat_xs[ii] = x # save updated value
+        end
+    end
+    compat_xs
+end
+
+
+"""
+Concatenate the tensor `values` along the given axis (`dim`).
+Unlike `concat` this automatically expands dimensions as required,
+such that the resulting concatenated Tensor has rank equal to the
+higher of the highest input rank, or the concatentation dimension (`dim`).
+"""
+function Base.cat(dim, xs::AbstractTensor...)
+    compat_xs = expand_to_same_ranks(dim, xs...)
+    concat(compat_xs, dim)
+end
+
+Base.cat(::Type{Tensor}, dim, values...) = cat(dim, Tensor.(values)...)
+
+
+"""
+Concatentate along dimension 2
+
+`hcat(a, b)` can also be written `[a b]` etc.
+"""
+Base.hcat(xs::AbstractTensor...) = cat(2, xs...)
+
+
+"""
+Concatentate along dimension 1
+
+`vcat(a, b)` can also be written `[a; b]` etc.
+"""
+Base.vcat(xs::AbstractTensor...) = cat(1, xs...)
+
+
+# Catch common cases where not all args are Tensors, and convert them
+Base.hcat(x1::AbstractTensor, xs...) = hcat(x1, Tensor.(xs)...)
+Base.hcat(x1, x2::AbstractTensor, xs...) = hcat(Tensor(x1), x2, Tensor.(xs)...)
+Base.hcat(x1::AbstractTensor, x2::AbstractTensor, xs...) = hcat(x1, x2, Tensor.(xs)...)
+
+Base.vcat(x1::AbstractTensor, xs...) = vcat(x1, Tensor.(xs)...)
+Base.vcat(x1, x2::AbstractTensor, xs...) = vcat(Tensor(x1), x2, Tensor.(xs)...)
+Base.vcat(x1::AbstractTensor, x2::AbstractTensor, xs...) = vcat(x1, x2, Tensor.(xs)...)
+
 
 """
     stack(values; axis=1, name="")
@@ -854,5 +919,11 @@ end
 end
 
 Base.ctranspose(n::AbstractTensor) = transpose(n)
+
+
+
+
+
+
 
 include("indexing.jl")

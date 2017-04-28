@@ -1,6 +1,7 @@
 using TensorFlow
 using Base.Test
 
+
 sess = TensorFlow.Session(TensorFlow.Graph())
 
 one_tens = ones(Tensor, (5,5))
@@ -52,6 +53,8 @@ end
     @test size(run(sess, squeeze(sq_ones,[2]))) == (10,5,1)
     @test_throws TensorFlow.TFException run(sess, squeeze(sq_ones,[1]))
 end
+
+
 
 #######################################################################
 # getindex related methods (getindex overload and the methods behind it)
@@ -129,6 +132,9 @@ end
     @test run(sess, TensorFlow.scatter_nd([5 3]', [9 9; 10 10], [6,2])) == [0 0; 0 0; 10 10; 0 0; 9 9; 0 0]
 end
 
+
+
+
 ###################################################################
 # Tests after this point must provide their own sessions and graphs
 
@@ -156,6 +162,42 @@ end
         @test length(run(sess2, vals)) == 10
     end
 
+end
+
+@testset "Concatenation Syntax" begin
+    srand(37)
+    sess4 = Session(Graph())
+
+    a_jl = rand(10,5); a = constant(a_jl);
+    b_jl = rand(10,5); b = constant(b_jl);
+    c_jl = rand(5)  ; c = constant(c_jl);
+    d_jl = rand(10)  ; d = constant(d_jl);
+
+    s_jl = rand(); s = constant(s_jl);
+
+    @testset "vcat" begin
+        @test [c_jl; d_jl] == run(sess4, [c; d])
+        @test [c_jl; d_jl; c_jl] == run(sess4, [c; d; c])
+
+        @test [a_jl; b_jl] == run(sess4, [a; b])
+
+        @test [s_jl; s_jl] == run(sess4, [s; s])
+        @test [s_jl; s_jl; s_jl] == run(sess4, [s; s; s])
+        @test [s_jl; s_jl; s_jl] == run(sess4, [s; [s; s]])
+
+    end
+
+    @testset "hcat" begin
+        @test [c_jl c_jl] == run(sess4, [c c])
+
+        @test [a_jl b_jl] == run(sess4, [a b])
+        @test [a_jl d_jl] == run(sess4, [a d])
+        @test [a_jl b_jl d_jl] == run(sess4, [a b d])
+
+        @test [s_jl s_jl] == run(sess4, [s s])
+        @test [s_jl s_jl s_jl] == run(sess4, [s s s])
+        @test [s_jl s_jl s_jl] == run(sess4, [s [s s]])
+    end
 end
 
 
