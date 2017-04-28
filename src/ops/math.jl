@@ -126,11 +126,11 @@ end
 
 ^(n::AbstractTensor, x::Int) = invoke(^, Tuple{AbstractTensor, Any}, n, x)
 
-@static if VERSION < v"0.6-"
-    .^(n::AbstractTensor, x) = n^x
-else
-    Base.broadcast(::typeof(^), n::AbstractTensor, x) = n^x
-end
+# @static if VERSION < v"0.6-"
+#     .^(n::AbstractTensor, x) = n^x
+# else
+#     Base.broadcast(::typeof(^), n::AbstractTensor, x) = n^x
+# end
 
 for jl_func_name in [
     :log,

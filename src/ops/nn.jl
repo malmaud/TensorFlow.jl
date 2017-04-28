@@ -3,36 +3,28 @@ module nn
 using Compat
 import TensorFlow
 const tf = TensorFlow
-import tf: Ops, @op
+import .tf: Ops, @op, @not_implemented, @tf
 
 import .Ops:
     relu,
-    relu6,
+    relu_6,
     elu,
     softplus,
     softsign,
     softmax,
     sigmoid,
-    conv2d,
-    conv1d,
-    conv3d,
-    conv2d_transpose,
+    conv_3d,
     max_pool,
-    max_pool3d,
+    max_pool_3d,
     avg_pool,
-    avg_pool3d,
+    avg_pool_3d,
     log_softmax,
-    atrous_conv2d,
-    depthwise_conv2d,
-    dilation2d,
-    erosion2d,
-    weighted_cross_entropy_with_logits
-
-@tf.op Base.tanh(x::AbstractTensor; name=nothing) = Ops.tanh(x; name=name)
-
+    dilation_2d
 
 include("rnn_cell.jl")
 import .rnn_cell:  zero_state, output_size, state_size
+
+const conv2d = Ops.conv_2d
 
 """
 `rnn(cell, inputs; initial_state=nothing, dtype=nothing, sequence_length=nothing, scope="RNN")`
@@ -54,20 +46,20 @@ function rnn(cell, inputs::Vector, sequence_length=nothing; initial_state=nothin
         if dtype === nothing
             error("dtype must be set if initial_state is not provided")
         end
-        batch_size = get_shape(first(inputs), 1)
+        batch_size = tf.get_shape(first(inputs), 1)
         initial_state = zero_state(cell, batch_size, dtype)
     end
-    outputs = Tensor[]
+    outputs = tf.Tensor[]
     state = initial_state
     for (time_step, input) in enumerate(inputs)
-        variable_scope(scope; reuse=time_step>1) do
+        tf.variable_scope(scope; reuse=time_step>1) do
             new_output, new_state = cell(input, state)
         end
         if sequence_length!==nothing && time_step > 1 # This should be removed by the julia lowering process
             # Only update output and state for rows that are not yet passed their ends
             have_passed_end = sequence_length .< time_step
-            new_output = select(have_passed_end, outputs[end], new_output)
-            new_state = select(have_passed_end, state, new_state)
+            new_output = tf.select(have_passed_end, outputs[end], new_output)
+            new_state = tf.select(have_passed_end, state, new_state)
         end
         state = new_state
         push!(outputs, new_output)
@@ -75,8 +67,8 @@ function rnn(cell, inputs::Vector, sequence_length=nothing; initial_state=nothin
     return outputs, state
 end
 
-function rnn(cell, inputs::Tensor, sequence_length=nothing; time_major=false, kwargs...)
-    input_list = unstack(inputs; axis = (time_major ? 1 : 2))
+function rnn(cell, inputs::tf.Tensor, sequence_length=nothing; time_major=false, kwargs...)
+    input_list = tf.unstack(inputs; axis = (time_major ? 1 : 2))
     rnn(cell, input_list, sequence_length; kwargs...)
 end
 
@@ -108,11 +100,11 @@ all elements but all later dimensions may vary.
     if sequence_length === nothing
         # Works around a bug in upstream TensorFlow's while-loop
         # gradient calculation
-        max_time = convert(Tensor{Int}, shape(inputs)[2])
+        max_time = convert(tf.Tensor{Int}, shape(inputs)[2])
         sequence_length = max_time
     end
 
-    batch_size = get_shape(inputs, 1)
+    batch_size = tf.get_shape(inputs, 1)
 
     if initial_state === nothing
         if dtype === nothing
@@ -122,8 +114,8 @@ all elements but all later dimensions may vary.
     end
 
     state = initial_state
-    input_dim = get_shape(inputs, 3)
-    output = tf.zeros(Tensor{eltype(state)}, batch_size, output_size(cell))
+    input_dim = tf.get_shape(inputs, 3)
+    output = tf.zeros(tf.Tensor{eltype(state)}, batch_size, output_size(cell))
 
     time_step = tf.constant(1)
     num_steps = convert(Tensor{Int64}, tf.shape(inputs)[2])
@@ -134,13 +126,13 @@ all elements but all later dimensions may vary.
         new_output = output
 
 
-        variable_scope(scope) do
+        tf.variable_scope(scope) do
             new_output, new_state = cell(data, state, input_dim)
             # Only update output and state for rows that are not yet passed their ends
             have_passed_end = sequence_length .< time_step
             # new_output = select(have_passed_end, output, new_output)
             # new_state = select(have_passed_end, state, new_state)
-            f(old_arg, new_arg) = select(have_passed_end, old_arg, new_arg)
+            f(old_arg, new_arg) = tf.select(have_passed_end, old_arg, new_arg)
             new_output = tf.struct_map(f, output, new_output)
             new_state = tf.struct_map(f, state, new_state)
         end
@@ -173,13 +165,13 @@ Args:
 """
 @op function dropout(x, keep_prob; noise_shape=nothing, seed=0, name=nothing)
     local y
-    with_op_name(name, "Dropout") do
-        keep_prob = convert(Tensor{eltype(x)}, keep_prob)
+    tf.with_op_name(name, "Dropout") do
+        keep_prob = convert(tf.Tensor{eltype(x)}, keep_prob)
         x_scaled = x/keep_prob
         if noise_shape == nothing
-            noise_shape = shape(x)
+            noise_shape = tf.shape(x)
         end
-        r = random_uniform(noise_shape, 0, 1, seed=seed, dtype=eltype(x))
+        r = tf.random_uniform(noise_shape, 0, 1, seed=seed, dtype=eltype(x))
         y = x_scaled .* floor(keep_prob+r)
     end
     y
@@ -188,7 +180,7 @@ end
 @op function sigmoid_cross_entropy_with_logits(;logits=nothing, targets=nothing, name=nothing)
     #  TODO make numerically stable
     local out
-    with_op_name(name, "SigmoidCrossEntropyWithLogits") do
+    tf.with_op_name(name, "SigmoidCrossEntropyWithLogits") do
         out = -logits.*targets + log(1+ exp(logits))
     end
     out
@@ -298,7 +290,7 @@ Args:
 * `validate_indices`: If `true` (default), make sure the indices are valid.
 """
 @op function embedding_lookup(params, ids; partition_strategy="mod", name=nothing, validate_indices=true)
-    ids = Tensor(ids)
+    ids = tf.Tensor(ids)
     if isa(params, AbstractArray)
         if length(params) > 1
             error("Embedding lookup across multiple parameter tensors not supported yet")
@@ -326,8 +318,8 @@ Args:
 * `sorted`: If `true` (default), the returned values will be sorted in descending order.
 """
 @op function top_k(input, k=1; kwargs...)
-    op = get_op(Ops.top_kv_2(input, k; kwargs...))
-    Tensor(op, 1), Tensor(op, 2)+1
+    op = tf.get_op(Ops.top_kv_2(input, k; kwargs...))
+    tf.Tensor(op, 1), tf.Tensor(op, 2)+1
 end
 
 """
@@ -352,7 +344,7 @@ Computes half the L2-norm of a `Tensor` `t`, without taking the square root.
 """
 @op function l2_loss(t; name=nothing)
     local out
-    with_op_name(name, "L2_Loss") do
+    tf.with_op_name(name, "L2_Loss") do
         out = sqrt(reduce_sum(t.*t))
     end
     out
@@ -386,6 +378,24 @@ end
 end
 
 @not_implemented function fixed_unigram_candidate_sampler()
+end
+
+@not_implemented function conv_1d()
+end
+
+@not_implemented function conv_2d_transpose()
+end
+
+@not_implemented function atrous_conv_2d()
+end
+
+@not_implemented function depthwise_conv_2d()
+end
+
+@not_implemented function erosion_2d()
+end
+
+@not_implemented function weighted_cross_entropy_with_logits()
 end
 
 @op function l2_normalize(x, dim; epsilon=1e-12, name=nothing)

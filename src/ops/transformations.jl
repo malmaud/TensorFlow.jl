@@ -11,9 +11,7 @@ import .Ops:
     scatter_nd,
     one_hot,
     dynamic_partition,
-    dynamic_stitch,
-    transpose
-
+    dynamic_stitch
 
 const concat = Ops.concat_v2
 const stack = Ops.pack
@@ -199,14 +197,6 @@ Raises:
 @op function unstack(value; num=nothing, axis=1, name=nothing)
     num_split = num==nothing ? get_shape(value, axis) : num
     op = get_op(Ops.unpack(value, num=num_split, axis=axis-1))
-    # local desc
-    # with_op_name(name, "Unstack") do
-    #     desc = NodeDescription("Unpack")
-    #     add_input(desc, value)
-    #     desc["num"] = num_split
-    #     desc["axis"] = axis - 1
-    # end
-    # op = Operation(desc)
     [Tensor(op, x) for x in 1:num_split]
 end
 
@@ -278,7 +268,7 @@ https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#rank
     Ops.rank(n; kwargs...)
 end
 
-@op function scatter_nd(indices, updates, shape::TensorFlow.ShapeInference.TensorShape; name=nothing)
+@op function scatter_nd(indices, updates, shape::TensorFlow.TensorShape; name=nothing)
     if shape.rank_unknown || any(isnull.(shape.dims))
         error("TensorShape provided to scatter_nd not statically fully known ($shape). Consider using the dynamic `shape` operation instead of the static `get_shape` operation")
     end
@@ -393,15 +383,13 @@ Returns:
   A transposed `Tensor`.
 """
 @op function Base.transpose(n::AbstractTensor, perm=nothing; name=nothing)
-    local desc
+    local result
     with_op_name(name, "Transpose") do
         if perm === nothing
             r = range(Tensor, 0, limit=rank(n))
             perm = reverse(r, [true])
         end
-        desc = NodeDescription("Transpose")
-        add_input(desc, Tensor(n))
-        add_input(desc, convert(Tensor{Int32}, perm))
+        result = ops.transpose(n, perm)
     end
     Tensor(Operation(desc))
 end
