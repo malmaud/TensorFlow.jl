@@ -37,16 +37,6 @@ macro define_broadcast(jl_op, tf_func)
     end |> esc
 end
 
-# function tf_promote(t, x::Number)
-#     return Tensor(eltype(t)(x))
-# end
-#
-# function tf_promote{T}(t, ::Type{Val{T}})  # Work around a^b->Val lowering
-#     return tf_promote(t, T)
-# end
-#
-# tf_promote(t, x) = Tensor(x)
-
 macro not_implemented(f)
     res = @match f begin
         function name_(args__)

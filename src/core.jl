@@ -1555,6 +1555,8 @@ function get_all_op_list()
     op_list
 end
 
+get_op_def(x::AbstractString) = get_all_op_list()[x]
+
 function Operation(node_def::tensorflow.NodeDef)
     function get_tensor(full_name)
         name, port = parse_port_name(full_name)

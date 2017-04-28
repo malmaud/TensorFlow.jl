@@ -8,7 +8,7 @@ import .Ops:
     scatter_mul,
     scatter_div
 
-using Distributions
+import Distributions
 
 type Variable <: AbstractTensor
     var_node::Operation
