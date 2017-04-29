@@ -919,10 +919,4 @@ end
 
 Base.ctranspose(n::AbstractTensor) = transpose(n)
 
-
-
-
-
-
-
 include("indexing.jl")

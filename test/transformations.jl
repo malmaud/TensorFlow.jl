@@ -182,10 +182,16 @@ end
         @test [a_jl; b_jl] == run(sess4, [a; b])
 
         @test [s_jl; s_jl] == run(sess4, [s; s])
-        @test [s_jl; s_jl; s_jl] == run(sess4, [s; s; s])
-        @test [s_jl; s_jl; s_jl] == run(sess4, [s; [s; s]])
 
-    end
+        s_jl3 = [s_jl; s_jl; s_jl]
+        @test s_jl3 == run(sess4, [s; s; s])
+        @test s_jl3 == run(sess4, [s; [s; s]])
+        # Promotion
+        @test s_jl3 == run(sess4, [s_jl; s; s])
+        @test s_jl3 == run(sess4, [s; s_jl; s])
+        @test s_jl3 == run(sess4, [s; s; s_jl])
+
+  end
 
     @testset "hcat" begin
         @test [c_jl c_jl] == run(sess4, [c c])
@@ -195,9 +201,16 @@ end
         @test [a_jl b_jl d_jl] == run(sess4, [a b d])
 
         @test [s_jl s_jl] == run(sess4, [s s])
-        @test [s_jl s_jl s_jl] == run(sess4, [s s s])
-        @test [s_jl s_jl s_jl] == run(sess4, [s [s s]])
-    end
+
+         s_jl3 = [s_jl s_jl s_jl]
+        @test s_jl3 == run(sess4, [s s s])
+        @test s_jl3 == run(sess4, [s [s s]])
+        # Promotion
+        @test s_jl3 == run(sess4, [s_jl s s])
+        @test s_jl3 == run(sess4, [s s_jl s])
+        @test s_jl3 == run(sess4, [s s s_jl])
+
+   end
 
     @testset "nonconcatentating" begin
         @test [s_jl, s_jl] == run(sess4, [s, s])
