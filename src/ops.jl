@@ -6,7 +6,7 @@ const tf = TensorFlow # so know where op_funcs is defined
 using MacroTools
 
 if VERSION < v"0.6.0-"
-    import Base: .*, .+, ./, .-, .^, .==
+    import Base: .*, .+, ./, .-, .^, .==, .!=
 end
 
 function tf_promote(args...)
@@ -195,7 +195,6 @@ function to_function(op::tensorflow.OpDef)
         sym = gensym()
         push!(inputs, sym)
         if input.type_attr ∈ ["Index", "Tidx", "Tindices"]
-            convert_target = tf.Tensor{Int32}
             diff_expr = quote
                 converted = converted - 1
             end
@@ -203,18 +202,22 @@ function to_function(op::tensorflow.OpDef)
             convert_target = tf.Tensor{Any}
             diff_expr = quote end
         end
+        if !isempty(input.type_attr)
+            for attr in op.attr
+                if attr.name == input.type_attr
+                    if isdefined(attr, :default_value)
+                        convert_target = load_proto(attr.default_value)
+                        break
+                    end
+                end
+            end
+        end
         convert_expr = if isempty(input.number_attr) && isempty(input.type_list_attr)  # Scalar input
                 :(converted=convert($(convert_target), $sym))
             else  # Array argument
                 :(converted=convert.($(convert_target), $sym))
             end
         push!(input_block.args, quote
-            # if typeof($sym) <: AbstractArray
-            #     converted = convert.($(convert_target), $sym)
-            # else
-            #     converted = convert($(convert_target), $sym)
-            # end
-            #converted = convert($(convert_target), $sym)
             $convert_expr
             $diff_expr
             tf.add_input(desc, converted)

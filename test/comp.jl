@@ -22,8 +22,8 @@ b = TensorFlow.constant(b_raw)
 @test (a_raw .>= b_raw) == run(sess, a .>= b)
 
 
-cond = [true; false; true; true; false]
-cond_tf = TensorFlow.constant(cond)
+conditions = [true; false; true; true; false]
+cond_tf = TensorFlow.constant(conditions)
 result = run(sess, TensorFlow.select(cond_tf, a, b))
 @test [1; 7; 3; 4; 10] == result
 

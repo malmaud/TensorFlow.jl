@@ -51,7 +51,7 @@ end
     tensor_value(t) = Tensor(t)
     tensor_value(t::IndexedSlices) = t.values
     with_op_name(name, "GlobalNorm") do
-        out = sqrt(add_n([reduce_sum(tensor_value(t).^2) for t in t_list]))
+        out = sqrt(add_n([reduce_sum(tensor_value(t).^2.0) for t in t_list]))
     end
     out
 end
