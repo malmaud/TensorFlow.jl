@@ -1076,7 +1076,16 @@ end
 Base.getindex(node::Operation, attr_name) = get_attr_value_proto(node, attr_name)
 
 const dt = tensorflow._DataType
-const proto_type_map = Dict(dt.DT_FLOAT=>Float32, dt.DT_INT32=>Int32, dt.DT_DOUBLE=>Float64, dt.DT_INT64=>Int64, dt.DT_STRING=>String, dt.DT_BOOL=>Bool )
+const proto_type_map = Dict(
+    dt.DT_FLOAT=>Float32,
+    dt.DT_INT32=>Int32,
+    dt.DT_DOUBLE=>Float64,
+    dt.DT_INT64=>Int64,
+    dt.DT_STRING=>String,
+    dt.DT_BOOL=>Bool,
+    dt.DT_UINT8=>UInt8,
+    dt.DT_COMPLEX64=>Complex64,
+    dt.DT_COMPLEX128=>Complex128)
 
 @compat abstract type AbstractTensor end
 

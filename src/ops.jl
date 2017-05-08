@@ -16,7 +16,11 @@ function tf_promote(args...)
     end
     new_args = []
     for arg in args
-        push!(new_args, convert(Tensor{big_type}, arg))
+        if isa(arg, AbstractArray)
+            push!(new_args, arg)
+        else
+            push!(new_args, convert(Tensor{big_type}, arg))
+        end
     end
     (new_args...)
 end
@@ -186,47 +190,71 @@ function opname_to_jlname(name)
     Symbol(join(tokens, "_"))
 end
 
+function is_internal_arg(arg)
+    arg._type == "type" && arg.name[1] == "T"
+end
+
 function to_function(op::tensorflow.OpDef)
     jl_name = Symbol(lowercase(op.name))
     jl_name = opname_to_jlname(op.name)
     inputs = []
     input_block = quote end
+    convert_block = quote end
+    type_sets = Dict{String, Vector{Symbol}}()
     for input in op.input_arg
         sym = gensym()
         push!(inputs, sym)
+        if !isempty(input.type_attr)
+            type_set = get!(type_sets, input.type_attr, Symbol[])
+            push!(type_set, sym)
+        end
+    end
+    for (input_idx, input) in enumerate(op.input_arg)
+        sym = inputs[input_idx]
+        convert_target = tf.Tensor{Any}
         if input.type_attr ∈ ["Index", "Tidx", "Tindices"]
             diff_expr = quote
                 converted = converted - 1
             end
         else
-            convert_target = tf.Tensor{Any}
             diff_expr = quote end
         end
         if !isempty(input.type_attr)
             for attr in op.attr
                 if attr.name == input.type_attr
                     if isdefined(attr, :default_value)
-                        convert_target = load_proto(attr.default_value)
+                        convert_target = Tensor{load_proto(attr.default_value)}
                         break
                     end
                 end
             end
         end
         convert_expr = if isempty(input.number_attr) && isempty(input.type_list_attr)  # Scalar input
-                :(converted=convert($(convert_target), $sym))
+                :($sym=convert($(convert_target), $sym))
             else  # Array argument
-                :(converted=convert.($(convert_target), $sym))
+                :($sym=convert.($(convert_target), $sym))
             end
-        push!(input_block.args, quote
+        push!(convert_block.args, quote
             $convert_expr
             $diff_expr
-            tf.add_input(desc, converted)
+            #tf.add_input(desc, converted)
+        end)
+    end
+    for type_set in values(type_sets)
+        push!(convert_block.args, quote
+            $(Expr(:tuple, type_set...)) = tf.tf_promote($(type_set...))
+        end)
+    end
+    for (input_idx, input) in enumerate(op.input_arg)
+        push!(input_block.args, quote
+            tf.add_input(desc, $(inputs[input_idx]))
         end)
     end
     kwargs = Expr(:parameters)
     push!(kwargs.args, Expr(:kw, :name, nothing))
     attr_block = quote end
     for attr in op.attr
+        is_internal_arg(attr) && continue
         name = Symbol(keyword_escape(attr.name))
         push!(kwargs.args, Expr(:kw, name, nothing))
 
@@ -269,6 +297,7 @@ function to_function(op::tensorflow.OpDef)
             local desc
             tf.with_op_name(name, $(op.name)) do
                 desc = tf.NodeDescription($(op.name))
+                $convert_block
                 $input_block
                 $attr_block
             end
@@ -278,6 +307,7 @@ function to_function(op::tensorflow.OpDef)
     posargs_str = join((arg.name for arg in op.input_arg), ", ")
     kwargs_str = []
     for arg in op.attr
+        is_internal_arg(arg) && continue
         isdefined(arg, :default_value) || continue
         local default
         try
