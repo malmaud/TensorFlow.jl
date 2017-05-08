@@ -13,9 +13,11 @@ const func_list = [
     (:not_equal, :(!=))
 ]
 
-import Base: >, <, ≥, ≤
+import Base: >, <, ≥, ≤, >=, <=, !=
 
-@static if VERSION < v"0.6-"
+const OP_VERSION_CHANGE  = v"0.6.0-dev.1632"
+
+@static if VERSION < OP_VERSION_CHANGE
     import Base: .==, .!=, .>, .<, .≥, .≤
 end
 
@@ -23,7 +25,7 @@ for (func, sym) in func_list
     @eval @define_binary($sym, $func)
 end
 
-@static if VERSION > v"0.6-"
+@static if VERSION >= OP_VERSION_CHANGE
     for (func, sym) in func_list
         @eval @define_broadcast($sym, $func)
     end

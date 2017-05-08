@@ -12,7 +12,7 @@ x = TensorFlow.constant(2)
 y = TensorFlow.constant(5)
 f1 = ()->17x
 f2 = ()->y+23
-result = run(sess, TensorFlow.cond(x.<y, f1, f2))
+result = run(sess, Base.cond(x<y, f1, f2))
 @test 17*2 == result
 inc = constant(1)
 i = constant(1)

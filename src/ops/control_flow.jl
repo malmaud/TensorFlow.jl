@@ -99,20 +99,12 @@ Example:
 @op function Base.cond(pred::AbstractTensor, fn1, fn2; name=nothing)
     #  TODO add control dependencies to subgraphs
     local merge
-
     with_op_name(name, "cond") do
-        switch1 = NodeDescription("Switch", "switch1")
-        add_input(switch1, fn1())
-        add_input(switch1, Tensor(pred))
-
-        switch2 = NodeDescription("Switch", "switch2")
-        add_input(switch2, fn2())
-        add_input(switch2, pred)
-
-        merge = NodeDescription("Merge", "merge")
-        add_input(merge, [Tensor(Operation(switch1), 2), Tensor(Operation(switch2), 1)])
+        switch1 = Ops.switch(fn1(), pred)
+        switch2 = Ops.switch(fn2(), pred)
+        merge = Ops.merge([switch1[2], switch2[1]])
     end
-    Tensor(Operation(merge), 1)
+    merge[1]
 end
 
 @not_implemented function case()
