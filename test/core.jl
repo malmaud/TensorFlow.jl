@@ -14,7 +14,8 @@ using TensorFlow
         @test [[8.0f0]] == run(sess, gradients([3A, 5A], [A]))
 
         @test [[9.0f0], [3.0f0]] == run(sess, gradients([2A+3B, 7A], [A, B]))
-
+        
+        @test [35.0f0] == run(sess, gradients(7A, A, 14))
 
     end
 
