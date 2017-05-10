@@ -113,6 +113,8 @@ end
         @test [[9.0f0], [3.0f0]] == run(sess, gradients([2A+3B, 7A], [A, B]))
 
         @test [35.0f0] == run(sess, gradients(7A, A, constant([5.0f0])))
+        @test [68.0f0] == run(sess, gradients([7A,3A], A, [constant([5.0f0]), constant([11.0f0])]))
+        @test [38.0f0] == run(sess, gradients([7A,3A], A, [constant([5.0f0]), nothing]))
 
     end
 
