@@ -1370,15 +1370,16 @@ Base.haskey(graph::Graph, name) = isnull(get_node_by_name(graph, name))
 
 
 
+node_name(xs::AbstractVector) = node_name.(xs)
 
 function gradients(y, x::AbstractArray)
-    x_names = [node_name(node) for node in x]
-    y_name = node_name(y)
+    x_names = node_name(x)
+    y_names = node_name(y)
     meta_graph = train.export_meta_graph()
     b = IOBuffer()
     writeproto(b, meta_graph)
     graph_proto = @compat take!(b)
-    node_protos, grad_names = @py_proc py_gradients($graph_proto, $x_names, $y_name)
+    node_protos, grad_names = @py_proc py_gradients($graph_proto, $x_names, $y_names)
     extend_graph(node_protos)
     out = []
     for name in grad_names
