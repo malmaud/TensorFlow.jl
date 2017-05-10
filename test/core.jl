@@ -1,26 +1,6 @@
 using Base.Test
 using TensorFlow
 
-@testset "Gradients" begin
-    let
-        sess = Session(Graph())
-        A = get_variable("A", (1,), Float32)
-        B = get_variable("B", (1,), Float32)
-
-        @test [[2.0f0]] == run(sess, gradients(2A, [A]))
-        @test [2.0f0] == run(sess, gradients(2A, A))
-
-        @test [[3.0f0], [5.0f0]] == run(sess, gradients(3A+5B, [A, B]))
-        @test [[8.0f0]] == run(sess, gradients([3A, 5A], [A]))
-
-        @test [[9.0f0], [3.0f0]] == run(sess, gradients([2A+3B, 7A], [A, B]))
-        
-        @test [35.0f0] == run(sess, gradients(7A, A, 14))
-
-    end
-
-end
-
 @testset "Graph importing" begin
     if tf_version() >= v"1.0.0-rc1"
         graph_pb = read(joinpath(dirname(@__FILE__), "graph.pb"))
@@ -117,4 +97,24 @@ end
     end
 end
 
+
+@testset "Gradients" begin
+    let
+        sess = Session(Graph())
+        A = get_variable("A", (1,), Float32)
+        B = get_variable("B", (1,), Float32)
+
+        @test [[2.0f0]] == run(sess, gradients(2A, [A]))
+        @test [2.0f0] == run(sess, gradients(2A, A))
+
+        @test [[3.0f0], [5.0f0]] == run(sess, gradients(3A+5B, [A, B]))
+        @test [[8.0f0]] == run(sess, gradients([3A, 5A], [A]))
+
+        @test [[9.0f0], [3.0f0]] == run(sess, gradients([2A+3B, 7A], [A, B]))
+
+        @test [35.0f0] == run(sess, gradients(7A, A, constant([5.0f0])))
+
+    end
+
+end
 

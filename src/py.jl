@@ -70,16 +70,17 @@ function to_protos(py_graph)
     return protos
 end
 
-function py_gradients(jl_graph_proto, x_names, y_names)
+function py_gradients(jl_graph_proto, x_names, y_names, grad_y_names)
     py_graph = make_py_graph(jl_graph_proto)
 
     to_py_node(node_name) = py_graph[:get_tensor_by_name](string(node_name[1], ":", node_name[2]-1))
     to_py_node(node_names::AbstractVector) = to_py_node.(node_names) # Boardcast via dispatch
+    to_py_node(::Void) = nothing
 
     py_x = to_py_node(x_names)
     py_y = to_py_node(y_names)
-    
-    @py_catch grad_node = py_tf[][:gradients](py_y, py_x)
+    py_grad_y = to_py_node(grad_y_names)
+    @py_catch grad_node = py_tf[][:gradients](py_y, py_x, py_grad_y)
     grad_names = []
     for node in grad_node
         if node === nothing
