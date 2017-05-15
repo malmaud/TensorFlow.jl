@@ -10,7 +10,7 @@ using TensorFlow
 
     kk=2k
     mm=2m
-    nn=2n
+    nn_=2n  # To not conflict with TensorFlow.nn during debugging
     ii=2i
 
 
@@ -20,9 +20,9 @@ using TensorFlow
     run(sess, mm, Dict(m=>ones(10, 20, 30)))
     run(sess, mm, Dict(m=>ones(10, 20, 50)))
 
-    run(sess, nn, Dict(n=>ones(10, 20, 30)))
-    run(sess, nn, Dict(n=>ones(10, 20)))
-    run(sess, nn, Dict(n=>1f0))
+    run(sess, nn_, Dict(n=>ones(10, 20, 30)))
+    run(sess, nn_, Dict(n=>ones(10, 20)))
+    run(sess, nn_, Dict(n=>1f0))
 
     run(sess, ii, Dict(i=>1))
 

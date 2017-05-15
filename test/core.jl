@@ -55,34 +55,10 @@ end
 
 
 @testset "Graph Node Access By Name" begin
-    srand(2)
-    s = Graph()
-    sess= Session(s)
-
-    fixed_bias = rand(10)
-    @tf begin
-        X = placeholder(Float64; shape=[-1, 50])
-        W = get_variable([50, 10], Float64)
-        B = constant(fixed_bias)
-        Y_pred_onehot = nn.softmax(X * W + B)
-    end
-    run(sess, global_variables_initializer())
-
-    #Every name should show up in the session
-    @test Set(["X", "W", "B", "Y_pred_onehot"]) ⊆ Set(keys(s))
-    @test length(collect(values(s))) > 5
-
-    # Should get back constant
-    @test fixed_bias == run(sess, s["B"])
-
-    # Should get back output
-    x_val = rand(100, 50)
-    pred_oh = run(sess, s["Y_pred_onehot"], Dict(s["X"] => x_val))
-    @test size(pred_oh) == (100, 10)
-
-    # Should be able to use output for math still
-    pred = run(sess, indmax(s["Y_pred_onehot"], 2), Dict(s["X"] => x_val))
-    @test length(pred) == 100
+    g = Graph()
+    sess= Session(g)
+    x = placeholder(Float64, name="x")
+    @test g["x"] == x
 end
 
 @testset "Disconnected gradients" begin

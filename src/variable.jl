@@ -126,7 +126,7 @@ function get_variable(var_name, shape, dtype; trainable=true, kwargs...)
         push!(scope_stack, scope)
         name = join([get(x.name) for x in scope_stack], "/")
         try
-            initializer = Normal(0, .01)
+            initializer = Distributions.Normal(0, .01)
             reuse = false
             for scope in scope_stack
                 if !isnull(scope.initializer)

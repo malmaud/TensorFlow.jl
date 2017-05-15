@@ -1,6 +1,7 @@
 __precompile__(true)
 module TensorFlow
 
+warn("Initial precompilation can take up to 15 minutes; subsequent usage will only take a few seconds. Please be patient.")
 
 export
 Graph,

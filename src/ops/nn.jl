@@ -7,24 +7,33 @@ import .tf: Ops, @op, @not_implemented, @tf
 
 import .Ops:
     relu,
-    relu_6,
+    relu6,
     elu,
     softplus,
     softsign,
     softmax,
     sigmoid,
-    conv_3d,
+    conv3d,
     max_pool,
-    max_pool_3d,
+    max_pool3d,
     avg_pool,
-    avg_pool_3d,
+    avg_pool3d,
     log_softmax,
-    dilation_2d
+    dilation2d,
+    conv2d
 
 include("rnn_cell.jl")
 import .rnn_cell:  zero_state, output_size, state_size
 
-const conv2d = Ops.conv_2d
+# Ops.conv2d takes padding and strides as a keyword instead of a positional argument
+function conv2d(input, filter, strides, padding; kwargs...)
+    conv2d(input, filter; padding=padding, strides=strides, kwargs...)
+end
+
+# Same for max pool
+function max_pool(input, ksize, strides, padding; kwargs...)
+    max_pool(input; ksize=ksize, strides=strides, padding=padding, kwargs...)
+end
 
 """
 `rnn(cell, inputs; initial_state=nothing, dtype=nothing, sequence_length=nothing, scope="RNN")`
@@ -100,7 +109,7 @@ all elements but all later dimensions may vary.
     if sequence_length === nothing
         # Works around a bug in upstream TensorFlow's while-loop
         # gradient calculation
-        max_time = convert(tf.Tensor{Int}, shape(inputs)[2])
+        max_time = convert(tf.Tensor{Int}, size(inputs, 2))
         sequence_length = max_time
     end
 
@@ -118,7 +127,7 @@ all elements but all later dimensions may vary.
     output = tf.zeros(tf.Tensor{eltype(state)}, batch_size, output_size(cell))
 
     time_step = tf.constant(1)
-    num_steps = convert(Tensor{Int64}, tf.shape(inputs)[2])
+    num_steps = convert(tf.Tensor{Int64}, tf.shape(inputs)[2])
 
     while_output = @tf while time_step ≤ num_steps
         data = inputs[:, time_step, :]
