@@ -178,20 +178,38 @@ Converts a TensorFlow operation name `name` into a Julia
 function name. Eg UnsortedSegmentSum->unsorted_segment_sum.
 """
 function opname_to_jlname(name)
-    tokens = []
-    pos = 1
-    while true
-        m = match(r"([A-Z]{2,})|(V\d+$)|(\d+$)|(\d+.)|([A-Z][a-z]*)", name, pos)
-        m === nothing && break
-        lowered = keyword_escape(lowercase(m.match))
-        push!(tokens, lowered)
-        pos = m.offset + length(m.match)
+    cur_word = Vector{Char}()
+    words = Vector{String}()
+    for idx in 1:length(name)
+        cur_char = name[idx]
+        push!(cur_word, cur_char)
+        word_end = false
+        if idx == length(name)
+            word_end = true
+        else
+            next_char = name[idx+1]
+            if idx < length(name)-1
+                next_next_char = name[idx+2]
+                if isupper(cur_char) && isupper(next_char) && islower(next_next_char)
+                    word_end=true
+                end
+            end
+            if islower(cur_char) && isupper(next_char)
+                word_end = true
+            end
+        end
+        if word_end
+            push!(words, lowercase(join(cur_word)))
+            empty!(cur_word)
+        end
     end
-    Symbol(join(tokens, "_"))
+    result = join(words, "_")
+    escaped = keyword_escape(result)
+    Symbol(escaped)
 end
 
 function is_internal_arg(arg)
-    arg._type == "type" && arg.name[1] == "T"
+    arg._type == "type" && ismatch(r"^T", arg.name)
 end
 
 function to_function(op::tensorflow.OpDef)
@@ -214,7 +232,8 @@ function to_function(op::tensorflow.OpDef)
         convert_target = tf.Tensor{Any}
         if input.type_attr ∈ ["Index", "Tidx", "Tindices"]
             diff_expr = quote
-                converted = converted - 1
+                #converted = converted - 1
+                $sym = $sym - convert(tf.Tensor{eltype($sym)}, 1)
             end
         else
             diff_expr = quote end
@@ -270,7 +289,15 @@ function to_function(op::tensorflow.OpDef)
         if m[1] === nothing
             source = :($(t_target)($name))
         else
-            source = :($(t_target).$(name))
+            # source = :(($(t_target)).$(name))
+            source = :(map($t_target, $name))
+        end
+        if attr.name ∈ ["axis", "begin_mask", "end_mask", "ellipsis_mask", "new_axis_mask", "shrink_axis_mask", "component_index", "concat_dim"]
+            push!(attr_block.args, quote
+                $name = $source - 1
+            end)
+        elseif attr._type == "int" && attr.minimum == 0
+            # info("Attribute $(op.name).$(attr.name) is likely an index and should be converted to 1-based indexing")
         end
         push!(attr_block.args, quote
             if $name !== nothing
@@ -389,6 +416,10 @@ include("ops/image.jl")
 include("ops/queues.jl")
 include("ops/clipping.jl")
 include("ops/init_ops.jl")
+
+if VERSION >= v"0.6-"
+    include("ops/v6_ops.jl")
+end
 
 import .Ops: read_file
 Base.read(::Type{Tensor}, filename) = read_file(filename)

@@ -59,11 +59,11 @@ function make_py_graph(graph_proto)
 end
 
 function to_protos(py_graph)
-    py_graph_def = py_graph[:as_graph_def]()
-    n_nodes = length(py_graph_def[:node])
+    nodes = PyVector(py_graph[:node])
+    n_nodes = length(nodes)
     protos = []
     for node_idx in 1:n_nodes
-        node_py = py_graph_def[:node][node_idx]
+        node_py = nodes[node_idx]
         proto = Vector{UInt8}(node_py[:SerializeToString]())
         push!(protos, proto)
     end
