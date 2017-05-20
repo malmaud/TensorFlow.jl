@@ -221,7 +221,7 @@ end
 Applies ExpandDims to the input Tensors `xs`,
 until they are all the same rank -- which must be at least `min_rank`
 """
-function expand_to_same_ranks(min_rank, xs...)
+function expand_to_same_ranks(min_rank, xs)
     compat_xs = collect(xs)
     @label fix_dims
     for (ii, x) in enumerate(compat_xs)
@@ -251,8 +251,14 @@ such that the resulting concatenated Tensor has rank equal to the
 higher of the highest input rank, or the concatentation dimension (`dim`).
 """
 function Base.cat(dim, xs::AbstractTensor...)
-    compat_xs = expand_to_same_ranks(dim, xs...)
-    concat(compat_xs, dim)
+  with_op_name("Cat") do
+    compat_xs = expand_to_same_ranks(dim, xs)
+    if length(xs)>1
+      concat(compat_xs, dim)
+    else
+      compat_xs[1] # If only one input then, no actual concatentation to be done
+    end
+  end
 end
 
 Base.cat(::Type{Tensor}, dim, values...) = cat(dim, Tensor.(values)...)

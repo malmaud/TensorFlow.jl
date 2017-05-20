@@ -176,6 +176,8 @@ end
     s_jl = rand(); s = constant(s_jl);
 
     @testset "vcat" begin
+        @test c_jl == run(sess4, vcat(c))
+        
         @test [c_jl; d_jl] == run(sess4, [c; d])
         @test [c_jl; d_jl; c_jl] == run(sess4, [c; d; c])
 
@@ -194,6 +196,9 @@ end
   end
 
     @testset "hcat" begin
+        @test a_jl == run(sess4, hcat(a))
+        @test hcat(c_jl) == run(sess4, hcat(c)) #hcat 1D makes it 2D
+
         @test [c_jl c_jl] == run(sess4, [c c])
 
         @test [a_jl b_jl] == run(sess4, [a b])

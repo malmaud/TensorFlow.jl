@@ -6,3 +6,5 @@ tfdocs
 docs/build
 *.DS_Store
 *.*~
+
+*.swp
