@@ -59,23 +59,28 @@ function make_py_graph(graph_proto)
 end
 
 function to_protos(py_graph)
-    n_nodes = length(py_graph[:node])
+    py_graph_def = py_graph[:as_graph_def]()
+    n_nodes = length(py_graph_def[:node])
     protos = []
     for node_idx in 1:n_nodes
-        node_py = py_graph[:node][node_idx]
+        node_py = py_graph_def[:node][node_idx]
         proto = Vector{UInt8}(node_py[:SerializeToString]())
         push!(protos, proto)
     end
     return protos
 end
 
-function py_gradients(jl_graph_proto, x_names, y_name)
+function py_gradients(jl_graph_proto, x_names, y_names, grad_y_names)
     py_graph = make_py_graph(jl_graph_proto)
-    to_py_node = node_name->py_graph[:get_tensor_by_name](string(node_name[1], ":", node_name[2]-1))
-    py_x = [to_py_node(node) for node in x_names]
-    py_y = to_py_node(y_name)
-    @py_catch grad_node = py_tf[][:gradients](py_y, py_x)
-    py_graph_def = py_graph[:as_graph_def]()
+
+    to_py_node(node_name) = py_graph[:get_tensor_by_name](string(node_name[1], ":", node_name[2]-1))
+    to_py_node(node_names::AbstractVector) = to_py_node.(node_names) # Boardcast via dispatch
+    to_py_node(::Void) = nothing
+
+    py_x = to_py_node(x_names)
+    py_y = to_py_node(y_names)
+    py_grad_y = to_py_node(grad_y_names)
+    @py_catch grad_node = py_tf[][:gradients](py_y, py_x, py_grad_y)
     grad_names = []
     for node in grad_node
         if node === nothing
@@ -88,7 +93,7 @@ function py_gradients(jl_graph_proto, x_names, y_name)
             push!(grad_names, node[:name])
         end
     end
-    return to_protos(py_graph_def), grad_names
+    return to_protos(py_graph), grad_names
 end
 
 const events_writer = Ref{PyObject}()
