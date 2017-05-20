@@ -1,5 +1,6 @@
 using Base.Test
 using TensorFlow
+using Distributions
 
 @testset "Registering Ops" begin
 
@@ -17,7 +18,7 @@ end
 @testset "Naming" begin
     let
         g = Graph()
-        local i, j_jl, j, k, ijk, ij, fq, m, W, Y
+        local i, j_jl, j, k, ijk, ij, ij2, fq, m, W, Y, Ysum1, Ysum2, Ysum3, Ysum4
         as_default(g) do
             @tf begin
                 i = constant(1.0)
@@ -28,6 +29,8 @@ end
 
                 ijk = add_n([i,j,k])
                 ij = add_n([i,j]; name="namefor_ij")
+                ij2 = add_n([i,j], name="namefor_ij2") #comma instead of semicolon
+
                 fq = TensorFlow.FIFOQueue(10, [Int32, Int64]); #This datatype should be an Op
                 cc = nn.rnn_cell.GRUCell(40) #this Datatype should not be an Op
 
@@ -38,6 +41,11 @@ end
                      Y = nn.softmax(X * W + B)
                  end
 
+                Ysum1 = reduce_sum(Y)
+                Ysum2 = reduce_sum(Y; keep_dims=true) # With a semicolon
+                Ysum3 = reduce_sum(Y, keep_dims=true) # With a comma (issue #188)
+
+                Ysum4 = reduce_sum(Y, keep_dims=true, name="namefor_Ysum4") # With a comma (issue #188)
             end
         end
 
@@ -49,11 +57,19 @@ end
         @test ijk == get_tensor_by_name(g, "ijk")
         @test fq.op.ptr == get_tensor_by_name(g, "fq").op.ptr
         @test ij == get_tensor_by_name(g, "namefor_ij")
+        @test ij2 == get_tensor_by_name(g, "namefor_ij2")
         @test Tensor(m.var_node) == get_tensor_by_name(g, "namefor_m")
 
-        @test Y == get_tensor_by_name(g, "Y")
         @test Tensor(W.var_node) == get_tensor_by_name(g, "logisitic_model/W")
         @test Tensor(W.assign_node) == get_tensor_by_name(g, "logisitic_model/W/Assign")
+        @test Y == get_tensor_by_name(g, "Y")
+
+        @test Ysum1 == get_tensor_by_name(g, "Ysum1")
+        @test Ysum2 == get_tensor_by_name(g, "Ysum2")
+        @test Ysum3 == get_tensor_by_name(g, "Ysum3")
+        @test Ysum4 == get_tensor_by_name(g, "namefor_Ysum4")
+
+
     end
 end
 
