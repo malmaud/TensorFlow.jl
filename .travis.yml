@@ -7,6 +7,7 @@ os:
   - linux
 julia:
   - 0.5
+  - 0.6
   - nightly
 notifications:
   email: false
@@ -20,3 +21,4 @@ after_success:
 matrix:
   allow_failures:
     - julia: nightly
+    - julia: 0.6
