@@ -155,6 +155,13 @@ end
     @test_throws DimensionMismatch get_shape(nn.softmax_cross_entropy_with_logits(logits=a, labels=d))
 end
 
+@testset "round" begin
+    for var in [k,m,n,i]
+        @test get_shape(round(var)) == get_shape(var)
+        @test get_shape(round(Int, var)) == get_shape(var)
+    end
+end
+
 @testset "squared_difference" begin
     @test get_shape(squared_difference([1,2], 3)) == TensorShape([2])
 end

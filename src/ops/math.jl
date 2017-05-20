@@ -287,7 +287,9 @@ for (jl_func_name, tf_func_name) in [
     (:erfc, "Erfc"),
     (:real, "Real"),
     (:imag, "Imag"),
-    (:conj, "Conj")]
+    (:conj, "Conj"),
+    (:round, "Round")
+    ]
     @eval @op function Base.$jl_func_name(n::AbstractTensor; name=nothing)
         local desc
         with_op_name(name, $tf_func_name) do
@@ -298,6 +300,11 @@ for (jl_func_name, tf_func_name) in [
         Tensor(Operation(desc), 1)
     end
 end
+
+function Base.round{T}(::Type{T}, value::AbstractTensor)
+    convert(Tensor{T}, round(value))
+end
+
 
 @op function Base.lbeta(x1::AbstractTensor, x2; name=nothing)
     local out

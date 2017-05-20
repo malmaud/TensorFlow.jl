@@ -203,7 +203,14 @@ end
 end
 
 
-result = run(sess, TensorFlow.sign(constant([-1, 2, 0])))
-@test [-1, 1, 0] == result
+@testset "Rounding" begin
+    @test 2.0 == run(sess, round(constant(1.7)))
+    @test [2.0, -1.0, 3.0] == run(sess, round(constant([1.7, -1.0, π])))
+
+    @test 2 == run(sess, round(Int, constant(1.7)))
+    @test [2, -1, 3] == run(sess, round(Int, constant([1.7, -1.0, π])))
+end
+
+@test [-1, 1, 0] == run(sess, TensorFlow.sign(constant([-1, 2, 0])))
 
 @test run(sess, squared_difference([1,2], 5)) == [16, 9]
