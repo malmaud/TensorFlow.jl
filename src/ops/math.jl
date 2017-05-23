@@ -2,8 +2,6 @@ import .Ops:
     add_n,
     arg_min,
     arg_max,
-    maximum,
-    minimum,
     add,
     sub,
     mat_mul,
@@ -13,17 +11,9 @@ import .Ops:
     matrix_triangular_solve,
     matrix_solve_ls,
     cholesky,
-    cross,
     neg,
     square,
     shape,
-    lbeta,
-    zeta,
-    polygamma,
-    matrix_inverse,
-    matrix_determinant,
-    diag,
-    matrix_diag_part,
     unsorted_segment_sum,
     unsorted_segment_max,
     segment_sum,
@@ -58,13 +48,13 @@ end
 const matmul = mat_mul
 
 @static if VERSION > v"0.6-"  # Cope with changes in broadcasting in Julia 0.6
-    @define_broadcast(*, multiply)
+    @define_broadcast(*, mul)
     @define_broadcast(+, add)
     @define_broadcast(-, sub)
     @define_broadcast(/, Ops.div)
     @define_broadcast(^, pow)
 else
-    @define_binary(.*, multiply)
+    @define_binary(.*, mul)
     @define_binary(.+, add)
     @define_binary(.-, sub)
     @define_binary(./, Ops.div)
@@ -160,7 +150,6 @@ for jl_func_name in [
 end
 
 for jl_func_name in [
-    :lbeta,
     :polygamma,
     :zeta]
     @eval @op function Base.$jl_func_name(x::AbstractTensor, y; kwargs...)

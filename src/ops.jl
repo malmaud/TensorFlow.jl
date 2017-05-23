@@ -230,7 +230,7 @@ function to_function(op::tensorflow.OpDef)
     for (input_idx, input) in enumerate(op.input_arg)
         sym = inputs[input_idx]
         convert_target = tf.Tensor{Any}
-        if input.type_attr ∈ ["Index", "Tidx", "Tindices"]
+        if input.type_attr ∈ ["Index", "Tidx", "Tindices", "Tdim"]
             diff_expr = quote
                 #converted = converted - 1
                 $sym = $sym - convert(tf.Tensor{eltype($sym)}, 1)
@@ -242,11 +242,14 @@ function to_function(op::tensorflow.OpDef)
             for attr in op.attr
                 if attr.name == input.type_attr
                     if isdefined(attr, :default_value)
-                        convert_target = Tensor{load_proto(attr.default_value)}
+                        convert_target = tf.Tensor{load_proto(attr.default_value)}
                         break
                     end
                 end
             end
+        end
+        if input._type > 0 && haskey(proto_type_map, input._type)
+            convert_target = tf.Tensor{proto_type_map[input._type]}
         end
         convert_expr = if isempty(input.number_attr) && isempty(input.type_list_attr)  # Scalar input
                 :($sym=convert($(convert_target), $sym))
@@ -294,7 +297,9 @@ function to_function(op::tensorflow.OpDef)
         end
         if attr.name ∈ ["axis", "begin_mask", "end_mask", "ellipsis_mask", "new_axis_mask", "shrink_axis_mask", "component_index", "concat_dim"]
             push!(attr_block.args, quote
-                $name = $source - 1
+                if $name !== nothing
+                    $name = $source - 1
+                end
             end)
         elseif attr._type == "int" && attr.minimum == 0
             # info("Attribute $(op.name).$(attr.name) is likely an index and should be converted to 1-based indexing")
@@ -359,13 +364,15 @@ function stringify_func(opfunc::OpFunc)
     s = sprint(show, opfunc.expr)
     noquote = Base.split(s, "\n")[2:end-1]
     docstring = replace(opfunc.docstring, "\$", "")
-    lines = ["\"\"\"\n$(docstring)\n\"\"\""]
+    doc_line = "\"\"\"\n$(docstring)\n\"\"\""
+    lines = []
     for line in noquote
         line = replace(line, r"##", "v")
         line = replace(line, r"#.*$", "")
         push!(lines, line[5:end])
+        # push!(lines, line)
     end
-    join(lines, "\n")
+    "$doc_line\n$(join(lines, "\n"))"
 end
 
 stringify_func(op::tensorflow.OpDef) = stringify_func(to_function(op))
