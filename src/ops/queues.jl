@@ -19,7 +19,7 @@ end
 @op function FIFOQueue(capacity, dtypes; name=nothing, shapes=nothing)
     self = FIFOQueue()
     dtypes = vcat(dtypes)
-    self.op = get_op(Ops.fifoq_v2(capacity=capacity, component_types=dtypes, shapes=shapes, name=name))
+    self.op = get_op(Ops.fifo_queue_v2(capacity=capacity, component_types=dtypes, shapes=shapes, name=name))
     self.dtypes = dtypes
     self
 end

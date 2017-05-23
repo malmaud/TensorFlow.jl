@@ -16,6 +16,7 @@ end
 
 for f in [:zeros, :ones]
     @eval Base.$f(::Type{Tensor}, args...) = $f(Tensor{Float32}, args...)
+    @eval Base.$f(::Type{Tensor}, args::Tuple) = $f(Tensor, args...)
     @eval Base.$f{T}(::Type{Tensor{T}}, args...) = constant($f(T, args...))
     @eval Base.$f{T}(::Type{Tensor{T}}, args::Tuple) = constant($f(T, args))
 end

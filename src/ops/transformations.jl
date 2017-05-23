@@ -2,7 +2,6 @@ import .Ops:
     slice,
     strided_slice,
     expand_dims,
-    squeeze,
     tile,
     pad,
     gather,
@@ -36,7 +35,7 @@ https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#reshape
   reshape(n, Tensor(Int32[dims...]); name = name)
 
 @op function Base.reshape(n::AbstractTensor, dims::AbstractTensor; kwargs...)
-    Ops.reshape(n, dim; kwargs...)
+    Ops.reshape(n, dims; kwargs...)
 end
 
 
@@ -77,7 +76,7 @@ num_split Tensor objects resulting from splitting value.
 https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#split
 """
 @op function Base.split(split_dim, num_split, value::AbstractTensor; kwargs...)
-    Ops.split(split_dim, num_split, value; kwargs...)
+    Ops.split(split_dim, value; num_split=num_split, kwargs...)
 end
 
 
@@ -201,7 +200,8 @@ end
 
 
 """
-squeeze(x::AbstractTensor, squeeze_dims; name="squeeze")
+    squeeze(x::AbstractTensor, squeeze_dims; name="squeeze")
+
 Removes dimensions of size 1 from the shape of a tensor.
 Given a tensor `input`, this operation returns a tensor of the same type with
 all dimensions of size 1 removed. If you don't want to remove all size 1

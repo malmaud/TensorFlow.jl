@@ -17,12 +17,11 @@ In particular for TensorFlow.jl:
 * The order of arguments to `concat` has switched (tensors to concatenate come first, followed by the concetenation axis).
 
 
-New functionality
+Highlights
 ----------------
 
 * `dynamic_rnn` has been added
 * `while_loop` has been added, with a convenient `@tf while ... end` syntax
-* Many new ops
 * Support for Docker via official Docker images
 
 Switch to 1-based indexing
@@ -34,3 +33,9 @@ legacy. This affects the following functions:
 
 * The `axis` parameter for any operation which takes an `axis` parameter
 * The `begin_` argument of `slice`
+
+All TensorFlow operations now supported
+--------------
+
+Every operation defined by TensorFlow is now automatically wrapped in a
+Julia function available in the `Ops` module.

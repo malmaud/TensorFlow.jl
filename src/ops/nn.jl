@@ -35,6 +35,10 @@ function max_pool(input, ksize, strides, padding; kwargs...)
     max_pool(input; ksize=ksize, strides=strides, padding=padding, kwargs...)
 end
 
+function conv2d_transpose(value, filter, output_shape, strides; padding="SAME", data_format="NHWC", kwargs...)
+    Ops.conv2d_backprop_input(output_shape, filter, value; strides=strides, padding=padding, data_format=data_format, kwargs...)
+end
+
 """
 `rnn(cell, inputs; initial_state=nothing, dtype=nothing, sequence_length=nothing, scope="RNN")`
 
