@@ -35,7 +35,7 @@ end
     end
 end
 
-for (rnn_fun, post_proc_outputs) in ((nn.dynamic_rnn, identity), (nn.rnn, last))
+for (rnn_fun, post_proc_outputs) in ((nn.dynamic_rnn, Base.identity), (nn.rnn, last))
     testname = split(string(rnn_fun), ".")[end]
     @testset "$testname" begin
         let
@@ -52,7 +52,6 @@ for (rnn_fun, post_proc_outputs) in ((nn.dynamic_rnn, identity), (nn.rnn, last))
             run(sess, global_variables_initializer())
             outputs = run(sess, y)[1]
             output = post_proc_outputs(outputs)
-
             expected_output = tanh(1*.1+tanh(1*.1+.1)*.1+.1)
             @test output[1,1] ≈ expected_output
 
