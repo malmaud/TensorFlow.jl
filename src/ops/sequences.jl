@@ -38,31 +38,15 @@ end
     Ops.lin_space(start, stop, num; kwargs...)
 end
 
-# @op function Base.range(::Type{Tensor}, start; limit=nothing, delta=1, name=nothing)
-#     if limit == nothing
-#         limit = start
-#         start = 0
-#     end
-#     local desc
-#     with_op_name(name, "Range") do
-#         desc = NodeDescription("Range")
-#         add_input(desc, convert(Tensor{Int32}, start))
-#         add_input(desc, convert(Tensor{Int32}, limit))
-#         add_input(desc, convert(Tensor{Int32}, delta))
-#     end
-#     Tensor(Operation(desc), 1)
-# end
-
 @op Base.range(start::AbstractTensor, length; kwargs...) = range(start, 1, length; kwargs...)
 
 @op function Base.range(start::AbstractTensor, step, length; kwargs...)
-    Ops.range(start, length, step; kwargs...)
+    Ops.range(start, length+1, step; kwargs...)
 end
 
 @op function Base.fill(n::AbstractTensor, dims; kwargs...)
     Ops.fill(convert(Tensor{Int32}, [dims...]), n; kwargs...)
 end
-
 
 @op function Base.reverse(x::AbstractTensor, indices; kwargs...)
     Ops.reverse_v2(x, indices; kwargs...)
