@@ -230,7 +230,7 @@ function to_function(op::tensorflow.OpDef)
     for (input_idx, input) in enumerate(op.input_arg)
         sym = inputs[input_idx]
         convert_target = tf.Tensor{Any}
-        if input.type_attr ∈ ["Index", "Tidx", "Tindices", "Tdim"]
+        if input.type_attr ∈ ["Index", "Tidx", "Tindices", "Tdim"] || input.name ∈ ["split_dim"]
             diff_expr = quote
                 #converted = converted - 1
                 $sym = $sym - convert(tf.Tensor{eltype($sym)}, 1)
@@ -311,17 +311,35 @@ function to_function(op::tensorflow.OpDef)
         end)
     end
     unshift!(inputs, kwargs)
-    n_output = length(op.output_arg)
-    output_block = if n_output == 1
+    scalar_output = true
+    if length(op.output_arg) > 1
+        scalar_output = false
+        n_output = length(op.output_arg)
+    elseif length(op.output_arg) == 1
+        output_arg = op.output_arg[1]
+        if !isempty(output_arg.number_attr)
+            scalar_output = false
+            n_output = Symbol(output_arg.number_attr)
+        end
+    end
+    output_block = if scalar_output
         :(tf.Tensor(tf.Operation(desc)))
     else
-        blocks = []
-        for n in 1:n_output
-            push!(blocks, :(tf.Tensor(op, $n)))
-        end
+        # blocks = []
+        # for n in 1:n_output
+        #     push!(blocks, :(tf.Tensor(op, $n)))
+        # end
+        # quote
+        #     op = tf.Operation(desc)
+        #     $(Expr(:tuple, blocks...))
+        # end
         quote
+            out = tf.Tensor[]
             op = tf.Operation(desc)
-            $(Expr(:tuple, blocks...))
+            for out_idx in 1:$(n_output)
+                push!(out, tf.Tensor(op, out_idx))
+            end
+            out
         end
     end
     expr = quote
