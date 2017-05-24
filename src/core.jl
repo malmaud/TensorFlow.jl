@@ -429,10 +429,27 @@ function get_def_graph()
 end
 has_def_graph() = isdefined(def_graph, :x)
 
+"""
+Sets the default computation graph to `g`.
+"""
 function set_def_graph(g)
     def_graph[] = g
 end
 
+"""
+For the duration of the function `f`
+temporarily sets the default computational graph to `g`.
+
+Suggested usage is via a do-block:
+```julia
+    as_default(graph1) do 
+        x = constant(5)
+        y = 2*x
+    end
+```
+
+In that example the nodes `x` and `y` were added to the Graph `graph1`.
+"""
 function as_default(f, g::Graph)
     old_def = get_def_graph()
     set_def_graph(g)
