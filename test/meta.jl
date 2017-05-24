@@ -79,7 +79,7 @@ end
         i = constant(1)
         loop_sum = constant(0)
         res = @tf while i ≤ 10
-            sq = i.*i
+            sq = i.^2
             [i=>i+1, loop_sum=>loop_sum+sq]
         end
         @test run(sess, res) == [11, 385]
