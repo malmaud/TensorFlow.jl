@@ -102,7 +102,7 @@ all elements but all later dimensions may vary.
 * `time_major`: Shape format for `inputs` and `outputs` `Tensor`s. Determines whether the first dimension of each is `max_time` (`true`) or `batch_size` (`false`, default). `true` is more efficient but is the transpose of most TensorFlow operations.
 * `scope`: `VariableScope` for the subgraph. Defaults to `RNN`.
 """
-@op function dynamic_rnn(cell, inputs, sequence_length=nothing; initial_state=nothing, dtype=nothing, parallel_iterations=nothing, swap_memory=false, time_major=false, scope="RNN")
+function dynamic_rnn(cell, inputs, sequence_length=nothing; initial_state=nothing, dtype=nothing, parallel_iterations=nothing, swap_memory=false, time_major=false, scope="RNN")
     #TODO Make this all work with non-3D inputs
 
     if time_major
