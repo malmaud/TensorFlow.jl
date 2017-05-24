@@ -133,9 +133,9 @@ function __init__()
     c_deallocator[] = cfunction(deallocator, Void, (Ptr{Void}, Csize_t, Ptr{Void}))
 end
 
-function load_python_process()
+function load_python_process(;force_reload=false)
     if myid() == 1
-        pyproc[] > 0 && return pyproc[] # Python process already loaded
+        (pyproc[] > 0 && !force_reload) && return pyproc[] # Python process already loaded
         addprocs(1)
         pyproc[] = nprocs()
         py_file = joinpath(dirname(@__FILE__), "py.jl")

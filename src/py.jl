@@ -26,6 +26,8 @@ function py_bytes(b::Vector{UInt8})
     PyCall.PyObject(ccall(@PyCall.pysym(PyCall.PyString_FromStringAndSize), PyCall.PyPtr, (Ptr{UInt8}, Int), b, sizeof(b)))
 end
 
+py_bytes(s::AbstractString) = py_bytes(Vector{UInt8}(s))
+
 macro py_catch(ex)
     target = @match ex begin
         (target_ = value_) => target
@@ -99,7 +101,7 @@ end
 const events_writer = Ref{PyObject}()
 
 function open_events_file(path)
-    events_writer[] = pywrap_tensorflow[][:EventsWriter](path)
+    events_writer[] = pywrap_tensorflow[][:EventsWriter](py_bytes(path))
 end
 
 function write_event(event_proto)
