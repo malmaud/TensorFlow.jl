@@ -230,7 +230,12 @@ function to_function(op::tensorflow.OpDef)
     for (input_idx, input) in enumerate(op.input_arg)
         sym = inputs[input_idx]
         convert_target = tf.Tensor{Any}
-        if input.type_attr ∈ ["Index", "Tidx", "Tindices", "Tdim"] || input.name ∈ ["split_dim"]
+
+        # Heuristic for when 1-based conversion is necessary
+        # Generally, you can tell by the name of the type attribute.
+        # One exception is split_dim, which has no type attribute but needs to 1-adjusted
+        # Another is 'range', which uses 'Tidx' for the attribute name although no conversion should be done
+        if (input.type_attr ∈ ["Index", "Tidx", "Tindices", "Tdim"] && jl_name != :range) || input.name ∈ ["split_dim"]
             diff_expr = quote
                 #converted = converted - 1
                 $sym = $sym - convert(tf.Tensor{eltype($sym)}, 1)
@@ -259,7 +264,6 @@ function to_function(op::tensorflow.OpDef)
         push!(convert_block.args, quote
             $convert_expr
             $diff_expr
-            #tf.add_input(desc, converted)
         end)
     end
     for type_set in values(type_sets)
@@ -292,7 +296,6 @@ function to_function(op::tensorflow.OpDef)
         if m[1] === nothing
             source = :($(t_target)($name))
         else
-            # source = :(($(t_target)).$(name))
             source = :(map($t_target, $name))
         end
         if attr.name ∈ ["axis", "begin_mask", "end_mask", "ellipsis_mask", "new_axis_mask", "shrink_axis_mask", "component_index", "concat_dim"]
@@ -325,14 +328,6 @@ function to_function(op::tensorflow.OpDef)
     output_block = if scalar_output
         :(tf.Tensor(tf.Operation(desc)))
     else
-        # blocks = []
-        # for n in 1:n_output
-        #     push!(blocks, :(tf.Tensor(op, $n)))
-        # end
-        # quote
-        #     op = tf.Operation(desc)
-        #     $(Expr(:tuple, blocks...))
-        # end
         quote
             out = tf.Tensor[]
             op = tf.Operation(desc)

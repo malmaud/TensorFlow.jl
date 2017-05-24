@@ -385,12 +385,13 @@ Returns:
     local result
     with_op_name(name, "Transpose") do
         if perm === nothing
-            r = range(Tensor, 0, limit=rank(n))
+            # r = range(Tensor, 0, limit=rank(n))
+            r = range(constant(0), rank(n)-1)
             perm = reverse(r, [true])
         end
-        result = ops.transpose(n, perm)
+        result = Ops.transpose(n, perm)
     end
-    Tensor(Operation(desc))
+    result
 end
 
 @op function Base.permutedims(n::AbstractTensor, perm; name=nothing)
