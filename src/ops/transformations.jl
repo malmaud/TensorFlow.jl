@@ -7,7 +7,6 @@ import .Ops:
     gather,
     gather_nd,
     scatter_nd,
-    one_hot,
     dynamic_partition,
     dynamic_stitch
 
@@ -16,6 +15,10 @@ const stack = Ops.pack
 
 function cast(value, dst_t; kwargs...)
     Ops.cast(value, DstT=dst_t, kwargs...)
+end
+
+function one_hot(indices, depth; on_value=1.0, off_value=0.0, kwargs...)
+    Ops.one_hot(indices, depth, on_value, off_value; kwargs...)
 end
 
 """
