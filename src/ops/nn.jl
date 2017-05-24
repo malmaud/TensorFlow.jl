@@ -358,7 +358,7 @@ Computes half the L2-norm of a `Tensor` `t`, without taking the square root.
 @op function l2_loss(t; name=nothing)
     local out
     tf.with_op_name(name, "L2_Loss") do
-        out = sqrt(reduce_sum(t.*t))
+        out = sqrt(reduce_sum(t.^2))
     end
     out
 end
@@ -415,7 +415,7 @@ end
     # TODO take into account epsilon
     local out
     tf.with_op_name(name, "L2Normalize") do
-        sums = tf.reduce_sum(x.*x, axis=[dim], keep_dims=true)
+        sums = tf.reduce_sum(x.^2, axis=[dim], keep_dims=true)
         norm = sqrt(sums)
         out = x/norm
     end
