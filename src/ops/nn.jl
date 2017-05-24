@@ -113,7 +113,9 @@ Creates a recurrent neural network.
 
 Args:
 * `cell`: An instance of `RNNCell`.
-* `inputs`: A list of input `Tensor`s, each with size `(batch_size, input_size)`.
+* `inputs`: 
+    * A Vector of input `Tensor`s, each with size `(batch_size, input_size)`, with the length `max_steps`
+    * or, a Tensor of inputs with,  of shape `[max_time, batch_size, ..., ...]` as per `dynamic_rnn` (NB: this feature is not present in the Python TensorFlow client)
 * `initial_state`: A starting state for the RNN. If not provided, the initial state is `zero_state`.
 * `dtype`: Data type of the initial state and output, in case it cannot be inferred.
 * `sequence_length`: Specifies length of each sequence in `inputs`.
@@ -157,7 +159,7 @@ Creates a *dynamic* recurrent neural network. Performs full dynamic unrolling of
 
 Args:
 * `cell`: An instance of `RNNCell`.
-* `inputs`: A `Tensor` of shape `[max_time, batch_size, ..., ...]` or `[batch_size, max_time, ..., ...]` (see `time_major`). May also be a nested `Tuple` with the same property. The first two dimensions *must* be the same across
+* `inputs`: A `Tensor` of shape `[max_time, batch_size, ..., ...]` or `[batch_size, max_time, ..., ...]` (if  `time_major` is set). May also be a nested `Tuple` with the same property. The first two dimensions *must* be the same across
 all elements but all later dimensions may vary.
 * `sequence_length`: Specifies length of each sequence in `inputs`.
 * `initial_state`: A starting state for the RNN. If not provided, the initial state is `zero_state`.
