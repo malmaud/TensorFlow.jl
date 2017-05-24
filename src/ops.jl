@@ -411,7 +411,7 @@ function import_ops()
                 f = to_function(op)
                 s = stringify_func(f)
                 write(ops_file, s)
-                Base.print(ops_file, "\n\n")
+                print(ops_file, "\n\n")
             catch err
                 err_msg = sprint(showerror, err)
                 warn("Could not import operation $name: $err_msg")

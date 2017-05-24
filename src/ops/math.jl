@@ -149,6 +149,10 @@ for jl_func_name in [
     end
 end
 
+function Base.round{T}(::Type{T}, value::AbstractTensor)
+    convert(Tensor{T}, round(value))
+end
+
 for jl_func_name in [
     :polygamma,
     :zeta]

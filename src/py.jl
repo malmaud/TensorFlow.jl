@@ -83,6 +83,7 @@ function py_gradients(jl_graph_proto, x_names, y_names, grad_y_names)
     py_y = to_py_node(y_names)
     py_grad_y = to_py_node(grad_y_names)
     @py_catch grad_node = py_tf[][:gradients](py_y, py_x, py_grad_y)
+    py_graph_def = py_graph[:as_graph_def]()
     grad_names = []
     for node in grad_node
         if node === nothing
@@ -95,7 +96,7 @@ function py_gradients(jl_graph_proto, x_names, y_names, grad_y_names)
             push!(grad_names, node[:name])
         end
     end
-    return to_protos(py_graph), grad_names
+    return to_protos(py_graph_def), grad_names
 end
 
 const events_writer = Ref{PyObject}()
