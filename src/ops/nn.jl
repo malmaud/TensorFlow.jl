@@ -235,14 +235,8 @@ and the same dtype (either `float32` or `float64`).
   A 1-D `Tensor` of length `batch_size` of the same type as `logits` with the
   softmax cross entropy loss.
 """
-@op function softmax_cross_entropy_with_logits(;logits=nothing, labels=nothing, name=nothing)
-    local desc
-    with_op_name(name, "SoftmaxCrossEntropyWithLogits") do
-        desc = NodeDescription("SoftmaxCrossEntropyWithLogits")
-        add_input(desc, logits)
-        add_input(desc, labels)
-    end
-    Tensor(Operation(desc), 1)
+@op function softmax_cross_entropy_with_logits(;logits=nothing, labels=nothing, kwargs...)
+    Ops.softmax_cross_entropy_with_logits(logits, labels; kwargs...)[1]
 end
 
 """

@@ -21,4 +21,3 @@ after_success:
 matrix:
   allow_failures:
     - julia: nightly
-    - julia: 0.6
