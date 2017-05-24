@@ -197,8 +197,7 @@ Raises:
 """
 @op function unstack(value; num=nothing, axis=1, name=nothing)
     num_split = num==nothing ? get_shape(value, axis) : num
-    op = get_op(Ops.unpack(value, num=num_split, axis=axis-1))
-    [Tensor(op, x) for x in 1:num_split]
+    Ops.unpack(value, num=num_split, axis=axis)
 end
 
 
