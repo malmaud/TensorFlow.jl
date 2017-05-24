@@ -235,7 +235,7 @@ function to_function(op::tensorflow.OpDef)
         # Generally, you can tell by the name of the type attribute.
         # One exception is split_dim, which has no type attribute but needs to 1-adjusted
         # Another is 'range', which uses 'Tidx' for the attribute name although no conversion should be done
-        if (input.type_attr ∈ ["Index", "Tidx", "Tindices", "Tdim"] && jl_name != :range) || input.name ∈ ["split_dim"]
+        if (input.type_attr ∈ ["Index", "Tidx", "Tindices", "Tdim", "TI"] && jl_name != :range) || input.name ∈ ["split_dim"]
             diff_expr = quote
                 #converted = converted - 1
                 $sym = $sym - convert(tf.Tensor{eltype($sym)}, 1)
