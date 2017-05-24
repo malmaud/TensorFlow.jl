@@ -420,6 +420,8 @@ end
 
 """
 Returns the default computation graph, an object of type `Graph`.
+
+See also `as_default` for setting the default graph
 """
 function get_def_graph()
     upgrade_check(v"1.0.1")  # This is here instead of in __init__ to avoid issues
@@ -429,10 +431,31 @@ function get_def_graph()
 end
 has_def_graph() = isdefined(def_graph, :x)
 
+"""
+Sets the default computation graph to `g`.
+
+See also `get_def_graph`, `as_default`
+"""
 function set_def_graph(g)
     def_graph[] = g
 end
 
+"""
+For the duration of the function `f`
+temporarily sets the default computational graph to `g`.
+
+Suggested usage is via a do-block:
+```julia
+    as_default(graph1) do 
+        x = constant(5)
+        y = 2*x
+    end
+```
+
+In that example the nodes `x` and `y` were added to the Graph `graph1`.
+
+see also See also `get_def_graph`
+"""
 function as_default(f, g::Graph)
     old_def = get_def_graph()
     set_def_graph(g)
