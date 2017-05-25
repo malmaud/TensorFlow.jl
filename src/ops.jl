@@ -259,7 +259,8 @@ function to_function(op::tensorflow.OpDef)
         convert_expr = if isempty(input.number_attr) && isempty(input.type_list_attr)  # Scalar input
                 :($sym=convert($(convert_target), $sym))
             else  # Array argument
-                :($sym=convert.($(convert_target), $sym))
+                # :($sym=convert.($(convert_target), $sym))
+                :($sym=[convert($(convert_target), x) for x in $sym])
             end
         push!(convert_block.args, quote
             $convert_expr
