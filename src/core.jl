@@ -172,6 +172,9 @@ function TensorShape(::Void)
     TensorShape(Nullable{Int}[], true)
 end
 
+function TensorShape(::Vector{Union{}}) # NB: `Vector{Union{}} == typeof(collect(tuple())))`
+    TensorShape(Nullable{Int}[], false)
+end
 
 function get_shape end
 
