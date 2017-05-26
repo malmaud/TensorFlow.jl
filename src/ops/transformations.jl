@@ -397,7 +397,7 @@ Returns:
 end
 
 @op function Base.permutedims(n::AbstractTensor, perm; name=nothing)
-    transpose(n, perm.-1; name=name)
+    transpose(n, perm; name=name)
 end
 
 Base.ctranspose(n::AbstractTensor) = transpose(n)
