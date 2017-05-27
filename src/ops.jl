@@ -5,7 +5,7 @@ const tf = TensorFlow # so know where op_funcs is defined
 
 using MacroTools
 
-if VERSION < v"0.6.0-"
+if VERSION < v"0.6.0-dev.1632"
     import Base: .*, .+, ./, .-, .^, .==, .!=
 end
 
@@ -438,7 +438,7 @@ include("ops/queues.jl")
 include("ops/clipping.jl")
 include("ops/init_ops.jl")
 
-if VERSION >= v"0.6-"
+if VERSION >= v"0.6.0-dev.2123"
     include("ops/v6_ops.jl")
 end
 
