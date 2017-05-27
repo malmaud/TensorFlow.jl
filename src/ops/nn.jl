@@ -99,15 +99,15 @@ all elements but all later dimensions may vary.
 * `scope`: `VariableScope` for the subgraph. Defaults to `RNN`.
 """
 function dynamic_rnn(cell, inputs, sequence_length=nothing; initial_state=nothing, dtype=nothing, parallel_iterations=nothing, swap_memory=false, time_major=false, scope="RNN")
-    input_dim = get_shape(inputs, 3)
+    input_dim = tf.get_shape(inputs, 3)
     #TODO Make this all work with non-3D inputs
-    
+
     if time_major
         # TODO Do this in a more efficient way
         inputs=permutedims(inputs, [2,1,3])
     end
 
-    num_steps = convert(Tensor{Int64}, tf.shape(inputs)[2])
+    num_steps = convert(tf.Tensor{Int64}, tf.shape(inputs)[2])
     if sequence_length === nothing
         # Works around a bug in upstream TensorFlow's while-loop
         # gradient calculation
