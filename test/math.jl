@@ -109,6 +109,8 @@ end
         result = run(sess, func(a,b))
         @test all(map(op, a_raw, b_raw) .== result)
     end
+    result = run(sess, a ⊻ b)
+    @test all(xor.(a_raw, b_raw) .== result)
 
     result = run(sess, ~a)
     @test map(~, a_raw) == result  # Use map for .5 comptability
