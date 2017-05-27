@@ -106,17 +106,34 @@ for (rnn_fun, post_proc_outputs) in ((nn.dynamic_rnn, identity), (nn.rnn, last))
     @testset "$testname sequence_length" begin
         let
             sess = Session(Graph())
-            data_jl = Float32[100*x+10y+z for x in 1:10, y in 1:20, z in 1:10]
+            data_jl = Float32[100*x+10y+z for x in 1:10, y in 1:20, z in 1:5]
             data = constant(data_jl)
             lens_jl = collect(1:2:20) #1 for each element in the batch (x) saying how far to go down the time (y)
             lens = constant(lens_jl)
-            cell = nn.rnn_cell.IdentityRNNCell(10)
+            cell = nn.rnn_cell.IdentityRNNCell(5)
             y, s_last = rnn_fun(cell, data, lens; dtype=Float32)
 
             run(sess, global_variables_initializer())
             outputs = run(sess, y)
             output = post_proc_outputs(outputs)
-            @test output == [data_jl[xi, lens_jl[xi], zi] for xi in 1:10, zi in 1:10]
+            @test output == [data_jl[xi, lens_jl[xi], zi] for xi in 1:10, zi in 1:5]
+        end
+    end
+
+    @testset "$testname sequence_length time-major" begin
+        let
+            sess = Session(Graph())
+            data_jl = Float32[100*x+10y+z for x in 1:20, y in 1:10, z in 1:5] #Time first dim, batch second
+            data = constant(data_jl)
+            lens_jl = collect(1:2:20) #1 for each element in the batch (y) saying how far to go down the time (y)
+            lens = constant(lens_jl)
+            cell = nn.rnn_cell.IdentityRNNCell(5)
+            y, s_last = rnn_fun(cell, data, lens; dtype=Float32, time_major=true)
+
+            run(sess, global_variables_initializer())
+            outputs = run(sess, y)
+            output = post_proc_outputs(outputs)
+            @test output == [data_jl[lens_jl[xi], xi, zi] for xi in 1:10, zi in 1:5]
         end
     end
 
