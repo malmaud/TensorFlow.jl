@@ -107,3 +107,12 @@ end
     run(sess, global_variables_initializer())
     run(sess, minimize_op)
 end
+
+@testset "dropout" begin
+    sess = Session(Graph())
+    inputs = constant(randn(Float32, 5, 32, 5))
+    drop_prob = placeholder(Float32)
+
+    dd =  nn.dropout(inputs, drop_prob)  # Check that this can actually be created
+
+end
