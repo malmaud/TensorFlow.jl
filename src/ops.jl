@@ -218,7 +218,7 @@ function to_function(op::tensorflow.OpDef)
     convert_block = quote end
     type_sets = Dict{String, Vector{Symbol}}()
     for (i, input) in enumerate(op.input_arg)
-        sym = Symbol(:x, i)
+        sym = Symbol("$(input.name)_")
         push!(inputs, sym)
         if !isempty(input.type_attr)
             type_set = get!(type_sets, input.type_attr, Symbol[])
