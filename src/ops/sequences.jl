@@ -53,8 +53,7 @@ A `Tensor` of the specified `shape` and `dtype` containing random values.
         seed1 = 0
         # TODO use global seed
         seed2 = seed
-        r = random_uniform(shape; seed=seed1, seed2=seed2, dtype=dtype)
-        r
+        r = random_uniform(shape; seed=seed1, seed2=seed2, dtype=dtype, name=name)
         out = r .* (maxval-minval) + minval
     end
     out
