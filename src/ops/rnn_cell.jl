@@ -45,7 +45,7 @@ function zero_mat(rows_like::AbstractTensor, n_cols::Integer, dtype)
             # Cunning trick to (dynamically) make a zero Tensor
             # without statically knowing the shape of rows_like
             rhs = zeros(T, 1, n_cols)
-            lhs = tf.slice(rows_like, [1,1], [-1,1]) #i.e. expand_dims(input[:,1], 2)
+            lhs = tf.slice(rows_like, Int32[1,1], Int32[-1,1]) #i.e. expand_dims(input[:,1], 2)
             convert(Tensor{T}, lhs*rhs)
         end
     else

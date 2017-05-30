@@ -66,7 +66,7 @@ function getindex_polyfunction(params::AbstractTensor, indices...)
         begin_ =  first(ind)
         push!(begins, begin_)
         end_ = last(ind)
-        push!(sizes, end_ - begin_ + 1) # +1 because a slice 3:3 has length 1, and 4:5 has length 3 etc
+        push!(sizes, end_ - begin_ + Int32(1)) # +1 because a slice 3:3 has length 1, and 4:5 has length 3 etc
     end
 
     function proc_ind!(ind::Tensor)

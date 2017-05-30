@@ -167,8 +167,9 @@ end
         run(sess2, global_variables_initializer())
         @test length(run(sess2, vals)) == 10
     end
-
 end
+
+
 
 @testset "Concatenation Syntax" begin
     srand(37)
@@ -231,4 +232,15 @@ end
 
 end
 
-
+@testset "Check gather can be used in a actual network" begin
+    # concat
+    let
+        sess3 = Session(Graph())
+        x = get_variable("x", (50,10), Float64)
+        x3n5 = gather(x, [3, 5])
+        cost = reduce_sum(x3n5)
+        optimizer = train.minimize(train.AdamOptimizer(0.1), cost)
+        run(sess3, global_variables_initializer())
+        @test size(run(sess3, x3n5)) == (2, 10)
+    end
+end

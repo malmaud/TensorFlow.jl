@@ -1118,6 +1118,12 @@ function Base.convert{T}(::Type{Tensor{T}}, value)
     convert(Tensor{T}, constant(value))
 end
 
+function Base.convert{T}(::Type{Tensor{T}}, value::Operation)
+    warn("convert{T}{::Tensor{T}, ::Operation} was called  on the operation $(value.name). This was ignored")
+    value
+end
+
+
 function operation_output_type(port::Port)
     @tfcall(:TF_OperationOutputType, TF_DataType, (Port,), port)
 end
