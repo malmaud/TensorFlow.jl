@@ -3,8 +3,6 @@ import Base: log, exp, +, -, *, /, ^, sin, cos, tan, asin, acos, atan, div, tanh
 import TensorFlow
 const tf = TensorFlow # so know where op_funcs is defined
 
-using MacroTools
-
 if VERSION < v"0.6.0-dev.1632"
     import Base: .*, .+, ./, .-, .^, .==, .!=
 end
@@ -371,6 +369,7 @@ function to_function(op::tensorflow.OpDef)
 
     sig = "$jl_name($(posargs_str)$(kwargs_str))"
     doc_str = string("     ", sig, "\n\n", op.summary, "\n\n", op.description)
+    expr = unblock(MacroTools.flatten(MacroTools.striplines(expr)))
     OpFunc(expr, doc_str, jl_name)
 end
 
