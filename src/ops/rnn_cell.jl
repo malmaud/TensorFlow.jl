@@ -66,11 +66,13 @@ state_size(cell::BasicRNNCell) = cell.hidden_size
 
 
 function (cell::BasicRNNCell)(input, state, input_dim=-1)
+    input = Tensor(input)
+    state = Tensor(state)
     N = get_input_dim(input, input_dim) + cell.hidden_size
     T = eltype(state)
     W = get_variable("weights", [N, cell.hidden_size], T)
     B = get_variable("bias", [cell.hidden_size], T)
-    X = cat(Tensor, 2, input, state)
+    X = cat(2, input, state)
     activity = tanh(X*W + B)
     return [activity, activity]
 end
@@ -119,8 +121,9 @@ end
 
 function (cell::LSTMCell)(input, state, input_dim=-1)
     N = get_input_dim(input, input_dim) + cell.hidden_size
-    T = eltype(state)
-    X = cat(Tensor, 2, input, state.h)
+    T = eltype(state)        
+    input = Tensor(input)
+    X = cat(2, input, state.h)
 
     Wi = get_variable("Wi", [N, cell.hidden_size], T)
     Wf = get_variable("Wf", [N, cell.hidden_size], T)
@@ -156,7 +159,9 @@ state_size(cell::GRUCell) = cell.hidden_size
 function (cell::GRUCell)(input, state, input_dim=-1)
     T = eltype(state)
     N = get_input_dim(input, input_dim) + cell.hidden_size
-    X = cat(Tensor, 2, input, state)
+    input = Tensor(input)
+    state = Tensor(state)
+    X = cat(2, input, state)
     Wz = get_variable("Wz", [N, cell.hidden_size], T)
     Wr = get_variable("Wr", [N, cell.hidden_size], T)
     Wh = get_variable("Wh", [N, cell.hidden_size], T)
@@ -168,7 +173,7 @@ function (cell::GRUCell)(input, state, input_dim=-1)
     end
     z = sigmoid(X*Wz + Bz)
     r = sigmoid(X*Wr + Br)
-    X2 = cat(Tensor, 2, input, state.*r)
+    X2 = cat(2, input, state.*r)
     h = nn.tanh(sigmoid(X2*Wh + Bh))
     s2 = (1-z).*h + z.*state
     return [s2, s2]

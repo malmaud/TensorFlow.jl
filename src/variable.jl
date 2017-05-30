@@ -1,4 +1,14 @@
-using Distributions
+import .Ops:
+    assign,
+    assign_add,
+    assign_sub,
+    scatter_update,
+    scatter_sub,
+    scatter_add,
+    scatter_mul,
+    scatter_div
+
+import Distributions
 
 type Variable <: AbstractTensor
     var_node::Operation
@@ -33,16 +43,9 @@ function Variable(initial_value; name="", trainable=true, literal_name=false)
     if !literal_name
         name = get_name(name)
     end
-    desc = NodeDescription("VariableV2", name)
-    desc["dtype"] = eltype(initial_value)
-    desc["shape"] = TensorShape([size(initial_value)...])
-    self.var_node = Operation(desc)
+    self.var_node = get_op(Ops.variable_v2(name=name, dtype=eltype(initial_value), shape=TensorShape([size(initial_value)...])))
 
-    desc = NodeDescription("Assign", "$name/Assign")
-    add_input(desc, self.var_node)
-    t = Tensor(initial_value)
-    add_input(desc, t)
-    self.assign_node = Operation(desc)
+    self.assign_node = get_op(Ops.assign(Tensor(self.var_node), initial_value, name="$name/Assign"))
     add_to_collection(:Variables, self)
     if trainable
         add_to_collection(:TrainableVariables, self)
@@ -55,116 +58,6 @@ end
     var.var_node = get(get_node_by_name(graph, s))
     var.assign_node = get(get_node_by_name(graph, "$s/Assign"))
     var
-end
-
-"""
-Update `v` by assigning `value` to it.
-
-Args:
-* `v`: The `Variable` to update.
-* `value`: The new value contained by `v`.
-* `validate_shape`: Optional `Bool` which, if `true` (default), ensures that `v` and `value` have the same shape.
-* `use_locking`: Optional `Bool` which, if `true` (default), protects the assignment with a lock.
-
-Returns:
-`v`, the updated `Variable`.
-"""
-@op function assign(v::Variable, value; validate_shape=true, use_locking=true, name=nothing)
-    local desc
-    with_op_name(name, "Assign") do
-        desc = NodeDescription("Assign")
-        add_input(desc, v.var_node)
-        add_input(desc, Tensor(value))
-        desc["validate_shape"] = validate_shape
-        desc["use_locking"] = use_locking
-    end
-    return Tensor(Operation(desc), 1)
-end
-
-"""
-Update `v` by adding `value` to it.
-
-Args:
-* `v`: The `Variable` to update.
-* `value`: The new value to add to `v`.
-* `use_locking`: Optional `Bool` which, if `true` (default is `false`), protects the assignment with a lock.
-
-Returns:
-`v`, the updated `Variable`.
-"""
-@op function assign_add(v::Variable, value; use_locking=false, name=nothing)
-    local desc
-    with_op_name(name, "AssignAdd") do
-        desc = NodeDescription("AssignAdd")
-        add_input(desc, v.var_node)
-        add_input(desc, Tensor(value))
-        desc["use_locking"] = use_locking
-    end
-    return Tensor(Operation(desc), 1)
-end
-
-"""
-Update `v` by subtracting `value` from it.
-
-Args:
-* `v`: The `Variable` to update.
-* `value`: The new value to subtract from `v`.
-* `use_locking`: Optional `Bool` which, if `true` (default is `false`), protects the assignment with a lock.
-
-Returns:
-`v`, the updated `Variable`.
-"""
-@op function assign_sub(v::Variable, value; use_locking=false, name=nothing)
-    local desc
-    with_op_name(name, "AssignSub") do
-        desc = NodeDescription("AssignSub")
-        add_input(desc, v.var_node)
-        add_input(desc, Tensor(value))
-    end
-    return Tensor(Operation(desc), 1)
-end
-
-"""
-Update `ref` by setting its values at `indices` to `updates`.
-
-Args:
-* `ref`: The `Variable` to update.
-* `indices`: The indices of `ref` to change the values of.
-* `updates`: The new values of `ref` at `indices`.
-* `use_locking`: Optional `Bool` which, if `true` (default is `false`), protects the assignment with a lock.
-
-Returns:
-`ref`, the updated `Variable`.
-"""
-@op function scatter_update(ref, indices, updates; name=nothing)
-    local desc
-    with_op_name(name, "ScatterUpdate") do
-        desc = NodeDescription("ScatterUpdate")
-        add_input(desc, Tensor(ref))
-        add_input(desc, Tensor(indices)-1)
-        add_input(desc, Tensor(updates))
-    end
-    Tensor(Operation(desc))
-end
-
-for (func, name) in [
-    (:scatter_sub, "ScatterSub"),
-    (:scatter_add, "ScatterAdd"),
-    (:scatter_mul, "ScatterMul"),
-    (:scatter_div, "ScatterDiv")]
-    @eval begin
-        @op function $func(ref, indices, updates; use_locking=false, name=nothing)
-            local desc
-            with_op_name(name, $name) do
-                desc = NodeDescription($name)
-                add_input(desc, Tensor(ref))
-                add_input(desc, Tensor(indices)-1)
-                add_input(desc, Tensor(updates))
-                desc["use_locking"] = use_locking
-            end
-            Tensor(Operation(desc))
-        end
-    end
 end
 
 Base.setindex!(v::Variable, value) = assign(v, value)
@@ -233,7 +126,7 @@ function get_variable(var_name, shape, dtype; trainable=true, kwargs...)
         push!(scope_stack, scope)
         name = join([get(x.name) for x in scope_stack], "/")
         try
-            initializer = Normal(0, .01)
+            initializer = Distributions.Normal(0, .01)
             reuse = false
             for scope in scope_stack
                 if !isnull(scope.initializer)

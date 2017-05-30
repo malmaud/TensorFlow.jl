@@ -88,13 +88,13 @@ function getindex_polyfunction(params::AbstractTensor, indices...)
     with_op_name("PolyGetIndex") do
         begins_tensor = stack(begins)
 
-        if length(singleton_dims) == length(begins) #Then we are not slicing any axies
+        if length(singleton_dims) == length(begins) #Then we are not slicing any axes
             gather_nd(params, begins_tensor)
         else # We are slicing, at some axies
             sizes_tensor = stack(sizes)
             sliced = slice(params, begins_tensor, sizes_tensor)
             if length(singleton_dims)>0 # we are not slicing on all axies
-                squeeze(sliced, singleton_dims) #S queeze singleton indexes
+                squeeze(sliced, singleton_dims) # Squeeze singleton indexes
             else # we are slicing on all axies
                 sliced
             end

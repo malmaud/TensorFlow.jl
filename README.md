@@ -55,6 +55,8 @@ Pkg.build("TensorFlow")
 CUDA 8.0 and cudnn are required for GPU usage.
 If you need to use a different version of CUDA you can [compile libtensorflow from source](#optional-building-the-tensorflow-library).
 
+Initial precompilation (eg, the first time you type `using TensorFlow`) can take 10-15 minutes, so please be patient. Subsequent load times will only be a few seconds.
+
 ## Installation via Docker
 
 Simply run `docker run -it malmaud/julia:tf` to open a Julia REPL that already

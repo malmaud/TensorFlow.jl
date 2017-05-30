@@ -6,20 +6,40 @@ const tf = TensorFlow # so know where op_funcs is defined
 using MacroTools
 
 if VERSION < v"0.6.0-"
-    import Base: .*, .+, ./, .-, .^, .==
+    import Base: .*, .+, ./, .-, .^, .==, .!=
 end
 
-
-
-function tf_promote(t, x::Number)
-    return Tensor(eltype(t)(x))
+function tf_promote(args...)
+    big_type = eltype(args[1])
+    for arg in args[2:end]
+        big_type = promote_type(big_type, eltype(arg))
+    end
+    new_args = []
+    for arg in args
+        if isa(arg, AbstractArray)
+            push!(new_args, arg)
+        else
+            push!(new_args, convert(Tensor{big_type}, arg))
+        end
+    end
+    (new_args...)
 end
 
-function tf_promote{T}(t, ::Type{Val{T}})  # Work around a^b->Val lowering
-    return tf_promote(t, T)
+macro define_binary(jl_func, tf_func)
+    quote
+        $jl_func(t1::AbstractTensor, t2::AbstractTensor) = $tf_func(tf_promote(t1, t2)...)
+        $jl_func(t1::AbstractTensor, t2) = $tf_func(t1, Tensor(t2))
+        $jl_func(t1, t2::AbstractTensor) = $tf_func(Tensor(t1), t2)
+    end |> esc
 end
 
-tf_promote(t, x) = Tensor(x)
+macro define_broadcast(jl_op, tf_func)
+    quote
+        Base.broadcast(::typeof($jl_op), t1::AbstractTensor, t2::AbstractTensor) = $tf_func(tf_promote(t1, t2)...)
+        Base.broadcast(::typeof($jl_op), t1::AbstractTensor, t2) = $tf_func(t1, Tensor(t2))
+        Base.broadcast(::typeof($jl_op), t1, t2::AbstractTensor) = $tf_func(Tensor(t1), t2)
+    end |> esc
+end
 
 macro not_implemented(f)
     res = @match f begin
@@ -109,26 +129,7 @@ Returns:
     Tensor(node, 1)
 end
 
-"""
-Reads and outputs the entire contents of the input filename.
 
-Args:
-  * filename: A `Tensor` of type `string`.
-  * name: A name for the operation (optional).
-
-Returns:
-  A `Tensor` of type `string`.
-"""
-@op function read_file(filename; name=nothing)
-    local desc
-    with_op_name(name, "ReadFile") do
-        desc = NodeDescription("ReadFile")
-        add_input(desc, Tensor(filename))
-    end
-    Tensor(Operation(desc), 1)
-end
-
-Base.read(::Type{Tensor}, filename) = read_file(filename)
 
 """
     struct_map(operation, args...)
@@ -156,6 +157,274 @@ function struct_map(op, args...)
     build_output(args[1], mapped_tensors)
 end
 
+immutable OpFunc
+    expr::Expr
+    docstring::String
+    name::Symbol
+end
+
+function keyword_escape(s)
+    keywords = ["const", "type"]
+    if (s ∈ keywords) || Base.isoperator(Symbol(s))
+        s = string(s, "_")
+    end
+    s
+end
+
+"""
+    opname_to_jlname(name)
+
+Converts a TensorFlow operation name `name` into a Julia
+function name. Eg UnsortedSegmentSum->unsorted_segment_sum.
+"""
+function opname_to_jlname(name)
+    cur_word = Vector{Char}()
+    words = Vector{String}()
+    for idx in 1:length(name)
+        cur_char = name[idx]
+        push!(cur_word, cur_char)
+        word_end = false
+        if idx == length(name)
+            word_end = true
+        else
+            next_char = name[idx+1]
+            if idx < length(name)-1
+                next_next_char = name[idx+2]
+                if isupper(cur_char) && isupper(next_char) && islower(next_next_char)
+                    word_end=true
+                end
+            end
+            if islower(cur_char) && isupper(next_char)
+                word_end = true
+            end
+        end
+        if word_end
+            push!(words, lowercase(join(cur_word)))
+            empty!(cur_word)
+        end
+    end
+    result = join(words, "_")
+    escaped = keyword_escape(result)
+    Symbol(escaped)
+end
+
+function is_internal_arg(arg)
+    arg._type == "type" && ismatch(r"^T", arg.name)
+end
+
+function to_function(op::tensorflow.OpDef)
+    jl_name = Symbol(lowercase(op.name))
+    jl_name = opname_to_jlname(op.name)
+    inputs = []
+    input_block = quote end
+    convert_block = quote end
+    type_sets = Dict{String, Vector{Symbol}}()
+    for input in op.input_arg
+        sym = gensym()
+        push!(inputs, sym)
+        if !isempty(input.type_attr)
+            type_set = get!(type_sets, input.type_attr, Symbol[])
+            push!(type_set, sym)
+        end
+    end
+    for (input_idx, input) in enumerate(op.input_arg)
+        sym = inputs[input_idx]
+        convert_target = tf.Tensor{Any}
+
+        # Heuristic for when 1-based conversion is necessary
+        # Generally, you can tell by the name of the type attribute.
+        # One exception is split_dim, which has no type attribute but needs to 1-adjusted
+        # Another is 'range', which uses 'Tidx' for the attribute name although no conversion should be done
+        if (input.type_attr ∈ ["Index", "Tidx", "Tindices", "Tdim", "TI"] && jl_name != :range && input.name ∉ ["size", "shape"]) || input.name ∈ ["split_dim"]
+            diff_expr = quote
+                #converted = converted - 1
+                $sym = $sym - convert(tf.Tensor{eltype($sym)}, 1)
+            end
+        else
+            diff_expr = quote end
+        end
+        if !isempty(input.type_attr)
+            for attr in op.attr
+                if attr.name == input.type_attr
+                    if isdefined(attr, :default_value)
+                        convert_target = tf.Tensor{load_proto(attr.default_value)}
+                        break
+                    end
+                end
+            end
+        end
+        if input._type > 0 && haskey(proto_type_map, input._type)
+            convert_target = tf.Tensor{proto_type_map[input._type]}
+        end
+        convert_expr = if isempty(input.number_attr) && isempty(input.type_list_attr)  # Scalar input
+                :($sym=convert($(convert_target), $sym))
+            else  # Array argument
+                # :($sym=convert.($(convert_target), $sym))
+                :($sym=[convert($(convert_target), x) for x in $sym])
+            end
+        push!(convert_block.args, quote
+            $convert_expr
+            $diff_expr
+        end)
+    end
+    for type_set in values(type_sets)
+        push!(convert_block.args, quote
+            $(Expr(:tuple, type_set...)) = tf.tf_promote($(type_set...))
+        end)
+    end
+    for (input_idx, input) in enumerate(op.input_arg)
+        push!(input_block.args, quote
+            tf.add_input(desc, $(inputs[input_idx]))
+        end)
+    end
+    kwargs = Expr(:parameters)
+    push!(kwargs.args, Expr(:kw, :name, nothing))
+    attr_block = quote end
+    for attr in op.attr
+        is_internal_arg(attr) && continue
+        name = Symbol(keyword_escape(attr.name))
+        push!(kwargs.args, Expr(:kw, name, nothing))
+
+        # Deal with attribute types like "list(int)"
+        m = match(r"list(\(.*\))|(.*)", attr._type)
+        t = m[1] !== nothing ? m[1] : m[2]
+
+        t_map = Dict("int"=>:(Base.Int),
+                     "bool"=>:(Base.Bool),
+                     "tensor"=>:(TensorFlow.RawTensor),
+                     "string"=>:(Base.String))
+        t_target = get(t_map, t, :(Base.identity))
+        if m[1] === nothing
+            source = :($(t_target)($name))
+        else
+            source = :(map($t_target, $name))
+        end
+        if attr.name ∈ ["axis", "begin_mask", "end_mask", "ellipsis_mask", "new_axis_mask", "shrink_axis_mask", "component_index", "concat_dim"]
+            push!(attr_block.args, quote
+                if $name !== nothing
+                    $name = $source - 1
+                end
+            end)
+        elseif attr._type == "int" && attr.minimum == 0
+            # info("Attribute $(op.name).$(attr.name) is likely an index and should be converted to 1-based indexing")
+        end
+        push!(attr_block.args, quote
+            if $name !== nothing
+                desc[$(attr.name)] = $source
+            end
+        end)
+    end
+    unshift!(inputs, kwargs)
+    scalar_output = true
+    if length(op.output_arg) > 1
+        scalar_output = false
+        n_output = length(op.output_arg)
+    elseif length(op.output_arg) == 1
+        output_arg = op.output_arg[1]
+        if !isempty(output_arg.number_attr)
+            scalar_output = false
+            n_output = Symbol(output_arg.number_attr)
+        end
+    end
+    output_block = if scalar_output
+        :(tf.Tensor(tf.Operation(desc)))
+    else
+        quote
+            out = tf.Tensor[]
+            op = tf.Operation(desc)
+            for out_idx in 1:$(n_output)
+                push!(out, tf.Tensor(op, out_idx))
+            end
+            out
+        end
+    end
+    expr = quote
+        @tf.op function $(jl_name)($(inputs...))
+            local desc
+            tf.with_op_name(name, $(op.name)) do
+                desc = tf.NodeDescription($(op.name))
+                $convert_block
+                $input_block
+                $attr_block
+            end
+            $output_block
+        end
+    end
+    posargs_str = join((arg.name for arg in op.input_arg), ", ")
+    kwargs_str = []
+    for arg in op.attr
+        is_internal_arg(arg) && continue
+        isdefined(arg, :default_value) || continue
+        local default
+        try
+            default = load_proto(arg.default_value)
+        catch err
+            default = "?"
+        end
+        push!(kwargs_str, "$(arg.name)=$default")
+    end
+    if isempty(kwargs_str)
+        kwargs_str = ""
+    else
+        kwargs_str = string("; ", join(kwargs_str, ", "))
+    end
+
+    sig = "$jl_name($(posargs_str)$(kwargs_str))"
+    doc_str = string("     ", sig, "\n\n", op.summary, "\n\n", op.description)
+    OpFunc(expr, doc_str, jl_name)
+end
+
+function stringify_func(opfunc::OpFunc)
+    s = sprint(show, opfunc.expr)
+    noquote = Base.split(s, "\n")[2:end-1]
+    docstring = replace(opfunc.docstring, "\$", "")
+    doc_line = "\"\"\"\n$(docstring)\n\"\"\""
+    lines = []
+    for line in noquote
+        line = replace(line, r"##", "v")
+        line = replace(line, r"#.*$", "")
+        push!(lines, line[5:end])
+        # push!(lines, line)
+    end
+    "$doc_line\n$(join(lines, "\n"))"
+end
+
+stringify_func(op::tensorflow.OpDef) = stringify_func(to_function(op))
+
+"""
+    import_ops()
+
+Autogenerates Julia functions for all TensorFlow operations defined in the
+TensorFlow shared library.
+"""
+function import_ops()
+    open(joinpath(dirname(@__FILE__), "ops/imported_ops.jl"), "w") do ops_file
+        date = Dates.now()
+        write(ops_file, """
+        # Autogenerated on $date
+
+        module Ops
+        import TensorFlow
+        const tf = TensorFlow
+        """)
+        for (name, op) in get_all_op_list()
+            try
+                f = to_function(op)
+                s = stringify_func(f)
+                write(ops_file, s)
+                print(ops_file, "\n\n")
+            catch err
+                err_msg = sprint(showerror, err)
+                warn("Could not import operation $name: $err_msg")
+            end
+        end
+        write(ops_file, """
+        end
+        """)
+    end
+end
+
+include("ops/imported_ops.jl")
 include("ops/math.jl")
 include("ops/sequences.jl")
 include("ops/control_flow.jl")
@@ -168,3 +437,10 @@ include("ops/image.jl")
 include("ops/queues.jl")
 include("ops/clipping.jl")
 include("ops/init_ops.jl")
+
+if VERSION >= v"0.6-"
+    include("ops/v6_ops.jl")
+end
+
+import .Ops: read_file
+Base.read(::Type{Tensor}, filename) = read_file(filename)

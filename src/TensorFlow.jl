@@ -1,6 +1,7 @@
 __precompile__(true)
 module TensorFlow
 
+warn("Loading a new version of TensorFlow.jl for the first time. This initial load can take up to 15 minutes as code is precompiled; subsequent usage will only take a few seconds.")
 
 export
 Graph,
@@ -119,7 +120,8 @@ enqueue,
 enqueue_many,
 dequeue,
 dequeue_many,
-get_all_op_list
+get_all_op_list,
+Ops
 
 
 isdefined(Base, :⊻) || (export ⊻)
@@ -131,9 +133,9 @@ function __init__()
     c_deallocator[] = cfunction(deallocator, Void, (Ptr{Void}, Csize_t, Ptr{Void}))
 end
 
-function load_python_process()
+function load_python_process(;force_reload=false)
     if myid() == 1
-        pyproc[] > 0 && return pyproc[] # Python process already loaded
+        (pyproc[] > 0 && !force_reload) && return pyproc[] # Python process already loaded
         addprocs(1)
         pyproc[] = nprocs()
         py_file = joinpath(dirname(@__FILE__), "py.jl")
@@ -176,9 +178,9 @@ include("constants.jl")
 include("tensorflow_protos.jl")
 include("core.jl")
 include("run.jl")
+include("ops.jl")
 include("variable.jl")
 include("shape_inference.jl")
-include("ops.jl")
 include("train.jl")
 include("io.jl")
 include("show.jl")

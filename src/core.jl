@@ -859,7 +859,6 @@ function fillin(op::Operation)
     op.op_name = @tfcall(:TF_OperationOpType, Cstring, (Ptr{Void},), op.ptr) |> unsafe_string
 end
 
-
 function with_op_name(f, name, def_name="Node")
     if name === nothing
         name = get_name(def_name)
@@ -959,7 +958,7 @@ function load_proto(tensor::tensorflow.TensorProto)
     elseif dtype == tensorflow._DataType.DT_BOOL
         val = tensor.bool_val
     else
-        warn("Unrecognized datatype $dtype")
+        # warn("Unrecognized datatype $dtype")
     end
     # Sometimes Tensorflow store the tensor content in the 'tensor_content' byte array,
     # and sometimes in a typed field. Haven't figured out the rational yet.
@@ -1077,7 +1076,16 @@ end
 Base.getindex(node::Operation, attr_name) = get_attr_value_proto(node, attr_name)
 
 const dt = tensorflow._DataType
-const proto_type_map = Dict(dt.DT_FLOAT=>Float32, dt.DT_INT32=>Int32, dt.DT_DOUBLE=>Float64, dt.DT_INT64=>Int64, dt.DT_STRING=>String, dt.DT_BOOL=>Bool)
+const proto_type_map = Dict(
+    dt.DT_FLOAT=>Float32,
+    dt.DT_INT32=>Int32,
+    dt.DT_DOUBLE=>Float64,
+    dt.DT_INT64=>Int64,
+    dt.DT_STRING=>String,
+    dt.DT_BOOL=>Bool,
+    dt.DT_UINT8=>UInt8,
+    dt.DT_COMPLEX64=>Complex64,
+    dt.DT_COMPLEX128=>Complex128)
 
 @compat abstract type AbstractTensor end
 
@@ -1102,13 +1110,10 @@ Base.convert{T}(::Type{Tensor{T}}, value::AbstractTensor) = convert(Tensor{T}, c
 Base.convert(::Type{Tensor}, value) = constant(value)
 Base.convert(::Type{Tensor}, value::Tensor) = value
 
-function Base.convert{T, R}(::Type{Tensor{T}}, value::Tensor{R})
-    if T==R  # Don't insert unnecessary casts into type graph
-        value
-    else
-        cast(value, T)
-    end
-end
+Base.convert{T, R}(::Type{Tensor{T}}, value::Tensor{R}) = cast(value, T)
+Base.convert{T}(::Type{Tensor{T}}, value::Tensor{T}) = value
+Base.convert{R}(::Type{Tensor{Any}}, value::Tensor{R}) = convert(Tensor, value)
+Base.convert(::Type{Tensor{Any}}, value::Tensor{Any}) = value
 
 function Base.convert{T}(::Type{Tensor{T}}, value)
     convert(Tensor{T}, constant(value))
@@ -1558,6 +1563,8 @@ function get_all_op_list()
     end
     op_list
 end
+
+get_op_def(x::AbstractString) = get_all_op_list()[x]
 
 function Operation(node_def::tensorflow.NodeDef)
     function get_tensor(full_name)

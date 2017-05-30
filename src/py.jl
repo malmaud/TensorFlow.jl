@@ -26,6 +26,8 @@ function py_bytes(b::Vector{UInt8})
     PyCall.PyObject(ccall(@PyCall.pysym(PyCall.PyString_FromStringAndSize), PyCall.PyPtr, (Ptr{UInt8}, Int), b, sizeof(b)))
 end
 
+py_bytes(s::AbstractString) = py_bytes(Vector{UInt8}(s))
+
 macro py_catch(ex)
     target = @match ex begin
         (target_ = value_) => target
@@ -59,11 +61,11 @@ function make_py_graph(graph_proto)
 end
 
 function to_protos(py_graph)
-    py_graph_def = py_graph[:as_graph_def]()
-    n_nodes = length(py_graph_def[:node])
+    nodes = PyVector(py_graph[:node])
+    n_nodes = length(nodes)
     protos = []
     for node_idx in 1:n_nodes
-        node_py = py_graph_def[:node][node_idx]
+        node_py = nodes[node_idx]
         proto = Vector{UInt8}(node_py[:SerializeToString]())
         push!(protos, proto)
     end
@@ -81,6 +83,7 @@ function py_gradients(jl_graph_proto, x_names, y_names, grad_y_names)
     py_y = to_py_node(y_names)
     py_grad_y = to_py_node(grad_y_names)
     @py_catch grad_node = py_tf[][:gradients](py_y, py_x, py_grad_y)
+    py_graph_def = py_graph[:as_graph_def]()
     grad_names = []
     for node in grad_node
         if node === nothing
@@ -93,13 +96,13 @@ function py_gradients(jl_graph_proto, x_names, y_names, grad_y_names)
             push!(grad_names, node[:name])
         end
     end
-    return to_protos(py_graph), grad_names
+    return to_protos(py_graph_def), grad_names
 end
 
 const events_writer = Ref{PyObject}()
 
 function open_events_file(path)
-    events_writer[] = pywrap_tensorflow[][:EventsWriter](path)
+    events_writer[] = pywrap_tensorflow[][:EventsWriter](py_bytes(path))
 end
 
 function write_event(event_proto)

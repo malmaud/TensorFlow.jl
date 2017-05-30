@@ -13,8 +13,8 @@ sess = TensorFlow.Session(TensorFlow.Graph())
 
     x_r_raw = Vector{Float32}(rand(10))
     x_i_raw = Vector{Float32}(rand(10))
-    x_r = Tensor(x_r_raw)
-    x_i = Tensor(x_i_raw)
+    x_r = constant(x_r_raw)
+    x_i = constant(x_i_raw)
 
     result = run(sess, complex(x_r, x_i))
     @test complex.(x_r_raw, x_i_raw) == result
@@ -24,13 +24,13 @@ end
     d_raw = 1. + rand(10)
     d = TensorFlow.constant(d_raw)
     for unary_func in [erf, erfc, lgamma, tanh, tan, sin, cos, abs, exp, log]
-                       result = run(sess, unary_func(d))
-                       @test unary_func.(d_raw) ≈ result
+       result = run(sess, unary_func(d))
+       @test unary_func.(d_raw) ≈ result
     end
     result = run(sess, -d)
     @test -d_raw == result
 
-    for func in [lbeta, polygamma, zeta]
+    for func in [polygamma, zeta]
         @test func(2, 3.0) ≈ run(sess, func(constant(2.0), constant(3.0)))
     end
 
@@ -111,7 +111,7 @@ end
     end
 
     result = run(sess, ~a)
-    @test map(~, a_raw) == result  # Use map for .5 comptability 
+    @test map(~, a_raw) == result  # Use map for .5 comptability
 end
 
 @testset "reduce" begin

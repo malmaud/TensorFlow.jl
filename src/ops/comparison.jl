@@ -1,80 +1,41 @@
 import Base: less
 
-for (func, op) in [
-    (:equal, "Equal"),
-    (:not_equal, "NotEqual"),
-    (:less, "Less"),
-    (:less_equal, "LessEqual"),
-    (:greater, "Greater"),
-    (:greater_equal, "GreaterEqual")]
+import .Ops: equal, not_equal, less_equal, greater, greater_equal, where
 
-    @eval @op function $func(t1::AbstractTensor, t2::AbstractTensor; name=nothing)
-        local desc
-        with_op_name(name, $op) do
-            desc = NodeDescription($op)
-            add_input(desc, Tensor(t1))
-            add_input(desc, Tensor(t2))
-        end
-        Tensor(Operation(desc), 1)
-    end
+Base.less(x::AbstractTensor, y::AbstractTensor; kwargs...) = Ops.less(x, y; kwargs...)
 
-end
-
-const undotted_func_list = [
+const func_list = [
     (:less, :<),
     (:less_equal, :≤),
     (:greater, :>),
-    (:greater_equal, :≥)
+    (:greater_equal, :≥),
+    (:equal, :(==)),
+    (:not_equal, :(!=))
 ]
 
-const func_list = copy(undotted_func_list)
+import Base: >, <, ≥, ≤, >=, <=, !=
 
-import Base: >, <, ≥, ≤
+const OP_VERSION_CHANGE  = v"0.6.0-dev.1632"
 
-if VERSION < v"0.6-"
+@static if VERSION < OP_VERSION_CHANGE
     import Base: .==, .!=, .>, .<, .≥, .≤
-    for (func_name, sym) in undotted_func_list
-        push!(func_list, (func_name, Symbol(string(".", sym))))
-    end
-    push!(func_list, (:equal, :(.==)))
-    push!(func_list, (:not_equal, :(.!=)))
 end
 
 for (func, sym) in func_list
-    @eval $sym(t1::AbstractTensor, t2::AbstractTensor) = $func(t1, t2)
-    @eval $sym(t1::AbstractTensor, t2) = $func(t1, Tensor(t2))
-    @eval $sym(t1, t2::AbstractTensor) = $func(Tensor(t1), t2)
+    @eval @define_binary($sym, $func)
 end
 
-@static if VERSION > v"0.6-"
-    for (func, sym) in undotted_func_list
-        @eval Base.broadcast(::typeof($sym), t1::AbstractTensor, t2::AbstractTensor) = $func(t1, t2)
-        @eval Base.broadcast(::typeof($sym), t1::AbstractTensor, t2) = $func(t1, Tensor(t2))
-        @eval Base.broadcast(::typeof($sym), t1, t2::AbstractTensor) = $func(Tensor(t1), t2)
+@static if VERSION >= OP_VERSION_CHANGE
+    for (func, sym) in func_list
+        @eval @define_broadcast($sym, $func)
+    end
+else
+    for (func, sym) in func_list
+        dotted_sym = Symbol(string(".", sym))
+        @eval @define_binary($(dotted_sym), $func)
     end
 end
 
-@op function Base.select(condition::AbstractTensor, t, e; name=nothing)
-    local desc
-    with_op_name(name, "Select") do
-        desc = NodeDescription("Select")
-        add_input(desc, Tensor(condition))
-        add_input(desc, Tensor(t))
-        add_input(desc, Tensor(e))
-    end
-    Tensor(Operation(desc), 1)
-end
+Base.select(condition::AbstractTensor, args...; kwargs...) = Ops.select(condition, args...; kwargs...)
 
-"""
-Returns locations of `true` values in a boolean `Tensor`.
-"""
-@op function where(input; name=nothing)
-    local desc
-    with_op_name(name, "Where") do
-        desc = NodeDescription("Where")
-        add_input(desc, Tensor(input))
-    end
-    Tensor(Operation(desc), 1)
-end
-
-Base.find(input::AbstractTensor) = where(input)+1  # Convert from 0-based indices
+Base.find(input::AbstractTensor) = Ops.where(input)+1  # Convert from 0-based indices

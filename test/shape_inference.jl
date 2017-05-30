@@ -144,7 +144,7 @@ end
     for labels in [a,b,c]
         for logits in [a,b,c]
             res = get_shape(nn.softmax_cross_entropy_with_logits(logits=logits, labels=labels))
-            if labels !=a && logits != a
+            if labels !==a && logits !== a
                 @test res == TensorShape([-1])
             else
                 @test res == TensorShape([10])

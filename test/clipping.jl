@@ -5,7 +5,7 @@ sess = TensorFlow.Session(TensorFlow.Graph())
 a_raw = rand(10, 10)
 a = TensorFlow.constant(a_raw)
 result = run(sess, clamp(a, 0.3, 0.7))
-@test clamp(a_raw, 0.3, 0.7) == result
+@test clamp.(a_raw, 0.3, 0.7) == result
 
 a_raw = rand(10)
 a = TensorFlow.constant(a_raw)

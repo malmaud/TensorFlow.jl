@@ -1,39 +1,24 @@
+import .Ops:
+    slice,
+    strided_slice,
+    expand_dims,
+    tile,
+    pad,
+    gather,
+    gather_nd,
+    scatter_nd,
+    dynamic_partition,
+    dynamic_stitch
 
-"""
-cast(x::Tensor, dtype; name="")
+const concat = Ops.concat_v2
+const stack = Ops.pack
 
-Casts a tensor to a new type.
+function cast(value, dst_t; kwargs...)
+    Ops.cast(value, DstT=dst_t, kwargs...)
+end
 
-The operation casts x (in case of Tensor) or x.values (in case of SparseTensor) to dtype.
-
-For example:
-
-# tensor `a` is [1.8, 2.2], dtype=tf.float
-tf.cast(a, tf.int32) ==> [1, 2]  # dtype=tf.int32
-Args:
-
-x: A Tensor or SparseTensor.
-dtype: The destination type.
-name: A name for the operation (optional).
-Returns:
-
-A Tensor or SparseTensor with same shape as x.
-
-Raises:
-
-TypeError: If x cannot be cast to the dtype.
-
-https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#cast
-"""
-@op function cast(x::Tensor, dtype; name=nothing)
-    local desc
-    with_op_name(name, "Cast") do
-        desc = NodeDescription("Cast")
-        add_input(desc, x)
-        desc["DstT"] = dtype
-        # desc["SrcT"] = eltype(x)
-    end
-    Tensor(Operation(desc), 1)
+function one_hot(indices, depth; on_value=1.0, off_value=0.0, kwargs...)
+    Ops.one_hot(indices, depth, on_value, off_value; kwargs...)
 end
 
 """
@@ -52,58 +37,14 @@ https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#reshape
 @op Base.reshape(n::AbstractTensor, dims; name=nothing) =
   reshape(n, Tensor(Int32[dims...]); name = name)
 
-@op function Base.reshape(n::AbstractTensor, dims::AbstractTensor; name=nothing)
-    local desc
-    with_op_name(name, "Reshape") do
-        desc = NodeDescription("Reshape")
-        add_input(desc, n)
-        add_input(desc, dims)
-    end
-    Tensor(Operation(desc), 1)
+@op function Base.reshape(n::AbstractTensor, dims::AbstractTensor; kwargs...)
+    Ops.reshape(n, dims; kwargs...)
 end
 
 
 # if isdefined(Base, :slice)  # Removed in .6
 #     import Base: slice
 # end
-"""
-    slice(n::AbstractTensor, begin_, size_; name="")
-
-Extracts a slice from a tensor.
-
-This operation extracts a slice of size size from a tensor input starting at the location specified by begin. The slice size is represented as a tensor shape, where size[i] is the number of elements of the 'i'th dimension of input that you want to slice. The starting location (begin) for the slice is represented as an offset in each dimension of input. In other words, begin[i] is the offset into the 'i'th dimension of input that you want to slice from.
-
-`begin` and `size` are one-based. If size[i] is -1, all remaining elements in dimension `i` are included in the slice. In other words, this is equivalent to setting:
-
-size[i] = input.dim_size(i) - begin[i]
-
-This operation requires that:
-
-1 <= begin[i] <= begin[i] + size[i] <= Di for i in [1, n]
-
-Args:
-
-input_: A Tensor.
-begin: An int32 or int64 Tensor.
-size: An int32 or int64 Tensor.
-name: A name for the operation (optional).
-Returns:
-
-A Tensor the same type as input.
-"""
-@op function slice(n::AbstractTensor, begin_, size_; name=nothing)
-    local desc
-    with_op_name(name, "Slice") do
-        desc = NodeDescription("Slice")
-        add_input(desc, Tensor(n))
-        add_input(desc, convert(Tensor{Int32}, begin_) - 1)  # Convert from 1-based to 0-based indexing
-        add_input(desc, convert(Tensor{Int32}, size_))
-    end
-    Tensor(Operation(desc), 1)
-end
-
-@not_implemented function strided_slice()
-end
 
 """
 Base.split(split_dim, num_split, value::AbstractTensor; name="")
@@ -137,84 +78,10 @@ num_split Tensor objects resulting from splitting value.
 
 https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#split
 """
-@op function Base.split(split_dim, num_split, value::AbstractTensor; name=nothing)
-    local desc
-    with_op_name(name, "Split") do
-        desc = NodeDescription("Split")
-        add_input(desc, convert(Tensor{Int32}, split_dim)-1)
-        add_input(desc, Tensor(value))
-        desc["num_split"] = num_split
-    end
-    op = Operation(desc)
-    [Tensor(op, x) for x in 1:num_split]
+@op function Base.split(split_dim, num_split, value::AbstractTensor; kwargs...)
+    Ops.split(split_dim, value; num_split=num_split, kwargs...)
 end
 
-"""
-    concat(vaues, axis; name="concat")
-
-Concatenates tensors along one dimension.
-
-Concatenates the list of tensors `values` along dimension `axis` (1-based).  If
-`values[i].shape = [D0, D1, ... Daxis(i), ...Dn]`, the concatenated
-result has shape
-
-    [D0, D1, ... Raxis, ...Dn]
-
-where
-
-    Raxis = sum(Daxis(i))
-
-That is, the data from the input tensors is joined along the `axis`
-dimension.
-
-The number of dimensions of the input tensors must match, and all dimensions
-except `axis` must be equal.
-
-For example:
-
-```python
-t1 = [[1, 2, 3], [4, 5, 6]]
-t2 = [[7, 8, 9], [10, 11, 12]]
-tf.concat([t1, t2], 0) ==> [[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]]
-tf.concat([t1, t2], 1) ==> [[1, 2, 3, 7, 8, 9], [4, 5, 6, 10, 11, 12]]
-
-# tensor t3 with shape [2, 3]
-# tensor t4 with shape [2, 3]
-tf.shape(tf.concat([t3, t4], 0)) ==> [4, 3]
-tf.shape(tf.concat([t3, t4], 1)) ==> [2, 6]
-```
-
-Note: If you are concatenating along a new axis consider using stack.
-E.g.
-
-```python
-tf.concat([tf.expand_dims(t, axis) for t in tensors], axis)
-```
-
-can be rewritten as
-
-```python
-tf.stack(tensors, axis=axis)
-```
-
-Args:
-  values: A list of `Tensor` objects or a single `Tensor`.
-  axis: 0-D `int32` `Tensor`.  Dimension along which to concatenate.
-  name: A name for the operation (optional).
-
-Returns:
-  A `Tensor` resulting from concatenation of the input tensors.
-"""
-@op function concat(values, axis; name=nothing)
-    local desc
-    with_op_name(name, "Concat") do
-        desc = NodeDescription("ConcatV2")
-        add_input(desc, [Tensor(x) for x in values])
-        add_input(desc, convert(Tensor{Int32}, axis) - 1)
-        desc["N"] = length(values)
-    end
-    Tensor(Operation(desc), 1)
-end
 
 
 """
@@ -289,28 +156,6 @@ Base.hcat(x1::AbstractTensor, x2::AbstractTensor, xs...) = hcat(x1, x2, Tensor.(
 
 
 
-"""
-    stack(values; axis=1, name="")
-
-Packs a list of rank-R tensors into one rank-(R+1) tensor.
-
-Packs the list of tensors in values into a tensor with rank one higher than each tensor in values, by packing them along the axis dimension. Given a list of length N of tensors of shape (A, B, C);
-
-If axis == 1 then the output tensor will have the shape (N, A, B, C).
-If axis == 2 then the output tensor will have the shape (A, N, B, C). Etc.
-
-https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#pack
-"""
-@op function stack(nodes; axis=1, name=nothing)
-    local desc
-    with_op_name(name, "Stack") do
-        desc = NodeDescription("Pack")
-        add_input(desc, [Tensor(x) for x in nodes])
-        desc["N"] = length(nodes)
-        desc["axis"] = axis -1
-    end
-    Tensor(Operation(desc), 1)
-end
 
 """
     unstack(value; num=nothing, axis=1, name="Unpack")
@@ -352,71 +197,13 @@ Raises:
 """
 @op function unstack(value; num=nothing, axis=1, name=nothing)
     num_split = num==nothing ? get_shape(value, axis) : num
-    local desc
-    with_op_name(name, "Unstack") do
-        desc = NodeDescription("Unpack")
-        add_input(desc, value)
-        desc["num"] = num_split
-        desc["axis"] = axis - 1
-    end
-    op = Operation(desc)
-    [Tensor(op, x) for x in 1:num_split]
+    Ops.unpack(value, num=num_split, axis=axis)
 end
 
-"""
-expand_dims(input, dim; name="")
-
-Inserts a dimension of 1 into a tensor's shape.
-
-Given a tensor input, this operation inserts a dimension of 1 at the dimension index dim of input's shape. The dimension index dim starts at one; if you specify a non-positive number for dim it is counted backward from the end. With `0` being the last dimension (`end-0`), `-1` being the second last (`end-1`) and so forth
-
-This operation is useful if you want to add a batch dimension to a single element. For example, if you have a single image of shape `[height, width, channels]`, you can make it a batch of 1 image with `expand_dims(image, 1)`, which will make the shape `[1, height, width, channels]`.
-
-Other examples:
-
-```julia
-# 't' is a tensor of shape [2]
-shape(expand_dims(t, 1)) ==> [1, 2]
-shape(expand_dims(t, 2)) ==> [2, 1]
-shape(expand_dims(t, 0)) ==> [2, 1]
-
-# 't2' is a tensor of shape [2, 3, 5]
-shape(expand_dims(t2, 1)) ==> [1, 2, 3, 5]
-shape(expand_dims(t2, 3)) ==> [2, 3, 1, 5]
-shape(expand_dims(t2, 4)) ==> [2, 3, 5, 1]
-shape(expand_dims(t2, 0)) ==> [2, 3, 5, 1]
-shape(expand_dims(t2, -1)) ==> [2, 3, 1, 5]
-
-```
-
-This operation requires that:
--input.dims() <= dim <= input.dims()+1
-
-This operation is related to squeeze(), which removes dimensions of size 1.
-
-Args:
-
-input: A Tensor.
-dim: A Tensor of type int32. 0-D (scalar). Specifies the dimension index at which to expand the shape of input.
-name: A name for the operation (optional).
-Returns:
-
-A Tensor. Has the same type as input. Contains the same data as input, but its shape has an additional dimension of size 1 added.
-
-https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#expand_dims
-"""
-@op function expand_dims(input, dim; name=nothing)
-    local desc
-    with_op_name(name, "ExpandDims") do
-        desc = NodeDescription("ExpandDims")
-        add_input(desc, Tensor(input))
-        add_input(desc, convert(Tensor{Int32}, dim)-1)
-    end
-    Tensor(Operation(desc), 1)
-end
 
 """
-squeeze(x::AbstractTensor, squeeze_dims; name="squeeze")
+    squeeze(x::AbstractTensor, squeeze_dims; name="squeeze")
+
 Removes dimensions of size 1 from the shape of a tensor.
 Given a tensor `input`, this operation returns a tensor of the same type with
 all dimensions of size 1 removed. If you don't want to remove all size 1
@@ -446,16 +233,11 @@ Returns:
 Raises:
   ValueError: When both `squeeze_dims` and `axis` are specified.
 """
-@op function Base.squeeze(x::AbstractTensor, squeeze_dims=nothing; name=nothing)
-    local desc
-    with_op_name(name, "Squeeze") do
-        desc = NodeDescription("Squeeze")
-        add_input(desc, x)
-        if !(squeeze_dims === nothing)
-            set_attr_list(desc, "squeeze_dims", squeeze_dims-1)
-        end
+@op function Base.squeeze(x::AbstractTensor, squeeze_dims=nothing; kwargs...)
+    if squeeze_dims !== nothing
+        squeeze_dims = squeeze_dims - 1
     end
-    Tensor(Operation(desc), 1)
+    Ops.squeeze(x; squeeze_dims=squeeze_dims, kwargs...)
 end
 
 
@@ -483,321 +265,17 @@ A Tensor of type int32.
 
 https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#rank
 """
-@op function Base.rank(n::AbstractTensor; name=nothing)
-    local desc
-    with_op_name(name, "Rank") do
-        desc = NodeDescription("Rank")
-        add_input(desc, Tensor(n))
-    end
-    Tensor(Operation(desc), 1)
+@op function Base.rank(n::AbstractTensor; kwargs...)
+    Ops.rank(n; kwargs...)
 end
 
-
-"""
-tile(input, multiples; name="")
-
-Constructs a tensor by tiling a given tensor.
-
-This operation creates a new tensor by replicating input multiples times. The output tensor's i'th dimension has input.dims(i) * multiples[i] elements, and the values of input are replicated multiples[i] times along the 'i'th dimension. For example, tiling [a b c d] by [2] produces [a b c d a b c d].
-
-Args:
-
-input: A Tensor. 1-D or higher.
-multiples: A Tensor of type int32. 1-D. Length must be the same as the number of dimensions in input
-name: A name for the operation (optional).
-Returns:
-
-A Tensor. Has the same type as input.
-
-https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#tile
-"""
-@op function tile(input, multiples; name=nothing)
-    local desc
-    with_op_name(name, "Tile") do
-        desc = NodeDescription("Tile")
-        add_input(desc, Tensor(input))
-        add_input(desc, convert(Tensor{Int32}, multiples))
-    end
-    Tensor(Operation(desc), 1)
-end
-
-
-"""
-pad(tensor, paddings; mode="CONSTANT", name="")
-
-Pads a tensor.
-
-This operation pads a tensor according to the paddings you specify. paddings is an integer tensor with shape [n, 2], where n is the rank of tensor. For each dimension D of input, paddings[D, 0] indicates how many values to add before the contents of tensor in that dimension, and paddings[D, 1] indicates how many values to add after the contents of tensor in that dimension. If mode is "REFLECT" then both paddings[D, 0] and paddings[D, 1] must be no greater than tensor.dim_size(D) - 1. If mode is "SYMMETRIC" then both paddings[D, 0] and paddings[D, 1] must be no greater than tensor.dim_size(D).
-
-The padded size of each dimension D of the output is:
-
-paddings[D, 0] + tensor.dim_size(D) + paddings[D, 1]
-
-Args:
-
-tensor: A Tensor.
-paddings: A Tensor of type int32.
-mode: One of "CONSTANT", "REFLECT", or "SYMMETRIC".
-name: A name for the operation (optional).
-Returns:
-
-A Tensor. Has the same type as tensor.
-
-Raises:
-
-ValueError: When mode is not one of "CONSTANT", "REFLECT", or "SYMMETRIC".
-
-https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#pad
-"""
-@op function pad(tensor, paddings; mode="CONSTANT", name=nothing)
-    local desc
-    with_op_name(name, "Pad") do
-        desc = NodeDescription("Pad")
-        add_input(desc, Tensor(tensor))
-        add_input(desc, convert(Tensor{Int32}, paddings))
-    end
-    # TODO pay attention to mode
-    mode != "CONSTANT" && warn("pad does not yet pay attention to mode")
-    Tensor(Operation(desc))
-end
-
-
-
-
-"""
-gather(params, indices; validate_indices=true, name="")
-
-Gather slices from params according to indices.
-
-#args:
-params: A Tensor.
-indices: A Tensor. Must be one of the following types: Int32, Int64.
-validate_indices: An optional bool. Defaults to true.
-name: A name for the operation (optional).
-
-#returns:
-A Tensor. Has the same type as params.
-
-indices must be an integer tensor of any dimension (usually 0-D or 1-D). Produces an output tensor with shape [indices.shape; params.shape[2:end]] where:
-```
-# Scalar indices
-output[:, ..., :] = params[indices, :, ... :]
-
-# Vector indices
-output[i, :, ..., :] = params[indices[i], :, ... :]
-
-# Higher rank indices
-output[i, ..., j, :, ... :] = params[indices[i, ..., j], :, ..., :]
-```
-
-If indices is a permutation and `length(indices) == params.shape[1]` then this operation will permute params accordingly.
-
-https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#gather
-"""
-@op function gather(params, indices; validate_indices=true, name=nothing)
-    local desc
-    with_op_name(name, "Gather") do
-        desc = NodeDescription("Gather")
-        add_input(desc, Tensor(params))
-        add_input(desc, Tensor(indices)-1)
-        desc["validate_indices"] = validate_indices
-    end
-    Tensor(Operation(desc), 1)
-end
-
-"""
-### `gather_nd(params, indices, name="")` {#gather_nd}
-
-Gather values or slices from `params` according to `indices`.
-
-`params` is a Tensor of rank `P` and `indices` is a Tensor of rank `Q`.
-
-`indices` must be integer tensor, containing indices into `params`.
-It must be shape `[d_1, ..., d_{Q-1}, K]` where `0 < K <= P`.
-indicies are 1 based.
-
-The innermost dimension of `indices` (with length `K`) corresponds to
-indices into elements (if `K = P`) or slices (if `K < P`) along the `K`th
-dimension of `params`.
-
-Produces an output tensor with shape
-
-```
-[d_1, ..., d_{Q-1}, params.shape[K], ..., params.shape[P-1]].
-```
-
-Some examples below.
-
-Simple indexing into a matrix:
-```julia
-    indices = [1 1; 2 2]""
-    params = ['a' 'b';  'c' 'd']
-    output = ['a', 'd']
-```
-
-Slice indexing into a matrix:
-```julia
-    indices = [2  1]'
-    params = ['a' 'b'; 'c' 'd']
-    output = ['c' 'd'; 'a' 'b']
-```
-
-##### Args:
-*  <b>`params`</b>: A `Tensor`. `P-D`.  The tensor from which to gather values.
-*  <b>`indices`</b>: A `Tensor`. Must be one of the following types: `int32`, `int64`.
-    `Q-D`.  Index tensor having shape `[d_1, ..., d_{Q-1}, K]`. 1 based
-*  <b>`name`</b>: A name for the operation (optional).
-
-##### Returns:
-  A `Tensor`. Has the same type as `params`.
-  `(P+Q-K-1)-D`.  Values from `params` gathered from indices given by
-  `indices`.
-"""
-@op function gather_nd(params, indicies; name=nothing)
-    local desc
-    with_op_name(name, "GatherNd") do
-        desc = NodeDescription("GatherNd")
-        add_input(desc, Tensor(params))
-        add_input(desc, convert(Tensor{Int32}, indicies) - 1)
-    end
-    Tensor(Operation(desc), 1)
-end
-
-
-"""
-### `scatter_nd`
-Creates a new tensor by applying sparse `updates` to individual values
- or slices within a zero tensor of the given `shape` tensor according to indices.
-
-This operator is the inverse of the `gather_nd`
-operator which extracts values or slices from a given tensor.
-
-`shape` is a `TensorShape` with rank `P` and `indices` is a `Tensor` of rank `Q`.
-
-`indices` must be integer tensor, containing indices into `shape`.
-It must be shape `[d_0, ..., d_{Q-2}, K]` where `0 < K <= P`.
-The innermost dimension of `indices` (with length `K`) corresponds to
-indices into elements (if `K = P`) or slices (if `K < P`) along the `K`th
-dimension of `shape`.
-
-`updates` is Tensor of rank `Q-1+P-K` with shape:
-
-```
-[d_0, ..., d_{Q-2}, shape[K], ..., shape[P-1]].
-```
-
-The simplest form of scatter is to insert individual elements in a tensor by
-index. For example, say we want to insert 4 scattered elements in a rank-1
-tensor with 8 elements.
-
-
-In Julia, this scatter operation would look like this:
-
-    indices = constant([5 4 2 8]')
-    updates = constant([9, 10, 11, 12])
-    shape = constant([8])
-    scatter_nd(indices, updates, shape)
-
-The resulting tensor would look like this:
-
-    [0, 11, 0, 10, 9, 0, 0, 12]
-
-We can also, insert entire slices of a higher rank tensor all at once. For
-example, if we wanted to insert two slices in the first dimension of a
-rank-3 tensor with two matrices of new values.
-"""
-@op function scatter_nd(indices, updates, shape; name=nothing)
-    local desc
-    with_op_name(name, "ScatterNd") do
-        desc = NodeDescription("ScatterNd")
-		add_input(desc, convert(Tensor{Int32}, indices-1))
-		add_input(desc, Tensor(updates))
-		add_input(desc, convert(Tensor{Int32}, shape))  # Must be same type as indicies
-    end
-    Tensor(Operation(desc), 1)
-end
-
-@op function scatter_nd(indices, updates, shape::TensorFlow.ShapeInference.TensorShape; name=nothing)
+@op function scatter_nd(indices, updates, shape::TensorFlow.TensorShape; name=nothing)
     if shape.rank_unknown || any(isnull.(shape.dims))
         error("TensorShape provided to scatter_nd not statically fully known ($shape). Consider using the dynamic `shape` operation instead of the static `get_shape` operation")
     end
     scatter_nd(indices, updates, get.(shape.dims); name=name)
 end
 
-"""
-one_hot(indices, depth; on_value=Float32(1), off_value=Float32(0), axis=-1, dtype=Float32, name="")
-
-Returns a one-hot tensor.
-
-The locations represented by indices in indices take value on_value, while all other locations take value off_value.
-
-on_value and off_value must have matching data types. If dtype is also provided, they must be the same data type as specified by dtype.
-
-If on_value is not provided, it will default to the value 1 with type dtype
-
-If off_value is not provided, it will default to the value 0 with type dtype
-
-If the input indices is rank N, the output will have rank N+1. The new axis is created at dimension axis (default: the new axis is appended at the end).
-
-If indices is a scalar the output shape will be a vector of length depth
-
-If indices is a vector of length features, the output shape will be: features x depth if axis == -1 depth x features if axis == 0
-
-If indices is a matrix (batch) with shape [batch, features], the output shape will be: batch x features x depth if axis == -1 batch x depth x features if axis == 1 depth x batch x features if axis == 0
-
-If dtype is not provided, it will attempt to assume the data type of on_value or off_value, if one or both are passed in. If none of on_value, off_value, or dtype are provided, dtype will default to the value tf.float32
-
-Note: If a non-numeric data type output is desired (tf.string, tf.bool, etc.), both on_value and off_value must be provided to one_hot
-
-https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#one_hot
-
-"""
-@op function one_hot(indices, depth; on_value=Float32(1), off_value=Float32(0), axis=-1, dtype=Float32, name=nothing)
-    local desc
-    with_op_name(name, "OneHot") do
-        desc = NodeDescription("OneHot")
-        add_input(desc, Tensor(indices)-1)
-        add_input(desc, Tensor(Int32(depth)))
-        add_input(desc, Tensor(dtype(on_value)))
-        add_input(desc, Tensor(dtype(off_value)))
-        desc["axis"] = axis
-        desc["T"] = dtype
-    end
-    Tensor(Operation(desc), 1)
-end
-
-
-"""
-dynamic_partition(data, partitions, num_partitions; name="")
-
-https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#dynamic_partition
-"""
-@op function dynamic_partition(data, partitions, num_partitions; name=nothing)
-    local desc
-    with_op_name(name, "DynamicPartition") do
-        desc = NodeDescription("DynamicPartition")
-        add_input(desc, data)
-        add_input(desc, partitions)
-        desc["num_partitions"] = Int64(num_partitions)
-    end
-    op = Operation(desc)
-    [Tensor(op, x) for x in 1:num_partitions]
-end
-
-"""
-dynamic_stitch(indices, data; name="")
-
-https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#dynamic_stitch
-"""
-@op function dynamic_stitch(indices, data; name=nothing)
-    local desc
-    with_op_name(name, "DynamicStitch") do
-        desc = NodeDescription("DynamicStitch")
-        add_input(desc, indices)
-        add_input(desc, data)
-    end
-    Tensor(Operation(desc), 1)
-end
 
 """
 boolean_mask(tensor, mask)
@@ -906,17 +384,16 @@ Returns:
   A transposed `Tensor`.
 """
 @op function Base.transpose(n::AbstractTensor, perm=nothing; name=nothing)
-    local desc
+    local result
     with_op_name(name, "Transpose") do
         if perm === nothing
-            r = range(Tensor, 0, limit=rank(n))
+            # r = range(Tensor, 0, limit=rank(n))
+            r = range(constant(0), rank(n)-1)
             perm = reverse(r, [true])
         end
-        desc = NodeDescription("Transpose")
-        add_input(desc, Tensor(n))
-        add_input(desc, convert(Tensor{Int32}, perm))
+        result = Ops.transpose(n, perm)
     end
-    Tensor(Operation(desc))
+    result
 end
 
 @op function Base.permutedims(n::AbstractTensor, perm; name=nothing)
