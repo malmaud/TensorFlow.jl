@@ -1,6 +1,16 @@
 using Base.Test
 using TensorFlow
 
+@testset "TensorShape" begin
+    @test TensorShape([]) == TensorShape(Nullable{Int}[],false)
+    @test TensorShape(collect(tuple())) == TensorShape([],false)
+    
+    @test TensorShape([-1, 15]) == TensorShape([Nullable{Int}(), Nullable{Int}(15)], false)
+    @test TensorShape([10, 12]) == TensorShape([Nullable{Int}(10), Nullable{Int}(12)], false)
+
+    @test TensorShape(nothing).rank_unknown == true
+end
+
 @testset "Graph importing" begin
     if tf_version() >= v"1.0.0-rc1"
         graph_pb = read(joinpath(dirname(@__FILE__), "graph.pb"))
