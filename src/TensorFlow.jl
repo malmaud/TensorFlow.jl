@@ -179,7 +179,10 @@ include("tensorflow_protos.jl")
 include("core.jl")
 include("run.jl")
 include("ops.jl")
+
 include("variable.jl")
+using .Variables
+
 include("shape_inference.jl")
 include("train.jl")
 include("io.jl")
