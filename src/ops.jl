@@ -374,18 +374,11 @@ function to_function(op::tensorflow.OpDef)
 end
 
 function stringify_func(opfunc::OpFunc)
-    s = sprint(show, opfunc.expr)
-    noquote = Base.split(s, "\n")[2:end-1]
+    s = string(opfunc.expr)
     docstring = replace(opfunc.docstring, "\$", "")
     doc_line = "\"\"\"\n$(docstring)\n\"\"\""
     lines = []
-    for line in noquote
-        line = replace(line, r"##", "v")
-        line = replace(line, r"#.*$", "")
-        push!(lines, line[5:end])
-        # push!(lines, line)
-    end
-    "$doc_line\n$(join(lines, "\n"))"
+    "$doc_line\n$s"
 end
 
 stringify_func(op::tensorflow.OpDef) = stringify_func(to_function(op))
