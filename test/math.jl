@@ -200,6 +200,10 @@ end
 
     result = run(sess, TensorFlow.scatter_add(a, [1; 5], [1.; 1.]; use_locking=true))
     @test [0.; -1.; -1.; -1.; 0.; -1.] == result
+
+    result = run(sess, TensorFlow.scatter_sub(a, [1; 5], [1.; 1.]; use_locking=true))
+    @test -ones(6) == result
+
 end
 
 
