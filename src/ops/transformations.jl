@@ -1,5 +1,4 @@
 import .Ops:
-    slice,
     strided_slice,
     expand_dims,
     tile,
@@ -401,5 +400,33 @@ end
 end
 
 Base.ctranspose(n::AbstractTensor) = transpose(n)
+
+
+"""
+slice(n::AbstractTensor, begin_, size_; name="")
+Extracts a slice from a tensor.
+This operation extracts a slice of size size from a tensor input starting at the location specified by begin. The slice size is represented as a tensor shape, where size[i] is the number of elements of the 'i'th dimension of input that you want to slice. The starting location (begin) for the slice is represented as an offset in each dimension of input. In other words, begin[i] is the offset into the 'i'th dimension of input that you want to slice from.
+begin is zero-based; size is one-based. If size[i] is -1, all remaining elements in dimension i are included in the slice. In other words, this is equivalent to setting:
+size[i] = input.dim_size(i) - begin[i]
+This operation requires that:
+0 <= begin[i] <= begin[i] + size[i] <= Di for i in [0, n]
+Args:
+input_: A Tensor.
+begin: An int32 or int64 Tensor.
+size: An int32 or int64 Tensor.
+name: A name for the operation (optional).
+Returns:
+A Tensor the same type as input.
+https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#slice
+"""
+@op function slice(n::AbstractTensor, begin_, size_; name=nothing)
+    with_op_name(name, "Slice") do
+        begin_ = convert(Tensor{Int32}, begin_)
+        size_ = convert(Tensor{Int32}, size_)
+        Ops.slice(n, begin_, size_; name=name)
+    end
+end
+
+
 
 include("indexing.jl")
