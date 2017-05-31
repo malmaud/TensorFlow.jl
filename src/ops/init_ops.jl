@@ -1,4 +1,4 @@
-type ConstantInitializer{T}
+immutable ConstantInitializer{T}
     value::T
 end
 

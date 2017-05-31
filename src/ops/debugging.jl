@@ -1,6 +1,9 @@
 import .Ops: is_finite, is_nan, is_inf
 
-const Print = Ops.print
+# const Print = Ops.print
+function Base.print(x::AbstractTensor, args...; kwargs...)
+    Ops.print(x, args...; kwargs...)
+end
 
 for (func, name) in [
     (:is_finite, :isfinite),
