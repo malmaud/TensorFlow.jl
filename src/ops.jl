@@ -3,9 +3,7 @@ import Base: log, exp, +, -, *, /, ^, sin, cos, tan, asin, acos, atan, div, tanh
 import TensorFlow
 const tf = TensorFlow # so know where op_funcs is defined
 
-using MacroTools
-
-if VERSION < v"0.6.0-"
+if VERSION < v"0.6.0-dev.1632"
     import Base: .*, .+, ./, .-, .^, .==, .!=
 end
 
@@ -219,8 +217,8 @@ function to_function(op::tensorflow.OpDef)
     input_block = quote end
     convert_block = quote end
     type_sets = Dict{String, Vector{Symbol}}()
-    for input in op.input_arg
-        sym = gensym()
+    for (i, input) in enumerate(op.input_arg)
+        sym = Symbol("$(input.name)_")
         push!(inputs, sym)
         if !isempty(input.type_attr)
             type_set = get!(type_sets, input.type_attr, Symbol[])
@@ -371,22 +369,16 @@ function to_function(op::tensorflow.OpDef)
 
     sig = "$jl_name($(posargs_str)$(kwargs_str))"
     doc_str = string("     ", sig, "\n\n", op.summary, "\n\n", op.description)
+    expr = unblock(MacroTools.flatten(MacroTools.striplines(expr)))
     OpFunc(expr, doc_str, jl_name)
 end
 
 function stringify_func(opfunc::OpFunc)
-    s = sprint(show, opfunc.expr)
-    noquote = Base.split(s, "\n")[2:end-1]
+    s = string(opfunc.expr)
     docstring = replace(opfunc.docstring, "\$", "")
     doc_line = "\"\"\"\n$(docstring)\n\"\"\""
     lines = []
-    for line in noquote
-        line = replace(line, r"##", "v")
-        line = replace(line, r"#.*$", "")
-        push!(lines, line[5:end])
-        # push!(lines, line)
-    end
-    "$doc_line\n$(join(lines, "\n"))"
+    "$doc_line\n$s"
 end
 
 stringify_func(op::tensorflow.OpDef) = stringify_func(to_function(op))
@@ -438,7 +430,7 @@ include("ops/queues.jl")
 include("ops/clipping.jl")
 include("ops/init_ops.jl")
 
-if VERSION >= v"0.6-"
+if VERSION >= v"0.6.0-dev.2123"
     include("ops/v6_ops.jl")
 end
 

@@ -47,7 +47,7 @@ end
 
 const matmul = mat_mul
 
-@static if VERSION > v"0.6-"  # Cope with changes in broadcasting in Julia 0.6
+@static if VERSION > v"0.6.0-dev.1632"  # Cope with changes in broadcasting in Julia 0.6
     @define_broadcast(*, mul)
     @define_broadcast(+, add)
     @define_broadcast(-, sub)
@@ -116,7 +116,7 @@ end
 
 ^(n::AbstractTensor, x::Int) = invoke(^, Tuple{AbstractTensor, Any}, n, x)
 
-# @static if VERSION < v"0.6-"
+# @static if VERSION < v"0.6.0-dev.1632"
 #     .^(n::AbstractTensor, x) = n^x
 # else
 #     Base.broadcast(::typeof(^), n::AbstractTensor, x) = n^x

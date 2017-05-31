@@ -112,7 +112,7 @@ function _get_shape(n::tf.AbstractTensor)
 end
 
 function _get_shape(v::Variable)
-    return _get_shape(get_input(v.assign_node, 2))
+    return _get_shape(get_input(tf.get_op(v.assign_node), 2))
 end
 
 const shape_inferer = Dict{String, Function}()
@@ -138,7 +138,7 @@ end
 # Simple 1-input 1-output functions that preserve the input shape
 for func in ["Log", "Exp", "Neg", "Ceil", "Floor", "Sqrt", "Square",
     "Cos", "Sin", "Tan", "Atan", "Asin", "Acos", "Tanh",
-    "Round", "Cast", 
+    "Round", "Cast",
     "Relu", "Relu6", "Elu", "Softplus", "Softsign","Softmax", "Sigmoid",
     "LogSoftmax", "LRN", "LogicalAnd", "LogicalNot", "LogicalOr", "LogicalXor",
     "Sign", "Exit", "Enter", "NextIteration", "LoopCond",
