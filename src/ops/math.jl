@@ -30,6 +30,15 @@ import .Ops:
 @op Base.max(x::AbstractTensor, y; kwargs...) = Ops.maximum(x, y; kwargs...)
 @op Base.min(x::AbstractTensor, y; kwargs...) = Ops.minimum(x, y; kwargs...)
 
+
+@op function Base.svd(a::AbstractTensor; thin=true, kwargs...)
+    # Match Base names and ordering of results
+    s,u,v = Ops.svd(a; compute_uv=true, full_matrices=!thin, kwargs...)
+    u,s,v
+end
+
+
+
 const multiply = Ops.mul
 const negative = Ops.neg
 const self_adjoint_eig = Ops.self_adjoint_eig_v2

@@ -180,6 +180,23 @@ end
     M_raw *= M_raw'
     result = run(sess, TensorFlow.cholesky(constant(M_raw)))
     @test cholfact(M_raw)[:L] ≈ result
+
+    for thin in [true, false]
+        M_raw = rand(Float32, 10, 10)
+        u, s, v = run(sess, svd(constant(M_raw), thin=thin))
+        uj, sj, vj = svd(M_raw, thin=thin)
+        # Can't directly check values between julia svd and tensorflow svd as SVD not unique
+        # Check the shape of results match
+        @test size(s) == size(sj)
+        @test size(u) == size(uj)
+        @test size(v) == size(uj)
+        # Check the reconstruction is close
+        err = sum(abs2, M_raw-u*diagm(s)*v')
+        err_j = sum(abs2, M_raw-uj*diagm(sj)*vj')
+
+        @assert err_j ≤ 1e-10
+        @test err ≤ 1000err_j # Julia has really accurate SVD, apparently, so give it a margin
+    end
 end
 
 
