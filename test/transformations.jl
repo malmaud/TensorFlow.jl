@@ -138,32 +138,6 @@ end
 ###################################################################
 # Tests after this point must provide their own sessions and graphs
 
-@testset "Making a functioning network: Issue #147" begin
-    # concat
-    let
-        sess3 = Session(Graph())
-        x1 = constant(rand(20,10))
-        x2 = get_variable("x2", (50,10), Float64)
-        xs = concat([x1,x2], 1)
-        cost = reduce_sum(xs)
-        optimizer = train.minimize(train.AdamOptimizer(0.1), cost)
-        run(sess3, global_variables_initializer())
-        @test size(run(sess3, xs)) == (70, 10)
-    end
-    
-    # gather_nd
-    let
-        sess2 = Session(Graph())
-        embs = get_variable("tt2", (10,10), Float64)
-        vals = gather_nd(embs,[2])
-        cost = reduce_sum(vals)
-        optimizer = train.minimize(train.AdamOptimizer(0.1), cost)
-        run(sess2, global_variables_initializer())
-        @test length(run(sess2, vals)) == 10
-    end
-
-end
-
 @testset "Concatenation Syntax" begin
     srand(37)
     sess4 = Session(Graph())
@@ -177,7 +151,7 @@ end
 
     @testset "vcat" begin
         @test c_jl == run(sess4, vcat(c))
-        
+
         @test [c_jl; d_jl] == run(sess4, [c; d])
         @test [c_jl; d_jl; c_jl] == run(sess4, [c; d; c])
 
@@ -224,5 +198,3 @@ end
     end
 
 end
-
-
