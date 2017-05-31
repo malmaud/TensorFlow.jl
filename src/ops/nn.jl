@@ -56,11 +56,7 @@ Args:
 """
 function rnn(cell, inputs::Vector, sequence_length=nothing; initial_state=nothing, dtype=nothing, scope="RNN")
     if initial_state === nothing
-        if dtype === nothing
-            error("dtype must be set if initial_state is not provided")
-        end
-        batch_size = tf.get_shape(first(inputs), 1)
-        initial_state = zero_state(cell, batch_size, dtype)
+        initial_state = zero_state(cell, first(inputs), dtype)
     end
     outputs = tf.Tensor[]
     state = initial_state
@@ -102,7 +98,8 @@ all elements but all later dimensions may vary.
 * `time_major`: Shape format for `inputs` and `outputs` `Tensor`s. Determines whether the first dimension of each is `max_time` (`true`) or `batch_size` (`false`, default). `true` is more efficient but is the transpose of most TensorFlow operations.
 * `scope`: `VariableScope` for the subgraph. Defaults to `RNN`.
 """
-@op function dynamic_rnn(cell, inputs, sequence_length=nothing; initial_state=nothing, dtype=nothing, parallel_iterations=nothing, swap_memory=false, time_major=false, scope="RNN")
+function dynamic_rnn(cell, inputs, sequence_length=nothing; initial_state=nothing, dtype=nothing, parallel_iterations=nothing, swap_memory=false, time_major=false, scope="RNN")
+    input_dim = tf.get_shape(inputs, 3)
     #TODO Make this all work with non-3D inputs
 
     if time_major
@@ -110,29 +107,28 @@ all elements but all later dimensions may vary.
         inputs=permutedims(inputs, [2,1,3])
     end
 
+    num_steps = convert(tf.Tensor{Int64}, tf.shape(inputs)[2])
     if sequence_length === nothing
         # Works around a bug in upstream TensorFlow's while-loop
         # gradient calculation
-        max_time = convert(tf.Tensor{Int}, size(inputs, 2))
-        sequence_length = max_time
+        sequence_length = num_steps
     end
 
-    batch_size = tf.get_shape(inputs, 1)
 
+    initial_data = inputs[:,1,:]
     if initial_state === nothing
-        if dtype === nothing
-            error("dtype must be set if initial_state is not provided")
-        end
-        initial_state = zero_state(cell, batch_size, dtype)
+        initial_state = zero_state(cell, initial_data, dtype)
     end
-
-    state = initial_state
-    input_dim = tf.get_shape(inputs, 3)
-    output = tf.zeros(tf.Tensor{eltype(state)}, batch_size, output_size(cell))
-
-    time_step = tf.constant(1)
-    num_steps = convert(tf.Tensor{Int64}, tf.shape(inputs)[2])
-
+    # By **MAGIC** these values end up in `while_output` even when num_steps=1
+    
+    # Calculate first output -- we can't trivially default it,
+    # because that would require batch_size to be known statically,
+    # and not having a fixed batch_size is pretty nice.
+    output, state = cell(initial_data, initial_state, input_dim)
+    # By **MAGIC** these values end up in `while_output` eve when num_steps=1
+    # and the while-loop should not logically run
+    
+    time_step = tf.constant(2) #skip the completed first step
     while_output = @tf while time_step ≤ num_steps
         data = inputs[:, time_step, :]
         local new_state
@@ -143,8 +139,6 @@ all elements but all later dimensions may vary.
             new_output, new_state = cell(data, state, input_dim)
             # Only update output and state for rows that are not yet passed their ends
             have_passed_end = sequence_length .< time_step
-            # new_output = select(have_passed_end, output, new_output)
-            # new_state = select(have_passed_end, state, new_state)
             f(old_arg, new_arg) = tf.select(have_passed_end, old_arg, new_arg)
             new_output = tf.struct_map(f, output, new_output)
             new_state = tf.struct_map(f, state, new_state)
