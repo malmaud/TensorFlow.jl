@@ -1,4 +1,23 @@
-import .Ops:
+module Variables
+
+export
+assign,
+assign_add,
+assign_sub,
+scatter_update,
+scatter_sub,
+scatter_add,
+scatter_mul,
+scatter_div,
+Variable,
+variable_scope,
+get_variable,
+global_variables_initializer
+
+import TensorFlow
+const tf = TensorFlow
+
+import .tf.Ops:
     assign,
     assign_add,
     assign_sub,
@@ -10,13 +29,19 @@ import .Ops:
 
 import Distributions
 
-type Variable <: AbstractTensor
-    var_node::Operation
-    assign_node::Operation
+type Variable{T} <: tf.AbstractTensor
+    var_node::tf.Tensor{T}
+    assign_node::tf.Tensor{T}
 
-    Variable() = new()
-    Variable(var_node::Operation, assign_node::Operation) =
-        new(var_node, assign_node)
+    # Variable{T}() where T = new{T}() once we branch on Julia 0.6
+    (::Type{Variable{T}}){T}() = new{T}()
+end
+
+function Variable{T}(var_node::tf.Tensor{T}, assign_node::tf.Tensor{T})
+    v = Variable{T}()
+    v.var_node = var_node
+    v.assign_node = assign_node
+    v
 end
 
 """
@@ -39,40 +64,40 @@ running its `initializer` `Operation`, restoring the variable from a save file,
 or simply running an `assign` `Operation` that assigns a value to the variable.
 """
 function Variable(initial_value; name="", trainable=true, literal_name=false)
-    self = Variable()
+    self = Variable{eltype(initial_value)}()
     if !literal_name
-        name = get_name(name)
+        name = tf.get_name(name)
     end
-    self.var_node = get_op(Ops.variable_v2(name=name, dtype=eltype(initial_value), shape=TensorShape([size(initial_value)...])))
+    self.var_node = tf.Ops.variable_v2(name=name, dtype=eltype(initial_value), shape=tf.TensorShape([size(initial_value)...]))
 
-    self.assign_node = get_op(Ops.assign(Tensor(self.var_node), initial_value, name="$name/Assign"))
-    add_to_collection(:Variables, self)
+    self.assign_node = tf.Ops.assign(tf.Tensor(self.var_node), initial_value, name="$name/Assign")
+    tf.add_to_collection(:Variables, self)
     if trainable
-        add_to_collection(:TrainableVariables, self)
+        tf.add_to_collection(:TrainableVariables, self)
     end
     return self
 end
 
-@with_def_graph function Variable(graph::Graph, s::AbstractString)
-    var = Variable()
-    var.var_node = get(get_node_by_name(graph, s))
-    var.assign_node = get(get_node_by_name(graph, "$s/Assign"))
-    var
+@tf.with_def_graph function Variable(graph::tf.Graph, s::AbstractString)
+    # var = Variable{Any}()
+    var_node = tf.Tensor(get(tf.get_node_by_name(graph, s)))
+    assign_node = tf.Tensor(get(tf.get_node_by_name(graph, "$s/Assign")))
+    Variable(var_node, assign_node)
 end
 
 Base.setindex!(v::Variable, value) = assign(v, value)
 
-Base.convert(::Type{Tensor}, v::Variable) = Tensor(v.var_node, 1)
+Base.convert(::Type{tf.Tensor}, v::Variable) = v.var_node
 
 """
 Returns an `Operation` that initializes all TensorFlow `Variable`s.
 """
 function global_variables_initializer()
-    return group([Tensor(var.assign_node) for var in get_collection(:Variables)]...)
+    return tf.group([var.assign_node for var in tf.get_collection(:Variables)]...)
 end
 
-run(sess::Session, var::Variable) = run(sess, Tensor(var))
-run(sess::Session, vars::AbstractVector{Variable}) = run(sess, map(Tensor, vars))
+run(sess::tf.Session, var::Variable) = run(sess, tf.Tensor(var))
+run(sess::tf.Session, vars::AbstractVector{Variable}) = run(sess, map(tf.Tensor, vars))
 
 type Scope
     name::Nullable{String}
@@ -111,16 +136,16 @@ function variable_scope(f, name; kwargs...)
     end
 end
 
-get_dims(t::TensorShape) = map(get, t.dims)
+get_dims(t::tf.TensorShape) = map(get, t.dims)
 get_dims(x) = x
 
 """
 Gets an existing variable with these parameters (`shape`, `dtype`, `trainable`)
 or create a new one.
 """
-function get_variable(var_name, shape, dtype; trainable=true, kwargs...)
+function tf.get_variable(var_name, shape, dtype; trainable=true, kwargs...)
     local v
-    with_top_level() do
+    tf.with_top_level() do
         shape = get_dims(shape)
         scope = make_scope(var_name; kwargs...)
         push!(scope_stack, scope)
@@ -151,4 +176,8 @@ function get_variable(var_name, shape, dtype; trainable=true, kwargs...)
         end
     end
     return v
+end
+
+tf.get_tensors(v::Variable) = [v.var_node]
+
 end

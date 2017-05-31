@@ -1305,6 +1305,8 @@ function get_proto(node::Operation)
     convert(Array, output)
 end
 
+get_proto(tensor::AbstractTensor) = get_proto(get_op(tensor))
+
 function get_proto(w::tensorflow.WhileContextDef)
     b = IOBuffer()
     writeproto(b, w)
