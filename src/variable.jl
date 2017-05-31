@@ -79,7 +79,6 @@ function Variable(initial_value; name="", trainable=true, literal_name=false)
 end
 
 @tf.with_def_graph function Variable(graph::tf.Graph, s::AbstractString)
-    # var = Variable{Any}()
     var_node = tf.Tensor(get(tf.get_node_by_name(graph, s)))
     assign_node = tf.Tensor(get(tf.get_node_by_name(graph, "$s/Assign")))
     Variable(var_node, assign_node)
