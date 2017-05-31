@@ -31,8 +31,6 @@ end
 
 for (sym, f) in [(:&, :logical_and), (:|, :logical_or), (:⊻, :logical_xor)]
     @eval @define_binary $sym $f
-    # @eval $sym(t1::AbstractTensor, t2::AbstractTensor) = $f(t1, t2)
 end
 
 @define_unary (~) logical_not
-# ~(t::AbstractTensor) = logical_not(t)

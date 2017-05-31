@@ -147,9 +147,6 @@ for jl_func_name in [
     :sign,
     :conj,
     :round]
-    # @eval @op function Base.$jl_func_name(n::AbstractTensor; kwargs...)
-    #     Ops.$jl_func_name(n; kwargs...)
-    # end
     @eval @define_unary Base.$jl_func_name Ops.$jl_func_name
 end
 
@@ -160,9 +157,6 @@ end
 for jl_func_name in [
     :polygamma,
     :zeta]
-    # @eval @op function Base.$jl_func_name(x::AbstractTensor, y; kwargs...)
-    #     Ops.$jl_func_name(x, y; kwargs...)
-    # end
     @eval @define_binary Base.$jl_func_name Ops.$jl_func_name
 end
 
@@ -179,9 +173,7 @@ for (jl_func_name, tf_func_name) in [
     (:det, :matrix_determinant),
     (:diagm, :diag),
     (:diag, :matrix_diag_part)]
-    # @eval @op function Base.$jl_func_name(n::AbstractTensor; kwargs...)
-    #     Ops.$tf_func_name(n; kwargs...)
-    # end
+
     @eval @define_unary Base.$jl_func_name Ops.$tf_func_name
 end
 

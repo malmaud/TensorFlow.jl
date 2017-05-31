@@ -9,9 +9,7 @@ WARNING: this does not match the python TensorFlow `size` -- for that functional
 https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#size
 """
 @define_unary Base.size shape
-# @op Base.size(n::AbstractTensor; name=nothing) = shape(n; name=name)
 @op Base.size(n::AbstractTensor, i; name=nothing) = shape(n; name=name)[i]
-# size(X, dim) must be implemented for indexing with X[..,end,...] to work
 
 """
 Base.length(n::AbstractTensor; name="")
@@ -21,17 +19,7 @@ This matchs python TensorFlow `size` operation
 https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#size
 """
 @define_unary Base.length Ops.size
-# @op function Base.length(n::AbstractTensor; name=nothing)
-#     local desc
-#     with_op_name(name, "Size") do
-#         desc = NodeDescription("Size")
-#         add_input(desc, Tensor(n))
-#     end
-#     Tensor(Operation(desc), 1)
-# end
 @define_unary Base.endof length
-# @op Base.endof(n::AbstractTensor; name=nothing) = length(n; name=name)
-# endof(X) must be implemented for indexing with X[end] to work
 
 
 immutable TensorRange
@@ -42,10 +30,6 @@ Base.first(tr::TensorRange)=tr.start
 Base.last(tr::TensorRange)=tr.stop
 
 @define_binary Base.colon TensorRange
-# Base.colon(x,y::Tensor) = colon(Tensor(x), y)
-# Base.colon(x::Tensor, y) = colon(x, Tensor(y))
-# Base.colon(x::Tensor,y::Tensor) = TensorRange(x,y)
-
 
 # Mixed Mode Indexing.
 function getindex_polyfunction(params::AbstractTensor, indices...)
