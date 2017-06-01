@@ -1448,7 +1448,7 @@ immutable IndexedSlices{ValueT, IndexT}
     indices::IndexT
 end
 
-Base.eltype{ValueT, IndexT}(i::IndexedSlices{ValueT, IndexT}) = eltype(ValueT)
+Base.eltype{ValueT, IndexT}(::Type{IndexedSlices{ValueT, IndexT}}) = eltype(ValueT)
 
 immutable IndexedSlicesValue{ValueT, IndexT}
     values::ValueT
