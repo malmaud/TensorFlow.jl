@@ -41,14 +41,13 @@ function zero_mat(rows_like::AbstractTensor, n_cols::Integer, dtype)
     T = dtype===nothing ? eltype(rows_like) : dtype
     input_shape = get_shape(rows_like)
     if input_shape.rank_unknown || isnull(input_shape.dims[1])
+        # dynamic path
         with_op_name("DynZeroMat") do
-            # Cunning trick to (dynamically) make a zero Tensor
-            # without statically knowing the shape of rows_like
-            rhs = zeros(T, 1, n_cols)
-            lhs = tf.slice(rows_like, [1,1], [-1,1]) #i.e. expand_dims(input[:,1], 2)
-            convert(Tensor{T}, lhs*rhs)
+            n_rows = size(rows_like, 1)
+            fill(tf.constant(zero(T)), [n_rows; n_cols])
         end
     else
+        # static path
         n_rows = get(input_shape.dims[1])
         zeros(Tensor{T}, n_rows, n_cols)
     end
