@@ -125,12 +125,6 @@ end
 
 ^(n::AbstractTensor, x::Int) = invoke(^, Tuple{AbstractTensor, Any}, n, x)
 
-# @static if VERSION < v"0.6.0-dev.1632"
-#     .^(n::AbstractTensor, x) = n^x
-# else
-#     Base.broadcast(::typeof(^), n::AbstractTensor, x) = n^x
-# end
-
 for jl_func_name in [
     :log,
     :exp,
@@ -153,9 +147,7 @@ for jl_func_name in [
     :sign,
     :conj,
     :round]
-    @eval @op function Base.$jl_func_name(n::AbstractTensor; kwargs...)
-        Ops.$jl_func_name(n; kwargs...)
-    end
+    @eval @define_unary Base.$jl_func_name Ops.$jl_func_name
 end
 
 function Base.round{T}(::Type{T}, value::AbstractTensor)
@@ -165,9 +157,7 @@ end
 for jl_func_name in [
     :polygamma,
     :zeta]
-    @eval @op function Base.$jl_func_name(x::AbstractTensor, y; kwargs...)
-        Ops.$jl_func_name(x, y; kwargs...)
-    end
+    @eval @define_binary Base.$jl_func_name Ops.$jl_func_name
 end
 
 -(n::AbstractTensor) = negative(n)
@@ -183,13 +173,13 @@ for (jl_func_name, tf_func_name) in [
     (:det, :matrix_determinant),
     (:diagm, :diag),
     (:diag, :matrix_diag_part)]
-    @eval @op function Base.$jl_func_name(n::AbstractTensor; kwargs...)
-        Ops.$tf_func_name(n; kwargs...)
-    end
+
+    @eval @define_unary Base.$jl_func_name Ops.$tf_func_name
 end
 
 # Reductions
 
+# TODO Clean this up
 for reduction in [:sum, :prod, :min, :max, :all, :any, :mean]
     @eval @op function $(Symbol("reduce_", reduction))(n::AbstractTensor; axis=nothing, keep_dims=false, name=nothing)
         if name === nothing

@@ -41,10 +41,6 @@ https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#reshape
 end
 
 
-# if isdefined(Base, :slice)  # Removed in .6
-#     import Base: slice
-# end
-
 """
 Base.split(split_dim, num_split, value::AbstractTensor; name="")
 
@@ -264,9 +260,7 @@ A Tensor of type int32.
 
 https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#rank
 """
-@op function Base.rank(n::AbstractTensor; kwargs...)
-    Ops.rank(n; kwargs...)
-end
+@define_unary Base.rank Ops.rank
 
 @op function scatter_nd(indices, updates, shape::TensorFlow.TensorShape; name=nothing)
     if shape.rank_unknown || any(isnull.(shape.dims))
@@ -386,7 +380,6 @@ Returns:
     local result
     with_op_name(name, "Transpose") do
         if perm === nothing
-            # r = range(Tensor, 0, limit=rank(n))
             r = range(constant(0), rank(n)-1)
             perm = reverse(r, [true])
         end
@@ -399,7 +392,7 @@ end
     transpose(n, perm.-1; name=name)
 end
 
-Base.ctranspose(n::AbstractTensor) = transpose(n)
+@define_unary Base.ctranspose transpose
 
 
 """

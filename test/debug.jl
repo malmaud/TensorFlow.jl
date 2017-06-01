@@ -12,7 +12,7 @@ a = TensorFlow.constant([1.])
 
 let
     x = constant(0)
-    y = Print(x, [x], message="test", first_n=3, summarize=5)
+    y = print(x, [x], message="test", first_n=3, summarize=5)
     # Not sure how to test TensorFlow logging output;
     # just make sure it doesn't run with errors for now
     run(sess, y)

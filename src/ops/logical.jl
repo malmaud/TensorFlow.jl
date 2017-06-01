@@ -30,7 +30,7 @@ if isdefined(Base, :⊻)
 end
 
 for (sym, f) in [(:&, :logical_and), (:|, :logical_or), (:⊻, :logical_xor)]
-    @eval $sym(t1::AbstractTensor, t2::AbstractTensor) = $f(t1, t2)
+    @eval @define_binary $sym $f
 end
 
-~(t::AbstractTensor) = logical_not(t)
+@define_unary (~) logical_not
