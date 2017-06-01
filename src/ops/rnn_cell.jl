@@ -177,29 +177,27 @@ output_size(cell::GRUCell) = cell.hidden_size
 state_size(cell::GRUCell) = cell.hidden_size
 
 function (cell::GRUCell)(input, state, input_dim=-1)
-    with_op_name("GRUCell") do
-        T = eltype(state)
-        N = get_input_dim(input, input_dim) + cell.hidden_size
-        input = Tensor(input)
-        state = Tensor(state)
-        X = [input state]
-        Wz = get_variable("Wz", [N, cell.hidden_size], T)
-        Wr = get_variable("Wr", [N, cell.hidden_size], T)
-        Wh = get_variable("Wh", [N, cell.hidden_size], T)
-        local Bz, Br, Bh
-        tf.variable_scope("Bias", initializer=tf.ConstantInitializer(0.0)) do
-            # TODO doublecheck python also uses 0 for GRU
-            Bz = get_variable("Bz", [cell.hidden_size], T)
-            Br = get_variable("Br", [cell.hidden_size], T)
-            Bh = get_variable("Bh", [cell.hidden_size], T)
-        end
-        z = sigmoid(X*Wz + Bz)
-        r = sigmoid(X*Wr + Br)
-        X2 = [input state.*r]
-        h = nn.tanh(sigmoid(X2*Wh + Bh))
-        s2 = (1-z).*h + z.*state
-        return [s2, s2]
+    T = eltype(state)
+    N = get_input_dim(input, input_dim) + cell.hidden_size
+    input = Tensor(input)
+    state = Tensor(state)
+    X = [input state]
+    Wz = get_variable("Wz", [N, cell.hidden_size], T)
+    Wr = get_variable("Wr", [N, cell.hidden_size], T)
+    Wh = get_variable("Wh", [N, cell.hidden_size], T)
+    local Bz, Br, Bh
+    tf.variable_scope("Bias", initializer=tf.ConstantInitializer(0.0)) do
+        # TODO doublecheck python also uses 0 for GRU
+        Bz = get_variable("Bz", [cell.hidden_size], T)
+        Br = get_variable("Br", [cell.hidden_size], T)
+        Bh = get_variable("Bh", [cell.hidden_size], T)
     end
+    z = sigmoid(X*Wz + Bz)
+    r = sigmoid(X*Wr + Br)
+    X2 = [input state.*r]
+    h = nn.tanh(sigmoid(X2*Wh + Bh))
+    s2 = (1-z).*h + z.*state
+    return [s2, s2]
 end
 
 type MultiRNNCell <: RNNCell
