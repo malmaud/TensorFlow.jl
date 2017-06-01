@@ -83,12 +83,12 @@ end
 
 output_size(cell::LSTMCell) = cell.hidden_size
 
-immutable LSTMStateTuple
-    c
-    h
+immutable LSTMStateTuple{C, H}
+    c::C
+    h::H
 end
 
-Base.eltype(l::LSTMStateTuple) = eltype(l.c)
+Base.eltype{C, H}(::Type{LSTMStateTuple{C,H}}) = eltype(C)
 
 function tf.get_tensors(s::LSTMStateTuple)
     [s.c, s.h]
@@ -121,7 +121,7 @@ end
 
 function (cell::LSTMCell)(input, state, input_dim=-1)
     N = get_input_dim(input, input_dim) + cell.hidden_size
-    T = eltype(state)        
+    T = eltype(state)
     input = Tensor(input)
     X = cat(2, input, state.h)
 
