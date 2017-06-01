@@ -85,9 +85,6 @@ function get_shape(n::tf.AbstractTensor, dim::Integer)
     get(shape.dims[dim])
 end
 
-# Overload `Base.size` so that [3:4, 1:end] etc works
-Base.size(n::tf.AbstractTensor, dim::Integer) = get_shape(n, dim)
-
 function _get_shape(n::tf.AbstractTensor)
     t = Tensor(n)
     cache_key = (t.op.name, t.value_index)
