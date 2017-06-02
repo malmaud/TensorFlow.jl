@@ -3,6 +3,8 @@
 # Julia functions.
 ######
 
+using MacroTools
+
 immutable OpFunc
     expr::Expr
     docstring::String
