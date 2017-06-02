@@ -29,7 +29,7 @@ import .tf.Ops:
 
 import Distributions
 
-type Variable{T} <: tf.AbstractTensor
+type Variable{T} <: tf.AbstractTensor{T}
     var_node::tf.Tensor{T}
     assign_node::tf.Tensor{T}
 

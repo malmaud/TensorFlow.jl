@@ -1087,12 +1087,12 @@ const proto_type_map = Dict(
     dt.DT_COMPLEX64=>Complex64,
     dt.DT_COMPLEX128=>Complex128)
 
-@compat abstract type AbstractTensor end
+@compat abstract type AbstractTensor{T} end
 
 """
 Represents the output of an operation in the computation graph
 """
-@auto_hash_equals immutable Tensor{T} <: AbstractTensor
+@auto_hash_equals immutable Tensor{T} <: AbstractTensor{T}
     op::Operation
     value_index::Int
 end
@@ -1101,7 +1101,7 @@ node_name(t::AbstractTensor) = (node_name(Tensor(t).op), Tensor(t).value_index)
 
 function Tensor(op::Operation, value_index::Int)
     base_tensor = Tensor{Any}(op, value_index)
-    Tensor{eltype(base_tensor)}(op, value_index)
+    Tensor{get_output_type(base_tensor)}(op, value_index)
 end
 
 Tensor(op::Operation) = Tensor(op, 1)
@@ -1123,7 +1123,7 @@ function operation_output_type(port::Port)
     @tfcall(:TF_OperationOutputType, TF_DataType, (Port,), port)
 end
 
-function Base.eltype(t::AbstractTensor)
+function get_output_type(t::AbstractTensor)
     tf_type = operation_output_type(Port(Tensor(t)))
     if !haskey(type_map, tf_type)
         local dtype
@@ -1141,6 +1141,8 @@ function Base.eltype(t::AbstractTensor)
         return tf_to_jl_type(tf_type)
     end
 end
+
+Base.eltype{T}(::Type{AbstractTensor{T}}) = T
 
 Port(t::Tensor) = Port(t.op.ptr, t.value_index-1)
 Port(op::Operation) = Port(Tensor(op))
@@ -1441,16 +1443,16 @@ end
 get_op(op::Operation) = op
 get_op(t::AbstractTensor) = Tensor(t).op
 
-immutable IndexedSlices
-    values::Tensor
-    indices::Tensor
+immutable IndexedSlices{ValueT, IndexT}
+    values::ValueT
+    indices::IndexT
 end
 
-Base.eltype(i::IndexedSlices) = eltype(i.values)
+Base.eltype{ValueT, IndexT}(::Type{IndexedSlices{ValueT, IndexT}}) = eltype(ValueT)
 
-immutable IndexedSlicesValue
-    values
-    indices
+immutable IndexedSlicesValue{ValueT, IndexT}
+    values::ValueT
+    indices::IndexT
 end
 
 type GraphImportOptions
