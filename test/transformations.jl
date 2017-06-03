@@ -67,6 +67,17 @@ w = constant(w_jl)
 y_jl = Int32[1,2,3,4]
 y = constant(y_jl)
 
+wp = placeholder(Int; shape=[5, -1, -1])
+
+@testset "Size" begin
+    for i in 1:3
+        @test run(sess, size(w,i)) == size(w_jl,i)
+        @test run(sess, size(wp,i), Dict(wp=>w_jl)) == size(w_jl,i)
+    end
+    @test run(sess, size(w)) == collect(size(w_jl))
+    @test run(sess, size(wp), Dict(wp=>w_jl)) == collect(size(w_jl))
+end
+
 @testset "Mask (bool array)" begin
     mask_jl=[true, false, true,false]
     mask = constant(mask_jl)
