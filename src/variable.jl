@@ -177,6 +177,12 @@ function tf.get_variable(var_name, shape, dtype; trainable=true, kwargs...)
     return v
 end
 
+function tf.get_variable(var_name; shape=nothing, dtype=nothing, kwargs...)
+    shape === nothing && error("shape is required")
+    dtype === nothing && error("dtype is required")
+    tf.get_variable(var_name, shape, dtype; kwargs...)
+end
+
 tf.get_tensors(v::Variable) = [v.var_node]
 
 end
