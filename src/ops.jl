@@ -191,6 +191,3 @@ include("ops/init_ops.jl")
 if VERSION >= v"0.6.0-dev.2123"
     include("ops/v6_ops.jl")
 end
-
-import .Ops: read_file
-Base.read(::Type{Tensor}, filename) = read_file(filename)
