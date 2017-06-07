@@ -55,7 +55,11 @@ immutable RecordIteratorState
 end
 
 """
+    `RecordIterator(path)`
 
+Returns a Julia iterator that returns the records in the TF Record file
+at `path` as `Vector{UInt8}` objects.
+"""
 function RecordIterator(path::AbstractString)
     pyo = @tf.py_proc py_tf[][:python_io][:tf_record_iterator]($path)
     RecordIterator(pyo)
