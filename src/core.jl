@@ -534,6 +534,12 @@ function convert_major_order(array)
     permutedims(array, length(size(array)):-1:1)
 end
 
+immutable EmptyTensorError <: Exception
+end
+
+function Base.show(io::IO, err::EmptyTensorError)
+    print(io, "Creating tensors from empty arrays is not allowed")
+end
 
 type RawTensor
     ptr::Ptr{Void}
@@ -542,7 +548,7 @@ type RawTensor
     RawTensor() = new()
 
     function RawTensor(data::Array)
-        isempty(data) && error("Creating tensors from empty arrays is not allowed")
+        isempty(data) && throw(EmptyTensorError())
         dims = [size(data)...]
         dt = jl_to_df_type(eltype(data))
         data = convert_major_order(data)
@@ -1409,7 +1415,7 @@ function gradients(y, x::AbstractArray, grad_y=nothing)
     b = IOBuffer()
     writeproto(b, meta_graph)
     graph_proto = @compat take!(b)
-    node_protos, grad_names = @py_proc py_gradients($graph_proto, $x_names, $y_names, $grad_y_names)
+    node_protos, grad_names = fetch(@py_proc py_gradients($graph_proto, $x_names, $y_names, $grad_y_names))
     extend_graph(node_protos)
     out = []
     for name in grad_names

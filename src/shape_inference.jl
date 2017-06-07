@@ -213,7 +213,7 @@ register_shape("Transpose") do op
 end
 
 """
-`load_const(op::Operation)`
+    `load_const(op::Operation)`
 
 Load an op which is literally a constant or evaluated to a constant after
 a small amount of constant propogation.
@@ -221,8 +221,18 @@ a small amount of constant propogation.
 function load_const(op)
     op = tf.get_op(op)
     if op.op_name == "Const"
-        value = Array(TensorFlow.load_proto(get_def(op).attr["value"]))
-        if ndims(value) == 0
+        local value
+        try
+            value = Array(tf.load_proto(get_def(op).attr["value"]))
+        catch err
+            if isa(err, tf.EmptyTensorError)
+                T = eltype(Tensor(op, 1))
+                value = Array{T}(0)
+            else
+                rethrow(err)
+            end
+        end
+        if ndims(value) == 0 && length(value) ≥ 1
             value = value[1]
         end
         value = Nullable(value)
