@@ -97,22 +97,3 @@ function py_gradients(jl_graph_proto, x_names, y_names, grad_y_names)
     end
     return to_protos(py_graph_def), grad_names
 end
-
-const events_writer = Ref{PyObject}()
-
-function open_events_file(path)
-    events_writer[] = pywrap_tensorflow[][:EventsWriter](py_bytes(path))
-end
-
-function write_event(event_proto)
-    event = py_tf[][:Event]()
-    event[:ParseFromString](py_bytes(event_proto))
-    writer = events_writer[]
-    writer[:WriteEvent](event)
-    writer[:Flush]()
-end
-
-function close_events_file()
-    writer = events_writer[]
-    writer[:Close]()
-end
