@@ -165,13 +165,12 @@ library loaded.
 macro py_proc(expr)
     quote
         eval(Main, quote
-            remotecall_fetch($(TensorFlow.load_python_process())) do
+            remotecall_wait($(TensorFlow.load_python_process())) do
                 $($(Expr(:quote, expr)))
             end
         end)
     end
 end
-
 
 include("meta.jl")
 include("constants.jl")
