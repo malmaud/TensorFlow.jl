@@ -11,7 +11,7 @@ z = placeholder(Float64)
 
 w = exp(x + z + -y)
 
-run(sess, global_variables_initializer())
+run(sess, TensorFlow.initialize_all_variables())
 res = run(sess, w, Dict(z=>Float64[1,2]))
 Base.Test.@test res[1] ≈ exp(-1)
 ```
