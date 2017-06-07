@@ -35,3 +35,22 @@ using TensorFlow
 
     @test_throws DimensionMismatch run(sess, ii, Dict(i=>[1,2]))
 end
+
+@testset begin
+    srand(1)
+    data = rand(Int64.(1:10), 3,4)
+    sess = Session(Graph())
+
+    x = placeholder(Int32)
+    y = Int32(2)*x
+
+    # Should work fine
+    run(sess, y, Dict(x=>data))
+    run(sess, y, Dict(x=>@view data[1:2,:]))
+
+    data32 = Int32.(data)
+
+    run(sess, y, Dict(x=>data32))
+    run(sess, y, Dict(x=>@view data32[1:2, :]))
+
+end

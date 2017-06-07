@@ -112,7 +112,7 @@ function run(sess::Session, inputs, input_values, outputs, targets)
     return [as_native(RawTensor(x)) for x in output_values]
 end
 
-function cast_type{Q<:Number}(T, val::Array{Q})
+function cast_type{Q<:Number}(T, val::AbstractArray{Q})
     convert(Array{T}, val)
 end
 
