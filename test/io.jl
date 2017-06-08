@@ -1,7 +1,8 @@
 using TensorFlow
 using Base.Test
 
-mktemp() do filename, fileio
+mktempdir() do dirname
+    filename = joinpath(dirname, "tfrecords")
     TensorFlow.io.RecordWriter(filename) do writer
         write(writer, UInt8[1,2])
         write(writer, "hi")

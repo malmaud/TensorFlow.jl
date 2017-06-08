@@ -161,6 +161,10 @@ end
 
 Run the given code block in the Julia worker with the Python TensorFlow
 library loaded.
+
+Returns a future to the result.
+*Warning*: Calling `fetch` on a result that contains a pointer, such as a
+`PyObject`, will zero-out the pointer. 
 """
 macro py_proc(expr)
     quote

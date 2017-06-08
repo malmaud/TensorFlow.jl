@@ -66,7 +66,6 @@ function RecordIterator(path::AbstractString)
 end
 
 function _next(iter::RecordIterator)
-    local record
     try
         record = fetch(@tf.py_proc $(iter.pyo)[:__next__]())
         RecordIteratorState(Nullable(record))

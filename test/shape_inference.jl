@@ -6,7 +6,6 @@ m = placeholder(Float32; shape=[10, 20, 30])
 n = placeholder(Float32)
 i = placeholder(Int32; shape=[])
 
-
 @testset "placeholder" begin
     @test get_shape(k) == TensorShape([10, 20, -1])
     @test get_shape(m) == TensorShape([10, 20, 30])
@@ -116,9 +115,6 @@ end
     @test get_shape(expand_dims(n, 2)) == TensorShape(nothing)
 end
 
-
-
-
 @testset "Squeeze" begin
     let
         x = placeholder(Float64, shape=[5, 1, 4, 1, 3])
@@ -169,4 +165,18 @@ end
 @testset "unsorted_segment_sum" begin
     @test isnull(get_shape(unsorted_segment_sum(m, placeholder(Int64), placeholder(Int32))).dims[1])
     @test get_shape(unsorted_segment_sum(m, placeholder(Int64), Int32(5))).dims[1].value==5
+end
+
+@testset "load_const" begin
+    as_default(Graph()) do
+        x = constant([3, 5])
+        y = x + 1
+        @test get(TensorFlow.ShapeInference.load_const(y)) == [3, 5] .+ 1
+
+        # Test issue where gradient ancestors sometimes have empty
+        # attribute values, throwing off shape inference.
+        z = placeholder(Float32)
+        g = gradients(2z, z)
+        @test isnull(TensorFlow.ShapeInference.load_const(g))
+    end
 end
