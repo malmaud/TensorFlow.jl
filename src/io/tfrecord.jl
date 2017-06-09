@@ -65,12 +65,25 @@ function RecordIterator(path::AbstractString)
     RecordIterator(pyo)
 end
 
+
+
 function _next(iter::RecordIterator)
     try
-        record = fetch(@tf.py_proc $(iter.pyo)[:__next__]())
+        @static if PyCall.pyversion >= v"3.0.0"
+            record = fetch(@tf.py_proc $(iter.pyo)[:__next__]())
+        else
+            #Python 2
+            record = fetch(@tf.py_proc $(iter.pyo)[:next]())
+        end
         RecordIteratorState(Nullable(record))
     catch err
-        RecordIteratorState(Nullable())
+        if isa(err, RemoteException) && isa(err.captured.ex, PyCall.PyError)
+            # Only catch it, if it could be an  StopIteration exception thrown in python
+            # which signifies the end of iteration being reached normally
+            RecordIteratorState(Nullable())
+        else
+            rethrow(err)
+        end
     end
 end
 
