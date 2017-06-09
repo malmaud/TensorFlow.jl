@@ -209,7 +209,7 @@ function Base.show(io::IO, g::Graph)
     print(io, "Graph($(g.ptr))")
 end
 
-# There is a bug in Julia v0.5 that requires using the
+# There is a bug in Julia v0.5.0 that requires using the
 # the non-MacroTools version of this function. The old
 # branch will be eliminated eventually.
 if VERSION >= v"0.5.1"
@@ -274,6 +274,8 @@ end
 end
 
 """
+    get_collection(g::Graph, name)
+
 Returns a collection attached to the graph `g` named `name`
 """
 function get_collection end
@@ -419,6 +421,8 @@ function upgrade_check(v)
 end
 
 """
+    get_def_graph()
+
 Returns the default computation graph, an object of type `Graph`.
 
 See also `as_default` for setting the default graph
@@ -429,9 +433,12 @@ function get_def_graph()
     has_def_graph() || (def_graph[] = Graph())
     def_graph[]
 end
+
 has_def_graph() = isdefined(def_graph, :x)
 
 """
+    set_def_graph(g)
+
 Sets the default computation graph to `g`.
 
 See also `get_def_graph`, `as_default`
@@ -441,6 +448,8 @@ function set_def_graph(g)
 end
 
 """
+    as_default(f, g::Graph)
+
 For the duration of the function `f`
 temporarily sets the default computational graph to `g`.
 
@@ -551,6 +560,8 @@ end
 const c_deallocator = Ref{Ptr}()
 
 """
+    convert_major_order(array)
+
 Convert from row-major to column-major or vice-versa
 """
 function convert_major_order(array)
@@ -1076,7 +1087,7 @@ function load_proto(value::tensorflow.AttrValue)
 end
 
 """
-`node_name(node::AbstractOperation)`
+    node_name(node::AbstractOperation)
 
 Returns the name of a node in the computation graph.
 """
@@ -1333,6 +1344,8 @@ get_def_type(::Type{Operation}) = tensorflow.NodeDef
 get_def_type(::Type{Graph}) = tensorflow.GraphDef
 
 """
+    get_def(n)
+
 Returns the definition of the given operation or graph
 """
 function get_def(n::Union{Operation, Graph})
@@ -1358,6 +1371,8 @@ function parse_port_name(name)
 end
 
 """
+    get_node_by_name(graph::Graph, name::AbstractString)
+
 Returns an operation by searching for its name in the given graph.
 """
 @with_def_graph function get_node_by_name(graph::Graph, name::AbstractString)
@@ -1397,7 +1412,7 @@ node_name(::Void) = nothing
 node_name(xs::AbstractVector)=node_name.(xs)
 
 """
-gradients(ys, xs, grad_ys=nothing)
+    gradients(ys, xs, grad_ys=nothing)
 
 Constructs symbolic partial derivatives of sum of ys w.r.t. x in xs.
 
