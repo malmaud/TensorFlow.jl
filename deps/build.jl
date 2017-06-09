@@ -1,4 +1,3 @@
-import Requests
 
 base = dirname(@__FILE__)
 download_dir = joinpath(base, "downloads")
@@ -16,14 +15,18 @@ end
 # of the TensorFlow C library. Do this by setting cur_version to 1.1.0
 # and then replacing the blocks below with:
 #=
-function try_unzip()
+function download_and_unpack(url)
+    tensorflow_zip_path = joinpath(base, "downloads/tensorflow.zip")
+    # Download
+    download(url, tensorflow_zip_path)
+    # Unpack
     try
-        run(`tar -xvzf $base/downloads/tensorflow.tar.gz --strip-components=2 ./lib/libtensorflow.so`)
+        run(`tar -xvzf $(tensorflow_zip_path) --strip-components=2 ./lib/libtensorflow.so`)
     catch err
-        if !isfile(joinpath(base, "libtensorflow.so"))
+        if !isfile(joinpath(base, "libtensorflow_c.so"))
             throw(err)
         else
-            warn("Problem extracting $err")
+            warn("Problem unzipping: $err")
         end
     end
 end
@@ -36,10 +39,7 @@ end
         info("Building TensorFlow.jl for CPU use only. To enable the GPU, set the TF_USE_GPU environment variable to 1 and rebuild TensorFlow.jl")
         url = "https://storage.googleapis.com/tensorflow/libtensorflow/libtensorflow-cpu-darwin-x86_64-$cur_version.tar.gz"
     end
-    open(joinpath(base, "downloads/tensorflow.tar.gz"), "w") do file
-        write(file, r.data)
-    end
-    try_unzip()
+    download_and_unpack(url)
     mv("libtensorflow.so", "usr/bin/libtensorflow.dylib", remove_destination=true)
 end
 
@@ -51,18 +51,21 @@ end
         info("Building TensorFlow.jl for CPU use only. To enable the GPU, set the TF_USE_GPU environment variable to 1 and rebuild TensorFlow.jl")
         url = "https://storage.googleapis.com/tensorflow/libtensorflow/libtensorflow-cpu-linux-x86_64-$cur_version.tar.gz"
     end
-    r = Requests.get(url)
-    open(joinpath(base, "downloads/tensorflow.tar.gz"), "w") do file
-        write(file, r.data)
-    end
-    try_unzip()
+    download_and_unpack(url)
     mv("libtensorflow.so", "usr/bin/libtensorflow.so", remove_destination=true)
 end
 =#
 
-function try_unzip()
+const cur_version = "1.1.0"
+
+
+function download_and_unpack(url)
+    tensorflow_zip_path = joinpath(base, "downloads/tensorflow.zip")
+    # Download
+    download(url, tensorflow_zip_path)
+    # Unpack
     try
-        run(`unzip -o $base/downloads/tensorflow.zip`)
+        run(`unzip -o $(tensorflow_zip_path)`)
     catch err
         if !isfile(joinpath(base, "libtensorflow_c.so"))
             throw(err)
@@ -72,14 +75,9 @@ function try_unzip()
     end
 end
 
-const cur_version = "1.1.0"
 
 @static if is_apple()
-    r = Requests.get("https://storage.googleapis.com/malmaud-stuff/tensorflow_mac_$cur_version.zip")
-    open(joinpath(base, "downloads/tensorflow.zip"), "w") do file
-        write(file, r.data)
-    end
-    try_unzip()
+    download_and_unpack("https://storage.googleapis.com/malmaud-stuff/tensorflow_mac_$cur_version.zip")
     mv("libtensorflow.so", "usr/bin/libtensorflow.dylib", remove_destination=true)
 end
 
@@ -91,10 +89,6 @@ end
         info("Building TensorFlow.jl for CPU use only. To enable the GPU, set the TF_USE_GPU environment variable to 1 and rebuild TensorFlow.jl")
         url = "https://storage.googleapis.com/malmaud-stuff/tensorflow_linux_cpu_$cur_version.zip"
     end
-    r = Requests.get(url)
-    open(joinpath(base, "downloads/tensorflow.zip"), "w") do file
-        write(file, r.data)
-    end
-    try_unzip()
+    download_and_unpack(url)
     mv("libtensorflow.so", "usr/bin/libtensorflow.so", remove_destination=true)
 end
