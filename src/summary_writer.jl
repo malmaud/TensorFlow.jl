@@ -3,20 +3,18 @@ import TensorFlow
 const tf = TensorFlow
 import ..TensorFlow: tensorflow, Graph, get_def_graph, @py_proc
 
-type FileWriter
-    log_dir::String
-    FileWriter() = new()
+immutable FileWriter
+    pyo::Future
 end
 
-function FileWriter(log_dir; graph=get_def_graph())
-    self = FileWriter()
-    self.log_dir = log_dir
+function FileWriter(log_dir::AbstractString; graph=get_def_graph())
     path = joinpath(log_dir, "events")
-    @py_proc open_events_file($path)
+    pyo = @py_proc pywrap_tensorflow[][:EventsWriter](py_bytes($path))
+    writer = FileWriter(pyo)
     if graph !== nothing
-        write(self, graph)
+        write(writer, graph)
     end
-    self
+    return writer
 end
 
 function Base.write(writer::FileWriter, event::tensorflow.Event)
@@ -24,7 +22,12 @@ function Base.write(writer::FileWriter, event::tensorflow.Event)
     writeproto(b, event)
     seekstart(b)
     proto = read(b)
-    @py_proc write_event($proto)
+    @py_proc begin
+        py_event = py_tf[][:Event]()
+        py_event[:ParseFromString](py_bytes($(proto)))
+        $(writer.pyo)[:WriteEvent](py_event)
+        $(writer.pyo)[:Flush]()
+    end
     nothing
 end
 
@@ -52,6 +55,6 @@ function Base.write(writer::FileWriter, graph::Graph)
 end
 
 function Base.close(writer::FileWriter)
-    @py_proc close_events_file()
+    @py_proc $(writer.pyo)[:Close]()
     nothing
 end
