@@ -489,20 +489,26 @@ type Buffer
     ptr::Ptr{Void}
 
     function Buffer(s::Vector{UInt8})
-        ptr = @tfcall(:TF_NewBufferFromString, Ptr{Void}, (Ptr{Void}, Csize_t), pointer(s), sizeof(s))
-        return new(ptr)
+        self = new()
+        self.ptr = @tfcall(:TF_NewBufferFromString, Ptr{Void}, (Ptr{Void}, Csize_t), pointer(s), sizeof(s))
+        set_tf_finalizer(self)
+        return self
     end
 
     function Buffer()
         self = new()
         self.ptr = @tfcall(:TF_NewBuffer, Ptr{Void}, ())
-        finalizer(self, self->begin
-            @tfcall(:TF_DeleteBuffer, Void, (Ptr{Void},), self.ptr)
-        end)
+        set_tf_finalizer(self)
         return self
     end
 
     Buffer(ptr) = new(ptr)
+end
+
+function set_tf_finalizer(buffer::Buffer)
+    finalizer(buffer, buffer->begin
+        @tfcall(:TF_DeleteBuffer, Void, (Ptr{Void},), buffer.ptr)
+    end)
 end
 
 immutable BufferStruct
@@ -560,7 +566,9 @@ type RawTensor
             sizeof(data),
             c_deallocator[],
             C_NULL)
-        return new(ptr, data)
+        self = new(ptr, data)
+        set_tf_finalizer(self)
+        return self
     end
 
     function RawTensor(data::Number)
@@ -575,16 +583,22 @@ type RawTensor
             sizeof(data_boxed),
             c_deallocator[],
             C_NULL)
-        return new(ptr, data_boxed)
+        self = new(ptr, data_boxed)
+        set_tf_finalizer(self)
+        return self
     end
 
     function RawTensor(ptr::Ptr)
-        this = new(ptr)
-        finalizer(this, this->begin
-            @tfcall(:TF_DeleteTensor, Void, (Ptr{Void},), this.ptr)
-        end)
-        return this
+        self = new(ptr)
+        set_tf_finalizer(self)
+        return self
     end
+end
+
+function set_tf_finalizer(tensor::RawTensor)
+    finalizer(tensor, tensor->begin
+        @tfcall(:TF_DeleteTensor, Void, (Ptr{Void},), tensor.ptr)
+    end)
 end
 
 RawTensor(data::AbstractArray) = RawTensor(collect(data))
