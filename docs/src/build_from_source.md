@@ -32,6 +32,8 @@ After running `using TensorFlow`, it should no longer complain that TensorFlow w
 
 ## Tips & known issues
 
+  * Dynamic RNNs currently do not work due to an upstream bug in TensorFlow. See: https://github.com/malmaud/TensorFlow.jl/issues/203 and https://github.com/tensorflow/tensorflow/issues/8669.
+
   * If you encounter segmentation faults or other errors, try `Pkg.checkout("TensorFlow")`.
 
   * For maximum performance, you should always compile on the same system that will be running the computation, and with the correct CUDA Compute Capability version supported by your GPU.
