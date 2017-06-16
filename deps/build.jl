@@ -2,13 +2,25 @@ using PyCall
 using Conda
 
 const cur_version = "1.1.0"
+
+############################
+# Determine if using GPU
+############################
+
 const use_gpu = "TF_USE_GPU" ∈ keys(ENV) && ENV["TF_USE_GPU"] == "1"
+
+if is_apple() && use_gpu
+    warn("No support on OS X, for GPU use. Falling back to CPU")
+    use_gpu=false
+end
 
 if use_gpu
     info("Building TensorFlow.jl for use on the GPU")
 else
     info("Building TensorFlow.jl for CPU use only. To enable the GPU, set the TF_USE_GPU environment variable to 1 and rebuild TensorFlow.jl")
 end
+
+
 
 #############################
 # Install Python TensorFlow
@@ -19,6 +31,9 @@ const python_package = use_gpu ? "tensorflow-gpu" :  "tensorflow"
 
 
 if PyCall.conda
+    if is_apple() #default repo does not have tensorflow for os x
+        Conda.add_channel("conda-forge")
+    end
     Conda.add(python_package * "=" * cur_version)
 else
     try
