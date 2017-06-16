@@ -1,3 +1,5 @@
+haskey(ENV, "MINICONDA") || (ENV["MINICONDA"] = "2")
+
 if ENV["MINICONDA"] == "2"
     if is_apple()
         conda_url = "https://repo.continuum.io/miniconda/Miniconda2-latest-MacOSX-x86_64.sh"
