@@ -5,6 +5,9 @@ sudo: required
 os:
   - osx
   - linux
+env:
+  - MINICONDA="2"
+  - MINICONDA="3"
 julia:
   - 0.5
   - 0.6

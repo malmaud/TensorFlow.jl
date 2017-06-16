@@ -1,7 +1,17 @@
-if is_apple()
-    conda_url = "https://repo.continuum.io/miniconda/Miniconda2-latest-MacOSX-x86_64.sh"
-elseif is_unix()
-    conda_url = "https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh"
+haskey(ENV, "MINICONDA") || (ENV["MINICONDA"] = "2")
+
+if ENV["MINICONDA"] == "2"
+    if is_apple()
+        conda_url = "https://repo.continuum.io/miniconda/Miniconda2-latest-MacOSX-x86_64.sh"
+    elseif is_unix()
+        conda_url = "https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh"
+    end
+elseif ENV["MINICONDA"] == "3"
+      if is_apple()
+        conda_url = "https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh"
+    elseif is_unix()
+        conda_url = "https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh"
+    end
 end
 
 base = dirname(@__FILE__)
