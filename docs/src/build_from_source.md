@@ -46,7 +46,7 @@ After running `using TensorFlow`, it should no longer complain that TensorFlow w
 
   * You may need to add symlinks from `libcudnn5.dylib` to `libcudnn.5.dylib` so that Bazel is able to correctly locate the necessary dependencies.
 
-  * On Mac OS X, `nvcc`, Nvidia's CUDA compiler, requires OS X Command Line Tools version 7.3 and does not work with the latest version. You can download this version from Apple's website, and switch to it by running `sudo xcode-select -s /path/to/CommandLineTools`.
+  * On Mac OS X, `nvcc`, Nvidia's CUDA compiler, requires OS X Command Line Tools version 8.2 and does not work with the latest version. You can download this version from Apple's website, and switch to it by running `sudo xcode-select -s /path/to/CommandLineTools`.
 
   * On Mac OS X, make sure to set the environment variable `GCC_HOST_COMPILER_PATH` to `/usr/bin/gcc` - do not install GCC yourself, or the build may fail with obscure error messages.
 
