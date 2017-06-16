@@ -136,13 +136,6 @@ $ pip install --upgrade tensorflow
 
 ## Optional: Using a custom TensorFlow binary
 
-If you already have a version of `libtensorflow.so` or `libtensorflow.dylib` that you would like to use, you can set the environment variable `LIBTENSORFLOW` to its path. By default, TensorFlow.jl will use the library in `TensorFlow.jl/deps/usr/bin`.
+To build TensorFlow from source, or if you already have a TensorFlow binary that you wish to use, follow the instructions at https://malmaud.github.io/tfdocs/build_from_source/. This is recommended by Google for maximum performance, and is currently needed for Mac OS X GPU support.
 
-If you want to build your own version of the TensorFlow binary library instead of relying on the one that is installed with
-`Pkg.build("TensorFlow")`, follow the instructions from https://www.tensorflow.org/install/install_sources, except:
-
-* In the section "Build the pip package", instead run `bazel build --config=opt //tensorflow:libtensorflow.so`.
-* Then copy the file "bazel-bin/tensorflow/libtensorflow.so" to the "deps/usr/bin" directory in the TensorFlow.jl package.
-* On OS X, rename the file to `libtensorflow.dylib`.
-
-A convenience script is included to use Docker to easily build the library. Just install docker and run `julia build_libtensorflow.so` from the "deps" directory of the TensorFlow.jl package.
+For Linux users, a convenience script is included to use Docker to easily build the library. Just install docker and run `julia build_libtensorflow.so` from the "deps" directory of the TensorFlow.jl package. Note that this method may not link to all libraries available on the target system such as Intel MKL.
