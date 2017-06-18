@@ -85,9 +85,6 @@ function get_shape(n::tf.AbstractTensor, dim::Integer)
     get(shape.dims[dim])
 end
 
-# Overload `Base.size` so that [3:4, 1:end] etc works
-Base.size(n::tf.AbstractTensor, dim::Integer) = get_shape(n, dim)
-
 function _get_shape(n::tf.AbstractTensor)
     t = Tensor(n)
     cache_key = (t.op.name, t.value_index)
@@ -209,7 +206,22 @@ for func in ["Add", "Sub", "Mul", "Div", "Pow", "SquaredDifference", "Less",
 end
 
 register_shape("Transpose") do op
-    [TensorShape(reverse(_get_shape(get_input(op, 1)).dims))]
+    input_shape = _get_shape(get_input(op, 1))
+    
+    maybe_reorder = load_const(get_input(op, 2))
+    if isnull(maybe_reorder)
+        [TensorShape(nothing)]
+    else
+        order::Vector{Int32} = get(maybe_reorder) + 1
+        if input_shape.rank_unknown
+            # We know the rank, 
+            # it must be the same as the number of elements in the perm
+            [TensorShape(fill(Nullable{Int32}(), length(order)))]
+        else
+            # Ideal case
+            [TensorShape(input_shape.dims[order])]
+        end
+    end
 end
 
 """
@@ -752,12 +764,15 @@ end
 
 register_shape("Squeeze") do op
     input_shape = _get_shape(get_input(op, 1))
-    squeeze_dims = get_attr(op, "squeeze_dims", Vector{Int})
+    squeeze_dims = get_attr(op, "squeeze_dims", Vector{Int}) + 1
     if input_shape.rank_unknown
         [TensorShape(nothing)]
+    elseif any(squeeze_dims .> length(input_shape.dims))
+        # Workaround https://github.com/JuliaLang/julia/issues/22055
+        throw(BoundsError(input_shape.dims, squeeze_dims))
     else
         new_shape = copy(input_shape)
-        deleteat!(new_shape.dims, squeeze_dims+1)
+        deleteat!(new_shape.dims, squeeze_dims)
         [new_shape]
     end
 end

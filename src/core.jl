@@ -159,23 +159,22 @@ end
     rank_unknown::Bool
 end
 
-function TensorShape(dims::Vector{Nullable{Int}})
+
+function TensorShape{T<:Integer}(dims::AbstractVector{T})
+    TensorShape([x<0 ? Nullable{Int}() : Nullable{Int}(x) for x in dims])
+end
+
+function TensorShape(dims)
     TensorShape(dims, false)
 end
-
-function TensorShape(dims::Vector)
-    TensorShape([x<0 ? Nullable{Int64}() : Nullable{Int64}(x) for x in dims])
-end
-
-function TensorShape(::Vector{Union{}}) # NB: `Vector{Union{}} == typeof(collect(tuple())))`
-    TensorShape(Nullable{Int}[], false)
-end
-
 
 function TensorShape(::Void)
     TensorShape(Nullable{Int}[], true)
 end
 
+function TensorShape(::Vector{Union{}}) # NB: `Vector{Union{}} == typeof(collect(tuple())))`
+    TensorShape(Nullable{Int}[], false)
+end
 
 function get_shape end
 

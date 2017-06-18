@@ -18,6 +18,19 @@ i = placeholder(Int32; shape=[])
     @test_throws ErrorException get_shape(n, 1)
 end
 
+@testset "Transpose/Permutedims" begin
+    #Constant propergation in shape_inference is not yet up to the task for this
+    #@test_broken get_shape(k') == get_shape(transpose(k)) == TensorShape([-1, 20, 10])
+    #@test_broken get_shape(m') == get_shape(transpose(m)) == TensorShape([30, 20, 10])
+
+    @test get_shape(n') == get_shape(transpose(n)) == TensorShape(nothing)
+
+    @test get_shape(permutedims(m, [3,1,2])) == TensorShape([30, 10, 20])
+    @test get_shape(permutedims(n, [3,1,2,4])) == TensorShape([-1, -1, -1, -1])
+
+end
+
+
 @testset "Arithmetic" begin
     @test get_shape(-k) == get_shape(k)
     @test get_shape(k+1) == get_shape(k)
