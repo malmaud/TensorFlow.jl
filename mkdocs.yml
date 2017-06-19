@@ -21,6 +21,8 @@ pages:
   - Examples:
     - 'Basic usage': basic_usage.md
     - 'Logistic regression': logistic.md
+  - Advanced:
+    - 'Build TensorFlow from source': build_from_source.md
 
 
 theme: 'material'

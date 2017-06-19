@@ -12,14 +12,14 @@ Install via
 Pkg.add("TensorFlow")
 ```
 
-To enable support for GPU usage (Linux only), set an environment variable `TF_USE_GPU` to "1" and then rebuild the package. eg
+To enable support for GPU usage on Linux, set an environment variable `TF_USE_GPU` to "1" and then rebuild the package. eg
 
 ```julia
 ENV["TF_USE_GPU"] = "1"
 Pkg.build("TensorFlow")
 ```
 
-CUDA 8.0 and cudnn are required for GPU usage.
+CUDA 8.0 and cudnn are required for GPU usage. For GPU support on Mac OS X, see documentation on [building TensorFlow from source](build_from_source.md).
 
 ## Comparison to Python API
 
