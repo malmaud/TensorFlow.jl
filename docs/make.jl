@@ -1,4 +1,5 @@
-using Documenter, TensorFlow
+using Documenter
+using TensorFlow
 
-# makedocs(modules=[TensorFlow])
+# makedocs(modules=[TensorFlow]) # Crashes
 makedocs()

@@ -14,6 +14,7 @@ pages:
     - 'Visualizing with Tensorboard': visualization.md
     - 'Using queues for loading your data': io.md
     - 'Shape inference': shape_inference.md
+    - 'Saving and restoring': saving.md
   - Reference:
     - 'Core functions': core.md
     - 'Operations': ops.md
