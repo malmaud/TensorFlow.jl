@@ -144,7 +144,7 @@ end
 end
 
 @testset "ScatterNd" begin
-    @test run(sess, TensorFlow.scatter_nd([2], [6], [4])) == [0, 6, 0, 0]
+    @test run(sess, TensorFlow.scatter_nd([2]', [6], [4])) == [0, 6, 0, 0]
     @test run(sess, TensorFlow.scatter_nd([5 4 2 8]', [9, 10, 11, 12], [8])) == [0, 11, 0, 10, 9, 0, 0, 12]
     @test run(sess, TensorFlow.scatter_nd([5 3]', [9 9; 10 10], [6,2])) == [0 0; 0 0; 10 10; 0 0; 9 9; 0 0]
 end

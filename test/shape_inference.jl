@@ -109,7 +109,7 @@ end
 end
 
 @testset "ScatterNd" begin
-    @test get_shape(scatter_nd([2], [6], [4])) == TensorShape([4])
+    @test get_shape(scatter_nd([2]', [6], [4])) == TensorShape([4])
     @test get_shape(scatter_nd([5 4 2 8]', [9, 10, 11, 12], [8])) == TensorShape([8])
     @test get_shape(scatter_nd([5 3]', [9 9; 10 10], [6,2])) == TensorShape([6, 2])
 
