@@ -9,11 +9,12 @@ julia:
   - 0.5
   - 0.6
   - nightly
+env:
+    - PYTHON=""
 notifications:
   email: false
 script:
     - julia -e 'Pkg.clone(pwd())'
-    - julia deps/build_pytensorflow.jl
     - julia -e 'Pkg.build("TensorFlow")'
     - julia -e 'Pkg.test("TensorFlow", coverage=true)'
 after_success:
