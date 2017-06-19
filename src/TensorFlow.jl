@@ -1,7 +1,7 @@
 __precompile__(true)
 module TensorFlow
 
-warn("Loading a new version of TensorFlow.jl for the first time. This initial load can take up to 15 minutes as code is precompiled; subsequent usage will only take a few seconds.")
+warn("Loading a new version of TensorFlow.jl for the first time. This initial load can take around 5 minutes as code is precompiled; subsequent usage will only take a few seconds.")
 
 export
 Graph,
@@ -164,7 +164,7 @@ library loaded.
 
 Returns a future to the result.
 *Warning*: Calling `fetch` on a result that contains a pointer, such as a
-`PyObject`, will zero-out the pointer. 
+`PyObject`, will zero-out the pointer.
 """
 macro py_proc(expr)
     quote
