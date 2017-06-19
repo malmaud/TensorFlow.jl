@@ -214,3 +214,18 @@ for reduction in [:sum, :prod, :min, :max, :all, :any, :mean]
         end
     end
 end
+
+# TODO Match Julia reduction behavior when `axis` is passed
+for (jl_func, tf_func) in [
+    (:sum, :reduce_sum),
+    (:prod, :reduce_prod),
+    (:minimum, :reduce_min),
+    (:maximum, :reduce_max),
+    (:all, :reduce_all),
+    (:any, :reduce_any),
+    (:mean, :reduce_mean),
+    ]
+    @eval function Base.$jl_func(n::AbstractTensor, axis=nothing; kwargs...)
+        $tf_func(n; axis=axis, kwargs...)
+    end
+end
