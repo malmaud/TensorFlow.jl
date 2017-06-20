@@ -29,7 +29,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Home",
     "title": "Installation",
     "category": "section",
-    "text": "Install viaPkg.add(\"TensorFlow\")To enable support for GPU usage (Linux only), set an environment variable TF_USE_GPU to \"1\" and then rebuild the package. egENV[\"TF_USE_GPU\"] = \"1\"\nPkg.build(\"TensorFlow\")CUDA 8.0 and cudnn are required for GPU usage."
+    "text": "Install viaPkg.add(\"TensorFlow\")To enable support for GPU usage on Linux, set an environment variable TF_USE_GPU to \"1\" and then rebuild the package. egENV[\"TF_USE_GPU\"] = \"1\"\nPkg.build(\"TensorFlow\")CUDA 8.0 and cudnn are required for GPU usage. For GPU support on Mac OS X, see documentation on building TensorFlow from source."
 },
 
 {
@@ -646,6 +646,54 @@ var documenterSearchIndex = {"docs": [
     "title": "Logistic regression",
     "category": "section",
     "text": "using Distributions\n\n# Generate some synthetic data\nx = randn(100, 50)\nw = randn(50, 10)\ny_prob = exp(x*w)\ny_prob ./= sum(y_prob,2)\n\nfunction draw(probs)\n    y = zeros(size(probs))\n    for i in 1:size(probs, 1)\n        idx = rand(Categorical(probs[i, :]))\n        y[i, idx] = 1\n    end\n    return y\nend\n\ny = draw(y_prob)\n\n# Build the model\nsess = Session(Graph())\nX = placeholder(Float64)\nY_obs = placeholder(Float64)\n\nvariable_scope(\"logisitic_model\", initializer=Normal(0, .001)) do\n    global W = get_variable(\"weights\", [50, 10], Float64)\n    global B = get_variable(\"bias\", [10], Float64)\nend\n\nY=nn.softmax(X*W + B)\nLoss = -reduce_sum(log(Y).*Y_obs)\noptimizer = train.AdamOptimizer()\nminimize_op = train.minimize(optimizer, Loss)\nsaver = train.Saver()\n# Run training\nrun(sess, global_variables_initializer())\ncheckpoint_path = mktempdir()\ninfo(\"Checkpoint files saved in $checkpoint_path\")\nfor epoch in 1:100\n    cur_loss, _ = run(sess, vcat(Loss, minimize_op), Dict(X=>x, Y_obs=>y))\n    println(@sprintf(\"Current loss is %.2f.\", cur_loss))\n    train.save(saver, sess, joinpath(checkpoint_path, \"logistic\"), global_step=epoch)\nend\n"
+},
+
+{
+    "location": "build_from_source.html#",
+    "page": "Build TensorFlow from source",
+    "title": "Build TensorFlow from source",
+    "category": "page",
+    "text": ""
+},
+
+{
+    "location": "build_from_source.html#Building-TensorFlow-from-source-1",
+    "page": "Build TensorFlow from source",
+    "title": "Building TensorFlow from source",
+    "category": "section",
+    "text": "Building TensorFlow from source is recommended by Google for maximum performance, especially when running in CPU mode - on some systems, the difference can be substantial. It will also be required for Mac OS X GPU support for TensorFlow versions later than 1.1. This document describes how to do so."
+},
+
+{
+    "location": "build_from_source.html#Step-1:-Build-libtensorflow-1",
+    "page": "Build TensorFlow from source",
+    "title": "Step 1: Build libtensorflow",
+    "category": "section",
+    "text": "To build libtensorflow for TensorFlow.jl, follow the steps here: https://www.tensorflow.org/install/install_sources, except for a few minor modifications.In the step \"Prepare environment\", ignore \"Install python dependencies\" – these are not necessary as we are not building for Python. Be sure to follow all other steps as needed for your OS.\nIn the step \"Build the pip package\", since we are building the binary file and not the pip package, instead run bazel build --config=opt //tensorflow:libtensorflow.so, adding --config=cuda if GPU support is desired.Running bazel build will produce the libtensorflow.so binary needed by TensorFlow.jl - there is no need to build the Python package or run anything else. You may place the binary wherever is convenient."
+},
+
+{
+    "location": "build_from_source.html#Step-2:-Install-the-TensorFlow-binary-1",
+    "page": "Build TensorFlow from source",
+    "title": "Step 2: Install the TensorFlow binary",
+    "category": "section",
+    "text": "We must now tell TensorFlow.jl to load the custom binary. There are a number of ways to do so.The simplest way is to copy libtensorflow.so to ~/.julia/v0.?/TensorFlow/deps/usr/bin/, overwriting the included binary. If on Mac OS X, you may need to rename the file to libtensorflow.dylib.\nAlternatively, for users who wish to keep their libtensorflow.so file elsewhere, or those who do not wish to modify their TensorFlow.jl installation, we can set the environment variable LIBTENSORFLOW to /path/to/tensorflow.so. This may be done system-wide by editing .profile or any other method supported by your OS.\nFor users of the Atom/Juno IDE who do not wish to modify their system-wide environment, environment variables may be set by adding the line process.env.LIBTENSORFLOW = \"/path/to/libtensorflow.so\" to the init.coffee script (easily accessible by clicking File -> Init Script). Note that Atom may not always inherit environment variables set by the OS."
+},
+
+{
+    "location": "build_from_source.html#Step-3:-Check-that-the-custom-binary-is-loaded-1",
+    "page": "Build TensorFlow from source",
+    "title": "Step 3: Check that the custom binary is loaded",
+    "category": "section",
+    "text": "After running using TensorFlow, it should no longer complain that TensorFlow wasn't compiled with the necessary instructions. Try generating two random matrices and multiplying them together. You can time the computation with @time run(sess, x), which should be much faster."
+},
+
+{
+    "location": "build_from_source.html#Tips-and-known-issues-1",
+    "page": "Build TensorFlow from source",
+    "title": "Tips & known issues",
+    "category": "section",
+    "text": "Dynamic RNNs require a custom patch due to an upstream bug in TensorFlow. See: https://github.com/malmaud/TensorFlow.jl/issues/203 and https://github.com/tensorflow/tensorflow/issues/8669. To enable them on custom binaries, apply this patch to the TensorFlow source before compiling with git apply.\nIf you encounter segmentation faults or other errors, try Pkg.checkout(\"TensorFlow\").\nFor maximum performance, you should always compile on the same system that will be running the computation, and with the correct CUDA Compute Capability version supported by your GPU.\nIf TensorFlow.jl fails to load with the error Library not loaded: @rpath/libcublas.8.0.dylib or any similar error, it means that the CUDA libraries are not in LD_LIBRARY_PATH as required by Nvidia. Be sure to add /usr/local/cuda/lib, or wherever your CUDA instalation is located, to LD_LIBRARY_PATH. This may be done by editing .profile, or for Atom/Juno users editing init.coffee, or any other method supported by your OS, as described in Step 2. Be careful that you append this folder and do not mistakenly overwrite your entire path.\nIf you get CUDA_ERROR_NOT_INITIALIZED, then for some reason TensorFlow cannot find your GPU. Make sure that the appropriate software is installed, and if using an external GPU, make sure it is plugged in correctly.\nTo check whether the GPU is being used, create your session with TensorFlow.Session(config=TensorFlow.tensorflow.ConfigProto(log_device_placement=true)). TensorFlow will then print information about which device is used.\nYou may need to add symlinks from libcudnn5.dylib to libcudnn.5.dylib so that Bazel is able to correctly locate the necessary dependencies.\nOn Mac OS X, nvcc, Nvidia's CUDA compiler, requires OS X Command Line Tools version 8.2 and does not work with the latest version. You can download this version from Apple's website, and switch to it by running sudo xcode-select -s /path/to/CommandLineTools.\nOn Mac OS X, make sure to set the environment variable GCC_HOST_COMPILER_PATH to /usr/bin/gcc - do not install GCC yourself, or the build may fail with obscure error messages.\nOn Mac OS X, if you don't wish to install Homebrew, you can instead use Julia's internal Homebrew-based dependency manager Homebrew.jl by running Homebrew.brew(`install --build-from-source libtensorflow`). GPU support can be enabled by modifying the Ruby formula using Homebrew.brew(`edit libtensorflow`) – you should set all necessary environment variables in the Ruby formula, as Homebrew may not display prompts correctly."
 },
 
 ]}
