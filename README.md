@@ -7,7 +7,7 @@ A wrapper around [TensorFlow](https://www.tensorflow.org/), a popular open sourc
 
 ## Documentation
 
-[Documentation available here](https://malmaud.github.io/tfdocs/index.html).
+[![](https://img.shields.io/badge/docs-latest-blue.svg)](https://USER_NAME.github.io/PACKAGE_NAME.jl/latest)
 
 ## Why use TensorFlow.jl?
 
