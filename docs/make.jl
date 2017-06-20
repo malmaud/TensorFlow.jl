@@ -24,4 +24,7 @@ makedocs(modules=[TensorFlow],
         ])
 
 deploydocs(repo="github.com/malmaud/TensorFlow.jl.git",
-           julia="0.6")
+           julia="0.6",
+           deps=nothing,
+           make=nothing,
+           target="build")
