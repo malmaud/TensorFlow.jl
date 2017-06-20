@@ -20,7 +20,9 @@ makedocs(modules=[TensorFlow],
              "IO pipelines with queues"=>"io_ref.md"],
           "Examples"=>
             ["Basic usage"=>"basic_usage.md",
-             "Logistic regression"=>"logistic.md"]
+             "Logistic regression"=>"logistic.md"],
+          "Advanced"=>
+            ["Build TensorFlow from source"=>"build_from_source.md"],
         ])
 
 deploydocs(repo="github.com/malmaud/TensorFlow.jl.git",
