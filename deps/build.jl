@@ -7,7 +7,7 @@ const cur_version = "1.1.0"
 # Determine if using GPU
 ############################
 
-const use_gpu = "TF_USE_GPU" ∈ keys(ENV) && ENV["TF_USE_GPU"] == "1"
+use_gpu = "TF_USE_GPU" ∈ keys(ENV) && ENV["TF_USE_GPU"] == "1"
 
 if is_apple() && use_gpu
     warn("No support on OS X, for GPU use. Falling back to CPU")
