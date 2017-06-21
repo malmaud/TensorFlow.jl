@@ -39,8 +39,10 @@ end
 
 
 
-const multiply = Ops.mul
-const negative = Ops.neg
+# const multiply = Ops.mul
+# const negative = Ops.neg
+@define_unary negative Ops.neg
+@define_binary multiply Ops.mul
 const self_adjoint_eig = Ops.self_adjoint_eig_v2
 
 for (bin_op, jl_func_name) in [

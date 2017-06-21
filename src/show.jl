@@ -136,7 +136,7 @@ function Base.close(board::Tensorboard)
 end
 
 function get_tensorboard(logdir=nothing)
-    if !isdefined(tensorboard, :x) || (logdir !== nothing && tensorboard[].logdir ≠ logdir)
+    if true#!isdefined(tensorboard, :x) || (logdir !== nothing && tensorboard[].logdir ≠ logdir)
         if isdefined(tensorboard, :x)
             port = tensorboard[].port + 1
         else

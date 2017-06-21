@@ -35,16 +35,16 @@ end
 
 macro define_binary(jl_func, tf_func)
     quote
-        $jl_func(t1::AbstractTensor, t2::AbstractTensor) = $tf_func(tf_promote(t1, t2)...)
-        $jl_func(t1::AbstractTensor, t2) = $tf_func(t1, Tensor(t2))
-        $jl_func(t1, t2::AbstractTensor) = $tf_func(Tensor(t1), t2)
+        $jl_func(t1::AbstractTensor, t2::AbstractTensor; kwargs...) = $tf_func(tf_promote(t1, t2)...; kwargs...)
+        $jl_func(t1::AbstractTensor, t2; kwargs...) = $tf_func(t1, Tensor(t2); kwargs...)
+        $jl_func(t1, t2::AbstractTensor; kwargs...) = $tf_func(Tensor(t1), t2; kwargs...)
     end |> esc
 end
 
 macro define_unary(jl_func, tf_func)
     quote
-        @Base.__doc__ @op function $jl_func(t::AbstractTensor)
-            $tf_func(t)
+        @Base.__doc__ @op function $jl_func(t::AbstractTensor; kwargs...)
+            $tf_func(t; kwargs...)
         end
     end |> esc
 end
