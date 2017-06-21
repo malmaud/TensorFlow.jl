@@ -176,6 +176,8 @@ function TensorShape(::Vector{Union{}}) # NB: `Vector{Union{}} == typeof(collect
     TensorShape(Nullable{Int}[], false)
 end
 
+TensorShape(t::TensorShape) = copy(t)
+
 function get_shape end
 
 """

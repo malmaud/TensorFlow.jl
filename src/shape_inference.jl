@@ -207,14 +207,14 @@ end
 
 register_shape("Transpose") do op
     input_shape = _get_shape(get_input(op, 1))
-    
+
     maybe_reorder = load_const(get_input(op, 2))
     if isnull(maybe_reorder)
         [TensorShape(nothing)]
     else
         order::Vector{Int32} = get(maybe_reorder) + 1
         if input_shape.rank_unknown
-            # We know the rank, 
+            # We know the rank,
             # it must be the same as the number of elements in the perm
             [TensorShape(fill(Nullable{Int32}(), length(order)))]
         else
