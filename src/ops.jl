@@ -35,9 +35,9 @@ end
 
 macro define_binary(jl_func, tf_func)
     quote
-        $jl_func(t1::AbstractTensor, t2::AbstractTensor; kwargs...) = $tf_func(tf_promote(t1, t2)...; kwargs...)
-        $jl_func(t1::AbstractTensor, t2; kwargs...) = $tf_func(t1, Tensor(t2); kwargs...)
-        $jl_func(t1, t2::AbstractTensor; kwargs...) = $tf_func(Tensor(t1), t2; kwargs...)
+        @op $jl_func(t1::AbstractTensor, t2::AbstractTensor; kwargs...) = $tf_func(tf_promote(t1, t2)...; kwargs...)
+        @op $jl_func(t1::AbstractTensor, t2; kwargs...) = $tf_func(t1, Tensor(t2); kwargs...)
+        @op $jl_func(t1, t2::AbstractTensor; kwargs...) = $tf_func(Tensor(t1), t2; kwargs...)
     end |> esc
 end
 
