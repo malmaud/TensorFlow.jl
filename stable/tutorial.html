@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>MNIST tutorial · TensorFlow.jl</title><script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-1123761-11', 'auto');
+ga('send', 'pageview');
+</script><link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.min.css" rel="stylesheet" type="text/css"/><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.2.0/require.min.js" data-main="assets/documenter.js"></script><script src="siteinfo.js"></script><script src="../versions.js"></script><link href="assets/highlightjs/default.css" rel="stylesheet" type="text/css"/><link href="assets/documenter.css" rel="stylesheet" type="text/css"/></head><body><nav class="toc"><a href="index.html"><img class="logo" src="assets/logo.png" alt="TensorFlow.jl logo"/></a><h1>TensorFlow.jl</h1><select id="version-selector" onChange="window.location.href=this.value" style="visibility: hidden"></select><form class="search" action="search.html"><input id="search-query" name="q" type="text" placeholder="Search docs"/></form><ul><li><a class="toctext" href="index.html">Home</a></li><li><span class="toctext">Manual</span><ul><li class="current"><a class="toctext" href="tutorial.html">MNIST tutorial</a><ul class="internal"><li><a class="toctext" href="#Load-MNIST-data-1">Load MNIST data</a></li><li><a class="toctext" href="#Start-TensorFlow-session-1">Start TensorFlow session</a></li><li><a class="toctext" href="#Building-a-softmax-regression-model-1">Building a softmax regression model</a></li><li><a class="toctext" href="#Build-a-multi-layer-convolutional-network-1">Build a multi-layer convolutional network</a></li></ul></li><li><a class="toctext" href="visualization.html">Visualizing with Tensorboard</a></li><li><a class="toctext" href="io.html">Using queues for loading your data</a></li><li><a class="toctext" href="shape_inference.html">Shape inference</a></li><li><a class="toctext" href="saving.html">Saving and restoring</a></li></ul></li><li><span class="toctext">Reference</span><ul><li><a class="toctext" href="core.html">Core functions</a></li><li><a class="toctext" href="ops.html">Operations</a></li><li><a class="toctext" href="io_ref.html">IO pipelines with queues</a></li></ul></li><li><span class="toctext">Examples</span><ul><li><a class="toctext" href="basic_usage.html">Basic usage</a></li><li><a class="toctext" href="logistic.html">Logistic regression</a></li></ul></li><li><span class="toctext">Advanced</span><ul><li><a class="toctext" href="build_from_source.html">Build TensorFlow from source</a></li></ul></li></ul></nav><article id="docs"><header><nav><ul><li>Manual</li><li><a href="tutorial.html">MNIST tutorial</a></li></ul><a class="edit-page" href="https://github.com/malmaud/TensorFlow.jl/tree/161e07d954b9c67435fd53702f9ff1d5d97033d3/docs/src/tutorial.md"><span class="fa"></span> Edit on GitHub</a></nav><hr/><div id="topbar"><span>MNIST tutorial</span><a class="fa fa-bars" href="#"></a></div></header><h1><a class="nav-anchor" id="MNIST-tutorial-1" href="#MNIST-tutorial-1">MNIST tutorial</a></h1><p>This tutorial is strongly based on the <a href="https://www.tensorflow.org/versions/r0.10/tutorials/mnist/pros/index.html">official TensorFlow MNIST tutorial</a>. We will classify MNIST digits, at first using simple logistic regression and then with a deep convolutional model.</p><p>Read through the official tutorial! Only the differences from the Python version are documented here.</p><h2><a class="nav-anchor" id="Load-MNIST-data-1" href="#Load-MNIST-data-1">Load MNIST data</a></h2><p>The <code>DataLoader</code> API provided in <code>&quot;examples/mnist_loader.jl&quot;</code> has some simple code for loading the MNIST dataset, based on the <code>MNIST.jl</code> package.</p><pre><code class="language-julia">include(Pkg.dir(&quot;TensorFlow&quot;, &quot;examples&quot;, &quot;mnist_loader.jl&quot;))
+loader = DataLoader()</code></pre><h2><a class="nav-anchor" id="Start-TensorFlow-session-1" href="#Start-TensorFlow-session-1">Start TensorFlow session</a></h2><pre><code class="language-julia">using TensorFlow
+sess = Session()</code></pre><h2><a class="nav-anchor" id="Building-a-softmax-regression-model-1" href="#Building-a-softmax-regression-model-1">Building a softmax regression model</a></h2><h3><a class="nav-anchor" id="Placeholders-1" href="#Placeholders-1">Placeholders</a></h3><pre><code class="language-julia">x = placeholder(Float32)
+y_ = placeholder(Float32)</code></pre><h3><a class="nav-anchor" id="Variables-1" href="#Variables-1">Variables</a></h3><pre><code class="language-julia">W = Variable(zeros(Float32, 784, 10))
+b = Variable(zeros(Float32, 10))
+
+run(sess, global_variables_initializer())</code></pre><h3><a class="nav-anchor" id="Predicted-Class-and-Loss-Function-1" href="#Predicted-Class-and-Loss-Function-1">Predicted Class and Loss Function</a></h3><pre><code class="language-julia">y = nn.softmax(x*W + b)
+cross_entropy = reduce_mean(-reduce_sum(y_ .* log(y), axis=[2]))</code></pre><p>Note several differences from the Python version of the tutorial:</p><ul><li><p>Python uses <code>tf.matmul</code> for matrix multiplication and <code>*</code> for element-wise multiplication of tensors in the computation graph. Julia uses <code>*</code> for matrix multiplication and <code>.*</code> for element-wise multiplication.</p></li><li><p>The reduction index for the loss term is 1 in the Python version, but the Julia API assumes 1-based indexing to be consistent with the rest of Julia and so 2 is used.</p></li></ul><h3><a class="nav-anchor" id="Train-the-model-1" href="#Train-the-model-1">Train the model</a></h3><pre><code class="language-julia">train_step = train.minimize(train.GradientDescentOptimizer(.00001), cross_entropy)
+for i in 1:1000
+    batch = next_batch(loader, 100)
+    run(sess, train_step, Dict(x=&gt;batch[1], y_=&gt;batch[2]))
+end</code></pre><h3><a class="nav-anchor" id="Evaluate-the-model-1" href="#Evaluate-the-model-1">Evaluate the model</a></h3><pre><code class="language-julia">correct_prediction = indmax(y, 2) .== indmax(y_, 2)
+accuracy=reduce_mean(cast(correct_prediction, Float32))
+testx, testy = load_test_set()
+
+println(run(sess, accuracy, Dict(x=&gt;testx, y_=&gt;testy)))</code></pre><h2><a class="nav-anchor" id="Build-a-multi-layer-convolutional-network-1" href="#Build-a-multi-layer-convolutional-network-1">Build a multi-layer convolutional network</a></h2><p>There are no significant differences from the Python version, so the entire code is presented here:</p><pre><code class="language-julia"># using TensorFlow
+using Distributions
+include(&quot;mnist_loader.jl&quot;)
+
+loader = DataLoader()
+
+session = Session(Graph())
+
+function weight_variable(shape)
+    initial = map(Float32, rand(Normal(0, .001), shape...))
+    return Variable(initial)
+end
+
+function bias_variable(shape)
+    initial = fill(Float32(.1), shape...)
+    return Variable(initial)
+end
+
+function conv2d(x, W)
+    nn.conv2d(x, W, [1, 1, 1, 1], &quot;SAME&quot;)
+end
+
+function max_pool_2x2(x)
+    nn.max_pool(x, [1, 2, 2, 1], [1, 2, 2, 1], &quot;SAME&quot;)
+end
+
+x = placeholder(Float32)
+y_ = placeholder(Float32)
+
+W_conv1 = weight_variable([5, 5, 1, 32])
+b_conv1 = bias_variable([32])
+
+x_image = reshape(x, [-1, 28, 28, 1])
+
+h_conv1 = nn.relu(conv2d(x_image, W_conv1) + b_conv1)
+h_pool1 = max_pool_2x2(h_conv1)
+
+W_conv2 = weight_variable([5, 5, 32, 64])
+b_conv2 = bias_variable([64])
+
+h_conv2 = nn.relu(conv2d(h_pool1, W_conv2) + b_conv2)
+h_pool2 = max_pool_2x2(h_conv2)
+
+W_fc1 = weight_variable([7*7*64, 1024])
+b_fc1 = bias_variable([1024])
+
+h_pool2_flat = reshape(h_pool2, [-1, 7*7*64])
+h_fc1 = nn.relu(h_pool2_flat * W_fc1 + b_fc1)
+
+keep_prob = placeholder(Float32)
+h_fc1_drop = nn.dropout(h_fc1, keep_prob)
+
+W_fc2 = weight_variable([1024, 10])
+b_fc2 = bias_variable([10])
+
+y_conv = nn.softmax(h_fc1_drop * W_fc2 + b_fc2)
+
+cross_entropy = reduce_mean(-reduce_sum(y_.*log(y_conv), axis=[2]))
+
+train_step = train.minimize(train.AdamOptimizer(1e-4), cross_entropy)
+
+correct_prediction = indmax(y_conv, 2) .== indmax(y_, 2)
+
+accuracy = reduce_mean(cast(correct_prediction, Float32))
+
+run(session, global_variables_initializer())
+
+for i in 1:1000
+    batch = next_batch(loader, 50)
+    if i%100 == 1
+        train_accuracy = run(session, accuracy, Dict(x=&gt;batch[1], y_=&gt;batch[2], keep_prob=&gt;1.0))
+        info(&quot;step $i, training accuracy $train_accuracy&quot;)
+    end
+    run(session, train_step, Dict(x=&gt;batch[1], y_=&gt;batch[2], keep_prob=&gt;.5))
+end
+
+testx, testy = load_test_set()
+test_accuracy = run(session, accuracy, Dict(x=&gt;testx, y_=&gt;testy, keep_prob=&gt;1.0))
+info(&quot;test accuracy $test_accuracy&quot;)</code></pre><footer><hr/><a class="previous" href="index.html"><span class="direction">Previous</span><span class="title">Home</span></a><a class="next" href="visualization.html"><span class="direction">Next</span><span class="title">Visualizing with Tensorboard</span></a></footer></article></body></html>
