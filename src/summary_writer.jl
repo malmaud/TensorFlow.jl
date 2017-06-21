@@ -5,12 +5,13 @@ import ..TensorFlow: tensorflow, Graph, get_def_graph, @py_proc
 
 immutable FileWriter
     pyo::Future
+    logdir::String
 end
 
 function FileWriter(log_dir::AbstractString; graph=get_def_graph())
     path = joinpath(log_dir, "events")
     pyo = @py_proc pywrap_tensorflow[][:EventsWriter](py_bytes($path))
-    writer = FileWriter(pyo)
+    writer = FileWriter(pyo, String(log_dir))
     if graph !== nothing
         write(writer, graph)
     end

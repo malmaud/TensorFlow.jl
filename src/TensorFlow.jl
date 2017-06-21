@@ -189,8 +189,8 @@ using .Variables
 include("shape_inference.jl")
 include("train.jl")
 include("io.jl")
-include("show.jl")
 include("summary.jl")
 include("deprecated.jl")
+include("show.jl")
 
 end
