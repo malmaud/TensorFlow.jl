@@ -4,7 +4,7 @@ using TensorFlow
 @testset "TensorShape" begin
     @test TensorShape([]) == TensorShape(Nullable{Int}[],false)
     @test TensorShape(collect(tuple())) == TensorShape([],false)
-    
+
     @test TensorShape([-1, 15]) == TensorShape([Nullable{Int}(), Nullable{Int}(15)], false)
     @test TensorShape([10, 12]) == TensorShape([Nullable{Int}(10), Nullable{Int}(12)], false)
 
@@ -105,4 +105,3 @@ end
     end
 
 end
-
