@@ -120,14 +120,14 @@ function dynamic_rnn(cell, inputs, sequence_length=nothing; initial_state=nothin
         initial_state = zero_state(cell, initial_data, dtype)
     end
     # By **MAGIC** these values end up in `while_output` even when num_steps=1
-    
+
     # Calculate first output -- we can't trivially default it,
     # because that would require batch_size to be known statically,
     # and not having a fixed batch_size is pretty nice.
     output, state = cell(initial_data, initial_state, input_dim)
     # By **MAGIC** these values end up in `while_output` eve when num_steps=1
     # and the while-loop should not logically run
-    
+
     time_step = tf.constant(2) #skip the completed first step
     while_output = @tf while time_step ≤ num_steps
         data = inputs[:, time_step, :]
@@ -346,7 +346,7 @@ Computes half the L2-norm of a `Tensor` `t`, without taking the square root.
 @op function l2_loss(t; name=nothing)
     local out
     tf.with_op_name(name, "L2_Loss") do
-        out = sqrt(reduce_sum(t.^2))
+        out = sum(t.^2)/2
     end
     out
 end

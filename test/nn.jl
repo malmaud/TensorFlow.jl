@@ -39,7 +39,7 @@ end
 @testset "rnn_cell zero state" begin
     let
         sess = Session(Graph())
-        
+
         x = placeholder(Float32, shape=[-1, 1, 5])
         x1 = x[:,1,:]
         gru_state = nn.rnn_cell.zero_state(nn.rnn_cell.GRUCell(7), x1, nothing)
@@ -140,14 +140,14 @@ for (rnn_fun, post_proc_outputs) in ((nn.dynamic_rnn, identity), (nn.rnn, last))
     @testset "$testname dynamic batch-size" begin
         let
             sess = Session(Graph())
-            
+
             x = placeholder(Float32, shape=[-1, 1, 5])
             cell = nn.rnn_cell.GRUCell(7)
             out, state = rnn_fun(cell, x)
-            
+
             run(sess, global_variables_initializer())
             outs_jl, state_jl = run(sess, [out, state], Dict(x=>rand(19, 1, 5)))
-            
+
             @test size(state_jl) == (19, 7) #batchsize, hidden_size
         end
     end
@@ -174,4 +174,11 @@ end
 
     dd =  nn.dropout(inputs, drop_prob)  # Check that this can actually be created
 
+end
+
+@testset "l2loss" begin
+    sess = Session(Graph())
+    x = [3.0, 4.0]
+    loss = nn.l2_loss(constant(x))
+    @test run(sess, loss) ≈ sum(x.^2)/2
 end
