@@ -26,6 +26,25 @@ macro tfcall(sym, ret, args, vals...)
 end
 
 """
+    @required(keywords...)
+
+Macro that raises an error if any of the passed-in symbols equal 'nothing'.
+Useful for marking keyword arguments as required.
+"""
+macro required(keywords...)
+    blocks = []
+    for keyword in keywords
+        push!(blocks, quote
+            err_msg = string($(String(keyword)), " is required")
+            $keyword === nothing && error(err_msg)
+        end)
+    end
+    quote
+        $(blocks...)
+    end
+end
+
+"""
     tf_version()
 
 Return the version number of the C tensorflow library.
@@ -456,7 +475,7 @@ temporarily sets the default computational graph to `g`.
 
 Suggested usage is via a do-block:
 ```julia
-    as_default(graph1) do 
+    as_default(graph1) do
         x = constant(5)
         y = 2*x
     end

@@ -178,8 +178,7 @@ function tf.get_variable(var_name, shape, dtype; trainable=true, kwargs...)
 end
 
 function tf.get_variable(var_name; shape=nothing, dtype=nothing, kwargs...)
-    shape === nothing && error("shape is required")
-    dtype === nothing && error("dtype is required")
+    @tf.required shape dtype
     tf.get_variable(var_name, shape, dtype; kwargs...)
 end
 
