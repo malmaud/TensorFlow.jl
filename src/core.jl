@@ -411,8 +411,17 @@ type SessionOptions
 
     function SessionOptions()
         ptr = @tfcall(:TF_NewSessionOptions, Ptr{Void}, ())
-        return new(ptr)
+        self = new(ptr)
+        set_tf_finalizer(self)
+        self
     end
+end
+
+function set_tf_finalizer(options::SessionOptions)
+    finalizer(options, options->begin
+        @tfcall(:TF_DeleteSessionOptions, Void, (Ptr{Void},), options.ptr)
+    end)
+    options
 end
 
 immutable TFException <: Exception

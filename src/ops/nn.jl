@@ -26,16 +26,16 @@ include("rnn_cell.jl")
 import .rnn_cell:  zero_state, output_size, state_size
 
 # Ops.conv2d takes padding and strides as a keyword instead of a positional argument
-function conv2d(input, filter, strides, padding; kwargs...)
+@tf.op function conv2d(input, filter, strides, padding; kwargs...)
     conv2d(input, filter; padding=padding, strides=strides, kwargs...)
 end
 
 # Same for max pool
-function max_pool(input, ksize, strides, padding; kwargs...)
+@tf.op function max_pool(input, ksize, strides, padding; kwargs...)
     max_pool(input; ksize=ksize, strides=strides, padding=padding, kwargs...)
 end
 
-function conv2d_transpose(value, filter, output_shape, strides; padding="SAME", data_format="NHWC", kwargs...)
+@tf.op function conv2d_transpose(value, filter, output_shape, strides; padding="SAME", data_format="NHWC", kwargs...)
     Ops.conv2d_backprop_input(output_shape, filter, value; strides=strides, padding=padding, data_format=data_format, kwargs...)
 end
 
@@ -187,6 +187,7 @@ end
 @op function sigmoid_cross_entropy_with_logits(;logits=nothing, targets=nothing, name=nothing)
     #  TODO make numerically stable
     local out
+    @tf.required logits targets
     tf.with_op_name(name, "SigmoidCrossEntropyWithLogits") do
         out = -logits.*targets + log(1+ exp(logits))
     end
@@ -230,6 +231,7 @@ and the same dtype (either `float32` or `float64`).
   softmax cross entropy loss.
 """
 @op function softmax_cross_entropy_with_logits(;logits=nothing, labels=nothing, kwargs...)
+    @tf.required logits labels
     Ops.softmax_cross_entropy_with_logits(logits, labels; kwargs...)[1]
 end
 
@@ -275,6 +277,7 @@ Returns:
   with the softmax cross entropy loss.
 """
 @op function sparse_softmax_cross_entropy_with_logits(;logits=nothing, labels=nothing, name=nothing)
+    @tf.required logits labels
     Ops.sparse_softmax_cross_entropy_with_logits(logits, labels-1)[1]
 end
 
