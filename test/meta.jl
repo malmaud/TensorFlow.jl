@@ -34,7 +34,7 @@ end
                 fq = TensorFlow.FIFOQueue(10, [Int32, Int64]); #This datatype should be an Op
                 cc = nn.rnn_cell.GRUCell(40) #this Datatype should not be an Op
 
-                X = get_variable([50], Float64)
+                X = get_variable([1, 50], Float64)
                 variable_scope("logisitic_model") do
                      W = get_variable([50, 10], Float64)
                      B = get_variable([10], Float64)

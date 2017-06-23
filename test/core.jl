@@ -77,7 +77,9 @@ end
             unused = get_variable("unused", [], Float64)
             used = get_variable("used", [], Float64)
             loss = used.^2
-            optimizer = train.minimize(train.AdamOptimizer(), loss)
+            grad = gradients(loss, unused)
+            @test grad === nothing
+            # optimizer = train.minimize(ætrain.AdamOptimizer(), loss)
             # This would have thrown an error if Disconnected gradients were causing issues
         end
     end
