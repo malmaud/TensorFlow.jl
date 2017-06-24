@@ -1,7 +1,7 @@
 using PyCall
 using Conda
 
-const cur_version = "1.1.0"
+const cur_version = "1.2.0"
 
 ############################
 # Determine if using GPU
@@ -146,5 +146,3 @@ end
     mv("libtensorflow.so", "usr/bin/libtensorflow.so", remove_destination=true)
 end
 =#
-
-
