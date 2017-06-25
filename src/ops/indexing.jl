@@ -96,10 +96,16 @@ end
 # This can be a lot cleaner all round in 0.6
 const Slice = Union{TensorRange, UnitRange, Colon}
 const Index = Union{Int16, Int32, Int64,
-                          AbstractArray{Int16}, AbstractArray{Int32}, AbstractArray{Int64},
-                          Tensor{Int16}, Tensor{Int32}, Tensor{Int64}}
+                  AbstractArray{Int16}, AbstractArray{Int32}, AbstractArray{Int64},
+                  Tensor{Int16}, Tensor{Int32}, Tensor{Int64}}
 
-
+const NotAllowed = Union{Float16, Float32, Float64, String, Complex128, Complex64, Complex32,
+                         AbstractArray{Float16}, AbstractArray{Float32}, AbstractArray{Float64},
+                         AbstractArray{String}, AbstractArray{Complex128}, AbstractArray{Complex32},
+                         Tensor{Float16}, Tensor{Float32}, Tensor{Float64}, Tensor{String},
+                         Tensor{Complex128}, Tensor{Complex64}, Tensor{Complex32},
+                         FloatRange
+                        }
 
 
 #For x[[true,false,true]] etc
@@ -125,4 +131,15 @@ end
 
 function Base.getindex(params::AbstractTensor, inds::Vararg{AbstractTensor})
     getindex(params, map(Tensor, inds)...)
+end
+
+# Attempt to catch most of the mis-uses
+# won't catch mixed allowed and nonallowed types
+function Base.getindex(params::AbstractTensor, inds::Vararg{NotAllowed})
+    throw(MethodError(getindex, (params, inds...)))
+end
+
+# No index actually given
+function Base.getindex(params::AbstractTensor)
+    throw(MethodError(getindex, (params,)))
 end

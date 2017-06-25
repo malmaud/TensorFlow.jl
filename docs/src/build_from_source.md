@@ -1,9 +1,9 @@
 # Building TensorFlow from source
 
-Building TensorFlow from source is recommended by Google for maximum performance - on some systems, the difference can be substantial. It will also be required for Mac OS X GPU support for versions later than 1.1. This document describes how to do so.
+Building TensorFlow from source is recommended by Google for maximum performance, especially when running in CPU mode - on some systems, the difference can be substantial. It will also be required for Mac OS X GPU support for TensorFlow versions later than 1.1. This document describes how to do so.
 
 
-## Step 1: build libtensorflow
+## Step 1: Build libtensorflow
 
 To build libtensorflow for TensorFlow.jl, follow the steps here: https://www.tensorflow.org/install/install_sources, except for a few minor modifications.
 
@@ -13,7 +13,7 @@ To build libtensorflow for TensorFlow.jl, follow the steps here: https://www.ten
 Running `bazel build` will produce the `libtensorflow.so` binary needed by TensorFlow.jl - there is no need to build the Python package or run anything else. You may place the binary wherever is convenient.
 
 
-## Step 2: install TensorFlow binary
+## Step 2: Install the TensorFlow binary
 
 We must now tell TensorFlow.jl to load the custom binary. There are a number of ways to do so.
 
@@ -25,14 +25,14 @@ We must now tell TensorFlow.jl to load the custom binary. There are a number of 
 
 
 
-## Step 3: check that the custom binary is loaded
+## Step 3: Check that the custom binary is loaded
 
 After running `using TensorFlow`, it should no longer complain that TensorFlow wasn't compiled with the necessary instructions. Try generating two random matrices and multiplying them together. You can time the computation with `@time run(sess, x)`, which should be much faster.
 
 
 ## Tips & known issues
 
-  * Dynamic RNNs currently do not work due to an upstream bug in TensorFlow. See: https://github.com/malmaud/TensorFlow.jl/issues/203 and https://github.com/tensorflow/tensorflow/issues/8669.
+  * Dynamic RNNs require a custom patch due to an upstream bug in TensorFlow. See: https://github.com/malmaud/TensorFlow.jl/issues/203 and https://github.com/tensorflow/tensorflow/issues/8669. To enable them on custom binaries, apply [this patch](https://github.com/malmaud/TensorFlow.jl/blob/master/deps/build_libtensorflow/cpu/upstream_patch) to the TensorFlow source before compiling with `git apply`.
 
   * If you encounter segmentation faults or other errors, try `Pkg.checkout("TensorFlow")`.
 
@@ -42,7 +42,7 @@ After running `using TensorFlow`, it should no longer complain that TensorFlow w
 
   * If you get `CUDA_ERROR_NOT_INITIALIZED`, then for some reason TensorFlow cannot find your GPU. Make sure that the appropriate software is installed, and if using an external GPU, make sure it is plugged in correctly.
 
-  * To check whether GPU is being used, create your session with `TensorFlow.Session(config=TensorFlow.tensorflow.ConfigProto(log_device_placement=true))`. TensorFlow will then print information about which device is used.
+  * To check whether the GPU is being used, create your session with `TensorFlow.Session(config=TensorFlow.tensorflow.ConfigProto(log_device_placement=true))`. TensorFlow will then print information about which device is used.
 
   * You may need to add symlinks from `libcudnn5.dylib` to `libcudnn.5.dylib` so that Bazel is able to correctly locate the necessary dependencies.
 

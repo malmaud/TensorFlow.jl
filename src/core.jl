@@ -26,6 +26,25 @@ macro tfcall(sym, ret, args, vals...)
 end
 
 """
+    @required(keywords...)
+
+Macro that raises an error if any of the passed-in symbols equal 'nothing'.
+Useful for marking keyword arguments as required.
+"""
+macro required(keywords...)
+    blocks = []
+    for keyword in keywords
+        push!(blocks, quote
+            err_msg = string($(string(keyword)), " is required")
+            $keyword === nothing && error(err_msg)
+        end)
+    end
+    quote
+        $(blocks...)
+    end
+end
+
+"""
     tf_version()
 
 Return the version number of the C tensorflow library.
@@ -159,23 +178,24 @@ end
     rank_unknown::Bool
 end
 
-function TensorShape(dims::Vector{Nullable{Int}})
+
+function TensorShape{T<:Integer}(dims::AbstractVector{T})
+    TensorShape([x<0 ? Nullable{Int}() : Nullable{Int}(x) for x in dims])
+end
+
+function TensorShape(dims)
     TensorShape(dims, false)
 end
 
-function TensorShape(dims::Vector)
-    TensorShape([x<0 ? Nullable{Int64}() : Nullable{Int64}(x) for x in dims])
+function TensorShape(::Void)
+    TensorShape(Nullable{Int}[], true)
 end
 
 function TensorShape(::Vector{Union{}}) # NB: `Vector{Union{}} == typeof(collect(tuple())))`
     TensorShape(Nullable{Int}[], false)
 end
 
-
-function TensorShape(::Void)
-    TensorShape(Nullable{Int}[], true)
-end
-
+TensorShape(t::TensorShape) = copy(t)
 
 function get_shape end
 
@@ -209,7 +229,7 @@ function Base.show(io::IO, g::Graph)
     print(io, "Graph($(g.ptr))")
 end
 
-# There is a bug in Julia v0.5 that requires using the
+# There is a bug in Julia v0.5.0 that requires using the
 # the non-MacroTools version of this function. The old
 # branch will be eliminated eventually.
 if VERSION >= v"0.5.1"
@@ -274,6 +294,8 @@ end
 end
 
 """
+    get_collection(g::Graph, name)
+
 Returns a collection attached to the graph `g` named `name`
 """
 function get_collection end
@@ -389,8 +411,17 @@ type SessionOptions
 
     function SessionOptions()
         ptr = @tfcall(:TF_NewSessionOptions, Ptr{Void}, ())
-        return new(ptr)
+        self = new(ptr)
+        set_tf_finalizer(self)
+        self
     end
+end
+
+function set_tf_finalizer(options::SessionOptions)
+    finalizer(options, options->begin
+        @tfcall(:TF_DeleteSessionOptions, Void, (Ptr{Void},), options.ptr)
+    end)
+    options
 end
 
 immutable TFException <: Exception
@@ -419,7 +450,11 @@ function upgrade_check(v)
 end
 
 """
+    get_def_graph()
+
 Returns the default computation graph, an object of type `Graph`.
+
+See also `as_default` for setting the default graph
 """
 function get_def_graph()
     upgrade_check(v"1.0.1")  # This is here instead of in __init__ to avoid issues
@@ -427,12 +462,38 @@ function get_def_graph()
     has_def_graph() || (def_graph[] = Graph())
     def_graph[]
 end
+
 has_def_graph() = isdefined(def_graph, :x)
 
+"""
+    set_def_graph(g)
+
+Sets the default computation graph to `g`.
+
+See also `get_def_graph`, `as_default`
+"""
 function set_def_graph(g)
     def_graph[] = g
 end
 
+"""
+    as_default(f, g::Graph)
+
+For the duration of the function `f`
+temporarily sets the default computational graph to `g`.
+
+Suggested usage is via a do-block:
+```julia
+    as_default(graph1) do
+        x = constant(5)
+        y = 2*x
+    end
+```
+
+In that example the nodes `x` and `y` were added to the Graph `graph1`.
+
+see also See also `get_def_graph`
+"""
 function as_default(f, g::Graph)
     old_def = get_def_graph()
     set_def_graph(g)
@@ -489,20 +550,26 @@ type Buffer
     ptr::Ptr{Void}
 
     function Buffer(s::Vector{UInt8})
-        ptr = @tfcall(:TF_NewBufferFromString, Ptr{Void}, (Ptr{Void}, Csize_t), pointer(s), sizeof(s))
-        return new(ptr)
+        self = new()
+        self.ptr = @tfcall(:TF_NewBufferFromString, Ptr{Void}, (Ptr{Void}, Csize_t), pointer(s), sizeof(s))
+        set_tf_finalizer(self)
+        return self
     end
 
     function Buffer()
         self = new()
         self.ptr = @tfcall(:TF_NewBuffer, Ptr{Void}, ())
-        finalizer(self, self->begin
-            @tfcall(:TF_DeleteBuffer, Void, (Ptr{Void},), self.ptr)
-        end)
+        set_tf_finalizer(self)
         return self
     end
 
     Buffer(ptr) = new(ptr)
+end
+
+function set_tf_finalizer(buffer::Buffer)
+    finalizer(buffer, buffer->begin
+        @tfcall(:TF_DeleteBuffer, Void, (Ptr{Void},), buffer.ptr)
+    end)
 end
 
 immutable BufferStruct
@@ -528,12 +595,20 @@ end
 const c_deallocator = Ref{Ptr}()
 
 """
+    convert_major_order(array)
+
 Convert from row-major to column-major or vice-versa
 """
 function convert_major_order(array)
     permutedims(array, length(size(array)):-1:1)
 end
 
+immutable EmptyTensorError <: Exception
+end
+
+function Base.show(io::IO, err::EmptyTensorError)
+    print(io, "Creating tensors from empty arrays is not allowed")
+end
 
 type RawTensor
     ptr::Ptr{Void}
@@ -542,7 +617,7 @@ type RawTensor
     RawTensor() = new()
 
     function RawTensor(data::Array)
-        isempty(data) && error("Creating tensors from empty arrays is not allowed")
+        isempty(data) && throw(EmptyTensorError())
         dims = [size(data)...]
         dt = jl_to_df_type(eltype(data))
         data = convert_major_order(data)
@@ -554,7 +629,9 @@ type RawTensor
             sizeof(data),
             c_deallocator[],
             C_NULL)
-        return new(ptr, data)
+        self = new(ptr, data)
+        set_tf_finalizer(self)
+        return self
     end
 
     function RawTensor(data::Number)
@@ -569,16 +646,22 @@ type RawTensor
             sizeof(data_boxed),
             c_deallocator[],
             C_NULL)
-        return new(ptr, data_boxed)
+        self = new(ptr, data_boxed)
+        set_tf_finalizer(self)
+        return self
     end
 
     function RawTensor(ptr::Ptr)
-        this = new(ptr)
-        finalizer(this, this->begin
-            @tfcall(:TF_DeleteTensor, Void, (Ptr{Void},), this.ptr)
-        end)
-        return this
+        self = new(ptr)
+        set_tf_finalizer(self)
+        return self
     end
+end
+
+function set_tf_finalizer(tensor::RawTensor)
+    finalizer(tensor, tensor->begin
+        @tfcall(:TF_DeleteTensor, Void, (Ptr{Void},), tensor.ptr)
+    end)
 end
 
 RawTensor(data::AbstractArray) = RawTensor(collect(data))
@@ -1052,7 +1135,7 @@ function load_proto(value::tensorflow.AttrValue)
 end
 
 """
-`node_name(node::AbstractOperation)`
+    node_name(node::AbstractOperation)
 
 Returns the name of a node in the computation graph.
 """
@@ -1319,6 +1402,8 @@ get_def_type(::Type{Operation}) = tensorflow.NodeDef
 get_def_type(::Type{Graph}) = tensorflow.GraphDef
 
 """
+    get_def(n)
+
 Returns the definition of the given operation or graph
 """
 function get_def(n::Union{Operation, Graph})
@@ -1344,6 +1429,8 @@ function parse_port_name(name)
 end
 
 """
+    get_node_by_name(graph::Graph, name::AbstractString)
+
 Returns an operation by searching for its name in the given graph.
 """
 @with_def_graph function get_node_by_name(graph::Graph, name::AbstractString)
@@ -1383,7 +1470,7 @@ node_name(::Void) = nothing
 node_name(xs::AbstractVector)=node_name.(xs)
 
 """
-gradients(ys, xs, grad_ys=nothing)
+    gradients(ys, xs, grad_ys=nothing)
 
 Constructs symbolic partial derivatives of sum of ys w.r.t. x in xs.
 
@@ -1409,7 +1496,7 @@ function gradients(y, x::AbstractArray, grad_y=nothing)
     b = IOBuffer()
     writeproto(b, meta_graph)
     graph_proto = @compat take!(b)
-    node_protos, grad_names = @py_proc py_gradients($graph_proto, $x_names, $y_names, $grad_y_names)
+    node_protos, grad_names = fetch(@py_proc py_gradients($graph_proto, $x_names, $y_names, $grad_y_names))
     extend_graph(node_protos)
     out = []
     for name in grad_names

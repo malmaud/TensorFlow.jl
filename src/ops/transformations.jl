@@ -113,14 +113,14 @@ such that the resulting concatenated Tensor has rank equal to the
 higher of the highest input rank, or the concatentation dimension (`dim`).
 """
 function Base.cat(dim, xs::AbstractTensor...)
-  with_op_name("Cat") do
-    compat_xs = expand_to_same_ranks(dim, xs)
-    if length(xs)>1
-      concat(compat_xs, dim)
-    else
-      compat_xs[1] # If only one input then, no actual concatentation to be done
+    with_op_name("Cat") do
+        compat_xs = tf_promote(expand_to_same_ranks(dim, xs)...)
+        if length(xs)>1
+             concat(compat_xs, dim)
+        else
+             compat_xs[1] # If only one input then, no actual concatentation to be done
+        end
     end
-  end
 end
 
 Base.cat(::Type{Tensor}, dim, values...) = cat(dim, Tensor.(values)...)
@@ -389,7 +389,7 @@ Returns:
 end
 
 @op function Base.permutedims(n::AbstractTensor, perm; name=nothing)
-    transpose(n, perm.-1; name=name)
+    transpose(n, perm - 1; name=name)
 end
 
 @define_unary Base.ctranspose transpose

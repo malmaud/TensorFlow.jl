@@ -16,9 +16,9 @@ for (jl_func, op) in [
     (:histogram, :histogram_summary),
     (:image, :image_summary)
     ]
-    @eval @tf.op function $jl_func(args...; kwargs...)
+    @eval @tf.op function $jl_func(args...; collections=[:Summaries], kwargs...)
         res = tf.Ops.$op(args...; kwargs...)
-        tf.add_to_collection(:Summaries, res)
+        foreach(c->tf.add_to_collection(c, res), collections)
         res
     end
 end
@@ -31,7 +31,7 @@ Merges all summaries collected in the default graph.
 
 Args:
   `key`: `GraphKey` used to collect the summaries.  Defaults to
-          `:summaries`
+          `:Summaries`
 
 Returns:
   If no summaries were collected, returns nothing.  Otherwise returns a scalar

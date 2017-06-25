@@ -122,6 +122,7 @@ end
         @test jl_func(a_raw) ≈ result
         result = run(sess, red_func(a, axis=0))
         @test jl_func(a_raw, 1)[1] ≈ result
+        @test run(sess, jl_func(a)) ≈ jl_func(a_raw)
     end
 
     a_raw = rand(10)

@@ -45,12 +45,14 @@ Currently, a large fraction of the computation graph-building functionality is p
 
 * Basic image-loading and resizing operations
 
+* Control flow operations (`while` loops, etc)
+
+* PyBoard graph visualization
 
 Currently not wrapped, but planned for the near future:
 
 * Distributed graph execution
-* Control flow operations (`while` loops, etc)
-* PyBoard graph visualization
+
 
 ## Limitations
 

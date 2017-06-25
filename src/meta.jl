@@ -54,7 +54,7 @@ end
 function get_variable end # pre-declare.
 
 withname(::typeof(get_variable), name) = (args...; kwargs...) -> begin
-    if isa(args[1], AbstractString)
+    if length(args) ≥ 1 && isa(args[1], AbstractString)
         get_variable(args...; kwargs...)
     else # No name provided
         get_variable(name, args...; kwargs...)

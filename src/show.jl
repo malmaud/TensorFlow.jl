@@ -130,14 +130,25 @@ end
 
 const tensorboard = Ref{Tensorboard}()
 
-function get_tensorboard()
-    if !isdefined(tensorboard, :x)
-        logdir = mktempdir()
-        _, proc = open(`tensorboard --logdir=$logdir`)
-        tensorboard[] = Tensorboard(proc, logdir, 6006)
+function Base.close(board::Tensorboard)
+    kill(board.proc, 2)
+    #rm(board.logdir, recursive=true, force=true)
+end
+
+function get_tensorboard(logdir=nothing)
+    if true#!isdefined(tensorboard, :x) || (logdir !== nothing && tensorboard[].logdir ≠ logdir)
+        if isdefined(tensorboard, :x)
+            port = tensorboard[].port + 1
+        else
+            port = 6006
+        end
+        if logdir === nothing
+            logdir = mktempdir()
+        end
+        _, proc = open(`tensorboard --logdir=$logdir --port=$port`)
+        tensorboard[] = Tensorboard(proc, logdir, port)
         atexit() do
-            kill(proc, 2)
-            rm(logdir, recursive=true, force=true)
+            close(tensorboard[])
         end
         sleep(3)
     end
@@ -164,22 +175,14 @@ browser.
 """
 function visualize end
 
-function visualize(g::Graph)
+@with_def_graph function visualize(g::Graph)
     tensorboard = get_tensorboard()
-    writer = train.SummaryWriter(tensorboard.logdir, graph=g)
+    writer = summary.FileWriter(tensorboard.logdir, graph=g)
+    visualize(writer)
     close(writer)
-    open_url("http://localhost:$(tensorboard.port)")
 end
 
-"""
-    visualize_graph([graph=get_def_graph()])
-
-Open a web browser to visualize the given graph in TensorBoard.
-
-The graph defaults to the currnet default graph.
-"""
-function visualize_graph end
-
-@with_def_graph function visualize_graph(g)
-    visualize(g)
+function visualize(writer::summary.FileWriter)
+    tensorboard = get_tensorboard(writer.logdir)
+    open_url("http://localhost:$(tensorboard.port)/#graphs")
 end
