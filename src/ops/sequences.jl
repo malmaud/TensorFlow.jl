@@ -74,9 +74,14 @@ end
     Ops.range(start, length+1, step; kwargs...)
 end
 
-@op function Base.fill(n::AbstractTensor, dims; kwargs...)
+@op function Base.fill(n::AbstractTensor, dims; kwargs...) #TODO: I think this is uncallable in 0.5
     Ops.fill(convert(Tensor{Int32}, [dims...]), n; kwargs...)
 end
+
+@op function Base.fill(n::AbstractTensor, dims::AbstractTensor; kwargs...)
+    Ops.fill(convert(Tensor{Int32}, dims), n; kwargs...)
+end
+
 
 @op function Base.reverse(x::AbstractTensor, indices; kwargs...)
     Ops.reverse_v2(x, indices; kwargs...)

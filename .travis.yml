@@ -9,15 +9,18 @@ julia:
   - 0.5
   - 0.6
   - nightly
+env:
+    - PYTHON=""
 notifications:
   email: false
 script:
     - julia -e 'Pkg.clone(pwd())'
-    - julia deps/build_pytensorflow.jl
     - julia -e 'Pkg.build("TensorFlow")'
     - julia -e 'Pkg.test("TensorFlow", coverage=true)'
 after_success:
 - julia -e 'cd(Pkg.dir("TensorFlow")); Pkg.add("Coverage"); using Coverage; Codecov.submit(process_folder())'
+- julia -e 'Pkg.add("Documenter")'
+- julia -e 'cd(Pkg.dir("TensorFlow")); include(joinpath("docs", "make.jl"))'
 matrix:
   allow_failures:
     - julia: nightly

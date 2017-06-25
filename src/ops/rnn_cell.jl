@@ -12,7 +12,7 @@ IdentityRNNCell
 
 using Compat
 import ....Main: TensorFlow
-import .TensorFlow: Operation, get_shape, get_variable, tanh, Tensor, nn
+import .TensorFlow: Operation, get_shape, get_variable, tanh, Tensor, nn, concat, expand_dims, with_op_name, AbstractTensor
 import .nn: sigmoid
 const tf = TensorFlow
 
@@ -36,13 +36,30 @@ function get_input_dim(input, input_dim)
     end
 end
 
-"""
-Form a `RNNCell` with all states initialized to zero.
-"""
-function zero_state(cell::RNNCell, batch_size, T)
-    zeros(Tensor{T}, batch_size, state_size(cell))
+
+function zero_mat(rows_like::AbstractTensor, n_cols::Integer, dtype)
+    T = dtype===nothing ? eltype(rows_like) : dtype
+    input_shape = get_shape(rows_like)
+    if input_shape.rank_unknown || isnull(input_shape.dims[1])
+        # dynamic path
+        with_op_name("DynZeroMat") do
+            n_rows = size(rows_like, 1)
+            fill(tf.constant(zero(T)), [n_rows; n_cols])
+        end
+    else
+        # static path
+        n_rows = get(input_shape.dims[1])
+        zeros(Tensor{T}, n_rows, n_cols)
+    end
 end
 
+"""
+Form a `RNNCell` with all states initialized to zero.
+The first dimention of `input` is used to deterimine the batch_size
+"""
+function zero_state(cell::RNNCell, input, dtype)
+    zero_mat(input, state_size(cell), dtype)
+end
 
 
 """
@@ -90,6 +107,7 @@ end
 
 Base.eltype{C, H}(::Type{LSTMStateTuple{C,H}}) = eltype(C)
 
+
 function tf.get_tensors(s::LSTMStateTuple)
     [s.c, s.h]
 end
@@ -114,16 +132,17 @@ state_size(cell::LSTMCell) = LSTMStateTuple(cell.hidden_size, cell.hidden_size)
 """
 Form a `LSTMCell` with all states initialized to zero.
 """
-function zero_state(cell::LSTMCell, batch_size, T)
-    LSTMStateTuple(zeros(Tensor{T}, batch_size, cell.hidden_size),
-        zeros(Tensor{T}, batch_size, cell.hidden_size))
+function zero_state(cell::LSTMCell, input, T)
+    LSTMStateTuple(zero_mat(input, cell.hidden_size, T),
+        zero_mat(input, cell.hidden_size, T))
 end
+
 
 function (cell::LSTMCell)(input, state, input_dim=-1)
     N = get_input_dim(input, input_dim) + cell.hidden_size
     T = eltype(state)
     input = Tensor(input)
-    X = cat(2, input, state.h)
+    X = [input state.h]
 
     Wi = get_variable("Wi", [N, cell.hidden_size], T)
     Wf = get_variable("Wf", [N, cell.hidden_size], T)
@@ -161,19 +180,20 @@ function (cell::GRUCell)(input, state, input_dim=-1)
     N = get_input_dim(input, input_dim) + cell.hidden_size
     input = Tensor(input)
     state = Tensor(state)
-    X = cat(2, input, state)
+    X = [input state]
     Wz = get_variable("Wz", [N, cell.hidden_size], T)
     Wr = get_variable("Wr", [N, cell.hidden_size], T)
     Wh = get_variable("Wh", [N, cell.hidden_size], T)
     local Bz, Br, Bh
-    tf.variable_scope("Bias", initializer=tf.ConstantInitializer(0.0)) do  # TODO doublecheck python also uses 0 for GRU
+    tf.variable_scope("Bias", initializer=tf.ConstantInitializer(0.0)) do
+        # TODO doublecheck python also uses 0 for GRU
         Bz = get_variable("Bz", [cell.hidden_size], T)
         Br = get_variable("Br", [cell.hidden_size], T)
         Bh = get_variable("Bh", [cell.hidden_size], T)
     end
     z = sigmoid(X*Wz + Bz)
     r = sigmoid(X*Wr + Br)
-    X2 = cat(2, input, state.*r)
+    X2 = [input state.*r]
     h = nn.tanh(sigmoid(X2*Wh + Bh))
     s2 = (1-z).*h + z.*state
     return [s2, s2]
@@ -191,8 +211,8 @@ function state_size(cell::MultiRNNCell)
     map(state_size, cell.cells)
 end
 
-function zero_state(cell::MultiRNNCell, batch_size, T)
-    [zero_state(subcell, batch_size, T) for subcell in cell.cells]
+function zero_state(cell::MultiRNNCell, input, T)
+    [zero_state(subcell, input, T) for subcell in cell.cells]
 end
 
 function (cell::MultiRNNCell)(input, state, input_dim=-1)
@@ -215,7 +235,7 @@ DropoutWrapper(cell; output_keep_prob=1.0) = DropoutWrapper(cell, Tensor(output_
 
 output_size(cell::DropoutWrapper) = output_size(cell.cell)
 state_size(cell::DropoutWrapper) = state_size(cell.cell)
-zero_state(cell::DropoutWrapper, batch_size, T) = zero_state(cell.cell, batch_size, T)
+zero_state(cell::DropoutWrapper, input, T) = zero_state(cell.cell, input, T)
 
 function (wrapper::DropoutWrapper)(input, state, input_dim=-1)
     output, new_state = wrapper.cell(input, state, input_dim)
@@ -223,4 +243,4 @@ function (wrapper::DropoutWrapper)(input, state, input_dim=-1)
     dropped_output, new_state
 end
 
-end
+end #module

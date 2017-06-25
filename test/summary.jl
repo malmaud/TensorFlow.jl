@@ -17,3 +17,11 @@ mktempdir() do tmpdir
 end
 
 get_collection(graph, :Summaries)
+
+@testset "Custom collections" begin
+    as_default(Graph()) do
+        hist_summary = tf.summary.histogram("z", randn(10), collections=[:TrainingSummary])
+        c = get_collection(:TrainingSummary)
+        @test c[1] == hist_summary
+    end
+end
