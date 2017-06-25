@@ -10,7 +10,7 @@ const cur_version = "1.1.0"
 use_gpu = "TF_USE_GPU" ∈ keys(ENV) && ENV["TF_USE_GPU"] == "1"
 
 if is_apple() && use_gpu
-    warn("No support on OS X, for GPU use. Falling back to CPU")
+    warn("No support for TF_USE_GPU on OS X. To enable the GPU, build TensorFlow from source. Falling back to CPU")
     use_gpu=false
 end
 

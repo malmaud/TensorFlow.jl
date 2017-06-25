@@ -45,7 +45,7 @@ Install via
 Pkg.add("TensorFlow")
 ```
 
-To enable support for GPU usage (Linux only), set an environment variable `TF_USE_GPU` to "1" and then rebuild the package. eg
+To enable support for GPU usage on Linux, set an environment variable `TF_USE_GPU` to "1" and then rebuild the package. eg
 
 ```julia
 ENV["TF_USE_GPU"] = "1"
@@ -53,7 +53,7 @@ Pkg.build("TensorFlow")
 ```
 
 CUDA 8.0 and cudnn are required for GPU usage.
-If you need to use a different version of CUDA you can [compile libtensorflow from source](#optional-building-the-tensorflow-library).
+If you need to use a different version of CUDA, or if you want GPU support on Mac OS X, you can [compile libtensorflow from source](#optional-building-the-tensorflow-library).
 
 Initial precompilation (eg, the first time you type `using TensorFlow`) can take around five minutes, so please be patient. Subsequent load times will only be a few seconds.
 
@@ -136,6 +136,6 @@ $ pip install --upgrade tensorflow
 
 ## Optional: Using a custom TensorFlow binary
 
-To build TensorFlow from source, or if you already have a TensorFlow binary that you wish to use, follow the instructions at https://malmaud.github.io/tfdocs/build_from_source/. This is recommended by Google for maximum performance, and is currently needed for Mac OS X GPU support.
+To build TensorFlow from source, or if you already have a TensorFlow binary that you wish to use, follow the instructions at https://malmaud.github.io/TensorFlow.jl/latest/build_from_source/. This is recommended by Google for maximum performance, and is currently needed for Mac OS X GPU support.
 
 For Linux users, a convenience script is included to use Docker to easily build the library. Just install docker and run `julia build_libtensorflow.so` from the "deps" directory of the TensorFlow.jl package. Note that this method may not link to all libraries available on the target system such as Intel MKL.
