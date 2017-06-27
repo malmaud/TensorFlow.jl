@@ -36,7 +36,7 @@ macro required(keywords...)
     for keyword in keywords
         push!(blocks, quote
             err_msg = string($(string(keyword)), " is required")
-            $keyword === nothing && error(err_msg)
+            $(esc(keyword)) === nothing && error(err_msg)
         end)
     end
     quote
