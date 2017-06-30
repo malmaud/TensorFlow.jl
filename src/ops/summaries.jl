@@ -21,12 +21,18 @@ for (jl_func, op) in [
         foreach(c->tf.add_to_collection(c, res), collections)
         res
     end
+
+    # Set the documentation of the summary function to the same as the
+    # documentation of the underlying TensorFlow op
+    @eval @doc(@doc(tf.Ops.$op), $jl_func)
 end
 
 
 const merge = tf.Ops.merge_summary
 
 """
+    merge_all(key=:Summaries)
+
 Merges all summaries collected in the default graph.
 
 Args:
