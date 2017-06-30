@@ -157,7 +157,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Visualizing with Tensorboard",
     "title": "Visualizing learning with Tensorboard",
     "category": "section",
-    "text": "You can visualize your graph structure and various learning-related statistics using Google's Tensorboard tool. Read its documentation to get a sense of how it works. Note that TensorFlow.jl does not come with Tensorboard - it comes with the Python TensorFlow package.Write out summary statistics to a file using the SummaryWriter type, which works in the same way as the Python version. Generate the summaries using the summary operations:scalar_summary\nhistogram_summary\nimage_summary\nmerge_summary\nmerge_all_summaries"
+    "text": "You can visualize your graph structure and various learning-related statistics using Google's Tensorboard tool. Read its documentation to get a sense of how it works.Write out summary statistics to a file using the summary.FileWriter type, which works in the same way as the Python version.Generate the summaries using the summary operations, documented in the reference. They incldue summary.scalar, summary.histogram, etc."
 },
 
 {
@@ -165,7 +165,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Visualizing with Tensorboard",
     "title": "Example",
     "category": "section",
-    "text": "On the training side, your code will look like thissession = Session()\n\nalpha = placeholder(Float32)\nweights = Variable(...)\n... # Set up the rest of your model\n\n# Generate some summary operations\nalpha_summmary = scalar_summary(\"Learning rate\", alpha)\nweight_summary = histogram_summary(\"Parameters\", weights)\nmerged_summary_op = merge_all_summaries()\n\n# Create a summary writer\nsummary_writer = train.SummaryWriter(\"/my_log_dir\")\n\n# Train\nfor epoch in 1:num_epochs\n  ... # Run training\n  summaries = run(session, merged_summary_op)\n  write(summary_writer, summaries, epoch)\nendThen from the console, run> tensorboard --log_dir=/my_log_dir"
+    "text": "On the training side, your code will look like thisusing TensorFlow\nsession = Session()\n\nalpha = placeholder(Float32)\nweights = Variable(...)\n... # Set up the rest of your model\n\n# Generate some summary operations\nsummary = TensorFlow.summary\nalpha_summmary = summary.scalar(\"Learning rate\", alpha)\nweight_summary = summary.histogram(\"Parameters\", weights)\nmerged_summary_op = summary.merge_all()\n\n# Create a summary writer\nsummary_writer = summary.FileWriter(\"/my_log_dir\")\n\n# Train\nfor epoch in 1:num_epochs\n  ... # Run training\n  summaries = run(session, merged_summary_op)\n  write(summary_writer, summaries, epoch)\nendThen from the console, run> tensorboard --log_dir=/my_log_dir"
 },
 
 {
@@ -614,6 +614,78 @@ var documenterSearchIndex = {"docs": [
     "title": "Readers",
     "category": "section",
     "text": "io.WholeFileReader\nio.TextLineReader\nread"
+},
+
+{
+    "location": "summary_ref.html#",
+    "page": "Summaries",
+    "title": "Summaries",
+    "category": "page",
+    "text": ""
+},
+
+{
+    "location": "summary_ref.html#Summary-reference-1",
+    "page": "Summaries",
+    "title": "Summary reference",
+    "category": "section",
+    "text": ""
+},
+
+{
+    "location": "summary_ref.html#TensorFlow.summary.FileWriter",
+    "page": "Summaries",
+    "title": "TensorFlow.summary.FileWriter",
+    "category": "Type",
+    "text": "FileWriter(logdir; graph=get_def_graph())\n\nThe FileWriter type provides a mechanism to create an event file in a given directory and add summaries and events to it. The class updates the file contents asynchronously. This allows a training program to call methods to add data to the file directly from the training loop, without slowing down training.\n\nOn construction the summary writer creates a new event file in logdir.\n\nIf you pass a Graph to the constructor it is added to the event file.\n\nArguments:\n\nlogdir: A string. Directory where event file will be written.\ngraph: A Graph object.\n\n\n\n"
+},
+
+{
+    "location": "summary_ref.html#Writing-event-files-1",
+    "page": "Summaries",
+    "title": "Writing event files",
+    "category": "section",
+    "text": "TensorFlow.summary.FileWriter"
+},
+
+{
+    "location": "summary_ref.html#TensorFlow.summary.summary_ops.scalar",
+    "page": "Summaries",
+    "title": "TensorFlow.summary.summary_ops.scalar",
+    "category": "Function",
+    "text": " scalar_summary(tags, values)\n\nOutputs a Summary protocol buffer with scalar values.\n\nThe input tags and values must have the same shape.  The generated summary has a summary value for each tag-value pair in tags and values.\n\n\n\n\n\n"
+},
+
+{
+    "location": "summary_ref.html#TensorFlow.summary.summary_ops.histogram",
+    "page": "Summaries",
+    "title": "TensorFlow.summary.summary_ops.histogram",
+    "category": "Function",
+    "text": " histogram_summary(tag, values)\n\nOutputs a Summary protocol buffer with a histogram.\n\nThe generated Summary has one summary value containing a histogram for values.\n\nThis op reports an InvalidArgument error if any value is not finite.\n\n\n\n\n\n"
+},
+
+{
+    "location": "summary_ref.html#TensorFlow.summary.summary_ops.image",
+    "page": "Summaries",
+    "title": "TensorFlow.summary.summary_ops.image",
+    "category": "Function",
+    "text": " image_summary(tag, tensor; max_images=3, bad_color=?)\n\nOutputs a Summary protocol buffer with images.\n\nThe summary has up to max_images summary values containing images. The images are built from tensor which must be 4-D with shape [batch_size, height, width, channels] and where channels can be:\n\n1: tensor is interpreted as Grayscale.\n3: tensor is interpreted as RGB.\n4: tensor is interpreted as RGBA.\n\nThe images have the same number of channels as the input tensor. For float input, the values are normalized one image at a time to fit in the range [0, 255].  uint8 values are unchanged.  The op uses two different normalization algorithms:\n\nIf the input values are all positive, they are rescaled so the largest one  is 255.\nIf any input value is negative, the values are shifted so input value 0.0  is at 127.  They are then rescaled so that either the smallest value is 0,  or the largest one is 255.\n\nThe tag argument is a scalar Tensor of type string.  It is used to build the tag of the summary values:\n\nIf max_images is 1, the summary value tag is 'tag/image'.\nIf max_images is greater than 1, the summary value tags are  generated sequentially as 'tag/image/0', 'tag/image/1', etc.\n\nThe bad_color argument is the color to use in the generated images for non-finite input values.  It is a unit8 1-D tensor of length channels. Each element must be in the range [0, 255] (It represents the value of a pixel in the output image).  Non-finite values in the input tensor are replaced by this tensor in the output image.  The default value is the color red.\n\n\n\n\n\n"
+},
+
+{
+    "location": "summary_ref.html#TensorFlow.summary.summary_ops.merge_all",
+    "page": "Summaries",
+    "title": "TensorFlow.summary.summary_ops.merge_all",
+    "category": "Function",
+    "text": "merge_all(key=:Summaries)\n\nMerges all summaries collected in the default graph.\n\nArgs:   key: GraphKey used to collect the summaries.  Defaults to           :Summaries\n\nReturns:   If no summaries were collected, returns nothing.  Otherwise returns a scalar   Tensor of type String containing the serialized Summary protocol   buffer resulting from the merging.\n\n\n\n"
+},
+
+{
+    "location": "summary_ref.html#Summary-operations-1",
+    "page": "Summaries",
+    "title": "Summary operations",
+    "category": "section",
+    "text": "TensorFlow.summary.scalar\nTensorFlow.summary.histogram\nTensorFlow.summary.image\nTensorFlow.summary.merge_all"
 },
 
 {
