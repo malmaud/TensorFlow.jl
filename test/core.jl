@@ -4,7 +4,7 @@ using TensorFlow
 @testset "TensorShape" begin
     @test TensorShape([]) == TensorShape(Nullable{Int}[],false)
     @test TensorShape(collect(tuple())) == TensorShape([],false)
-    
+
     @test TensorShape([-1, 15]) == TensorShape([Nullable{Int}(), Nullable{Int}(15)], false)
     @test TensorShape([10, 12]) == TensorShape([Nullable{Int}(10), Nullable{Int}(12)], false)
 
@@ -77,7 +77,9 @@ end
             unused = get_variable("unused", [], Float64)
             used = get_variable("used", [], Float64)
             loss = used.^2
-            optimizer = train.minimize(train.AdamOptimizer(), loss)
+            grad = gradients(loss, unused)
+            @test grad === nothing
+            # optimizer = train.minimize(ætrain.AdamOptimizer(), loss)
             # This would have thrown an error if Disconnected gradients were causing issues
         end
     end
@@ -105,4 +107,3 @@ end
     end
 
 end
-

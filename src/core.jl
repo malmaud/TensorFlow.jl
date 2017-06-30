@@ -1513,6 +1513,23 @@ end
 
 gradients(y, x, grad_y=nothing) = gradients(y, [x], grad_y)[1]
 
+function c_gradients(y, x, dx=nothing)
+    status = Status()
+    graph = get_def_graph()
+    grads = Array{Port}(length(x))
+    if dx === nothing
+        c_dx = C_NULL
+    else
+        c_dx = Port.(Tensor.(dx))
+    end
+    @tfcall(:TF_AddGradients, Void,
+        (Ptr{Void}, Ptr{Void}, Cint, Ptr{Void}, Cint, Ptr{Void}, Ptr{Void}, Ptr{Void}),
+        graph.ptr, Port.(y), length(y), Port.(x), length(x), c_dx, status.ptr, grads
+    )
+    check_status(status)
+    return Tensor.(grads)
+end
+
 function get_num_outputs(op::Operation)
     @tfcall(:TF_OperationNumOutputs, Cint, (Ptr{Void},), op.ptr) |> Int
 end

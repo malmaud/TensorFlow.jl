@@ -1,7 +1,8 @@
 using PyCall
 using Conda
 
-const cur_version = "1.1.0"
+const cur_version = "1.2.0"
+const cur_py_version = "1.1.0"
 
 ############################
 # Determine if using GPU
@@ -34,7 +35,7 @@ if PyCall.conda
     if is_apple() #default repo does not have tensorflow for os x
         Conda.add_channel("conda-forge")
     end
-    Conda.add(python_package * "=" * cur_version)
+    Conda.add(python_package * "=" * cur_py_version)
 else
     try
         pyimport("tensorflow")
@@ -146,5 +147,3 @@ end
     mv("libtensorflow.so", "usr/bin/libtensorflow.so", remove_destination=true)
 end
 =#
-
-
