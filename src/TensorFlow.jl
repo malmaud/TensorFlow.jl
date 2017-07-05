@@ -121,11 +121,8 @@ enqueue_many,
 dequeue,
 dequeue_many,
 get_all_op_list,
-Ops
-
-
-isdefined(Base, :⊻) || (export ⊻)
-isdefined(Base, :slice) || (export slice)
+Ops,
+slice
 
 const pyproc = Ref(0)
 
