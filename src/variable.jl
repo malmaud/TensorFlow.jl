@@ -29,15 +29,14 @@ import .tf.Ops:
 
 import Distributions
 
-type Variable{T} <: tf.AbstractTensor{T}
+mutable struct Variable{T} <: tf.AbstractTensor{T}
     var_node::tf.Tensor{T}
     assign_node::tf.Tensor{T}
 
-    # Variable{T}() where T = new{T}() once we branch on Julia 0.6
-    (::Type{Variable{T}}){T}() = new{T}()
+    Variable{T}() where {T} = new{T}()
 end
 
-function Variable{T}(var_node::tf.Tensor{T}, assign_node::tf.Tensor{T})
+function Variable(var_node::tf.Tensor{T}, assign_node::tf.Tensor{T}) where T
     v = Variable{T}()
     v.var_node = var_node
     v.assign_node = assign_node

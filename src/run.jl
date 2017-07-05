@@ -112,7 +112,7 @@ function run(sess::Session, inputs, input_values, outputs, targets)
     return [as_native(RawTensor(x)) for x in output_values]
 end
 
-function cast_type{Q<:Number}(T, val::AbstractArray{Q})
+function cast_type(T, val::AbstractArray{<:Number})
     convert(Array{T}, val)
 end
 
@@ -196,4 +196,4 @@ run(sess::Session, outputs) = run(sess, outputs, Dict())
 
 # Add ability to 'run' a numeric literal (for testing, generally)
 run(sess::Session, output::Number) = run(sess, Tensor(output))
-run{T<:Number}(sess::Session, output::Array{T}) = run(sess, Tensor(output))
+run(sess::Session, output::Array{<:Number}) = run(sess, Tensor(output))

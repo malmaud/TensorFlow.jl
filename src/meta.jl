@@ -4,9 +4,9 @@ using Compat
 const tf = TensorFlow
 
 # Use Holy traits to define if something is a known Op or not
-@compat abstract type OpRegistration end
-immutable RegisteredOp <: OpRegistration end
-immutable NotRegisteredOp <: OpRegistration end
+abstract type OpRegistration end
+struct RegisteredOp <: OpRegistration end
+struct NotRegisteredOp <: OpRegistration end
 
 is_registered_op(::DataType) = NotRegisteredOp() # By default nothing is registered
 

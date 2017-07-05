@@ -203,7 +203,7 @@ end
 
 Represents an object that continually enqueues elements to a TensorFlow queue in parallel with other operations.
 """
-type QueueRunner
+mutable struct QueueRunner
     queue
     enqueue_ops
     QueueRunner() = new()

@@ -5,7 +5,7 @@
 
 using MacroTools
 
-immutable OpFunc
+struct OpFunc
     expr::Expr
     docstring::String
     name::Symbol

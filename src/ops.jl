@@ -3,10 +3,6 @@ import Base: log, exp, +, -, *, /, ^, sin, cos, tan, asin, acos, atan, div, tanh
 import TensorFlow
 const tf = TensorFlow # so know where op_funcs is defined
 
-if VERSION < v"0.6.0-dev.1632"
-    import Base: .*, .+, ./, .-, .^, .==, .!=
-end
-
 """
     tf_promote(args...)
 
@@ -187,7 +183,3 @@ include("ops/image.jl")
 include("ops/queues.jl")
 include("ops/clipping.jl")
 include("ops/init_ops.jl")
-
-if VERSION >= v"0.6.0-dev.2123"
-    include("ops/v6_ops.jl")
-end
