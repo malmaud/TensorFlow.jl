@@ -22,7 +22,7 @@ https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#size
 @define_unary Base.endof length
 
 
-immutable TensorRange
+struct TensorRange
     start::Tensor{Int32}
     stop::Tensor{Int32}
 end

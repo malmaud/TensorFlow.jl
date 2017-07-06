@@ -24,10 +24,7 @@ Returns:
     n
 end
 
-import Base: &, |, ~
-if isdefined(Base, :⊻)
-    import Base: ⊻
-end
+import Base: &, |, ~, ⊻
 
 for (sym, f) in [(:&, :logical_and), (:|, :logical_or), (:⊻, :logical_xor)]
     @eval @define_binary $sym $f

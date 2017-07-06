@@ -58,19 +58,11 @@ end
 
 const matmul = mat_mul
 
-@static if VERSION > v"0.6.0-dev.1632"  # Cope with changes in broadcasting in Julia 0.6
-    @define_broadcast(*, mul)
-    @define_broadcast(+, add)
-    @define_broadcast(-, sub)
-    @define_broadcast(/, Ops.div)
-    @define_broadcast(^, pow)
-else
-    @define_binary(.*, mul)
-    @define_binary(.+, add)
-    @define_binary(.-, sub)
-    @define_binary(./, Ops.div)
-    @define_binary(.^, pow)
-end
+@define_broadcast(*, mul)
+@define_broadcast(+, add)
+@define_broadcast(-, sub)
+@define_broadcast(/, Ops.div)
+@define_broadcast(^, pow)
 
 @op function batch_matmul(x::AbstractTensor,y::AbstractTensor; adj_x=false, adj_y=false, name=nothing)
     if tf_version() >= v"1.0.0-"

@@ -1,4 +1,4 @@
-immutable ConstantInitializer{T}
+struct ConstantInitializer{T}
     value::T
 end
 
