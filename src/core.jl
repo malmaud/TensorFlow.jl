@@ -4,6 +4,7 @@ using Compat
 using Compat.Iterators
 using MacroTools
 using AutoHashEquals
+using UnalignedVectors
 
 import Base: setindex!, getindex, run, ==
 
@@ -1045,7 +1046,7 @@ function load_proto(tensor::tensorflow.TensorProto)
                 push!(val, val_i)
             end
         else
-            val = reinterpret(eltype(val), tensor.tensor_content)
+            val = Vector{eltype(val)}(unaligned_reinterpret(eltype(val), tensor.tensor_content))
         end
     end
     if length(val) == 0 && length(dim) == 0

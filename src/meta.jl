@@ -20,10 +20,10 @@ macro op(f)
         end => opname
     end
     opname === nothing && error("Invalid usage of @op")
-    # opname = f.args[1].args[1]
+
     already_registered = opname ∈ registered_ops
     push!(registered_ops, opname)
-    @assert(isdefined(:tf)) # Need tf as name for module where this code is located
+
     if already_registered
         register_block = nothing
     else
