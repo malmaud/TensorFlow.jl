@@ -1,3 +1,7 @@
-ignore:
-  - "src/ops/imported_ops.jl"
-  
+coverage:
+  ignore:
+    - "src/ops/imported_ops.jl"
+  status:
+    patch:
+      default:
+        threshold: 50%
