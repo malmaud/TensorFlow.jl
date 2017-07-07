@@ -17,8 +17,8 @@ end
 for f in [:zeros, :ones]
     @eval Base.$f(::Type{Tensor}, args...) = $f(Tensor{Float32}, args...)
     @eval Base.$f(::Type{Tensor}, args::Tuple) = $f(Tensor, args...)
-    @eval Base.$f{T}(::Type{Tensor{T}}, args...) = constant($f(T, args...))
-    @eval Base.$f{T}(::Type{Tensor{T}}, args::Tuple) = constant($f(T, args))
+    @eval Base.$f(::Type{Tensor{T}}, args...) where {T} = constant($f(T, args...))
+    @eval Base.$f(::Type{Tensor{T}}, args::Tuple) where {T} = constant($f(T, args))
 end
 
 @op function random_normal(shape; mean=0.0, stddev=1.0, name=nothing, kwargs...)
@@ -85,4 +85,8 @@ end
 
 @op function Base.reverse(x::AbstractTensor, indices; kwargs...)
     Ops.reverse_v2(x, indices; kwargs...)
+end
+
+@op function Base.fill(n::AbstractTensor, dims::Tuple{Vararg{Int64, N}} where N; kwargs...)
+    invoke(fill, Tuple{AbstractTensor, Any}, n, dims; kwargs...)
 end

@@ -31,7 +31,7 @@ import ..TensorFlow: Graph, Operation, get_def_graph, extend_graph, gradients, v
 import TensorFlow
 const tf = TensorFlow
 
-@compat abstract type Optimizer end
+abstract type Optimizer end
 
 @op function minimize(optimizer::Optimizer, loss; global_step=nothing, var_list=nothing, name=nothing)
     if name == nothing

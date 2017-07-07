@@ -62,7 +62,7 @@ function version_check(v)
     end
 end
 
-type Status
+mutable struct Status
     ptr::Ptr{Void}
     function Status()
         ptr = @tfcall(:TF_NewStatus, Ptr{Void}, ())
@@ -79,7 +79,7 @@ function get_code(s::Status)
     return TF_Code(code)
 end
 
-immutable DevicePart{IndexType}
+struct DevicePart{IndexType}
     name::String
     index::IndexType
 end
@@ -87,7 +87,7 @@ end
 device_index_from_zero(part::DevicePart{Int}) = "$(part.name):$(part.index-1)"
 device_index_from_zero(part::DevicePart) = "$(part.name):$(part.index)"
 
-immutable Device
+struct Device
     parts::Vector{DevicePart}
 end
 
@@ -165,7 +165,7 @@ end
 
 with_device(f, device) = with_device(f, Device(device))
 
-immutable OperationContext
+struct OperationContext
     control_ops::Vector{Vector{Any}}  # Can't make Operation to break type cycle
     names::Vector{String}
     while_context::Vector{tensorflow.WhileContextDef}
@@ -179,7 +179,7 @@ end
 end
 
 
-function TensorShape{T<:Integer}(dims::AbstractVector{T})
+function TensorShape(dims::AbstractVector{<:Integer})
     TensorShape([x<0 ? Nullable{Int}() : Nullable{Int}(x) for x in dims])
 end
 
@@ -202,7 +202,7 @@ function get_shape end
 """
 A TensorFlow computation graph
 """
-type Graph
+mutable struct Graph
     ptr::Ptr{Void}
     collections::Dict{Symbol, Any}
     shapes::Dict{String, TensorShape}
@@ -229,47 +229,26 @@ function Base.show(io::IO, g::Graph)
     print(io, "Graph($(g.ptr))")
 end
 
-# There is a bug in Julia v0.5.0 that requires using the
-# the non-MacroTools version of this function. The old
-# branch will be eliminated eventually.
-if VERSION >= v"0.5.1"
-    function with_def_graph(ex)
-        ex = longdef(ex)
-        (@capture ex begin
-            function f_(args__; kwargs__)
-                body_
-            end
-        end) ||
-        (@capture ex begin
-            function f_(args__)
-                body_
-            end
-        end) ||
-        error("Improper use of with_def_graph")
-        (kwargs === nothing) && (kwargs = [])
-        new_args = args[2:end]
-        quote
-            function $f($(new_args...); $(kwargs...))
-                $f(TensorFlow.get_def_graph(), $(new_args...); $(kwargs...))
-            end
-        end
-    end
-else
-    function with_def_graph(ex)
-        ex.head == :function || error("Improper use of with_def_graph")
-        new_func = Expr(:function)
-        old_call_sig = ex.args[1]
-        new_call_sig = Expr(:call, old_call_sig.args[1], old_call_sig.args[3:end]...)
-        push!(new_func.args, new_call_sig)
-        new_body = Expr(:call, old_call_sig.args[1], Expr(:call, :get_def_graph))
-        extract_arg(x::Symbol) = x
-        extract_arg(x::Expr) = x.args[1]
-        for arg in old_call_sig.args[3:end]
-            push!(new_body.args, extract_arg(arg))
-        end
 
-        push!(new_func.args, new_body)
-        new_func
+function with_def_graph(ex)
+    ex = longdef(ex)
+    (@capture ex begin
+        function f_(args__; kwargs__)
+            body_
+        end
+    end) ||
+    (@capture ex begin
+        function f_(args__)
+            body_
+        end
+    end) ||
+    error("Improper use of with_def_graph")
+    (kwargs === nothing) && (kwargs = [])
+    new_args = args[2:end]
+    quote
+        function $f($(new_args...); $(kwargs...))
+            $f(TensorFlow.get_def_graph(), $(new_args...); $(kwargs...))
+        end
     end
 end
 
@@ -406,7 +385,7 @@ end
     import_graph_def(graph, new_graph, import_options)
 end
 
-type SessionOptions
+mutable struct SessionOptions
     ptr::Ptr{Void}
 
     function SessionOptions()
@@ -424,7 +403,7 @@ function set_tf_finalizer(options::SessionOptions)
     options
 end
 
-immutable TFException <: Exception
+struct TFException <: Exception
     status::Status
 end
 
@@ -507,7 +486,7 @@ end
 """
 A TensorFlow session.
 """
-type Session
+mutable struct Session
     ptr::Ptr{Void}
     graph::Graph
 
@@ -546,7 +525,7 @@ type Session
 end
 
 
-type Buffer
+mutable struct Buffer
     ptr::Ptr{Void}
 
     function Buffer(s::Vector{UInt8})
@@ -572,7 +551,7 @@ function set_tf_finalizer(buffer::Buffer)
     end)
 end
 
-immutable BufferStruct
+struct BufferStruct
     data::Ptr{UInt8}
     len::Csize_t
     deallocator::Ptr{Void}
@@ -603,14 +582,14 @@ function convert_major_order(array)
     permutedims(array, length(size(array)):-1:1)
 end
 
-immutable EmptyTensorError <: Exception
+struct EmptyTensorError <: Exception
 end
 
 function Base.show(io::IO, err::EmptyTensorError)
     print(io, "Creating tensors from empty arrays is not allowed")
 end
 
-type RawTensor
+mutable struct RawTensor
     ptr::Ptr{Void}
     data::Array  # To avoid underlying data being GCed
 
@@ -816,7 +795,7 @@ end
 
 set_device(node_desc, device::Device) = set_device(node_desc, device_index_from_zero(device))
 
-type NodeDescription
+mutable struct NodeDescription
     ptr::Ptr{Void}
     graph::Graph
 
@@ -847,12 +826,12 @@ end
 
 get_graph(desc::NodeDescription) = Nullable(desc.graph)
 
-@compat abstract type AbstractOperation end
+abstract type AbstractOperation end
 
 """
 An operation in the computation graph.
 """
-type Operation <: AbstractOperation
+mutable struct Operation <: AbstractOperation
     ptr::Ptr{Void}
     graph::Nullable{Graph}
     op_name::String
@@ -863,7 +842,7 @@ end
 ==(op1::Operation, op2::Operation) = op1.ptr == op2.ptr
 Base.hash(op::Operation, h::UInt) = hash(Operation, hash(op.ptr, h))
 
-immutable Port
+struct Port
     node_ptr::Ptr{Void}
     index::Int
 end
@@ -881,7 +860,7 @@ function get_input_list_length(op::Operation, arg_name)
     Int(out)
 end
 
-immutable AttrMetadata
+struct AttrMetadata
     is_list::Bool
     list_size::Int64
     _type::Int32
@@ -1015,7 +994,7 @@ function Operation(ptr::Ptr)
     return self
 end
 
-immutable NodeNameNotFound <: Exception
+struct NodeNameNotFound <: Exception
     name::String
 end
 
@@ -1170,7 +1149,7 @@ const proto_type_map = Dict(
     dt.DT_COMPLEX64=>Complex64,
     dt.DT_COMPLEX128=>Complex128)
 
-@compat abstract type AbstractTensor{T} end
+abstract type AbstractTensor{T} end
 
 """
 Represents the output of an operation in the computation graph
@@ -1189,16 +1168,16 @@ end
 
 Tensor(op::Operation) = Tensor(op, 1)
 
-Base.convert{T}(::Type{Tensor{T}}, value::AbstractTensor) = convert(Tensor{T}, convert(Tensor, value))
+Base.convert(::Type{Tensor{T}}, value::AbstractTensor) where {T} = convert(Tensor{T}, convert(Tensor, value))
 Base.convert(::Type{Tensor}, value) = constant(value)
 Base.convert(::Type{Tensor}, value::Tensor) = value
 
-Base.convert{T, R}(::Type{Tensor{T}}, value::Tensor{R}) = cast(value, T)
-Base.convert{T}(::Type{Tensor{T}}, value::Tensor{T}) = value
-Base.convert{R}(::Type{Tensor{Any}}, value::Tensor{R}) = convert(Tensor, value)
+Base.convert(::Type{Tensor{T}}, value::Tensor{R}) where {T, R} = cast(value, T)
+Base.convert(::Type{Tensor{T}}, value::Tensor{T}) where {T} = value
+Base.convert(::Type{Tensor{Any}}, value::Tensor{R}) where {R} = convert(Tensor, value)
 Base.convert(::Type{Tensor{Any}}, value::Tensor{Any}) = value
 
-function Base.convert{T}(::Type{Tensor{T}}, value)
+function Base.convert(::Type{Tensor{T}}, value) where T
     convert(Tensor{T}, constant(value))
 end
 
@@ -1225,7 +1204,7 @@ function get_output_type(t::AbstractTensor)
     end
 end
 
-Base.eltype{T}(::Type{AbstractTensor{T}}) = T
+Base.eltype(::Type{AbstractTensor{T}}) where {T} = T
 
 Port(t::Tensor) = Port(t.op.ptr, t.value_index-1)
 Port(op::Operation) = Port(Tensor(op))
@@ -1296,17 +1275,17 @@ function setindex!(desc::NodeDescription, value::Vector, attr_name)
     set_attr_list(desc, attr_name, value)
 end
 
-function set_attr_list{T<:Integer}(desc::NodeDescription, attr_name, list::Vector{T})
+function set_attr_list(desc::NodeDescription, attr_name, list::Vector{<:Integer})
     list = Int64[Int64(x) for x in list]
     @tfcall(:TF_SetAttrIntList, Void, (Ptr{Void}, Cstring, Ptr{Int64}, Cint), desc.ptr, attr_name, list, length(list))
 end
 
-function set_attr_list{T<:AbstractFloat}(desc::NodeDescription, attr_name, list::Vector{T})
+function set_attr_list(desc::NodeDescription, attr_name, list::Vector{<:AbstractFloat})
     list = Float32[Float32(x) for x in list]
     @tfcall(:TF_SetAttrFloatList, Void, (Ptr{Void}, Cstring, Ptr{Float32}, Cint), desc.ptr, attr_name, list, length(list))
 end
 
-function set_attr_list{T<:DataType}(desc::NodeDescription, attr_name, list::Vector{T})
+function set_attr_list(desc::NodeDescription, attr_name, list::Vector{<:DataType})
     list = map(jl_to_df_type, list)
     @tfcall(:TF_SetAttrTypeList, Void, (Ptr{Void}, Cstring, Ptr{Void}, Cint), desc.ptr, attr_name, list, length(list))
 end
@@ -1369,7 +1348,7 @@ function Base.convert(::Type{Array}, t::RawTensor)
     end
 end
 
-function Base.convert{T<:Union{Number, String}}(::Type{T}, t::RawTensor)
+function Base.convert(::Type{<:Union{Number, String}}, t::RawTensor)
     @assert ndims(t)==0
     return convert(Array, t)[]
 end
@@ -1547,19 +1526,19 @@ end
 get_op(op::Operation) = op
 get_op(t::AbstractTensor) = Tensor(t).op
 
-immutable IndexedSlices{ValueT, IndexT}
+struct IndexedSlices{ValueT, IndexT}
     values::ValueT
     indices::IndexT
 end
 
-Base.eltype{ValueT, IndexT}(::Type{IndexedSlices{ValueT, IndexT}}) = eltype(ValueT)
+Base.eltype(::Type{IndexedSlices{ValueT, IndexT}}) where {ValueT, IndexT} = eltype(ValueT)
 
-immutable IndexedSlicesValue{ValueT, IndexT}
+struct IndexedSlicesValue{ValueT, IndexT}
     values::ValueT
     indices::IndexT
 end
 
-type GraphImportOptions
+mutable struct GraphImportOptions
     input_mapping::Dict{Tuple{String, Int}, Tensor}
     return_output::Vector{Tuple{String, Int}}
     control_dependencies::Vector{Operation}
@@ -1607,11 +1586,11 @@ end
     import_graph_def(graph, data, options)
 end
 
-immutable OperationIterator
+struct OperationIterator
     graph::Graph
 end
 
-immutable OperationIteratorState
+struct OperationIteratorState
     next_op::Nullable{Operation}
     pos::Int
 end

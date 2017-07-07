@@ -42,7 +42,7 @@ function Base.show(io::IO, n::Operation)
     print(io, "<Operation '$(node_name(n))'>")
 end
 
-function Base.show{T}(io::IO, t::Tensor{T})
+function Base.show(io::IO, t::Tensor{T}) where T
     @assert T==eltype(t)
 
     s = get_shape(t)
@@ -122,7 +122,7 @@ function Base.show(io::IO, desc::tensorflow.NodeDef)
     end
 end
 
-immutable Tensorboard
+struct Tensorboard
     proc::Base.Process
     logdir::String
     port::Int

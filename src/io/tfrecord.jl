@@ -8,7 +8,7 @@ import TensorFlow
 const tf = TensorFlow
 using PyCall
 
-immutable RecordWriter
+struct RecordWriter
     pyo::Future
 end
 
@@ -46,11 +46,11 @@ function Base.close(writer::RecordWriter)
     fetch(@tf.py_proc $(writer.pyo)[:close]())
 end
 
-immutable RecordIterator
+struct RecordIterator
     pyo::Future
 end
 
-immutable RecordIteratorState
+struct RecordIteratorState
     val::Nullable{Vector{UInt8}}
 end
 

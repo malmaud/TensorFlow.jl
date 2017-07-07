@@ -25,7 +25,7 @@ Types that implement this type (`T<:RNNCell`) are expected to provide methods fo
  - `nn.rnn_cell.output_size(c::T)` returning an Integer of the output size
  - `(cell::T)(input, state, input_dim)`, returning a Vector of length 2, of the output tensor and the state, after running the cell
 """
-@compat abstract type RNNCell end
+abstract type RNNCell end
 
 
 function get_input_dim(input, input_dim)
@@ -65,7 +65,7 @@ end
 """
 Dummy RNN cell for testing, always gives back its input
 """
-immutable IdentityRNNCell <: nn.rnn_cell.RNNCell
+struct IdentityRNNCell <: nn.rnn_cell.RNNCell
     input_and_output_size::Int64
 end
 (cell::IdentityRNNCell)(input, state, input_dim=-1) = [input, input]
@@ -74,7 +74,7 @@ state_size(c::IdentityRNNCell)=c.input_and_output_size
 
 
 
-immutable BasicRNNCell <: RNNCell
+struct BasicRNNCell <: RNNCell
     hidden_size::Int
 end
 output_size(cell::BasicRNNCell) = cell.hidden_size
@@ -100,12 +100,12 @@ end
 
 output_size(cell::LSTMCell) = cell.hidden_size
 
-immutable LSTMStateTuple{C, H}
+struct LSTMStateTuple{C, H}
     c::C
     h::H
 end
 
-Base.eltype{C, H}(::Type{LSTMStateTuple{C,H}}) = eltype(C)
+Base.eltype(::Type{LSTMStateTuple{C,H}}) where {C, H} = eltype(C)
 
 
 function tf.get_tensors(s::LSTMStateTuple)
@@ -168,7 +168,7 @@ function (cell::LSTMCell)(input, state, input_dim=-1)
     return (S, LSTMStateTuple(C, S))
 end
 
-type GRUCell <: RNNCell
+mutable struct GRUCell <: RNNCell
     hidden_size::Int
 end
 
@@ -199,7 +199,7 @@ function (cell::GRUCell)(input, state, input_dim=-1)
     return [s2, s2]
 end
 
-type MultiRNNCell <: RNNCell
+mutable struct MultiRNNCell <: RNNCell
     cells::Vector{RNNCell}
 end
 
@@ -226,7 +226,7 @@ function (cell::MultiRNNCell)(input, state, input_dim=-1)
     input, states
 end
 
-type DropoutWrapper{CellType<:RNNCell} <: RNNCell
+mutable struct DropoutWrapper{CellType<:RNNCell} <: RNNCell
     cell::CellType
     output_keep_prob::Tensor
 end
