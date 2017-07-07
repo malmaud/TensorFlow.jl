@@ -21,10 +21,12 @@ for f in [:zeros, :ones]
     @eval Base.$f{T}(::Type{Tensor{T}}, args::Tuple) = constant($f(T, args))
 end
 
-@op function random_normal(shape; mean=0.0, stddev=1.0, name=nothing, kwargs...)
+@op function random_normal(shape; mean=0.0, stddev=1.0, dtype=Float32, name=nothing, kwargs...)
     local out
     with_op_name(name, "random_normal") do
-        standard = Ops.random_standard_normal(shape; name=name, kwargs...)
+        mean = convert(Tensor{dtype}, mean)
+        stddev = convert(Tensor{dtype}, stddev)
+        standard = Ops.random_standard_normal(shape; name=name, dtype=dtype, kwargs...)
         out = standard.*stddev + mean
     end
     out
@@ -53,6 +55,8 @@ A `Tensor` of the specified `shape` and `dtype` containing random values.
         seed1 = 0
         # TODO use global seed
         seed2 = seed
+        minval = convert(Tensor{dtype}, minval)
+        maxval = convert(Tensor{dtype}, maxval)
         r = random_uniform(shape; seed=seed1, seed2=seed2, dtype=dtype, name=name)
         out = r .* (maxval-minval) + minval
     end

@@ -747,7 +747,7 @@ for func in ["RandomStandardNormal", "RandomUniform"]
         if isnull(shape_value)
             [TensorShape(nothing)]
         else
-            [get(shape_value)]
+            [TensorShape(get(shape_value))]
         end
     end
 end
