@@ -1,4 +1,4 @@
-julia 0.5
+julia 0.6
 ProtoBuf 0.3.0
 PyCall 1.7.1
 Conda 0.2.3
