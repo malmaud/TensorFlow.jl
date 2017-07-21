@@ -182,3 +182,14 @@ end
     loss = nn.l2_loss(constant(x))
     @test run(sess, loss) ≈ sum(x.^2)/2
 end
+
+@testset "top_k" begin
+    sess = Session(Graph())
+    inputs = constant([1,10,2,7,3])
+    topk_values, topk_indices = run(sess, nn.top_k(inputs,1))
+    @test topk_values == [10]
+    @test topk_indices == [2]
+    topk_values, topk_indices = run(sess, nn.top_k(inputs,2))
+    @test topk_values == [10,7]
+    @test topk_indices == [2,4]
+end

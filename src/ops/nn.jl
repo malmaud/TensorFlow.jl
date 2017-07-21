@@ -322,8 +322,8 @@ Args:
 * `sorted`: If `true` (default), the returned values will be sorted in descending order.
 """
 @op function top_k(input, k=1; kwargs...)
-    op = tf.get_op(Ops.top_kv_2(input, k; kwargs...))
-    tf.Tensor(op, 1), tf.Tensor(op, 2)+1
+    op1, op2 = Ops.top_kv2(input, k; kwargs...)
+    op1, op2+1
 end
 
 """
