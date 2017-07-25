@@ -1,4 +1,5 @@
 using Juno
+using PyCall
 import Juno: Tree, Row, fade, interleave
 
 @render Juno.Inline t::Tensor begin
@@ -132,26 +133,51 @@ const tensorboard = Ref{Tensorboard}()
 
 function Base.close(board::Tensorboard)
     kill(board.proc, 2)
-    #rm(board.logdir, recursive=true, force=true)
+end
+
+"""
+    find_tensorboard()
+
+Return the path to the tensorboard executable.
+
+Checks everywhere in the system path, as well in the binary python directory
+associated with the Conda.jl installation, should it exist.
+"""
+function find_tensorboard()
+    path = nothing
+    dirs = split(ENV["PATH"], ":")
+    if PyCall.conda
+        import Conda
+        push!(dirs, Conda.BINDIR)
+    end
+    for dir in dirs
+        loc = joinpath(dir, "tensorboard")
+        if isfile(loc)
+            path = loc
+        end
+    end
+    return path
 end
 
 function get_tensorboard(logdir=nothing)
-    if true#!isdefined(tensorboard, :x) || (logdir !== nothing && tensorboard[].logdir ≠ logdir)
-        if isdefined(tensorboard, :x)
-            port = tensorboard[].port + 1
-        else
-            port = 6006
-        end
-        if logdir === nothing
-            logdir = mktempdir()
-        end
-        _, proc = open(`tensorboard --logdir=$logdir --port=$port`)
-        tensorboard[] = Tensorboard(proc, logdir, port)
-        atexit() do
-            close(tensorboard[])
-        end
-        sleep(3)
+    if isdefined(tensorboard, :x)
+        port = tensorboard[].port + 1
+    else
+        port = 6006
     end
+    if logdir === nothing
+        logdir = mktempdir()
+    end
+    path = find_tensorboard()
+    if path === nothing
+        error("The tensorboard binary was not found. Make sure `tensorboard` is in your system path.")
+    end
+    _, proc = open(`$path --logdir=$logdir --port=$port`)
+    tensorboard[] = Tensorboard(proc, logdir, port)
+    atexit() do
+        close(tensorboard[])
+    end
+    sleep(3)
     tensorboard[]
 end
 
