@@ -45,12 +45,23 @@ macro required(keywords...)
 end
 
 """
-    tf_version()
+    tf_version(kind=:julia)
 
-Return the version number of the C tensorflow library.
+Return the version number of the tensorflow library.
+
+If `kind` is `:julia`, return the version of the TensorFlow binary loaded
+into the Julia process.
+
+If `kind` is `:python`, return the version of the Python API.
 """
-function tf_version()
-    res = @tfcall(:TF_Version, Cstring, ()) |> unsafe_string
+function tf_version(; kind=:julia)
+    if kind == :julia
+        res = @tfcall(:TF_Version, Cstring, ()) |> unsafe_string
+    elseif kind == :python
+        res = fetch(@py_proc py_tf[][:VERSION])
+    else
+        error("Kind '$kind' not recognized")
+    end
     # Deal with version strings like "0.12.head"
     res = replace(res, r"\.head$", "")
     VersionNumber(res)
@@ -436,7 +447,7 @@ Returns the default computation graph, an object of type `Graph`.
 See also `as_default` for setting the default graph
 """
 function get_def_graph()
-    upgrade_check(v"1.0.1")  # This is here instead of in __init__ to avoid issues
+    upgrade_check(v"1.2.0")  # This is here instead of in __init__ to avoid issues
                              # with precompilation.
     has_def_graph() || (def_graph[] = Graph())
     def_graph[]
