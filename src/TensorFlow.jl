@@ -145,6 +145,7 @@ function load_python_process(;force_reload=false)
                 init()
             end
         end)
+        py_version_check()
         return pyproc[]
     else
         remotecall_fetch(1) do
