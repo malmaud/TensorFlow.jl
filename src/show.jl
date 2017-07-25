@@ -147,7 +147,7 @@ function find_tensorboard()
     path = nothing
     dirs = split(ENV["PATH"], ":")
     if PyCall.conda
-        import Conda
+        @eval import Conda
         push!(dirs, Conda.BINDIR)
     end
     for dir in dirs
