@@ -88,9 +88,9 @@ incompatible.
 """
 function py_version_check(;print_warning=true, force_warning=false)
     py_version = tf_version(kind=:python)
-    jl_version = tf_version(kind=:julia)
-    if (py_version < jl_version) || force_warning
-        base_msg = "Your Python TensorFlow version ($py_version) is below your Julia TensorFlow version ($jl_version). This can cause various errors. Please upgrade your Python TensorFlow installation and then restart Julia."
+    lib_version = tf_version(kind=:backend)
+    if (py_version < lib_version) || force_warning
+        base_msg = "Your Python TensorFlow client version ($py_version) is below the TensorFlow backend version ($lib_version). This can cause various errors. Please upgrade your Python TensorFlow installation and then restart Julia."
         if PyCall.conda
             upgrade_msg = "You can upgrade by calling `using Conda; Conda.update();` from Julia."
         else
