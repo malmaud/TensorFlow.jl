@@ -148,11 +148,7 @@ function load_python_process(;force_reload=false)
                 init()
             end
         end)
-        py_version = tf_version(kind=:python)
-        jl_version = tf_version(kind=:julia)
-        if py_version < jl_version
-            warn("Your Python TensorFlow version ($py_version) is below your Julia TensorFlow version ($jl_version). This can cause various errors. Please consider upgrading your Python version by running `pip install --upgrade tensorflow` from the command line and then restarting Julia.")
-        end
+        py_version_check()
         return pyproc[]
     else
         remotecall_fetch(1) do
