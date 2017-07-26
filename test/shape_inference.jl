@@ -194,10 +194,18 @@ end
     end
 end
 
+
 @testset "dropout" begin
     for var in (m,n,k)
         @test get_shape(nn.dropout(var, 0.5)) == get_shape(var)
     end
+
+    v = placeholder(Float32, shape=[-1,10])
+    w = placeholder(Float32, shape=[10,5])
+    vw = nn.dropout(v, 0.5*i)*w
+
+    @test get_shape(vw) == TensorShape([-1,5])
+
 end
 
 @testset "Ensure broadcasting operations do not change shape (issue #285)" begin
