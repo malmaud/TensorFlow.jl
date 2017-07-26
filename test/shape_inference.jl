@@ -194,6 +194,12 @@ end
     end
 end
 
+@testset "dropout" begin
+    for var in (m,n,k)
+        @test get_shape(nn.dropout(var, 0.5)) == get_shape(var)
+    end
+end
+
 @testset "Ensure broadcasting operations do not change shape (issue #285)" begin
     let
 	sess = Session(Graph())
