@@ -196,7 +196,7 @@ end
 
 
 """
-`softmax_cross_entropy_with_logits(logits, labels, name=None)`
+`softmax_cross_entropy_with_logits(;logits=nothing, labels=nothing)`
 
 Computes softmax cross entropy between `logits` and `labels`.
 
@@ -219,6 +219,9 @@ output of `softmax`, as it will produce incorrect results.
 
 `logits` and `labels` must have the same shape `[batch_size, num_classes]`
 and the same dtype (either `float32` or `float64`).
+
+**Note that to avoid confusion, it is required to pass only named arguments to
+this function.**
 
 ##### Args:
 *  <b>`logits`</b>: Unscaled log probabilities.
@@ -262,15 +265,15 @@ labels of shape `[batch_size]`. But higher dimensions are supported.
 **Note that to avoid confusion, it is required to pass only named arguments to
 this function.**
 
-Args:
-  labels: `Tensor` of shape `[d_0, d_1, ..., d_{r-1}]` (where `r` is rank of
+##### Args:
+  *  <b>`labels`</b>:  `Tensor` of shape `[d_0, d_1, ..., d_{r-1}]` (where `r` is rank of
     `labels` and result) and dtype `int32` or `int64`. Each entry in `labels`
     must be an index in `[0, num_classes)`. Other values will raise an
     exception when this op is run on CPU, and return `NaN` for corresponding
     loss and gradient rows on GPU.
-  logits: Unscaled log probabilities of shape
+  *  <b>`logits`</b>:  Unscaled log probabilities of shape
     `[d_0, d_1, ..., d_{r-1}, num_classes]` and dtype `float32` or `float64`.
-  name: A name for the operation (optional).
+  *  <b>`name`</b>: A name for the operation (optional).
 
 Returns:
   A `Tensor` of the same shape as `labels` and of the same type as `logits`
