@@ -2,7 +2,7 @@ using PyCall
 using Conda
 
 const cur_version = "1.2.0"
-const cur_py_version = "1.1.0"
+const cur_py_version = "1.2.0"
 
 ############################
 # Determine if using GPU
@@ -32,9 +32,7 @@ const python_package = use_gpu ? "tensorflow-gpu" :  "tensorflow"
 
 
 if PyCall.conda
-    if is_apple() #default repo does not have tensorflow for os x
-        Conda.add_channel("conda-forge")
-    end
+    Conda.add_channel("conda-forge")
     Conda.add(python_package * "=" * cur_py_version)
 else
     try
