@@ -124,7 +124,11 @@ Returns:
         desc = NodeDescription("Placeholder")
         desc["dtype"] = dtype
         node = Operation(desc)
-        graph.shapes[get_cur_node_name()] = ShapeInference.TensorShape(shape)
+        node_name = get_cur_node_name()
+        if haskey(graph.shapes, node_name)
+            error("A shape has already been recorded for $(node_name). Probable duplicate node.")
+        end
+        graph.shapes[node_name] = ShapeInference.TensorShape(shape)
     end
     Tensor(node, 1)
 end
