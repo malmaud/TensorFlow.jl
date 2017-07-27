@@ -193,3 +193,20 @@ end
         @test isnull(TensorFlow.ShapeInference.load_const(g))
     end
 end
+
+@testset "Ensure broadcasting operations do not change shape (issue #285)" begin
+    let
+	sess = Session(Graph())
+	X = placeholder(Float32, shape=[-1, 100])
+	KeepProb = placeholder(Float32, shape=[])
+	Zs = [X]
+	Z_shapes = TensorShape[]
+	for ii in 1:3
+	    push!(Z_shapes, get_shape(Zs[end]))
+	    Zii = Zs[end].*KeepProb
+	    push!(Zs, Zii)
+	end
+	@test get_shape(KeepProb) == TensorShape([])
+	@test Z_shapes[1] == Z_shapes[2] == Z_shapes[3]
+    end
+end

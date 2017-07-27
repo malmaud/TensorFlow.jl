@@ -1108,18 +1108,10 @@ function load_proto(tensor::tensorflow.TensorProto)
 end
 
 function load_proto(shape::tensorflow.TensorShapeProto)
-    dims = Nullable{Int}[]
     if shape.unknown_rank
         ShapeInference.TensorShape(nothing)
     else
-        for dim in shape.dim
-            if dim == -1
-                push!(dims, Nullable{Int}())
-            else
-                push!(dims, Nullable(dim))
-            end
-        end
-        ShapeInference.TensorShape(dims)
+        ShapeInference.TensorShape(shape.dims)
     end
 end
 

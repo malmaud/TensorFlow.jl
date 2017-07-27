@@ -31,7 +31,10 @@ function Base.broadcast!(s1::TensorShape, s2::TensorShape)
     while length(s2.dims) < length(s1.dims)
         unshift!(s2.dims, Nullable(1))
     end
+    s1, s2
 end
+
+Base.broadcast(s1::TensorShape, s2::TensorShape) = broadcast!(copy(s1), copy(s2))
 
 """
 Perform a unification over the input tensor shapes.
@@ -192,7 +195,7 @@ for func in ["Add", "Sub", "Mul", "Div", "Pow", "SquaredDifference", "Less",
         if s1.rank_unknown || s2.rank_unknown
             return [TensorShape(nothing)]
         end
-        broadcast!(s1, s2)
+        s1, s2 = broadcast(s1, s2)
         dims = Nullable{Int}[]
         for (d1, d2) in zip(s1.dims, s2.dims)
             if isnull(d1) || isnull(d2)
