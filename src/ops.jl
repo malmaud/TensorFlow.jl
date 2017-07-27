@@ -124,19 +124,7 @@ Returns:
         desc = NodeDescription("Placeholder")
         desc["dtype"] = dtype
         node = Operation(desc)
-        if shape === nothing
-            graph.shapes[get_cur_node_name()] = ShapeInference.TensorShape(nothing)
-        else
-            dims = Nullable{Int}[]
-            for dim in shape
-                if dim==-1 || dim==nothing
-                    push!(dims, Nullable{Int}())
-                else
-                    push!(dims, Nullable(dim))
-                end
-            end
-            graph.shapes[get_cur_node_name()] = ShapeInference.TensorShape(dims)
-        end
+        graph.shapes[get_cur_node_name()] = ShapeInference.TensorShape(shape)
     end
     Tensor(node, 1)
 end
