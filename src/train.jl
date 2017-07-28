@@ -305,7 +305,7 @@ function import_meta_graph(
     var_node = Dict{String,Operation}()
     assign_node = Dict{String,Operation}()
     for nodedef in meta_graph_def.graph_def.node
-        operation = extend_graph(graph, nodedef)
+        operation = extend_graph(graph, [nodedef])
         domain = split(nodedef.name, "/")[1]
         if domain != "save"
             if nodedef.op == "Variable"
