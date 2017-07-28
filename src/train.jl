@@ -225,7 +225,13 @@ function FileIO.save(saver::Saver, session::Session, path; global_step=nothing)
         end
     end
     versions = Int[]
-    for file in readdir(dirname(path))
+	dirpath = dirname(path)
+	if dirpath==""
+		# default to current directory
+		dirpath = "."
+	end
+	
+    for file in readdir(dirpath)
         m = match(Regex("$(base_path)-(\\d+)"), file)
         if m !== nothing
             push!(versions, parse(Int, m[1]))
