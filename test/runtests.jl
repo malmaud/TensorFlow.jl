@@ -26,6 +26,7 @@ tests = [
     "sequences.jl",
     "run.jl",
     "training.jl",
+    "train.jl",
     "io.jl",
     "show.jl"
 ]

@@ -1,7 +1,7 @@
 using TensorFlow
 using Base.Test
 
-@testset "train.save and train.resore"
+@testset "train.save and train.resore" begin
 	let
 	session = Session(Graph())
 		x = get_variable("x", [], Float32)
