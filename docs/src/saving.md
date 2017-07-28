@@ -30,9 +30,9 @@ For example, in one Julia session I might have
 using TensorFlow
 session = Session()
 @tf x = get_variable([], Float32)
-run(session, assign(x, 5.0))
+run(session, assign(x, 5.0f0))
 saver = train.Saver()
-train.save(saver, session, "weights")
+train.save(saver, session, "weights.jld")
 ```
 
 Then to restore in another session,
@@ -42,8 +42,8 @@ using TensorFlow
 session = Session()
 @tf x = get_variable([], Float32)
 saver = train.Saver()
-train.restore(saver, session, "weights")
-run(session, x)  # Outputs '5.0'
+train.restore(saver, session, "weights.jld")
+run(session, x)  # Outputs '5.0f0'
 ```
 
 

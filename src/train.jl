@@ -225,7 +225,13 @@ function FileIO.save(saver::Saver, session::Session, path; global_step=nothing)
         end
     end
     versions = Int[]
-    for file in readdir(dirname(path))
+	dirpath = dirname(path)
+	if dirpath==""
+		# default to current directory
+		dirpath = "."
+	end
+	
+    for file in readdir(dirpath)
         m = match(Regex("$(base_path)-(\\d+)"), file)
         if m !== nothing
             push!(versions, parse(Int, m[1]))
@@ -299,7 +305,7 @@ function import_meta_graph(
     var_node = Dict{String,Operation}()
     assign_node = Dict{String,Operation}()
     for nodedef in meta_graph_def.graph_def.node
-        operation = extend_graph(graph, nodedef)
+        operation = extend_graph(graph, [nodedef])
         domain = split(nodedef.name, "/")[1]
         if domain != "save"
             if nodedef.op == "Variable"
