@@ -9,7 +9,8 @@ julia:
   - 0.6
   - nightly
 env:
-    - PYTHON=""
+    - CONDA_JL_VERSION="2" PYTHON=""
+    - CONDA_JL_VERSION="3" PYTHON=""
 notifications:
   email: false
 script:
