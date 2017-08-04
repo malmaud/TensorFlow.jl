@@ -27,13 +27,9 @@ end
 # Install Python TensorFlow
 #############################
 
-const python_package = use_gpu ? "tensorflow-gpu" :  "tensorflow"
-# Installing tensorflow-gpu via conda should install cuda and cudnn too; thanks to Conda's dependancy management
-
-
 if PyCall.conda
     Conda.add_channel("conda-forge")
-    Conda.add(python_package * "=" * cur_py_version)
+    Conda.add("tensorflow=" * cur_py_version)
 else
     try
         pyimport("tensorflow")
@@ -46,7 +42,7 @@ Please either:
  - Rebuild PyCall to use Conda, by running in the julia REPL:
     - `ENV["PYTHON"]=""; Pkg.build("PyCall"); Pkg.build("TensorFlow")`
  - Or install the python binding yourself, eg by running pip
-    - `pip install $(python_package)`
+    - `pip install tensorflow`
     - then rebuilding TensorFlow.jl via `Pkg.build("TensorFlow")` in the julia REPL
 """)
     end
