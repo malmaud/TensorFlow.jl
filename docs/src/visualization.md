@@ -39,5 +39,5 @@ end
 Then from the console, run
 
 ```
-> tensorboard --log_dir=/my_log_dir
+> tensorboard --logdir=/my_log_dir
 ```
