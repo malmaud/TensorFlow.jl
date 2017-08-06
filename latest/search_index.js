@@ -165,7 +165,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Visualizing with Tensorboard",
     "title": "Example",
     "category": "section",
-    "text": "On the training side, your code will look like thisusing TensorFlow\nsession = Session()\n\nalpha = placeholder(Float32)\nweights = Variable(...)\n... # Set up the rest of your model\n\n# Generate some summary operations\nsummary = TensorFlow.summary\nalpha_summmary = summary.scalar(\"Learning rate\", alpha)\nweight_summary = summary.histogram(\"Parameters\", weights)\nmerged_summary_op = summary.merge_all()\n\n# Create a summary writer\nsummary_writer = summary.FileWriter(\"/my_log_dir\")\n\n# Train\nfor epoch in 1:num_epochs\n  ... # Run training\n  summaries = run(session, merged_summary_op)\n  write(summary_writer, summaries, epoch)\nendThen from the console, run> tensorboard --log_dir=/my_log_dir"
+    "text": "On the training side, your code will look like thisusing TensorFlow\nsession = Session()\n\nalpha = placeholder(Float32)\nweights = Variable(...)\n... # Set up the rest of your model\n\n# Generate some summary operations\nsummary = TensorFlow.summary\nalpha_summmary = summary.scalar(\"Learning rate\", alpha)\nweight_summary = summary.histogram(\"Parameters\", weights)\nmerged_summary_op = summary.merge_all()\n\n# Create a summary writer\nsummary_writer = summary.FileWriter(\"/my_log_dir\")\n\n# Train\nfor epoch in 1:num_epochs\n  ... # Run training\n  summaries = run(session, merged_summary_op)\n  write(summary_writer, summaries, epoch)\nendThen from the console, run> tensorboard --logdir=/my_log_dir"
 },
 
 {
