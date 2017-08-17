@@ -220,8 +220,7 @@ output of `softmax`, as it will produce incorrect results.
 `logits` and `labels` must have the same shape `[batch_size, num_classes]`
 and the same dtype (either `float32` or `float64`).
 
-**Note that to avoid confusion, it is required to pass only named arguments to
-this function.**
+This function **only** accepts keyword arguments to avoid the frequent confusion that positional arguments cause.
 
 ##### Args:
 *  <b>`logits`</b>: Unscaled log probabilities.
@@ -262,8 +261,7 @@ output of `softmax`, as it will produce incorrect results.
 A common use case is to have logits of shape `[batch_size, num_classes]` and
 labels of shape `[batch_size]`. But higher dimensions are supported.
 
-**Note that to avoid confusion, it is required to pass only named arguments to
-this function.**
+This function **only** accepts keyword arguments to avoid the frequent confusion that positional arguments cause.
 
 ##### Args:
   *  <b>`labels`</b>:  `Tensor` of shape `[d_0, d_1, ..., d_{r-1}]` (where `r` is rank of
