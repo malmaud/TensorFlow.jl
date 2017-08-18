@@ -56,14 +56,8 @@ end
 base = dirname(@__FILE__)
 download_dir = joinpath(base, "downloads")
 bin_dir = joinpath(base, "usr/bin")
-
-if !isdir(download_dir)
-    mkdir(download_dir)
-end
-
-if !isdir(bin_dir)
-    run(`mkdir -p $bin_dir`)
-end
+mkpath(download_dir)
+mkpath(bin_dir)
 
 
 function download_and_unpack(url)
