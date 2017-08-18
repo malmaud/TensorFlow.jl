@@ -1,5 +1,5 @@
 using Base.Test
-
+using TensorFlow
 sess = Session(Graph())
 
 first = TensorFlow.constant(collect(1:16))

@@ -1,4 +1,5 @@
 using Base.Test
+using TensorFlow
 
 sess = TensorFlow.Session(TensorFlow.Graph())
 

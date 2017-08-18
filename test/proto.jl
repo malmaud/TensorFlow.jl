@@ -1,5 +1,5 @@
 # Test loading/saving of protos
-
+using Base.Test
 using TensorFlow: load_proto
 
 let
