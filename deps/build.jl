@@ -15,6 +15,11 @@ if is_apple() && use_gpu
     use_gpu=false
 end
 
+if is_windows() && pyversion<v"3.5.0"
+    error("On windows Python 3.5 or better is required. PyCall is currently using $(pyversion), please rebuild PyCall to use a newer version of Python.")
+end
+
+
 if use_gpu
     info("Building TensorFlow.jl for use on the GPU")
 else
@@ -59,14 +64,13 @@ bin_dir = joinpath(base, "usr/bin")
 mkpath(download_dir)
 mkpath(bin_dir)
 
-
 function download_and_unpack(url)
     tensorflow_zip_path = joinpath(base, "downloads/tensorflow.zip")
     # Download
     download(url, tensorflow_zip_path)
     # Unpack
     try
-        run(`unzip -o $(tensorflow_zip_path)`)
+      run(`unzip -o $(tensorflow_zip_path)`)
     catch err
         if !isfile(joinpath(base, "libtensorflow_c.so"))
             throw(err)
@@ -75,6 +79,7 @@ function download_and_unpack(url)
         end
     end
 end
+
 
 
 @static if is_apple()
@@ -93,45 +98,25 @@ end
 end
 
 
+@static if is_windows()
+    url = "http://ci.tensorflow.org/view/Nightly/job/nightly-libtensorflow-windows/lastSuccessfulBuild/artifact/lib_package/libtensorflow-cpu-windows-x86_64.zip"
+    if use_gpu
+        # This is not the correct location.
+        # So error will probably happen here.
+        url = "https://storage.googleapis.com/tensorflow/libtensorflow/libtensorflow-gpu-windows-x86_64-$cur_version.zip"
+    else
+      url = "https://storage.googleapis.com/tensorflow/libtensorflow/libtensorflow-cpu-windows-x86_64-$cur_version.zip"
+    end
 
-# When TensorFlow issue #8669 is closed and a new version is released, use the official release binaries
-# of the TensorFlow C library.
-# see https://github.com/tensorflow/tensorflow/issues/8669
-# and then replacing the blocks above in this section below with:
-#=
-function download_and_unpack(url)
     tensorflow_zip_path = joinpath(base, "downloads/tensorflow.zip")
     # Download
     download(url, tensorflow_zip_path)
     # Unpack
-    try
-        run(`tar -xvzf $(tensorflow_zip_path) --strip-components=2 ./lib/libtensorflow.so`)
-    catch err
-        if !isfile(joinpath(base, "libtensorflow_c.so"))
-            throw(err)
-        else
-            warn("Problem unzipping: $err")
-        end
-    end
-end
 
-@static if is_apple()
-    if use_gpu
-        url = "https://storage.googleapis.com/tensorflow/libtensorflow/libtensorflow-gpu-darwin-x86_64-$cur_version.tar.gz"
-    else
-        url = "https://storage.googleapis.com/tensorflow/libtensorflow/libtensorflow-cpu-darwin-x86_64-$cur_version.tar.gz"
-    end
-    download_and_unpack(url)
-    mv("libtensorflow.so", "usr/bin/libtensorflow.dylib", remove_destination=true)
-end
+    # Hacky way to do an unzip in surficently up to date versions of windows.
+    # From https://stackoverflow.com/a/26843122/179081
+    # better is probably to just use ZipFile.jl package
+    run(`powershell.exe -nologo -noprofile -command "& { Add-Type -A 'System.IO.Compression.FileSystem'; [IO.Compression.ZipFile]::ExtractToDirectory('$(tensorflow_zip_path)', '.'); }"`)
 
-@static if is_linux()
-    if use_gpu
-        url = "https://storage.googleapis.com/tensorflow/libtensorflow/libtensorflow-gpu-linux-x86_64-$cur_version.tar.gz"
-    else
-        url = "https://storage.googleapis.com/tensorflow/libtensorflow/libtensorflow-cpu-linux-x86_64-$cur_version.tar.gz"
-    end
-    download_and_unpack(url)
-    mv("libtensorflow.so", "usr/bin/libtensorflow.so", remove_destination=true)
+    mv("tensorflow.dll", "usr/bin/libtensorflow.dll", remove_destination=true)
 end
-=#

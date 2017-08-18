@@ -9,3 +9,7 @@ docs/build
 
 *.swp
 *.jld
+
+deps/c_api\.h
+
+deps/LICENSE
