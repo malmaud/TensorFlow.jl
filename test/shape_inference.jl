@@ -194,6 +194,25 @@ end
     end
 end
 
+
+@testset "dropout" begin
+    for var in (m,n,k)
+        @test get_shape(nn.dropout(var, 0.5)) == get_shape(var)
+    end
+
+
+    m_by_i = nn.dropout(m, 0.5*i) # a scalar keep_prob
+    @test get_shape(m_by_i) == get_shape(m)
+
+    # The below text is broken
+    # We should be able to know be cause keepprob is alway a scalar.
+    # but we currently can't
+
+    # m_by_n = nn.dropout(m, 0.5*n) # a fully unknown keepprob
+    #@test get_shape(m_by_n).rank_unknown == false
+    
+end
+
 @testset "Ensure broadcasting operations do not change shape (issue #285)" begin
     let
 	sess = Session(Graph())
