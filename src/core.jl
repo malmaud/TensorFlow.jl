@@ -891,7 +891,11 @@ end
 function get_input(op::Operation, idx)
     port = Port(op.ptr, idx-1)
     in_port = @tfcall(:TF_OperationInput, Port, (Port,), port)
-    Tensor(in_port)
+    out_tensor = Tensor(in_port)
+    out_op = get_op(out_tensor)
+    out_op.graph = op.graph
+    fillin(out_op)
+    out_tensor
 end
 
 function get_input_list_length(op::Operation, arg_name)
