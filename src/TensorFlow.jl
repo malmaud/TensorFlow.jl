@@ -191,4 +191,6 @@ include("summary.jl")
 include("deprecated.jl")
 include("show.jl")
 
+include("layers/fully_connected.jl")
+export fully_connected
 end
