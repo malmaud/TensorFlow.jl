@@ -105,5 +105,21 @@ end
         @test [38.0f0] == run(sess, gradients([7A,3A], A, [constant([5.0f0]), nothing]))
 
     end
+end
 
+
+@testset "Failing Gradients" begin
+    let
+        sess = Session(Graph())
+
+        x = placeholder(Float32)
+        u,s,v = svd(x)
+
+        try
+            gradients([u, s, v], x)
+        catch ee
+            errmsg = repr(ee)
+            @test contains(errmsg, "No gradient defined for operation 'Svd'")
+        end
+    end
 end

@@ -41,7 +41,7 @@ macro py_catch(ex)
         try
             $(esc(ex))
         catch err
-            s = string("Python error: ", err.val[:message])
+            s = string("Python error: ", repr(err.val))
             error(s)
         end
     end
