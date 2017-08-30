@@ -21,6 +21,7 @@ result = run(sess, a+b)
 #basic tensor facts
 tens = TensorFlow.ones((5,5))
 @test size(tens) == (5,5)
+@test size(tens, 1) == 5
 @test length(tens) == 25
 
 
