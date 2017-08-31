@@ -888,7 +888,26 @@ struct Port
     index::Int
 end
 
+function get_num_inputs(op::Operation)
+    @tfcall(:TF_OperationNumInputs, Cint, (Ptr{Void},), op.ptr) |> Int
+end
+
+struct InputOutOfRange <: Exception
+    op::Operation
+    index::Int
+end
+
+function Base.show(io::IO, err::InputOutOfRange)
+    fillin(err.op)
+    num_inputs = get_num_inputs(err.op)
+    print(io, "Index $(err.index) is out of range. Operation '$(err.op.op_name)' only has $num_inputs inputs.")
+end
+
 function get_input(op::Operation, idx)
+    num_inputs = get_num_inputs(op)
+    if idx < 1 || idx > num_inputs
+        throw(InputOutOfRange(op, idx))
+    end
     port = Port(op.ptr, idx-1)
     in_port = @tfcall(:TF_OperationInput, Port, (Port,), port)
     out_tensor = Tensor(in_port)
@@ -896,6 +915,25 @@ function get_input(op::Operation, idx)
     out_op.graph = op.graph
     fillin(out_op)
     out_tensor
+end
+
+function get_num_control_inputs(op::Operation)
+    @tfcall(:TF_OperationNumControlInputs, Cint, (Ptr{Void},), op.ptr) |> Int
+end
+
+function get_control_inputs(op::Operation)
+    N = get_num_control_inputs(op)
+    ptrs = Vector{Ptr{Void}}(N)
+    N_out = @tfcall(:TF_OperationGetControlInputs, Cint, (Ptr{Void}, Ptr{Ptr{Void}}, Cint),
+                    op.ptr, ptrs, N)
+    out = Vector{Operation}()
+    for n in 1:N_out
+        op_out = Operation(ptrs[n])
+        fillin(op_out)
+        op_out.graph = op.graph
+        push!(out, op_out)
+    end
+    out
 end
 
 function get_input_list_length(op::Operation, arg_name)
