@@ -1,5 +1,6 @@
 using Base.Test
 using TensorFlow
+const tf = TensorFlow
 
 @testset "TensorShape" begin
     @test TensorShape([]) == TensorShape(Nullable{Int}[],false)
@@ -121,5 +122,29 @@ end
             errmsg = repr(ee)
             @test contains(errmsg, "No gradient defined for operation 'Svd'")
         end
+    end
+end
+
+@testset "Getting inputs" begin
+    g = Graph()
+    as_default(g) do
+        x = constant(1, name="x")
+        y = constant(2, name="y")
+        z = constant(3, name="z")
+        local w
+        tf.with_op_control([z]) do
+            w = x + y
+        end
+        w_op = tf.get_op(w)
+        @test tf.get_num_inputs(w_op) == 2
+        input1 = tf.get_op(tf.get_input(w_op, 1))
+        input2 = tf.get_op(tf.get_input(w_op, 2))
+        @test input1.name == "x"
+        @test input2.name == "y"
+        @test tf.get_num_control_inputs(w_op) == 1
+        control_inputs = tf.get_control_inputs(w_op)
+        @test length(control_inputs) == 1
+        @test control_inputs[1].name == "z"
+        @test_throws tf.InputOutOfRangeError tf.get_input(w_op, 3)
     end
 end
