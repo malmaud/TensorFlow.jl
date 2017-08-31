@@ -892,12 +892,12 @@ function get_num_inputs(op::Operation)
     @tfcall(:TF_OperationNumInputs, Cint, (Ptr{Void},), op.ptr) |> Int
 end
 
-struct InputOutOfRange <: Exception
+struct InputOutOfRangeError <: Exception
     op::Operation
     index::Int
 end
 
-function Base.show(io::IO, err::InputOutOfRange)
+function Base.show(io::IO, err::InputOutOfRangeError)
     fillin(err.op)
     num_inputs = get_num_inputs(err.op)
     print(io, "Index $(err.index) is out of range. Operation '$(err.op.op_name)' only has $num_inputs inputs.")
@@ -906,7 +906,7 @@ end
 function get_input(op::Operation, idx)
     num_inputs = get_num_inputs(op)
     if idx < 1 || idx > num_inputs
-        throw(InputOutOfRange(op, idx))
+        throw(InputOutOfRangeError(op, idx))
     end
     port = Port(op.ptr, idx-1)
     in_port = @tfcall(:TF_OperationInput, Port, (Port,), port)

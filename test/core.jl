@@ -145,6 +145,6 @@ end
         control_inputs = tf.get_control_inputs(w_op)
         @test length(control_inputs) == 1
         @test control_inputs[1].name == "z"
-        @test_throws tf.InputOutOfRange tf.get_input(w_op, 3)
+        @test_throws tf.InputOutOfRangeError tf.get_input(w_op, 3)
     end
 end
