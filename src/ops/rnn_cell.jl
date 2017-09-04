@@ -160,7 +160,7 @@ function (cell::LSTMCell)(input, state, input_dim=-1)
     end
 
     tf.variable_scope("Bias", initializer=tf.ConstantInitializer(cell.forget_bias)) do
-        Bf = get_variable("Bf", [cell.hidden_size], typeof(cell.forget_bias))
+        Bf = get_variable("Bf", [cell.hidden_size], T)
     end
 
     # TODO make this all one multiply

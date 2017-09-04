@@ -170,10 +170,12 @@ end
 
 @testset "LSTMcell biases" begin
     sess = Session(Graph())
-    cell1 = nn.rnn_cell.LSTMCell(10)
-    cell2 = nn.rnn_cell.LSTMCell(10; forget_bias=2f0)
     inputs = constant(randn(Float32, 5, 32, 5))
+
+    cell1 = nn.rnn_cell.LSTMCell(10)
     out1 = nn.rnn(cell1, inputs; scope="RNN1")
+
+    cell2 = nn.rnn_cell.LSTMCell(10; forget_bias=2f0)
     out2 = nn.rnn(cell2, inputs; scope="RNN2")
 
     run(sess, global_variables_initializer())
