@@ -13,7 +13,7 @@ using StatsFuns
                           filter=>randn(Float32, 3, 3, 5, 3),
                           shape_=>[32,10,10,5]))
     end
-end|
+end
 
 
 @testset "Cross Entropy Loss" begin
@@ -151,8 +151,6 @@ for (rnn_fun, post_proc_outputs) in ((nn.dynamic_rnn, identity), (nn.rnn, last))
             @test size(state_jl) == (19, 7) #batchsize, hidden_size
         end
     end
-
-
 end
 
 @testset "rnn gradients" begin
@@ -204,7 +202,7 @@ end
     @test logistic(x) == run_op(logistic, x) == run_op(nn.sigmoid, x)
     @test logistic.(xs) == run_op(logistic, xs) == run_op(nn.sigmoid, xs)
 
-    @test StatsFuns.softmax(xs) == run_op(nn.softmax, xs)
+    @test softmax(xs) == run_op(nn.softmax, xs)
 
     @test softplus(x) == run_op(log1pexp, x) == run_op(nn.softplus, x)
     @test softplus.(xs) == run_op(log1pexp, xs) == run_op(nn.softplus, xs)
