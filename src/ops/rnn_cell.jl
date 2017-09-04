@@ -96,7 +96,10 @@ end
 
 type LSTMCell <: RNNCell
     hidden_size::Int
+    forget_bias::Float32
 end
+
+LSTMCell(hidden_size; forget_bias=1f0) = LSTMCell(hidden_size, forget_bias)
 
 output_size(cell::LSTMCell) = cell.hidden_size
 
@@ -152,9 +155,12 @@ function (cell::LSTMCell)(input, state, input_dim=-1)
     local Bi, Bf, Bo, Bg
     tf.variable_scope("Bias", initializer=tf.ConstantInitializer(0.0)) do
         Bi = get_variable("Bi", [cell.hidden_size], T)
-        Bf = get_variable("Bf", [cell.hidden_size], T)
         Bo = get_variable("Bo", [cell.hidden_size], T)
         Bg = get_variable("Bg", [cell.hidden_size], T)
+    end
+
+    tf.variable_scope("Bias", initializer=tf.ConstantInitializer(cell.forget_bias)) do
+        Bf = get_variable("Bf", [cell.hidden_size], T)
     end
 
     # TODO make this all one multiply
