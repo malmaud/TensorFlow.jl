@@ -5,7 +5,7 @@ Building TensorFlow from source is recommended by Google for maximum performance
 
 ## Step 1: Build libtensorflow
 
-To build libtensorflow for TensorFlow.jl, follow the steps here: https://www.tensorflow.org/install/install_sources, except for a few minor modifications.
+To build libtensorflow for TensorFlow.jl, follow the [official instructions for building tensorFLow from source](https://www.tensorflow.org/install/install_sources), except for a few minor modifications so as to build the library rather than the client.
 
   * In the step "Prepare environment", ignore "Install python dependencies" -- these are not necessary as we are not building for Python. Be sure to follow all other steps as needed for your OS.
   * In the step "Build the pip package", since we are building the binary file and not the pip package, instead run `bazel build --config=opt //tensorflow:libtensorflow.so`, adding `--config=cuda` if GPU support is desired.
