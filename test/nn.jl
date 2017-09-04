@@ -1,24 +1,6 @@
 using TensorFlow
 using Base.Test
 
-@testset "cell biases" begin
-    sess = Session(Graph())
-    cell1 = nn.rnn_cell.LSTMCell(10)
-    cell2 = nn.rnn_cell.LSTMCell(10; forget_bias=2f0)
-    inputs = constant(randn(Float32, 5, 32, 5))
-    out1 = nn.rnn(cell1, inputs; scope="RNN1")
-    out2 = nn.rnn(cell2, inputs; scope="RNN2")
-
-    run(sess, global_variables_initializer())
-
-    #default should be 1
-    run(sess, sess.graph["RNN1/Bias/Bf"])
-    @test run(sess, sess.graph["RNN1/Bias/Bf"]) ≈ ones(10)
-
-    run(sess, sess.graph["RNN2/Bias/Bf"])
-    @test run(sess, sess.graph["RNN2/Bias/Bf"]) ≈ fill(2f0, 10)
-end
-
 
 @testset "conv2d_transpose" begin
     let
@@ -184,6 +166,26 @@ end
     run(sess, global_variables_initializer())
     run(sess, minimize_op)
 end
+
+
+@testset "LSTMcell biases" begin
+    sess = Session(Graph())
+    cell1 = nn.rnn_cell.LSTMCell(10)
+    cell2 = nn.rnn_cell.LSTMCell(10; forget_bias=2f0)
+    inputs = constant(randn(Float32, 5, 32, 5))
+    out1 = nn.rnn(cell1, inputs; scope="RNN1")
+    out2 = nn.rnn(cell2, inputs; scope="RNN2")
+
+    run(sess, global_variables_initializer())
+
+    #default should be 1
+    run(sess, sess.graph["RNN1/Bias/Bf"])
+    @test run(sess, sess.graph["RNN1/Bias/Bf"]) ≈ ones(10)
+
+    run(sess, sess.graph["RNN2/Bias/Bf"])
+    @test run(sess, sess.graph["RNN2/Bias/Bf"]) ≈ fill(2f0, 10)
+end
+
 
 
 
