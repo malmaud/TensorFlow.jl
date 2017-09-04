@@ -1,6 +1,6 @@
 using TensorFlow
 using Base.Test
-
+using StatsFuns
 
 @testset "conv2d_transpose" begin
     let
@@ -13,7 +13,7 @@ using Base.Test
                           filter=>randn(Float32, 3, 3, 5, 3),
                           shape_=>[32,10,10,5]))
     end
-end
+end|
 
 
 @testset "Cross Entropy Loss" begin
@@ -192,4 +192,20 @@ end
     topk_values, topk_indices = run(sess, nn.top_k(inputs,2))
     @test topk_values == [10,7]
     @test topk_indices == [2,4]
+end
+
+@testset "Activation Functions" begin
+    sess = Session(Graph())
+    run_op(op, val)=run(sess, op(constant(val)))
+
+    x = 0.5
+    xs = [-0.5, 0.0, 0.5, 0.6]'
+
+    @test logistic(x) == run_op(logistic, x) == run_op(nn.sigmoid, x)
+    @test logistic.(xs) == run_op(logistic, xs) == run_op(nn.sigmoid, xs)
+
+    @test StatsFuns.softmax(xs) == run_op(nn.softmax, xs)
+
+    @test softplus(x) == run_op(log1pexp, x) == run_op(nn.softplus, x)
+    @test softplus.(xs) == run_op(log1pexp, xs) == run_op(nn.softplus, xs)
 end
