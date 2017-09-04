@@ -245,62 +245,78 @@ Example using shape_invariants:
                         parallel_iterations=10, back_prop=true, swap_memory=false)
     g = Graph()
     def_graph = get_def_graph()
+    # Not transfering def_graph.shapes as shape inference on placehoders is not used here.
+    # Referentially linking everything else though.
     g.op_context = def_graph.op_context
     g.name_idx = def_graph.name_idx
     g.collections = def_graph.collections
-    # variables = map(Tensor, variables)
-    local output, g_def
+
     variable_tensors = Tensor.(get_tensors(variables))
+
+    local output, g_def
     as_default(g) do
         with_op_name(name, "while") do
             with_frame(parallel_iterations, back_prop, swap_memory) do
                 context = get_def_graph().op_context.while_context[end]
+                @assert get_def_graph() === g
+
+
+                # Preloop
+                # prepare the Enter nodes, to later merge with their update values
                 merge_nodes = Tensor[]
-                merge_names = String[]
-                output = Tensor[]
-                body_input = Tensor[]
                 enter_nodes = Tensor[]
                 for var in variable_tensors
                     enter_op = Ops.enter(var, frame_name=context.context_name)
                     push!(enter_nodes, enter_op)
                     merge_op = Ops.merge([enter_op, enter_op])[1]
+                        # For now set both inputs to be merged to be the same
+                        # But later, we will reassign one of them to use the values from the body
                     push!(merge_nodes, merge_op)
                     fillin(merge_op.op)
-                    push!(merge_names, merge_op.op.name)
                 end
                 set_field!(context, :pivot_for_pred_name, get_name(merge_nodes[1]))
-                local condition_out
-                with_op_control([tensor.op for tensor in merge_nodes]) do
+
+                # (Define the graph to)
+                # evaluate the condition at each loop
+                condition_out = with_op_control([tensor.op for tensor in merge_nodes]) do
                     merge_node_structs = build_output(variables, merge_nodes)
-                    condition_out = condition(merge_node_structs...)
+                    condition(merge_node_structs...)
                 end
                 pred = Ops.loop_cond(condition_out)
                 set_field!(context, :pivot_name, get_name(pred))
-                body_pivots = Tensor[]
+
+                # Body stuff
+                # Define the output structure for the result of the body
+                # For both the terminal and non-terminal loop increments
+                output = Tensor[]
+                body_input = Tensor[]
                 for var_idx in eachindex(variable_tensors)
                     switch_false, switch_true = Ops.switch(merge_nodes[var_idx], pred)
 
                     exit_op = Ops.exit(switch_false)
                     push!(context.loop_exit_names, get_name(exit_op))
                     push!(output, exit_op)
-                    body_pivot = identity(switch_true)
-                    push!(body_pivots, body_pivot)
 
+                    body_pivot = identity(switch_true)
                     push!(body_input, body_pivot)
                 end
-                set_field!(context, :pivot_for_body_name, get_name(body_pivots[1]))
-                local body_output
-                with_op_control([tensor.op for tensor in body_input]) do
+                set_field!(context, :pivot_for_body_name, get_name(body_input[1]))
+
+                # (define the graph to)
+                # actually execute the body
+                body_output = with_op_control([tensor.op for tensor in body_input]) do
                     body_input_structs = build_output(variables, body_input)
-                    body_output = body(body_input_structs...)
+                    body(body_input_structs...)
                 end
-                body_output_tensors = get_tensors(body_output)
-                body_val = Tensor[]
-                for tensor in body_output_tensors
-                    next_iteration_op = Ops.next_iteration(tensor)
-                    push!(body_val, next_iteration_op)
-                end
+                body_val = Ops.next_iteration.(get_tensors(body_output))
+
+
+                # We are now complete with defining the loop structure,
+                # in the graph `g`,
+                # Now to manipulate that at the protobuf level
+                # to link up all the plumbing in `def_graph`
                 g_def = get_def(g)
+
 
                 # Transfer the top-level values in the while loop body from the
                 # while-loop graph to the main graph. Used when new variables
@@ -315,20 +331,28 @@ Example using shape_invariants:
                 end
                 extend_graph(def_graph, g_def.node[to_delete])
                 deleteat!(g_def.node, unique(to_delete))
-                for collection in [:Variables, :TrainableVariables]
-                    for var in get_collection(g, collection)
-                        name = get_def(var.var_node).name
-                        as_default(def_graph) do
-                            Variable(name)
-                        end
+                @assert get_collection(:TrainableVariables) ⊆  get_collection(:Variables)
+                for var in get_collection(:Variables)
+                    name = get_def(var.var_node).name
+                    as_default(def_graph) do
+                        Variable(name)
+                        #NB: This does not discard information about collections
+                        # as `g.collections` always has been a reference to `def_graph.collections`
                     end
                 end
 
+
+                #
+                # Reassign one of the merge node inputs
+                # to use the values variables from the body
                 for var_idx in eachindex(variable_tensors)
                     for op in g_def.node
-                        if op.name == merge_names[var_idx]
+                        if op.name == merge_nodes[var_idx].op.name
+                            # Recall earlier, we said we would reassign one of the inputs to the merge nodes?
+                            # That we are doing now
                             v = body_val[var_idx]
                             op.input[2] = "$(get_def(v).name):$(v.value_index-1)"
+                            #HACK: Doing this by string manipulation
                         end
                     end
                 end
@@ -343,21 +367,21 @@ Example using shape_invariants:
                     for (input_idx, input) in enumerate(node.input)
                         name, port = parse_port_name(input)
                         maybe_op = get_node_by_name(def_graph, name)
-                        isnull(maybe_op) && continue
-                        is_var = false
-                        for var in variable_tensors
-                            if name == var.op.name && port == var.value_index
-                                is_var = true
-                                break
-                            end
+
+                        if (isnull(maybe_op)
+                            || any(var.op.name == name && var.value_index == port for var in variable_tensors))
+
+                            continue
                         end
-                        is_var && continue
+
+                        # Failed to find input in variable_tensors
+                        # and we did find an op by that name
+                        # so that op must be the value we want
+                        # Better process it.
                         op = get(maybe_op)
                         tensor = Tensor(op, port)
-                        local enter_op
-                        as_default(def_graph) do
-                            # enter_op = make_enter_op(tensor, context.context_name, is_constant=true)
-                            enter_op = Ops.enter(tensor, frame_name=context.context_name, is_constant=true)
+                        enter_op = as_default(def_graph) do
+                            Ops.enter(tensor, frame_name=context.context_name, is_constant=true)
                         end
                         context.values_def.external_values[get_name(tensor)] = get_name(enter_op)
                         push!(context.values_def.values, get_name(tensor))
@@ -369,6 +393,6 @@ Example using shape_invariants:
         end  # with_op_name
     end  # as_default
 
-    extend_graph(get_def_graph(), g_def.node)
+    extend_graph(g_def.node)
     build_output(variables, output)
 end
