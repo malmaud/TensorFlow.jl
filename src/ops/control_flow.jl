@@ -1,6 +1,13 @@
 using Compat
 
-import .Ops: identity, no_op, count_up_to
+import .Ops: no_op, count_up_to
+
+"""
+     `identity(input)`
+
+Return a tensor with the same shape and contents as the input tensor or value.
+"""
+@op Base.identity(tensor::AbstractTensor; name=nothing) = Ops.identity(tensor; name=name)
 
 @op function make_tuple(tensors; name="", control_inputs=Operation[])
     group_deps = group(vcat(tensors, control_inputs)...)
