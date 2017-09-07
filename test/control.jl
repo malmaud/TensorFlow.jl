@@ -1,22 +1,27 @@
 using Base.Test
+using TensorFlow
 
-sess = Session(Graph())
 
-first = TensorFlow.constant(collect(1:16))
-second = run(sess, TensorFlow.identity(first))
-@test collect(1:16) == second
-third = run(sess, TensorFlow.make_tuple([TensorFlow.constant(collect(1:16)), TensorFlow.constant(collect(1:16))]))
-@test [collect(1:16), collect(1:16)] == third
+@testset "identity and make_tuple" begin
+    sess = Session(Graph())
+    first = constant(collect(1:16))
+    second = run(sess, identity(first))
+    @test collect(1:16) == second
+    third = run(sess, TensorFlow.make_tuple([constant(collect(1:16)), constant(collect(1:16))]))
+    @test [collect(1:16), collect(1:16)] == third
+end
 
-x = TensorFlow.constant(2)
-y = TensorFlow.constant(5)
-f1 = ()->17x
-f2 = ()->y+23
-result = run(sess, Base.cond(x<y, f1, f2))
-@test 17*2 == result
-inc = constant(1)
-i = constant(1)
-w = while_loop((i,s)->i≤5, (i,s)->[i+inc, s+i], [i, 0])
-@test run(sess, w)[2] == sum(1:5)
-grad = gradients(w[1], i)
-@test run(sess, grad) == 1
+@testset "cond and while_loop" begin
+    x = constant(2)
+    y = constant(5)
+    f1 = ()->17x
+    f2 = ()->y+23
+    result = run(sess, cond(x<y, f1, f2))
+    @test 17*2 == result
+    inc = constant(1)
+    i = constant(1)
+    w = TensorFlow.while_loop((i,s)->i≤5, (i,s)->[i+inc, s+i], [i, 0])
+    @test run(sess, w)[2] == sum(1:5)
+    grad = gradients(w[1], i)
+    @test run(sess, grad) == 1
+end
