@@ -15,7 +15,7 @@ tests = [
 "debug.jl",
 "hello.jl",
 "image.jl",
-"init_ops.jl"
+"init_ops.jl",
 "io.jl",
 "math.jl",
 "meta.jl",
