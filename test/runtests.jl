@@ -25,7 +25,7 @@ tests = [
 "run.jl",
 "sequences.jl",
 "shape_inference.jl",
-"show.jl"
+"show.jl",
 "summary.jl",
 "train.jl",
 "training.jl",
