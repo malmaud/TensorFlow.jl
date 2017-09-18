@@ -167,6 +167,32 @@ end
     run(sess, minimize_op)
 end
 
+
+@testset "LSTMcell biases" begin
+    sess = Session(Graph())
+    inputs = constant(randn(Float32, 5, 32, 5))
+
+    cell1 = nn.rnn_cell.LSTMCell(10)
+    out1 = nn.rnn(cell1, inputs; scope="RNN1")
+
+    cell2 = nn.rnn_cell.LSTMCell(10; forget_bias=2f0)
+    out2 = nn.rnn(cell2, inputs; scope="RNN2")
+
+    run(sess, global_variables_initializer())
+
+    #default should be 1
+    run(sess, sess.graph["RNN1/Bias/Bf"])
+    @test run(sess, sess.graph["RNN1/Bias/Bf"]) ≈ ones(10)
+
+    run(sess, sess.graph["RNN2/Bias/Bf"])
+    @test run(sess, sess.graph["RNN2/Bias/Bf"]) ≈ fill(2f0, 10)
+end
+
+
+
+
+
+
 @testset "dropout" begin
     sess = Session(Graph())
     inputs = constant(randn(Float32, 5, 32, 5))
