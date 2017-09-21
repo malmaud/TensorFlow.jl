@@ -3,6 +3,7 @@ ProtoBuf 0.3.0
 PyCall 1.7.1
 Conda 0.6.0
 Distributions 0.10.2
+StatsFuns 0.3.0
 JLD 0.6.3
 FileIO 0.1.2
 Juno 0.2.3

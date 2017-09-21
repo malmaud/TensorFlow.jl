@@ -1,6 +1,6 @@
 using TensorFlow
 using Base.Test
-
+using StatsFuns
 
 @testset "conv2d_transpose" begin
     let
@@ -151,8 +151,6 @@ for (rnn_fun, post_proc_outputs) in ((nn.dynamic_rnn, identity), (nn.rnn, last))
             @test size(state_jl) == (19, 7) #batchsize, hidden_size
         end
     end
-
-
 end
 
 @testset "rnn gradients" begin
@@ -218,4 +216,20 @@ end
     topk_values, topk_indices = run(sess, nn.top_k(inputs,2))
     @test topk_values == [10,7]
     @test topk_indices == [2,4]
+end
+
+@testset "Activation Functions" begin
+    sess = Session(Graph())
+    run_op(op, val)=run(sess, op(constant(val)))
+
+    x = 0.5
+    xs = [-0.5, 0.0, 0.5, 0.6]'
+
+    @test logistic(x) == run_op(logistic, x) == run_op(nn.sigmoid, x)
+    @test logistic.(xs) == run_op(logistic, xs) == run_op(nn.sigmoid, xs)
+
+    @test softmax(xs) == run_op(nn.softmax, xs)
+
+    @test softplus(x) == run_op(log1pexp, x) == run_op(nn.softplus, x)
+    @test softplus.(xs) == run_op(log1pexp, xs) == run_op(nn.softplus, xs)
 end

@@ -3,7 +3,7 @@ module nn
 using Compat
 import TensorFlow
 const tf = TensorFlow
-import .tf: Ops, @op, @not_implemented, @tf
+import .tf: Ops, @op, @not_implemented, @tf, AbstractTensor
 
 import .Ops:
     relu,
@@ -21,6 +21,12 @@ import .Ops:
     log_softmax,
     dilation2d,
     conv2d
+
+import StatsFuns
+@tf.op StatsFuns.log1pexp(x::AbstractTensor; kwargs...) = Ops.softplus(x; kwargs...)
+@tf.op StatsFuns.softmax(x::AbstractTensor; kwargs...) = Ops.softmax(x; kwargs...)
+@tf.op StatsFuns.logistic(x::AbstractTensor; kwargs...) = Ops.sigmoid(x; kwargs...)
+
 
 include("rnn_cell.jl")
 import .rnn_cell:  zero_state, output_size, state_size
