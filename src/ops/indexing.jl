@@ -103,8 +103,7 @@ const NotAllowed = Union{Float16, Float32, Float64, String, Complex128, Complex6
                          AbstractArray{Float16}, AbstractArray{Float32}, AbstractArray{Float64},
                          AbstractArray{String}, AbstractArray{Complex128}, AbstractArray{Complex32},
                          Tensor{Float16}, Tensor{Float32}, Tensor{Float64}, Tensor{String},
-                         Tensor{Complex128}, Tensor{Complex64}, Tensor{Complex32},
-                         FloatRange
+                         Tensor{Complex128}, Tensor{Complex64}, Tensor{Complex32}
                         }
 
 

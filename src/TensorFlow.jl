@@ -122,7 +122,9 @@ dequeue,
 dequeue_many,
 get_all_op_list,
 Ops,
-slice
+slice,
+import_op,
+@tfimport
 
 const pyproc = Ref(0)
 
@@ -190,5 +192,6 @@ include("io.jl")
 include("summary.jl")
 include("deprecated.jl")
 include("show.jl")
+include("generate_ops.jl")
 
 end

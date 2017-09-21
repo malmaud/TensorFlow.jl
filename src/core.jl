@@ -448,10 +448,6 @@ struct TFException <: Exception
     status::Status
 end
 
-function Base.show(io::IO, err::TFException)
-    print(io, "TFException($err.status): Status Code: $(get_code(err.status))")
-end
-
 function check_status(status)
     if get_code(status) ≠ TF_OK
         throw(TFException(status))

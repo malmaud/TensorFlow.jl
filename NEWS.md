@@ -1,8 +1,9 @@
 TensorFlow v0.7 Release Notes
 =============================
 
-* Support for Julia 0.5 has been dropped. 
+* Support for Julia 0.5 has been dropped.
 * Enhanced support for visualization with TensorBoard.
+* Operations defined in C are now accessed by `import_op(<op name>)` instead of `Ops.<op name>`.
 
 TensorFlow v0.6 Release Notes
 =============================
