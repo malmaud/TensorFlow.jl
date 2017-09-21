@@ -68,6 +68,33 @@ macro not_implemented(f)
     end
 end
 
+function tfimport(expr)
+    res = @capture expr begin
+        fname_(args__)
+    end
+    if res
+        quote
+            import_op($(string(fname)))($([esc(arg) for arg in args]...))
+        end
+    else
+        res = @capture expr begin
+            fname_
+        end
+        if res
+            jlname = opname_to_jlname(string(fname))
+            quote
+                const $(esc(jlname)) = import_op($(string(fname)))
+            end
+        else
+            error("Invalid use of @tfimport on $(expr)")
+        end
+    end
+end
+
+macro tfimport(expr)
+    tfimport(expr)
+end
+
 function capitalize(s)
     string(uppercase(s[1]), s[2:end])
 end

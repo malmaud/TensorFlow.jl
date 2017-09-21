@@ -139,8 +139,6 @@ Enter
 LoopCond
 Exit
 NextIteration
-Svd
-Cross
 Complex
 Print
 ReverseV2

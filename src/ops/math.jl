@@ -20,7 +20,8 @@ import .Ops:
     segment_max,
     segment_mean,
     segment_min,
-    segment_prod
+    segment_prod,
+    @tfimport
 
 
 @op Base.indmin(n::AbstractTensor, dim; name=nothing) = Ops.arg_min(n, dim; name=name)+1
@@ -33,7 +34,7 @@ import .Ops:
 
 @op function Base.svd(a::AbstractTensor; thin=true, kwargs...)
     # Match Base names and ordering of results
-    s,u,v = Ops.svd(a; compute_uv=true, full_matrices=!thin, kwargs...)
+    s,u,v = @tfimport Svd(a; compute_uv=true, full_matrices=!thin, kwargs...)
     u,s,v
 end
 
@@ -112,7 +113,7 @@ Returns:
 end
 
 @op function Base.cross(n1::AbstractTensor, n2::AbstractTensor; kwargs...)
-    Ops.cross(n1, n2; kwargs...)
+    @tfimport Cross(n1, n2; kwargs...)
 end
 
 *(x::Number, n::AbstractTensor) = x.*n    # For supporting notation like `2x`

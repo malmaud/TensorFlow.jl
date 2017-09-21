@@ -123,7 +123,8 @@ dequeue_many,
 get_all_op_list,
 Ops,
 slice,
-import_op
+import_op,
+@tfimport
 
 const pyproc = Ref(0)
 
