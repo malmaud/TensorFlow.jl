@@ -20,8 +20,7 @@ import .Ops:
     segment_max,
     segment_mean,
     segment_min,
-    segment_prod,
-    @tfimport
+    segment_prod
 
 
 @op Base.indmin(n::AbstractTensor, dim; name=nothing) = Ops.arg_min(n, dim; name=name)+1
