@@ -448,6 +448,10 @@ struct TFException <: Exception
     status::Status
 end
 
+function Base.show(io::IO, err::TFException)
+    print(io, "TFException($err.status): Status Code: $(get_code(err.status))")
+end
+
 function check_status(status)
     if get_code(status) ≠ TF_OK
         throw(TFException(status))
@@ -1017,6 +1021,15 @@ function with_op_name(f, name, def_name="Node")
     end
 end
 
+
+"""
+     with_op_control(f, control_ops)
+
+Any ops declared inside `f` will not execute until after all op listed in `control_ops`.
+This enforces order of execution.
+It is useful if the op in `f` may depend on the execution of one or more of the `control_ops` first.
+see also [Python Docs](https://www.tensorflow.org/versions/r0.12/api_docs/python/framework/core_graph_data_structures#Graph.control_dependencies)
+"""
 function with_op_control(f, control_ops)
     g = get_def_graph()
     push!(g.op_context.control_ops, control_ops)
