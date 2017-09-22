@@ -164,3 +164,5 @@ Transpose
 Slice
 Rank
 Conv2DBackpropInput
+Svd
+Cross

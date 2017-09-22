@@ -12,6 +12,7 @@ using TensorFlow
 end
 
 @testset "cond and while_loop" begin
+    sess = Session(Graph())
     x = constant(2)
     y = constant(5)
     f1 = ()->17x

@@ -9,7 +9,7 @@ const func_list = [
     (:less_equal, :≤),
     (:greater, :>),
     (:greater_equal, :≥),
-    (:equal, :(==)),
+    #(:equal, :(==)),  # Don't want to have equal return a non-bool
     (:not_equal, :(!=))
 ]
 
