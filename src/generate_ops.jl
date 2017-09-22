@@ -317,7 +317,7 @@ end
 """
     import_op(op_name)
 
-Import the given TensorFLow option into Julia. The name should correspond to
+Import the given TensorFlow option into Julia. The name should correspond to
 a key in the return value of `get_all_op_list()`, which gives the names of
 TensorFlow operations defined in your version of the TensorFlow C binary.
 
@@ -326,9 +326,14 @@ TensorFlow operations defined in your version of the TensorFlow C binary.
 Returns a reference to a Julia function corresponding to the operation.
 """
 function import_op(name)
+    jl_name = opname_to_jlname(name)
     mod = TensorFlow.Ops
+    if isdefined(mod, jl_name)
+        return getfield(Ops, jl_name)
+    end
     ops = Dict(get_all_op_list())
     op = ops[name]
     op_desc = to_function(op)
+
     eval(Ops, op_desc.expr)
 end
