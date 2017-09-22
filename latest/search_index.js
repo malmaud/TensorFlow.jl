@@ -741,7 +741,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Build TensorFlow from source",
     "title": "Step 1: Build libtensorflow",
     "category": "section",
-    "text": "To build libtensorflow for TensorFlow.jl, follow the steps here: https://www.tensorflow.org/install/install_sources, except for a few minor modifications.In the step \"Prepare environment\", ignore \"Install python dependencies\" – these are not necessary as we are not building for Python. Be sure to follow all other steps as needed for your OS.\nIn the step \"Build the pip package\", since we are building the binary file and not the pip package, instead run bazel build --config=opt //tensorflow:libtensorflow.so, adding --config=cuda if GPU support is desired.Running bazel build will produce the libtensorflow.so binary needed by TensorFlow.jl - there is no need to build the Python package or run anything else. You may place the binary wherever is convenient."
+    "text": "To build libtensorflow for TensorFlow.jl, follow the official instructions for building tensorFLow from source, except for a few minor modifications so as to build the library rather than the client.In the step \"Prepare environment\", ignore \"Install python dependencies\" – these are not necessary as we are not building for Python. Be sure to follow all other steps as needed for your OS.\nIn the step \"Build the pip package\", since we are building the binary file and not the pip package, instead run bazel build --config=opt //tensorflow:libtensorflow.so, adding --config=cuda if GPU support is desired.Running bazel build will produce the libtensorflow.so binary needed by TensorFlow.jl - there is no need to build the Python package or run anything else. You may place the binary wherever is convenient."
 },
 
 {
