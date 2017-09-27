@@ -131,8 +131,7 @@ register_shape("Placeholder") do op
 end
 
 register_shape("Const") do op
-    value = get(load_const(op))
-    [TensorShape([size(value)...])]
+    [TensorShape([x.size for x in get_def(op).attr["value"].tensor.tensor_shape.dim])]
 end
 
 # Simple 1-input 1-output functions that preserve the input shape

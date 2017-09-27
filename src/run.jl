@@ -122,6 +122,9 @@ end
 
 cast_type(T, val) = val
 
+tf_shape(x::Union{Number,String}) = TensorShape(Int[])
+tf_shape(x::AbstractArray)        = TensorShape(collect(size(x)))
+
 """
     check_shape(tensor, value)
 
@@ -129,7 +132,7 @@ Throws an error if the size of the value is not a possile shape for the tensor
 """
 function check_shape(tensor, value)
     tensor_shape = get_shape(tensor)
-    value_shape = TensorShape(collect(size(value)))
+    value_shape = tf_shape(value)
 
     try
         unified_shape = ShapeInference.unify(tensor_shape, value_shape)
