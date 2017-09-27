@@ -4,6 +4,16 @@ using Conda
 const cur_version = "1.2.0"
 const cur_py_version = "1.2.0"
 
+
+
+############################
+# Error message for Windows
+############################
+
+if is_windows()
+    error("TensorFlow.jl does not support Windows. Please see https://github.com/malmaud/TensorFlow.jl/issues/204")
+end
+
 ############################
 # Determine if using GPU
 ############################
