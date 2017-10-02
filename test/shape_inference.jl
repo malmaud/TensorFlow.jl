@@ -229,3 +229,8 @@ end
 	@test Z_shapes[1] == Z_shapes[2] == Z_shapes[3]
     end
 end
+
+@testset "get_shape (of known dimensions) should match computed size. x is $x" for x in (1, fill(1, 1), fill(1, 1, 1), "Julia")
+    t = constant(x)
+    @test get_shape(t) == TensorShape(run(Session(), size(t)))
+end
