@@ -31,6 +31,7 @@ end
             session = Session(Graph())
             x = constant(1)
             @tf y = x+1
+            z = Variable(3, name="z")
             train.export_meta_graph(modelfile)
         end
 
@@ -39,6 +40,9 @@ end
             train.import_meta_graph(modelfile)
             y = get_tensor_by_name("y")
             @test run(session, y) == 2
+            run(session, global_variables_initializer())
+            z = get_tensor_by_name("z")
+            @test run(session, z) == 3
         end
     end
 end

@@ -230,7 +230,7 @@ function FileIO.save(saver::Saver, session::Session, path; global_step=nothing)
 		# default to current directory
 		dirpath = "."
 	end
-	
+
     for file in readdir(dirpath)
         m = match(Regex("$(base_path)-(\\d+)"), file)
         if m !== nothing
@@ -283,6 +283,8 @@ function read_meta_graph_file(filepath::String)
 end
 
 """
+    import_meta_graph
+
 Recreates a Graph saved in a `MetaGraphDef` proto.
 
 This function takes a `MetaGraphDef` protocol buffer as input. If the argument
@@ -292,7 +294,7 @@ buffer from the file content. The function then adds all the nodes from the
 returns a saver constructed from the `saver_def` field.
 
 Assumes variables are trainable, unless the `trainable` keyword is provided, in
-# whch case only variables whose names are in the list are "trainable".
+which case only variables whose names are in the list are "trainable".
 
 Currently ignores all information under `save/*`. It also doesn't yet handle
 QueueRunners and Summaries.
@@ -302,26 +304,25 @@ function import_meta_graph(
         graph::Graph;
         trainable::Vector{String} = String[]
     )
-    var_node = Dict{String,Operation}()
-    assign_node = Dict{String,Operation}()
-    for nodedef in meta_graph_def.graph_def.node
-        operation = extend_graph(graph, [nodedef])
-        domain = split(nodedef.name, "/")[1]
-        if domain != "save"
-            if nodedef.op == "Variable"
-                var_node[nodedef.name] = operation
-            elseif nodedef.op == "Assign"
-                assign_node[nodedef.name] = operation
+
+    nodes = meta_graph_def.graph_def.node
+    extend_graph(graph, nodes)
+    for node in nodes
+        if tf.Variables.is_variable(node)
+            domain = split(node.name, "/")[1]
+            if domain !== "save"
+                var_tensor = tf.Tensor(tf.get_node_by_name(graph, node.name)|>get, 1)
+                assign_name = "$(node.name)/Assign"
+                assign_tensor = tf.Tensor(tf.get_node_by_name(graph, assign_name)|>get, 1)
+                var = Variable(var_tensor, assign_tensor)
+                add_to_collection(graph, :Variables, var)
+                if isempty(trainable) || (node.name in trainable)
+                    add_to_collection(graph, :TrainableVariables, var)
+                end
             end
         end
     end
-    for (name, op) in var_node
-        var = Variable(var_node[name], assign_node["$name/Assign"])
-        add_to_collection(graph, :Variables, var)
-        if length(trainable) == 0 || name in trainable
-            add_to_collection(graph, :TrainableVariables, var)
-        end
-    end
+
     Saver(var_list = get_collection(graph, :TrainableVariables))
 end
 
