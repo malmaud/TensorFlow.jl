@@ -139,6 +139,6 @@ $ pip install --upgrade tensorflow
 
 ## Optional: Using a custom TensorFlow binary
 
-To build TensorFlow from source, or if you already have a TensorFlow binary that you wish to use, follow the instructions at https://malmaud.github.io/TensorFlow.jl/latest/build_from_source/. This is recommended by Google for maximum performance, and is currently needed for Mac OS X GPU support.
+To build TensorFlow from source, or if you already have a TensorFlow binary that you wish to use, follow [these instructions](https://malmaud.github.io/TensorFlow.jl/latest/build_from_source.html). This is recommended by Google for maximum performance, and is currently needed for Mac OS X GPU support.
 
 For Linux users, a convenience script is included to use Docker to easily build the library. Just install docker and run `julia build_libtensorflow.so` from the "deps" directory of the TensorFlow.jl package. Note that this method may not link to all libraries available on the target system such as Intel MKL.
