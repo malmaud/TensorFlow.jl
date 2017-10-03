@@ -348,9 +348,10 @@ end
         if isnull(get_node_by_name(graph, node_def.name))
             # First try to directly add this node to the graph
             try
-                Operation(node_def)
+                new_op = Operation(node_def)
                 continue
             catch err
+                DEBUG_EXTEND_GRAPH && warn(err)
             end
 
             # If that doesn't work (for example, the node has a
@@ -425,6 +426,11 @@ end
     end
     import_graph_def(graph, new_graph, import_options)
 end
+
+@with_def_graph function extend_graph(graph::Graph, node_def::tensorflow.NodeDef)
+    extend_graph(graph, [node_def])
+end
+
 
 mutable struct SessionOptions
     ptr::Ptr{Void}
@@ -1162,7 +1168,7 @@ function load_proto(shape::tensorflow.TensorShapeProto)
     if shape.unknown_rank
         ShapeInference.TensorShape(nothing)
     else
-        ShapeInference.TensorShape(shape.dims)
+        ShapeInference.TensorShape(shape.dim)
     end
 end
 
