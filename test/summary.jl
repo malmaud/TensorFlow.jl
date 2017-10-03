@@ -5,7 +5,7 @@ using Base.Test
 graph = Graph()
 sess = Session(graph)
 mktempdir() do tmpdir
-    writer = tf.summary.FileWriter(tmpdir)
+    writer = tf.summary.FileWriter(joinpath(tmpdir, "test"))
     x = constant([1,2])
     x_summary = tf.summary.scalar(["x", "y"], x)
     hist_summary = tf.summary.histogram("z", randn(10))
