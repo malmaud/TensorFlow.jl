@@ -3,8 +3,8 @@
 [![Build Status](https://travis-ci.org/malmaud/TensorFlow.jl.svg?branch=master)](https://travis-ci.org/malmaud/TensorFlow.jl)
 [![codecov.io](http://codecov.io/github/malmaud/TensorFlow.jl/coverage.svg?branch=master)](http://codecov.io/github/malmaud/TensorFlow.jl?branch=master)
 
-[![](http://pkg.julialang.org/badges/TensorFlow_0.5.svg)](http://pkg.julialang.org/?pkg=TenosrFlow)
-[![](http://pkg.julialang.org/badges/TensorFlow_0.6.svg)](http://pkg.julialang.org/?pkg=TenosrFlow)
+[![](http://pkg.julialang.org/badges/TensorFlow_0.5.svg)](http://pkg.julialang.org/?pkg=TensorFlow)
+[![](http://pkg.julialang.org/badges/TensorFlow_0.6.svg)](http://pkg.julialang.org/?pkg=TensorFlow)
 
 A wrapper around [TensorFlow](https://www.tensorflow.org/), a popular open source machine learning framework from Google.
 
