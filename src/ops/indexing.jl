@@ -57,7 +57,7 @@ function getindex_polyfunction(params::AbstractTensor, indices...)
         push!(sizes, end_ - begin_ + 1) # +1 because a slice 3:3 has length 1, and 4:5 has length 3 etc
     end
 
-    function proc_ind!(ind::Tensor)
+    function proc_ind!(ind::AbstractTensor)
         ind_shape = get_shape(ind)
         if ind_shape.rank_unknown
             #warn("Unknown rank tensor ($ind) used for indexing. Assuming 0D scalar.")
@@ -95,9 +95,7 @@ end
 # Note: need to exclude Bools, because that is in Integer in 0.5
 # This can be a lot cleaner all round in 0.6
 const Slice = Union{TensorRange, UnitRange, Colon}
-const Index = Union{Int16, Int32, Int64,
-                  AbstractArray{Int16}, AbstractArray{Int32}, AbstractArray{Int64},
-                  Tensor{Int16}, Tensor{Int32}, Tensor{Int64}}
+const Index = Union{<:Integer, AbstractArray{<:Integer}, AbstractTensor{<:Integer}}
 
 const NotAllowed = Union{Float16, Float32, Float64, String, Complex128, Complex64, Complex32,
                          AbstractArray{Float16}, AbstractArray{Float32}, AbstractArray{Float64},
@@ -128,17 +126,17 @@ function Base.getindex(params::AbstractTensor, ind1::Union{Slice, Index}, ind2::
     getindex_polyfunction(params, ind1, ind2, inds...)
 end
 
-function Base.getindex(params::AbstractTensor, inds::Vararg{AbstractTensor})
-    getindex(params, map(Tensor, inds)...)
-end
+#function Base.getindex(params::AbstractTensor, inds::Vararg{AbstractTensor})
+#    getindex(params, map(Tensor, inds)...)
+#end
 
 # Attempt to catch most of the mis-uses
 # won't catch mixed allowed and nonallowed types
-function Base.getindex(params::AbstractTensor, inds::Vararg{NotAllowed})
-    throw(MethodError(getindex, (params, inds...)))
-end
+#function Base.getindex(params::AbstractTensor, inds::Vararg{NotAllowed})
+#    throw(MethodError(getindex, (params, inds...)))
+#end
 
 # No index actually given
-function Base.getindex(params::AbstractTensor)
-    throw(MethodError(getindex, (params,)))
-end
+#function Base.getindex(params::AbstractTensor)
+#    throw(MethodError(getindex, (params,)))
+#end
