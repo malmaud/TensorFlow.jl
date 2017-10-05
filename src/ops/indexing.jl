@@ -97,13 +97,6 @@ end
 const Slice = Union{TensorRange, UnitRange, Colon}
 const Index = Union{<:Integer, AbstractArray{<:Integer}, AbstractTensor{<:Integer}}
 
-const NotAllowed = Union{Float16, Float32, Float64, String, Complex128, Complex64, Complex32,
-                         AbstractArray{Float16}, AbstractArray{Float32}, AbstractArray{Float64},
-                         AbstractArray{String}, AbstractArray{Complex128}, AbstractArray{Complex32},
-                         Tensor{Float16}, Tensor{Float32}, Tensor{Float64}, Tensor{String},
-                         Tensor{Complex128}, Tensor{Complex64}, Tensor{Complex32}
-                        }
-
 
 #For x[[true,false,true]] etc
 function Base.getindex(params::AbstractTensor, indices::Union{Tensor{Bool}, AbstractArray{Bool}})
@@ -122,21 +115,8 @@ function Base.getindex(params::AbstractTensor, ind::Slice)
 end
 
 # If have 2+ argument can use the Polyfunction
-function Base.getindex(params::AbstractTensor, ind1::Union{Slice, Index}, ind2::Union{Slice, Index},  inds::Vararg{Union{Slice, Index}})
-    getindex_polyfunction(params, ind1, ind2, inds...)
+function Base.getindex(params::AbstractTensor, ind1::Union{Slice, Index},  inds::Vararg{Union{Slice, Index}})
+    getindex_polyfunction(params, ind1, inds...)
 end
 
-#function Base.getindex(params::AbstractTensor, inds::Vararg{AbstractTensor})
-#    getindex(params, map(Tensor, inds)...)
-#end
 
-# Attempt to catch most of the mis-uses
-# won't catch mixed allowed and nonallowed types
-#function Base.getindex(params::AbstractTensor, inds::Vararg{NotAllowed})
-#    throw(MethodError(getindex, (params, inds...)))
-#end
-
-# No index actually given
-#function Base.getindex(params::AbstractTensor)
-#    throw(MethodError(getindex, (params,)))
-#end
