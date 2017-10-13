@@ -3,6 +3,16 @@ import .Ops:
     random_standard_normal,
     random_shuffle
 
+function convert_eltype(x::Array, dtype)
+    convert(Array{dtype}, x)
+end
+
+function convert_eltype(x::Number, dtype)
+    convert(dtype, x)
+end
+
+convert_eltype(x, dtype) = x
+
 @op function constant(value; dtype=nothing, kwargs...)
     if dtype === nothing
         if isa(value, AbstractString)
@@ -10,6 +20,8 @@ import .Ops:
         else
             dtype = eltype(value)
         end
+    else
+        value = convert_eltype(value, dtype)
     end
     Ops.const_(; value=value, dtype=dtype, kwargs...)
 end
