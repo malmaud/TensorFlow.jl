@@ -133,7 +133,7 @@ Returns:
 """
 @op function placeholder(dtype; name=nothing, shape=nothing)
     local node
-    with_op_name(name, "placeholder") do
+    name_scope(name, "placeholder") do
         graph = get_def_graph()
         desc = NodeDescription("Placeholder")
         desc["dtype"] = dtype

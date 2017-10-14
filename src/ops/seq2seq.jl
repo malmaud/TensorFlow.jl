@@ -12,7 +12,7 @@ import .tf: @not_implemented, @op
                                   softmax_loss_function=nothing,
                                   name=nothing)
     local score
-    tf.with_op_name(name, "SequenceLossByExample") do
+    tf.name_scope(name, "SequenceLossByExample") do
         scores = tf.Tensor[]
         for (logit, target, weight) in zip(logits, targets, weights)
             if softmax_loss_function === nothing
@@ -36,7 +36,7 @@ end
                        softmax_loss_function=nothing,
                        name=nothing)
     local score
-    tf.with_op_name(name, "SequenceLoss") do
+    tf.name_scope(name, "SequenceLoss") do
         score = tf.reduce_sum(sequence_loss_by_example(logits, tagets, weight, average_across_timesteps=average_across_timesteps, softmax_loss_function=softmass_loss_function))
         if average_across_batch
             batch_size = get(get_shape(logits[1]).dims[1])

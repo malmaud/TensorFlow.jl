@@ -178,7 +178,7 @@ Args:
 """
 @op function dropout(x, keep_prob; noise_shape=nothing, seed=0, name=nothing)
     local y
-    tf.with_op_name(name, "Dropout") do
+    tf.name_scope(name, "Dropout") do
         keep_prob = convert(tf.Tensor{eltype(x)}, keep_prob)
         x_scaled = x/keep_prob
         if noise_shape == nothing
@@ -194,7 +194,7 @@ end
     #  TODO make numerically stable
     local out
     @tf.required logits targets
-    tf.with_op_name(name, "SigmoidCrossEntropyWithLogits") do
+    tf.name_scope(name, "SigmoidCrossEntropyWithLogits") do
         out = -logits.*targets + log(1+ exp(logits))
     end
     out
@@ -355,7 +355,7 @@ Computes half the L2-norm of a `Tensor` `t`, without taking the square root.
 """
 @op function l2_loss(t; name=nothing)
     local out
-    tf.with_op_name(name, "L2_Loss") do
+    tf.name_scope(name, "L2_Loss") do
         out = sum(t.^2)/2
     end
     out
@@ -412,7 +412,7 @@ end
 @op function l2_normalize(x, dim; epsilon=1e-12, name=nothing)
     # TODO take into account epsilon
     local out
-    tf.with_op_name(name, "L2Normalize") do
+    tf.name_scope(name, "L2Normalize") do
         sums = tf.reduce_sum(x.^2, axis=[dim], keep_dims=true)
         norm = sqrt(sums)
         out = x/norm

@@ -1,6 +1,6 @@
 @op function clip_by_value(t, clip_value_min, clip_value_max; name=nothing)
     local out
-    with_op_name(name, "ClipByValue") do
+    name_scope(name, "ClipByValue") do
         out = max(min(t, clip_value_max), clip_value_min)
     end
     out
@@ -11,7 +11,7 @@ Base.clamp(t::AbstractTensor, min_value, max_value) = clip_by_value(t, min_value
 @op function clip_by_norm(t, clip_norm; axes=nothing, name=nothing)
     local out
     t = Tensor(t)
-    with_op_name(name, "ClipByNorm") do
+    name_scope(name, "ClipByNorm") do
         clip_norm = convert(Tensor{eltype(t)}, clip_norm)
         norm = sqrt(reduce_sum(multiply(t, t), axis=axes))
         factor = min(clip_norm/norm, convert(Tensor{eltype(t)}, 1))
@@ -34,7 +34,7 @@ end
     end
     clip_tensor(t, ratio) = t .* ratio
     clip_tensor(t::IndexedSlices, ratio) = IndexedSlices(t.values .* ratio, t.indices)
-    with_op_name(name, "ClipByGlobalNorm") do
+    name_scope(name, "ClipByGlobalNorm") do
         clip_norm = convert(Tensor{eltype(t_list[1])}, clip_norm)
         if use_norm === nothing
             gn = global_norm(t_list)
@@ -50,7 +50,7 @@ end
     local out
     tensor_value(t) = Tensor(t)
     tensor_value(t::IndexedSlices) = t.values
-    with_op_name(name, "GlobalNorm") do
+    name_scope(name, "GlobalNorm") do
         out = sqrt(add_n([reduce_sum(tensor_value(t).^2.0) for t in t_list]))
     end
     out

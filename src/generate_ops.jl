@@ -201,7 +201,7 @@ function to_function(op::tensorflow.OpDef)
     expr = quote
         @tf.op function $(jl_name)($(inputs...))
             local desc
-            tf.with_op_name(name, $(op.name)) do
+            tf.name_scope(name, default_name=$(op.name)) do
                 desc = tf.NodeDescription($(op.name))
                 $convert_block
                 $input_block

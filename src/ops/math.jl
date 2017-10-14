@@ -71,7 +71,7 @@ const matmul = mat_mul
         """, :batch_matmul)
     end
     local desc
-    with_op_name(name, "BatchMatMul") do
+    name_scope(name, "BatchMatMul") do
         x = Tensor(x)
         y = Tensor(y)
         desc = NodeDescription("BatchMatMul")
@@ -101,7 +101,7 @@ Returns:
  """
 @op function squared_difference(x, y; name=nothing)
     local desc
-    with_op_name(name, "SquaredDifference") do
+    name_scope(name, "SquaredDifference") do
         x = Tensor(x)
         y = Tensor(y)
         desc = NodeDescription("SquaredDifference")

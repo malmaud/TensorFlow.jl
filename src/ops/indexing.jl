@@ -73,7 +73,7 @@ function getindex_polyfunction(params::AbstractTensor, indices...)
         proc_ind!(ind)
     end
 
-    with_op_name("PolyGetIndex") do
+    name_scope("PolyGetIndex") do
         begins_tensor = stack(begins)
 
         if length(singleton_dims) == length(begins) #Then we are not slicing any axes

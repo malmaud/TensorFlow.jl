@@ -1,5 +1,5 @@
 using TensorFlow
-import TensorFlow: get_tensors, with_op_name, with_frame
+import TensorFlow: get_tensors, name_scope, with_frame
 
 sess = Session(Graph())
 i = constant(1; name="ff")

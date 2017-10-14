@@ -12,7 +12,7 @@ IdentityRNNCell
 
 using Compat
 import ....Main: TensorFlow
-import .TensorFlow: Operation, get_shape, get_variable, tanh, Tensor, nn, concat, expand_dims, with_op_name, AbstractTensor
+import .TensorFlow: Operation, get_shape, get_variable, tanh, Tensor, nn, concat, expand_dims, name_scope, AbstractTensor
 import .nn: sigmoid
 const tf = TensorFlow
 
@@ -42,7 +42,7 @@ function zero_mat(rows_like::AbstractTensor, n_cols::Integer, dtype)
     input_shape = get_shape(rows_like)
     if input_shape.rank_unknown || isnull(input_shape.dims[1])
         # dynamic path
-        with_op_name("DynZeroMat") do
+        name_scope("DynZeroMat") do
             n_rows = size(rows_like, 1)
             fill(tf.constant(zero(T)), [n_rows; n_cols])
         end

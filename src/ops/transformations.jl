@@ -113,7 +113,7 @@ such that the resulting concatenated Tensor has rank equal to the
 higher of the highest input rank, or the concatentation dimension (`dim`).
 """
 function Base.cat(dim, xs::AbstractTensor...)
-    with_op_name("Cat") do
+    name_scope("Cat") do
         compat_xs = tf_promote(expand_to_same_ranks(dim, xs)...)
         if length(xs)>1
              concat(compat_xs, dim)
@@ -310,7 +310,7 @@ boolean_mask(tensor, mask) ==> [[1, 2], [5, 6]]
 """
 @op function boolean_mask(tensor, mask::AbstractTensor; name=nothing)
     local result
-    with_op_name(name, "BooleanMask") do
+    name_scope(name, "BooleanMask") do
         indices = find(mask)  # TODO generalize to more dimensions
         squeezed = squeeze(indices, [2])
         result = tensor[squeezed]
@@ -320,7 +320,7 @@ end
 
 @op function boolean_mask(tensor, mask::AbstractArray; name=nothing)
     local result
-    with_op_name(name, "BooleanMask") do
+    name_scope(name, "BooleanMask") do
         indices = find(mask)  # TODO generalize to more dimensions
         result = tensor[indices]
     end
@@ -378,7 +378,7 @@ Returns:
 """
 @op function Base.transpose(n::AbstractTensor, perm=nothing; name=nothing)
     local result
-    with_op_name(name, "Transpose") do
+    name_scope(name, "Transpose") do
         if perm === nothing
             r = range(constant(0), rank(n)-1)
             perm = reverse(r, [true])
@@ -413,7 +413,7 @@ A Tensor the same type as input.
 https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#slice
 """
 @op function slice(n::AbstractTensor, begin_, size_; name=nothing)
-    with_op_name(name, "Slice") do
+    name_scope(name, "Slice") do
         begin_ = convert(Tensor{Int32}, begin_)
         size_ = convert(Tensor{Int32}, size_)
         Ops.slice(n, begin_, size_; name=name)

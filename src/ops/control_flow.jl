@@ -9,17 +9,24 @@ Return a tensor with the same shape and contents as the input tensor or value.
 """
 @op Base.identity(tensor::AbstractTensor; name=nothing) = Ops.identity(tensor; name=name)
 
-@op function make_tuple(tensors; name="", control_inputs=Operation[])
-    group_deps = group(vcat(tensors, control_inputs)...)
+@op function make_tuple(tensors; name=nothing, control_inputs=Operation[])
+    # group_deps = group(vcat(tensors, control_inputs)...)
+    # ops = Tensor[]
+    # name_base = get_name(name)
+    # for (idx, input) in enumerate(tensors)
+    #     n = string(name_base, "_", idx)
+    #     desc = NodeDescription("Identity", n)
+    #     add_input(desc, input)
+    #     push!(ops, Tensor(Operation(desc)))
+    # end
+    # ops
     ops = Tensor[]
-    name_base = get_name(name)
     for (idx, input) in enumerate(tensors)
-        n = string(name_base, "_", idx)
-        desc = NodeDescription("Identity", n)
-        add_input(desc, input)
-        push!(ops, Tensor(Operation(desc)))
+        name_scope(name, "make_tuple") do
+            push!(ops, Ops.identity(input, name="item_$(idx)"))
+        end
     end
-    ops
+    return ops
 end
 
 """
@@ -45,7 +52,7 @@ Raises:
 """
 @op function group(tensors...; name=nothing)
     local desc
-    with_op_name(name, "Group") do
+    name_scope(name, "Group") do
         desc = NodeDescription("NoOp")
         for tensor in tensors
             add_control_input(desc, tensor)
@@ -106,7 +113,7 @@ Example:
 @op function Base.cond(pred::AbstractTensor, fn1, fn2; name=nothing)
     #  TODO add control dependencies to subgraphs
     local merge
-    with_op_name(name, "cond") do
+    name_scope(name, "cond") do
         switch1 = Ops.switch(fn1(), pred)
         switch2 = Ops.switch(fn2(), pred)
         merge = Ops.merge([switch1[2], switch2[1]])
@@ -262,7 +269,7 @@ Example using shape_invariants:
 
     local output, g_def
     as_default(g) do
-        with_op_name(name, "while") do
+        name_scope(name, "while") do
             with_frame(parallel_iterations, back_prop, swap_memory) do
                 context = get_def_graph().op_context.while_context[end]
                 @assert get_def_graph() === g
@@ -397,7 +404,7 @@ Example using shape_invariants:
                     end
                 end
             end  # with_frame
-        end  # with_op_name
+        end  # name_scope
     end  # as_default
 
     extend_graph(g_def.node)

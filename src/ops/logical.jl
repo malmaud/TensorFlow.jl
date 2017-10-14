@@ -18,7 +18,7 @@ Returns:
 """
 @op function logical_xor(x, y; name=nothing)
     local n
-    with_op_name(name, "LogicalXor") do
+    name_scope(name, "LogicalXor") do
         n = (x|y) & (~(x&y))
     end
     n

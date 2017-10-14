@@ -35,7 +35,7 @@ end
 
 @op function random_normal(shape; mean=0.0, stddev=1.0, dtype=Float32, name=nothing, kwargs...)
     local out
-    with_op_name(name, "random_normal") do
+    name_scope(name, "random_normal") do
         mean = convert(Tensor{dtype}, mean)
         stddev = convert(Tensor{dtype}, stddev)
         standard = Ops.random_standard_normal(shape; name=name, dtype=dtype, kwargs...)
@@ -63,7 +63,7 @@ A `Tensor` of the specified `shape` and `dtype` containing random values.
 """
 @op function random_uniform(shape, minval, maxval; name=nothing, seed=0, dtype=Float32)
     local out
-    with_op_name(name, "RandomUniformScaled") do
+    name_scope(name, "RandomUniformScaled") do
         seed1 = 0
         # TODO use global seed
         seed2 = seed

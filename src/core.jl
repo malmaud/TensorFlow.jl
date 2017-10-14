@@ -1010,18 +1010,18 @@ function fillin(op::Operation)
     op.op_name = @tfcall(:TF_OperationOpType, Cstring, (Ptr{Void},), op.ptr) |> unsafe_string
 end
 
-function with_op_name(f, name, def_name="Node")
-    if name === nothing
-        name = get_name(def_name)
-    end
-    g = get_def_graph()
-    push!(g.op_context.names, name)
-    try
-        f()
-    finally
-        pop!(g.op_context.names)
-    end
-end
+# function name_scope(f, name, def_name="Node")
+#     if name === nothing
+#         name = get_name(def_name)
+#     end
+#     g = get_def_graph()
+#     push!(g.op_context.names, name)
+#     try
+#         f()
+#     finally
+#         pop!(g.op_context.names)
+#     end
+# end
 
 function generate_op_name(name)
     graph = get_def_graph()
@@ -1091,6 +1091,8 @@ function name_scope(f, name; default_name=nothing, values=nothing)
         end
     end
 end
+
+name_scope(f, name, default_name) = name_scope(f, name, default_name=default_name)
 
 
 """

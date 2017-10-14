@@ -48,7 +48,7 @@ Args:
 """
 @op function range_input_producer(limit; num_epochs=nothing, do_shuffle=true, seed=0, capacity=32, name=nothing)
     local out
-    with_op_name(name, "RangeInputProducer") do
+    name_scope(name, "RangeInputProducer") do
         input = range(Tensor, 1, limit=limit+1)
         input_producer(input, element_shape=[], num_epochs=num_epochs, do_shuffle=do_shuffle, seed=seed, capacity=capacity, name=name)
     end
@@ -70,7 +70,7 @@ Args:
 """
 @op function input_producer(input; element_shape=nothing, num_epochs=nothing, do_shuffle=true, seed=0, capacity=32, name=nothing)
     local queue
-    with_op_name(name, "InputProducer") do
+    name_scope(name, "InputProducer") do
         input = convert(Tensor, input)
         if element_shape === nothing
             queue = tf.FIFOQueue(capacity, eltype(input))
@@ -142,7 +142,7 @@ Args:
 """
 @op function shuffle_batch(tensors, batch_size; capacity=32, enqueue_many=false, shapes=nothing, allow_smaller_final_batch=false, name=nothing)
     local dequeue_op
-    with_op_name(name, "ShuffleBatch") do
+    name_scope(name, "ShuffleBatch") do
         if enqueue_many || dynamic_pad
             error("Not supported")  # TODO support this
         end
@@ -179,7 +179,7 @@ Args:
 """
 @op function batch(tensors, batch_size; num_threads=1, capacity=32, enqueue_many=false, shapes=nothing, dynamic_pad=false, allow_smaller_final_batch=false, name=nothing)
     local dequeue_op
-    with_op_name(name, "Batch") do
+    name_scope(name, "Batch") do
         if enqueue_many || dynamic_pad
             error("Not supported")  # TODO support this
         end
