@@ -101,20 +101,7 @@ end
 
 capitalize(s::Symbol) = capitalize(string(s))
 
-function get_name(name="node")
-    graph = get_def_graph()
-    name_idx = graph.name_idx
-    if name == ""
-        name = "node"
-    end
-    cur_idx = get(name_idx, name, 1)
-    name_idx[name] = cur_idx + 1
-    if cur_idx == 1
-        name
-    else
-        string(name, "_", cur_idx)
-    end
-end
+
 
 """
 Inserts a placeholder for a tensor that will be always fed.

@@ -1023,6 +1023,75 @@ function with_op_name(f, name, def_name="Node")
     end
 end
 
+function generate_op_name(name)
+    graph = get_def_graph()
+    name_idx = graph.name_idx
+    cur_idx = get(name_idx, name, 1)
+    name_idx[name] = cur_idx + 1
+    if cur_idx == 1
+        name
+    else
+        string(name, "_", cur_idx)
+    end
+end
+
+get_name(x::String) = generate_op_name(x)
+
+function name_scope(f, g::Graph, name)
+    cur_scope = copy(g.op_context.names)
+    reset_scope = false
+    if name === nothing || isempty(name)
+        empty!(g.op_context.names)
+        reset_scope = true
+    else
+        # name = generate_op_name(name)
+        # push!(g.op_context.names, name)
+        for idx in Iterators.countfrom()
+            push!(g.op_context.names, name)
+            cur_name = get_cur_node_name()
+            if isnull(get_node_by_name(g, cur_name))
+                break
+            else
+                pop!(g.op_context.names)
+                name = "$(name)_$(idx)"
+            end
+        end
+    end
+    try
+        f()
+    finally
+        if reset_scope
+            g.op_context.names = cur_scope
+        else
+            pop!(g.op_context.names)
+        end
+    end
+end
+
+get_graph(x) = get(get_op(x).graph)
+
+function name_scope(f, name; default_name=nothing, values=nothing)
+    if name === nothing
+        name = default_name
+    end
+    if values === nothing
+        graph = get_def_graph()
+    else
+        if length(values) == 1
+            same_graph = true
+        else
+            same_graph = reduce(==, get_graph.(values))
+        end
+        same_graph || throw(ArgumentError("Values given from different graphs"))
+        graph = get_graph(first(values))
+    end
+    as_default(graph) do
+        name_scope(graph, name) do
+            f()
+        end
+    end
+end
+
 
 """
      with_op_control(f, control_ops)
