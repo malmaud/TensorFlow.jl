@@ -233,6 +233,17 @@ end
     @test [2, -1, 3] == run(sess, round(Int, constant([1.7, -1.0, π])))
 end
 
+
+@testset "broadcasting operations" begin
+    x_jl = [1.0 5.0; 7.0 13.0]
+    x = constant(x_jl)
+    y_jl = [31.0 331.0; 3331.0 333331.0]
+    y = constant(y_jl)
+
+    @test run(sess, x.^2 .* y) == x_jl.^2 .* y_jl
+end
+
+
 @test [-1, 1, 0] == run(sess, TensorFlow.sign(constant([-1, 2, 0])))
 
 @test run(sess, squared_difference([1,2], 5)) == [16, 9]

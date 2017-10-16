@@ -2,6 +2,8 @@ using MacroTools
 import Base: log, exp, +, -, *, /, ^, sin, cos, tan, asin, acos, atan, div, tanh, sqrt, abs, floor, ceil, floor, sign
 import TensorFlow
 const tf = TensorFlow # so know where op_funcs is defined
+import TakingBroadcastSeriously: @unfuse, broadcast_
+
 
 """
     tf_promote(args...)
@@ -45,11 +47,13 @@ macro define_unary(jl_func, tf_func)
     end |> esc
 end
 
+@unfuse AbstractTensor
+
 macro define_broadcast(jl_op, tf_func)
     quote
-        Base.broadcast(::typeof($jl_op), t1::AbstractTensor, t2::AbstractTensor) = $tf_func(tf_promote(t1, t2)...)
-        Base.broadcast(::typeof($jl_op), t1::AbstractTensor, t2) = $tf_func(t1, Tensor(t2))
-        Base.broadcast(::typeof($jl_op), t1, t2::AbstractTensor) = $tf_func(Tensor(t1), t2)
+        broadcast_(::typeof($jl_op), t1::AbstractTensor, t2::AbstractTensor) = $tf_func(tf_promote(t1, t2)...)
+        broadcast_(::typeof($jl_op), t1::AbstractTensor, t2) = $tf_func(t1, Tensor(t2))
+        broadcast_(::typeof($jl_op), t1, t2::AbstractTensor) = $tf_func(Tensor(t1), t2)
     end |> esc
 end
 
