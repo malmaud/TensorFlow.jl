@@ -403,3 +403,19 @@ Example using shape_invariants:
     extend_graph(g_def.node)
     build_output(variables, output)
 end
+
+mutable struct WhileParams
+    ninputs::Cint
+    cond_graph::Ptr{Void}
+    cond_inputs::Ptr{Void}
+    cond_output::TF_Output
+    body_inputs::Ptr{Void}
+    name::Cstring
+end
+
+function new_while(graph, inputs)
+    status = Status()
+    params = @tfcall(:TF_NewWhile, WhileParams, (Ptr{Void}, Ptr{Void}, Cint, Ptr{Void}), graph.ptr, C_NULL, 0, status.ptr)
+    check_status(status)
+    @tfcall(:TF_AbortWhile, Void, (Ptr{Void},), params)
+end

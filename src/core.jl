@@ -908,6 +908,8 @@ struct Port
     index::Int
 end
 
+const TF_Output = Port
+
 function get_num_inputs(op::Operation)
     @tfcall(:TF_OperationNumInputs, Cint, (Ptr{Void},), op.ptr) |> Int
 end
