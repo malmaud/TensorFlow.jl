@@ -13,11 +13,17 @@ is_registered_op(::DataType) = NotRegisteredOp() # By default nothing is registe
 const registered_ops = Set()
 
 macro op(f)
-    f = longdef(f) #convert to long form function
+    # TODO: fix MacroTools to make this work again
+    # f = longdef(f) #convert to long form function
     opname = @match f begin
         function opname_(args__)
             body_
         end => opname
+    end
+    if opname === nothing
+        opname = @match f begin
+            (opname_(args__) = body_) => opname
+        end
     end
     opname === nothing && error("Invalid usage of @op")
     # opname = f.args[1].args[1]
@@ -38,11 +44,12 @@ macro op(f)
             end
         end
     end
-    quote
+    res = quote
         @Base.__doc__ $f
         $register_block
-        $(opname)
+        #$(opname)
     end |> esc
+    res
 end
 
 

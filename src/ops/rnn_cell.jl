@@ -11,7 +11,8 @@ RNNCell,
 IdentityRNNCell
 
 using Compat
-import ....Main: TensorFlow
+import ..nn
+import .nn: TensorFlow
 import .TensorFlow: Operation, get_shape, get_variable, tanh, Tensor, nn, concat, expand_dims, with_op_name, AbstractTensor
 import .nn: sigmoid
 const tf = TensorFlow
