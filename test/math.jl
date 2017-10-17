@@ -241,6 +241,17 @@ end
     y = constant(y_jl)
 
     @test run(sess, x.^2 .* y) == x_jl.^2 .* y_jl
+
+    #issue #336
+    a = [0.01]
+    b = [0.02]
+    v = constant([1.,2.])
+    @test_throws TensorFlow.TFException run(sess, v[1] * a)
+    @test 0.01 ≈ run(sess, v[1] .* a) |> first
+    @test 0.02 ≈ run(sess, v[1].* b) |> first
+    @test 0.0002 ≈ run(sess, v[1].* a .* b) |> first
+    @test 0.0002 ≈ run(sess, (v[1].* a) .* b) |> first
+    @test 0.0002 ≈ run(sess, v[1].* (a .* b)) |> first
 end
 
 
