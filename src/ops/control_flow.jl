@@ -459,6 +459,41 @@ function c_while(condition, body, variables; name=nothing)
     for i in 1:n_inputs
         body_outputs_c[i] = TF_Output(body_outputs[i])
     end
-    result = finish_while(params)
-    Tensor.(result)
+    result = Tensor.(finish_while(params))
+    ctx = create_while_context(graph, name, n_inputs)
+    add_to_collection(:while_context, ctx)
+    return result
+end
+
+function create_while_context(graph, name, n_inputs)
+    ctx = tensorflow.WhileContextDef(
+        parallel_iterations=10,
+        context_name=name,
+        back_prop=true,
+        swap_memory=false,
+        values_def=tensorflow.ValuesDef(values=String[]),
+        loop_exit_names=String[])
+    context_matcher = Regex("^$(name)/")
+    for op in get_operations(graph)
+        @show op
+        if ismatch(context_matcher, get_def(op).name)
+            def = get_def(op)
+            n_outputs = length(get_op_def(def.op).output_arg)
+            for i in 1:n_outputs
+                push!(ctx.values_def.values, "$(def.name):$(i-1)")
+            end
+        end
+    end
+    push!(ctx.values_def.values, "$(name)/merge0:1")
+    push!(ctx.values_def.values, "$(name)/switch0:1")
+    set_field!(ctx, :pivot_for_pred_name, "$(name)/merge0:0")
+    switch_name = "$(name)/switch0"
+    switch_op = get_node_by_name(switch_name) |> get |> get_def
+    cond_op = switch_op.input[2]
+    set_field!(ctx, :pivot_for_body_name, "$(switch_name):0")
+    set_field!(ctx, :pivot_name, "$(cond_op):0")
+    for i in 1:n_inputs
+        push!(ctx.loop_exit_names, "$(name)/exit$(i-1):0")
+    end
+    return ctx
 end
