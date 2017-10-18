@@ -4,7 +4,6 @@ import TensorFlow
 const tf = TensorFlow # so know where op_funcs is defined
 import TakingBroadcastSeriously: @unfuse, broadcast_
 
-
 """
     tf_promote(args...)
 
