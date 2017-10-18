@@ -3,7 +3,8 @@
 
 
 """
-Base.size(n::AbstractTensor; name="")
+    Base.size(n::AbstractTensor; name="")
+
 Returns the shape of the Tensor.
 WARNING: this does not match the python TensorFlow `size` -- for that functionality, use `Base.length`
 https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#size
@@ -12,7 +13,8 @@ https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#size
 @op Base.size(n::AbstractTensor, i; name=nothing) = shape(n; name=name)[i]
 
 """
-Base.length(n::AbstractTensor; name="")
+    Base.length(n::AbstractTensor; name="")
+
 Returns the total number of elements in a Tensor.
 (Like julia `Base.length` does for an `Array`)
 This matchs python TensorFlow `size` operation
@@ -31,13 +33,32 @@ Base.last(tr::TensorRange)=tr.stop
 
 @define_binary Base.colon TensorRange
 
-# Mixed Mode Indexing.
-function getindex_polyfunction(params::AbstractTensor, indices...)
+    
+const Slice = Union{TensorRange, UnitRange, Colon}
+const Index = Union{<:Integer, AbstractArray{<:Integer}, AbstractTensor{<:Integer}}
+
+
+#For x[[true,false,true]] etc
+function Base.getindex(params::AbstractTensor, indices::Union{Tensor{Bool}, AbstractArray{Bool}})
+    boolean_mask(params, indices)
+end
+
+#For x[[1,2,3]] and x[2] etc
+function Base.getindex(params::AbstractTensor, indices::Index)
+    gather(params, indices)
+end
+
+
+#All other uses
+function Base.getindex(params::AbstractTensor, ind1::Union{Slice, Index},  inds::Vararg{Union{Slice, Index}})
+    indicies = [ind1, inds...]
+
     begins = Tensor{Int32}[]
     sizes = Tensor{Int32}[]
     singleton_dims = Int[]
 
-    function proc_singleton!(ind) #JULIA0.5BUG??. This function needs to be declared here (not mixed with the proc_ind!) or is just doesn't actually get declared. I haven't MWEd it yet
+    ### Begin  Subfunctions
+    function proc_singleton!(ind) #JULIA BUG?? in 0.5 & 0.6. This function needs to be declared here (not mixed with the proc_ind!) or is just doesn't actually get declared. I haven't MWEd it yet
         # Better be 0D
         push!(begins, ind)
         push!(sizes, 1)
@@ -50,14 +71,14 @@ function getindex_polyfunction(params::AbstractTensor, indices...)
     end
 
     function proc_ind!(ind::Union{UnitRange, TensorRange})
-        #NOTE: end has now been replace with `endof(X)` or `size(X,d)` giving the actual size
+        #NOTE: end has (during code lowering) been replace with `endof(X)` or `size(X,d)` giving the actual size
         begin_ =  first(ind)
         push!(begins, begin_)
         end_ = last(ind)
         push!(sizes, end_ - begin_ + 1) # +1 because a slice 3:3 has length 1, and 4:5 has length 3 etc
     end
 
-    function proc_ind!(ind::Tensor)
+    function proc_ind!(ind::AbstractTensor)
         ind_shape = get_shape(ind)
         if ind_shape.rank_unknown
             #warn("Unknown rank tensor ($ind) used for indexing. Assuming 0D scalar.")
@@ -69,7 +90,9 @@ function getindex_polyfunction(params::AbstractTensor, indices...)
 
     proc_ind!(ind::Integer) = proc_singleton!(ind)
 
-    for ind in indices
+    ### End Subfunctions
+
+    for ind in indicies
         proc_ind!(ind)
     end
 
@@ -91,54 +114,3 @@ function getindex_polyfunction(params::AbstractTensor, indices...)
 end
 
 
-# Union{Slice, Index} is the types for which getindex_polyfunction was designed
-# Note: need to exclude Bools, because that is in Integer in 0.5
-# This can be a lot cleaner all round in 0.6
-const Slice = Union{TensorRange, UnitRange, Colon}
-const Index = Union{Int16, Int32, Int64,
-                  AbstractArray{Int16}, AbstractArray{Int32}, AbstractArray{Int64},
-                  Tensor{Int16}, Tensor{Int32}, Tensor{Int64}}
-
-const NotAllowed = Union{Float16, Float32, Float64, String, Complex128, Complex64, Complex32,
-                         AbstractArray{Float16}, AbstractArray{Float32}, AbstractArray{Float64},
-                         AbstractArray{String}, AbstractArray{Complex128}, AbstractArray{Complex32},
-                         Tensor{Float16}, Tensor{Float32}, Tensor{Float64}, Tensor{String},
-                         Tensor{Complex128}, Tensor{Complex64}, Tensor{Complex32}
-                        }
-
-
-#For x[[true,false,true]] etc
-function Base.getindex(params::AbstractTensor, indices::Union{Tensor{Bool}, AbstractArray{Bool}})
-    boolean_mask(params, indices)
-end
-
-#For x[[1,2,3]] and x[2] etc
-function Base.getindex(params::AbstractTensor, indices::Index)
-    gather(params, indices)
-end
-
-
-# If have one argument, then only use polyfunction if it is a Slice
-function Base.getindex(params::AbstractTensor, ind::Slice)
-    getindex_polyfunction(params, ind)
-end
-
-# If have 2+ argument can use the Polyfunction
-function Base.getindex(params::AbstractTensor, ind1::Union{Slice, Index}, ind2::Union{Slice, Index},  inds::Vararg{Union{Slice, Index}})
-    getindex_polyfunction(params, ind1, ind2, inds...)
-end
-
-function Base.getindex(params::AbstractTensor, inds::Vararg{AbstractTensor})
-    getindex(params, map(Tensor, inds)...)
-end
-
-# Attempt to catch most of the mis-uses
-# won't catch mixed allowed and nonallowed types
-function Base.getindex(params::AbstractTensor, inds::Vararg{NotAllowed})
-    throw(MethodError(getindex, (params, inds...)))
-end
-
-# No index actually given
-function Base.getindex(params::AbstractTensor)
-    throw(MethodError(getindex, (params,)))
-end
