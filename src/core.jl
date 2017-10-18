@@ -250,8 +250,7 @@ mutable struct Graph
     name_idx::Dict{String, Int}
     op_context::OperationContext
 
-    function Graph()
-        ptr = @tfcall(:TF_NewGraph, Ptr{Void}, ())
+    function Graph(ptr::Ptr)
         collections = Dict{Symbol, Any}()
         collections[:Variables] = []
         collections[:TrainableVariables] = []
@@ -259,11 +258,18 @@ mutable struct Graph
         collections[:QueueRunners] = []
         collections[:while_context] = []
         self = new(ptr, collections, Dict{String, TensorShape}(), Dict{String, Int}(), OperationContext(Vector{Operation}[], String[], tensorflow.WhileContextDef[], Device[], Ref(false)))
-        finalizer(self, self->begin
-            @tfcall(:TF_DeleteGraph, Void, (Ptr{Void},), self.ptr)
-        end)
         self
     end
+
+end
+
+function Graph()
+    ptr = @tfcall(:TF_NewGraph, Ptr{Void}, ())
+    self = Graph(ptr)
+    finalizer(self, self->begin
+        @tfcall(:TF_DeleteGraph, Void, (Ptr{Void},), self.ptr)
+    end)
+    self
 end
 
 function Base.show(io::IO, g::Graph)
@@ -905,7 +911,7 @@ Base.hash(op::Operation, h::UInt) = hash(Operation, hash(op.ptr, h))
 
 struct Port
     node_ptr::Ptr{Void}
-    index::Int
+    index::Cint
 end
 
 const TF_Output = Port

@@ -407,15 +407,58 @@ end
 mutable struct WhileParams
     ninputs::Cint
     cond_graph::Ptr{Void}
-    cond_inputs::Ptr{Void}
+    cond_inputs::Ptr{TF_Output}
     cond_output::TF_Output
-    body_inputs::Ptr{Void}
-    name::Cstring
+    body_graph::Ptr{Void}
+    body_inputs::Ptr{TF_Output}
+    body_outputs::Ptr{TF_Output}
+    name::Ptr{Void}
 end
 
 function new_while(graph, inputs)
     status = Status()
-    params = @tfcall(:TF_NewWhile, WhileParams, (Ptr{Void}, Ptr{Void}, Cint, Ptr{Void}), graph.ptr, C_NULL, 0, status.ptr)
+    c_inputs = TF_Output.(inputs)
+    params = @tfcall(:TF_NewWhile, WhileParams, (Ptr{Void}, Ptr{Void}, Cint, Ptr{Void}), graph.ptr, c_inputs, length(c_inputs), status.ptr)
     check_status(status)
-    @tfcall(:TF_AbortWhile, Void, (Ptr{Void},), params)
+    params
+end
+
+function abort_while(params)
+    @tfcall(:TF_AbortWhile, Void, (Ptr{Void},), Ref(params))
+end
+
+function finish_while(params)
+    status = Status()
+    outputs = Vector{TF_Output}(params.ninputs)
+    @tfcall(:TF_FinishWhile, Void, (Ptr{Void}, Ptr{Void}, Ptr{Void}), Ref(params), status.ptr, outputs)
+    check_status(status)
+    outputs
+end
+
+function c_while(condition, body, variables; name=nothing)
+    name === nothing && (name = "while")
+    name = String(name)
+    graph = get_def_graph()
+    params = new_while(graph, variables)
+    params.name = pointer(name)
+    n_inputs = length(variables)
+    cond_inputs_c = unsafe_wrap(Array, params.cond_inputs, n_inputs)
+    cond_inputs = Tensor.(cond_inputs_c)
+    local cond_output
+    as_default(Graph(params.cond_graph)) do
+        cond_output = condition(cond_inputs...)
+    end
+    params.cond_output = TF_Output(cond_output)
+    body_inputs_c = unsafe_wrap(Array, params.body_inputs, n_inputs)
+    body_inputs = Tensor.(body_inputs_c)
+    local body_outputs
+    as_default(Graph(params.body_graph)) do
+        body_outputs = body(body_inputs...)
+    end
+    body_outputs_c = unsafe_wrap(Array, params.body_outputs, n_inputs)
+    for i in 1:n_inputs
+        body_outputs_c[i] = TF_Output(body_outputs[i])
+    end
+    result = finish_while(params)
+    Tensor.(result)
 end
