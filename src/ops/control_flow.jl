@@ -435,7 +435,17 @@ function finish_while(params)
     outputs
 end
 
-function c_while(condition, body, variables; name=nothing)
+struct WhileLoopOptions
+    parallel_iterations::Int
+    back_prop::Bool
+    swap_memory::Bool
+end
+
+function WhileLoopOptions(;parallel_iterations=10, back_prop=true, swap_memory=false)
+    WhileLoopOptions(parallel_iterations, back_prop, swap_memory)
+end
+
+function c_while(condition, body, variables; name=nothing, options=WhileLoopOptions())
     name === nothing && (name = "while")
     name = String(name)
     graph = get_def_graph()
@@ -460,17 +470,17 @@ function c_while(condition, body, variables; name=nothing)
         body_outputs_c[i] = TF_Output(body_outputs[i])
     end
     result = Tensor.(finish_while(params))
-    ctx = create_while_context(graph, name, n_inputs)
+    ctx = create_while_context(graph, name, n_inputs; options=options)
     add_to_collection(:while_context, ctx)
     return result
 end
 
-function create_while_context(graph, name, n_inputs)
+function create_while_context(graph, name, n_inputs; options=WhileLoopOptions())
     ctx = tensorflow.WhileContextDef(
-        parallel_iterations=10,
+        parallel_iterations=options.parallel_iterations,
         context_name=name,
-        back_prop=true,
-        swap_memory=false,
+        back_prop=options.back_prop,
+        swap_memory=options.swap_memory,
         values_def=tensorflow.ValuesDef(values=String[]),
         loop_exit_names=String[])
     context_matcher = Regex("^$(name)/")
@@ -489,6 +499,8 @@ function create_while_context(graph, name, n_inputs)
     set_field!(ctx, :pivot_for_pred_name, "$(name)/merge0:0")
     switch_name = "$(name)/switch0"
     switch_op = get_node_by_name(switch_name) |> get |> get_def
+    # We assume the pivot tensor is the second input to the switch statement.
+    # The first input is the result of the merge. 
     cond_op = switch_op.input[2]
     set_field!(ctx, :pivot_for_body_name, "$(switch_name):0")
     set_field!(ctx, :pivot_name, "$(cond_op):0")
