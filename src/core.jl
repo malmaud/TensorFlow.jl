@@ -333,7 +333,7 @@ function get_collection end
     return g.collections[name]
 end
 
-const DEBUG_EXTEND_GRAPH = false
+const DEBUG_EXTEND_GRAPH = true
 
 function Base.convert(::Type{tensorflow.NodeDef}, proto::Vector{UInt8})
     b = IOBuffer()
@@ -351,14 +351,15 @@ end
     ph_names = Set{String}()
     for node_bytes in node_defs
         node_def = convert(tensorflow.NodeDef, node_bytes)
+        @show node_def
         if isnull(get_node_by_name(graph, node_def.name))
             # First try to directly add this node to the graph
-            try
-                new_op = Operation(node_def)
-                continue
-            catch err
-                DEBUG_EXTEND_GRAPH && warn(err)
-            end
+            # try
+            #     new_op = Operation(node_def)
+            #     continue
+            # catch err
+            #     DEBUG_EXTEND_GRAPH && warn(err)
+            # end
 
             # If that doesn't work (for example, the node has a
             # back edge), then import the node instead.
