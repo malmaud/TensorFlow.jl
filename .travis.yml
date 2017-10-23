@@ -24,3 +24,4 @@ after_success:
 matrix:
   allow_failures:
     - julia: nightly
+    - os: osx
