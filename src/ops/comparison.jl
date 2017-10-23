@@ -19,9 +19,6 @@ const OP_VERSION_CHANGE  = v"0.6.0-dev.1632"
 
 for (func, sym) in func_list
     @eval @define_binary($sym, $func)
-end
-
-for (func, sym) in func_list
     @eval @define_broadcast($sym, $func)
 end
 

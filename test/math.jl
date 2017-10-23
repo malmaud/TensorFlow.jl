@@ -233,6 +233,28 @@ end
     @test [2, -1, 3] == run(sess, round(Int, constant([1.7, -1.0, π])))
 end
 
+
+@testset "broadcasting operations" begin
+    x_jl = [1.0 5.0; 7.0 13.0]
+    x = constant(x_jl)
+    y_jl = [31.0 331.0; 3331.0 333331.0]
+    y = constant(y_jl)
+
+    @test run(sess, x.^2 .* y) == x_jl.^2 .* y_jl
+
+    #issue #336
+    a = [0.01]
+    b = [0.02]
+    v = constant([1.,2.])
+    @test_throws TensorFlow.TFException run(sess, v[1] * a)
+    @test 0.01 ≈ run(sess, v[1] .* a) |> first
+    @test 0.02 ≈ run(sess, v[1].* b) |> first
+    @test 0.0002 ≈ run(sess, v[1].* a .* b) |> first
+    @test 0.0002 ≈ run(sess, (v[1].* a) .* b) |> first
+    @test 0.0002 ≈ run(sess, v[1].* (a .* b)) |> first
+end
+
+
 @test [-1, 1, 0] == run(sess, TensorFlow.sign(constant([-1, 2, 0])))
 
 @test run(sess, squared_difference([1,2], 5)) == [16, 9]
