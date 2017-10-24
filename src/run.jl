@@ -193,7 +193,8 @@ end
 
 
 """
-    `run(sess::Session, output, input_dict::Dict)`
+    run(sess::Session, output, input_dict::Dict)
+
 
 Compute the result of one of more operations in the computation graph.
 """

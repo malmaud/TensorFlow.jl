@@ -571,7 +571,7 @@ mutable struct Session
 end
 
 """
-    `close(sess::Session)`
+    close(sess::Session)
 
 Closes the TensorFlow session, freeing the associated computational resources.
 """
