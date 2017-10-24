@@ -26,6 +26,15 @@ end
     end
 end
 
+@testset "Session closing" begin
+    session = tf.Session(Graph())
+    x = constant(1)
+    @test run(session, x) == 1
+    close(session)
+    close(session)  # Test that we can safely call `close` twice on the same session
+    @test_throws tf.ClosedSessionError run(session, x)
+end
+
 @testset "get_operations" begin
     let
         graph = Graph()

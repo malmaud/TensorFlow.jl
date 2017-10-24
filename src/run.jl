@@ -77,9 +77,18 @@ function build_input(tensor_map::Dict)
     input_tensors, input_values
 end
 
+struct ClosedSessionError <: Exception
+end
+
+function Base.show(io::IO, err::ClosedSessionError)
+    print(io, "An operation was attempted on a closed TensorFlow session.")
+end
+
 function run(sess::Session, inputs, input_values, outputs, targets)
     #Low level run, without size checking, and type conversion etc.
-
+    if sess.ptr == C_NULL
+        throw(ClosedSessionError())
+    end
     status = Status()
     output_values = fill(C_NULL, length(outputs))
     input_tensors = [RawTensor(x) for x in input_values]
@@ -184,6 +193,9 @@ end
 
 
 """
+    run(sess::Session, output, input_dict::Dict)
+
+
 Compute the result of one of more operations in the computation graph.
 """
 function run(sess::Session, output, input_dict)
