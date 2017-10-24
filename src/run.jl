@@ -81,7 +81,7 @@ struct ClosedSessionError <: Exception
 end
 
 function Base.show(io::IO, err::ClosedSessionError)
-    print(io, "Tried to call 'run' with a closed TensorFlow session.")
+    print(io, "An operation was attempted on a closed TensorFlow session.")
 end
 
 function run(sess::Session, inputs, input_values, outputs, targets)
