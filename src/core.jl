@@ -554,8 +554,7 @@ mutable struct Session
         this = new(ptr, graph)
         check_status(status)
         finalizer(this, self->begin
-            status = Status()
-            @tfcall(:TF_DeleteSession, Void, (Ptr{Void}, Ptr{Void}), self.ptr, status.ptr)
+            close(self)
         end)
         return this
     end
@@ -569,6 +568,21 @@ mutable struct Session
         end
         Session(get_def_graph(), config)
     end
+end
+
+"""
+    `close(sess::Session)`
+
+Closes the TensorFlow session, freeing the associated computational resources.
+"""
+function Base.close(sess::Session)
+    if sess.ptr != C_NULL
+        status = Status()
+        @tfcall(:TF_DeleteSession, Void, (Ptr{Void}, Ptr{Void}), sess.ptr, status.ptr)
+        check_status(status)
+        sess.ptr = C_NULL
+    end
+    return nothing
 end
 
 
