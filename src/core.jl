@@ -560,14 +560,14 @@ mutable struct Session
         return this
     end
 
-    function Session(;config=nothing, allow_growth=false)
+    function Session(;config=nothing, allow_growth=false, graph=get_def_graph())
         if config === nothing
             config = tensorflow.ConfigProto()
             gpu_config = tensorflow.GPUOptions()
             set_field!(gpu_config, :allow_growth, allow_growth)
             set_field!(config, :gpu_options, gpu_config)
         end
-        Session(get_def_graph(), config)
+        Session(graph, config)
     end
 end
 
