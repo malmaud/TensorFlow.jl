@@ -50,7 +50,7 @@ end
     local out
     tensor_value(t) = Tensor(t)
     tensor_value(t::IndexedSlices) = t.values
-    square(t) = t .^ convert(Tensor{eltype(t)}, 2.0)
+    square(t) = t .* t
     with_op_name(name, "GlobalNorm") do
         out = sqrt(add_n([reduce_sum(square(tensor_value(t))) for t in t_list]))
     end
