@@ -403,8 +403,8 @@ end
                         input_name = new_name
                     end
                     node_def.input[i] = input_name
-
-                    import_options.input_mapping[(new_name, source_port)] = Tensor(get(existing_node), dest_port)
+                    # The 'Any' here is needed to suppress trying to automatically determine the output type of the tensor, which for some reason is crashing.
+                    import_options.input_mapping[(new_name, source_port)] = Tensor{Any}(get(existing_node), dest_port)
                     new_ph = tensorflow.NodeDef()
                     set_field!(new_ph, :name, new_name)
                     if is_control
