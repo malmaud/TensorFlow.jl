@@ -452,7 +452,7 @@ function while_loop(condition, body, variables; name=nothing, options=WhileLoopO
     # TODO: fix underlying GC issue
     gc_enable(false)
     variables = Tensor.(variables)
-    name === nothing && (name = "while")
+    name === nothing && (name = get_name("while"))
     name = String(name)
     graph = get_def_graph()
     params = new_while(graph, variables)
