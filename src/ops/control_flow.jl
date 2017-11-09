@@ -412,7 +412,7 @@ mutable struct WhileParams
     body_graph::Ptr{Void}
     body_inputs::Ptr{TF_Output}
     body_outputs::Ptr{TF_Output}
-    name::Ptr{Void}
+    name::Ptr{UInt8}
 end
 
 function new_while(graph, inputs)
@@ -446,6 +446,11 @@ function WhileLoopOptions(;parallel_iterations=10, back_prop=true, swap_memory=f
 end
 
 function while_loop(condition, body, variables; name=nothing, options=WhileLoopOptions())
+    # GC is somehow corrupting the WhileParams object before finish_while
+    # can be called on it. For now we just turn off GC.
+    # As a result, this function would stochastically segfault.
+    # TODO: fix underlying GC issue
+    gc_enable(false)
     variables = Tensor.(variables)
     name === nothing && (name = "while")
     name = String(name)
@@ -471,8 +476,10 @@ function while_loop(condition, body, variables; name=nothing, options=WhileLoopO
         body_outputs_c[i] = TF_Output(body_outputs[i])
     end
     result = Tensor.(finish_while(params))
+    gc_enable(true)
     ctx = create_while_context(graph, name, n_inputs; options=options)
     add_to_collection(:while_context, ctx)
+
     return result
 end
 
@@ -497,8 +504,8 @@ function create_while_context(graph, name, n_inputs; options=WhileLoopOptions())
     end
     # push!(ctx.values_def.values, "$(name)/merge0:1")
     # push!(ctx.values_def.values, "$(name)/switch0:1")
-    set_field!(ctx, :pivot_for_pred_name, "$(name)/merge0:0")
-    switch_name = "$(name)/switch0"
+    set_field!(ctx, :pivot_for_pred_name, "$(name)/Merge:0")
+    switch_name = "$(name)/Switch"
     switch_op = get_node_by_name(switch_name) |> get |> get_def
     # We assume the pivot tensor is the second input to the switch statement.
     # The first input is the result of the merge.
@@ -506,7 +513,12 @@ function create_while_context(graph, name, n_inputs; options=WhileLoopOptions())
     set_field!(ctx, :pivot_for_body_name, "$(switch_name):0")
     set_field!(ctx, :pivot_name, "$(cond_op):0")
     for i in 1:n_inputs
-        push!(ctx.loop_exit_names, "$(name)/exit$(i-1):0")
+        if i == 1
+            tensor_name = "Exit"
+        else
+            tensor_name = "Exit_$(i-1)"
+        end
+        push!(ctx.loop_exit_names, "$(name)/$(tensor_name):0")
     end
     # dump(ctx)
     return ctx

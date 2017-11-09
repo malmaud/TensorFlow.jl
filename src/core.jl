@@ -351,7 +351,6 @@ end
     ph_names = Set{String}()
     for node_bytes in node_defs
         node_def = convert(tensorflow.NodeDef, node_bytes)
-        @show node_def
         if isnull(get_node_by_name(graph, node_def.name))
             # First try to directly add this node to the graph
             # try
