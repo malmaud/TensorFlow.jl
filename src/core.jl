@@ -249,6 +249,7 @@ mutable struct Graph
     shapes::Dict{String, TensorShape}
     name_idx::Dict{String, Int}
     op_context::OperationContext
+    input_override::Dict
 
     function Graph(ptr::Ptr)
         collections = Dict{Symbol, Any}()
@@ -257,11 +258,24 @@ mutable struct Graph
         collections[:Summaries] = []
         collections[:QueueRunners] = []
         collections[:while_context] = []
-        self = new(ptr, collections, Dict{String, TensorShape}(), Dict{String, Int}(), OperationContext(Vector{Operation}[], String[], tensorflow.WhileContextDef[], Device[], Ref(false)))
+        self = new(ptr, collections, Dict{String, TensorShape}(), Dict{String, Int}(), OperationContext(Vector{Operation}[], String[], tensorflow.WhileContextDef[], Device[], Ref(false)), Dict())
         self
     end
 
 end
+
+function add_input_override(g::Graph, original, override)
+    if override === nothing
+        delete!(g.input_override, original)
+    else
+        g.input_override[original] = override
+    end
+end
+
+function clear_input_overrides(g::Graph)
+    empty!(g.input_override)
+end
+
 
 function Graph()
     ptr = @tfcall(:TF_NewGraph, Ptr{Void}, ())
@@ -1325,7 +1339,11 @@ Port(port::Port) = port
 Tensor(p::Port) = Tensor(Operation(p.node_ptr), p.index+1)
 
 function add_input(desc::NodeDescription, input::Union{Tensor, Operation})
-    @tfcall(:TF_AddInput, Void, (Ptr{Void}, Port), desc.ptr, Port(input))
+    graph = get(get_graph(desc))
+    remapped_input = get(graph.input_override, input, input)
+    @show input
+    @show remapped_input
+    @tfcall(:TF_AddInput, Void, (Ptr{Void}, Port), desc.ptr, Port(remapped_input))
 end
 
 function add_input(desc::NodeDescription, inputs::Vector)

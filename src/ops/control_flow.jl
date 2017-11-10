@@ -445,13 +445,98 @@ function WhileLoopOptions(;parallel_iterations=10, back_prop=true, swap_memory=f
     WhileLoopOptions(parallel_iterations, back_prop, swap_memory)
 end
 
+function external_tensor_from_err(err)
+    if isa(err, TFException)
+        errmsg = string(err)
+        m  = match(r"Input \d+ \('(.*)'\) for '(.*)' was not previously added to ShapeRefiner.", errmsg)
+        if m !== nothing
+            return m[1]
+        end
+    end
+    return nothing
+end
+
+function make_placeholder(tensor)
+    placeholder(eltype(tensor))
+end
+
+struct WhileGraph
+    body_func
+    cond_func
+    vars
+    input_overrides
+end
+
+"""
+    internalize()
+
+
+"""
+function internalize(outer_graph, body_func, cond_func, var_list, input_overrides=Int[])
+    external_name = nothing
+    try
+        body_graph = Graph()
+        as_default(body_graph) do
+            inner_vars = []
+            for var in var_list
+                new_var = make_placeholder(var)
+                push!(inner_vars, new_var)
+            end
+            for override in input_overrides
+                add_input_override(body_graph, var_list[override], inner_vars[override])
+                @show override
+            end
+            body_func(inner_vars...)
+        end
+        cond_graph = Graph()
+        as_default(cond_graph) do
+            inner_vars = []
+            for var in var_list
+                new_var = make_placeholder(var)
+                push!(inner_vars, new_var)
+            end
+            for override in input_overrides
+                add_input_override(cond_graph, var_list[override], inner_vars[override])
+                @show override
+            end
+            cond_func(inner_vars...)
+        end
+    catch err
+        external_name = external_tensor_from_err(err)
+        external_name === nothing && rethrow()
+        @show external_name
+    end
+    if external_name !== nothing
+        external_tensor = get_tensor_by_name(outer_graph, external_name)
+        new_var_list = copy(var_list)
+        push!(new_var_list, external_tensor)
+        push!(input_overrides, length(new_var_list))
+        function new_body_func(vars...)
+            out = body_func((vars[1:end-1])...)
+            push!(out, vars[end])
+        end
+        function new_cond_func(vars...)
+            cond_func((vars[1:end-1])...)
+        end
+        internalize(outer_graph, new_body_func, new_cond_func, new_var_list, input_overrides)
+    else
+        return WhileGraph(body_func, cond_func, var_list, input_overrides)
+    end
+end
+
+
 function while_loop(condition, body, variables; name=nothing, options=WhileLoopOptions())
     # GC is somehow corrupting the WhileParams object before finish_while
     # can be called on it. For now we just turn off GC.
     # As a result, this function would stochastically segfault.
     # TODO: fix underlying GC issue
-    gc_enable(false)
     variables = Tensor.(variables)
+    internalized_graph = internalize(get_def_graph(), body, condition, variables)
+    body = internalized_graph.body_func
+    condition = internalized_graph.cond_func
+    variables = internalized_graph.vars
+    gc_enable(false)
+
     name === nothing && (name = get_name("while"))
     name = String(name)
     graph = get_def_graph()
@@ -469,12 +554,16 @@ function while_loop(condition, body, variables; name=nothing, options=WhileLoopO
     body_inputs = Tensor.(body_inputs_c)
     local body_outputs
     as_default(Graph(params.body_graph)) do
+        for override in internalized_graph.input_overrides
+            add_input_override(get_def_graph(), variables[override], body_inputs[override])
+        end
         body_outputs = body(body_inputs...)
     end
     body_outputs_c = unsafe_wrap(Array, params.body_outputs, n_inputs)
     for i in 1:n_inputs
         body_outputs_c[i] = TF_Output(body_outputs[i])
     end
+    # return params
     result = Tensor.(finish_while(params))
     gc_enable(true)
     ctx = create_while_context(graph, name, n_inputs; options=options)
