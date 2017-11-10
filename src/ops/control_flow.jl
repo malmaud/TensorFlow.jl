@@ -514,6 +514,7 @@ function internalize(outer_graph, body_func, cond_func, var_list, input_override
         function new_body_func(vars...)
             out = body_func((vars[1:end-1])...)
             push!(out, vars[end])
+            return out
         end
         function new_cond_func(vars...)
             cond_func((vars[1:end-1])...)
@@ -530,6 +531,7 @@ function while_loop(condition, body, variables; name=nothing, options=WhileLoopO
     # can be called on it. For now we just turn off GC.
     # As a result, this function would stochastically segfault.
     # TODO: fix underlying GC issue
+    n_variable_original = length(variables)
     variables = Tensor.(variables)
     internalized_graph = internalize(get_def_graph(), body, condition, variables)
     body = internalized_graph.body_func
@@ -569,7 +571,7 @@ function while_loop(condition, body, variables; name=nothing, options=WhileLoopO
     ctx = create_while_context(graph, name, n_inputs; options=options)
     add_to_collection(:while_context, ctx)
 
-    return result
+    return result[1:n_variable_original]
 end
 
 function create_while_context(graph, name, n_inputs; options=WhileLoopOptions())
