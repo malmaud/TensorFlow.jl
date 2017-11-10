@@ -484,7 +484,6 @@ function internalize(outer_graph, body_func, cond_func, var_list, input_override
             end
             for override in input_overrides
                 add_input_override(body_graph, var_list[override], inner_vars[override])
-                @show override
             end
             body_func(inner_vars...)
         end
@@ -497,14 +496,15 @@ function internalize(outer_graph, body_func, cond_func, var_list, input_override
             end
             for override in input_overrides
                 add_input_override(cond_graph, var_list[override], inner_vars[override])
-                @show override
             end
             cond_func(inner_vars...)
         end
     catch err
         external_name = external_tensor_from_err(err)
-        external_name === nothing && rethrow()
-        @show external_name
+        if external_name === nothing
+            info("got err")
+            rethrow()
+        end
     end
     if external_name !== nothing
         external_tensor = get_tensor_by_name(outer_graph, external_name)
@@ -525,6 +525,11 @@ function internalize(outer_graph, body_func, cond_func, var_list, input_override
     end
 end
 
+function add_overrides(overrides, variables, inputs)
+    for override in overrides#internalized_graph.input_overrides
+        add_input_override(get_def_graph(), variables[override], inputs[override])
+    end
+end
 
 function while_loop(condition, body, variables; name=nothing, options=WhileLoopOptions())
     # GC is somehow corrupting the WhileParams object before finish_while
@@ -549,6 +554,7 @@ function while_loop(condition, body, variables; name=nothing, options=WhileLoopO
     cond_inputs = Tensor.(cond_inputs_c)
     local cond_output
     as_default(Graph(params.cond_graph)) do
+        add_overrides(internalized_graph.input_overrides, variables, cond_inputs)
         cond_output = condition(cond_inputs...)
     end
     params.cond_output = TF_Output(cond_output)
@@ -556,9 +562,7 @@ function while_loop(condition, body, variables; name=nothing, options=WhileLoopO
     body_inputs = Tensor.(body_inputs_c)
     local body_outputs
     as_default(Graph(params.body_graph)) do
-        for override in internalized_graph.input_overrides
-            add_input_override(get_def_graph(), variables[override], body_inputs[override])
-        end
+        add_overrides(internalized_graph.input_overrides, variables, body_inputs)
         body_outputs = body(body_inputs...)
     end
     body_outputs_c = unsafe_wrap(Array, params.body_outputs, n_inputs)

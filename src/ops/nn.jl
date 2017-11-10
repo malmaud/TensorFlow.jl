@@ -105,6 +105,7 @@ all elements but all later dimensions may vary.
 * `scope`: `VariableScope` for the subgraph. Defaults to `RNN`.
 """
 function dynamic_rnn(cell, inputs, sequence_length=nothing; initial_state=nothing, dtype=nothing, parallel_iterations=nothing, swap_memory=false, time_major=false, scope="RNN")
+    inputs = tf.Tensor(inputs)
     input_dim = tf.get_shape(inputs, 3)
     #TODO Make this all work with non-3D inputs
 
@@ -124,6 +125,8 @@ function dynamic_rnn(cell, inputs, sequence_length=nothing; initial_state=nothin
     initial_data = inputs[:,1,:]
     if initial_state === nothing
         initial_state = zero_state(cell, initial_data, dtype)
+    else
+        initial_state = tf.Tensor(initial_state)
     end
     # By **MAGIC** these values end up in `while_output` even when num_steps=1
 

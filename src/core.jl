@@ -1341,8 +1341,6 @@ Tensor(p::Port) = Tensor(Operation(p.node_ptr), p.index+1)
 function add_input(desc::NodeDescription, input::Union{Tensor, Operation})
     graph = get(get_graph(desc))
     remapped_input = get(graph.input_override, input, input)
-    @show input
-    @show remapped_input
     @tfcall(:TF_AddInput, Void, (Ptr{Void}, Port), desc.ptr, Port(remapped_input))
 end
 
