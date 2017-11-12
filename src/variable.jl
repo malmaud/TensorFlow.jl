@@ -77,6 +77,10 @@ function Variable(initial_value; name="", trainable=true, literal_name=false)
     return self
 end
 
+"""
+Assumes a variable named `s` in graph `graph` already exists and returns
+a reference to it.
+"""
 @tf.with_def_graph function Variable(graph::tf.Graph, s::AbstractString)
     var_node = tf.Tensor(get(tf.get_node_by_name(graph, s)))
     assign_node = tf.Tensor(get(tf.get_node_by_name(graph, "$s/Assign")))
@@ -149,7 +153,11 @@ function tf.get_variable(var_name, shape, dtype; trainable=true, kwargs...)
         push!(scope_stack, scope)
         name = join([get(x.name) for x in scope_stack], "/")
         try
-            initializer = Distributions.Normal(0, .01)
+            if dtype <: Integer
+                initializer = tf.ConstantInitializer(0)
+            else
+                initializer = Distributions.Normal(0, .01)
+            end
             reuse = false
             for scope in scope_stack
                 if !isnull(scope.initializer)
