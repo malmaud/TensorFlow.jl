@@ -1128,13 +1128,6 @@ function Operation(ptr::Ptr)
     return self
 end
 
-struct NodeNameNotFound <: Exception
-    name::String
-end
-
-function Base.show(io::IO, err::NodeNameNotFound)
-    print(io, "Node $(err.name) not found in graph")
-end
 
 get_graph(n::AbstractOperation) = Operation(n).graph
 
@@ -1555,12 +1548,12 @@ end
 
 Returns the tensor with name `name` (in name:port format) in the given graph.
 
-Throws a `NodeNameNotFound` exception if there is no such tensor.
+Returns `nothing` if the tensor is not found.
 """
 @with_def_graph function get_tensor_by_name(graph::Graph, full_name)
     name, port = parse_port_name(full_name)
     maybe_node = get_node_by_name(graph, name)
-    isnull(maybe_node) && throw(NodeNameNotFound(full_name))
+    isnull(maybe_node) && return nothing
     node = get(maybe_node)
     return Tensor(node, port)
 end
