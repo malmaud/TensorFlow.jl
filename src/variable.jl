@@ -67,14 +67,27 @@ function Variable(initial_value; name="", trainable=true, literal_name=false)
     if !literal_name
         name = tf.get_name(name)
     end
-    self.var_node = tf.Ops.variable_v2(name=name, dtype=eltype(initial_value), shape=tf.TensorShape([size(initial_value)...]))
+    graph = tf.get_def_graph()
+    if graph.parent === nothing
+        self.var_node = tf.Ops.variable_v2(name=name, dtype=eltype(initial_value), shape=tf.TensorShape([size(initial_value)...]))
 
-    self.assign_node = tf.Ops.assign(tf.Tensor(self.var_node), initial_value, name="$name/Assign")
-    tf.add_to_collection(:Variables, self)
-    if trainable
-        tf.add_to_collection(:TrainableVariables, self)
+        self.assign_node = tf.Ops.assign(tf.Tensor(self.var_node), initial_value, name="$name/Assign")
+        tf.add_to_collection(:Variables, self)
+        if trainable
+            tf.add_to_collection(:TrainableVariables, self)
+        end
+        return self
+    else
+        parent_graph = graph.parent.graph
+        base_name = name[(length(graph.parent.prefix)+2):end]  # maybe use regex instead
+        parent_var =  tf.get_tensor_by_name(parent_graph, base_name)
+        if parent_var === nothing
+            tf.as_default(parent_graph) do
+                parent_var = Variable(initial_value; name=base_name, trainable=trainable, literal_name=literal_name)
+            end
+        end
+        return parent_var
     end
-    return self
 end
 
 """

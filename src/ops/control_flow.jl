@@ -472,10 +472,15 @@ end
 
 
 """
-function internalize(outer_graph, body_func, cond_func, var_list, input_overrides=Int[])
+function internalize(outer_graph, body_func, cond_func, var_list, loop_name, stack_depth=1, input_overrides=Int[])
+    if stack_depth > 2
+        error("internalize is recursing too much")
+        return nothing
+    end
     external_name = nothing
     try
         body_graph = Graph()
+        body_graph.parent = ParentGraph(outer_graph, loop_name)
         as_default(body_graph) do
             inner_vars = []
             for var in var_list
@@ -488,6 +493,7 @@ function internalize(outer_graph, body_func, cond_func, var_list, input_override
             body_func(inner_vars...)
         end
         cond_graph = Graph()
+        cond_graph.parent = ParentGraph(outer_graph, loop_name)
         as_default(cond_graph) do
             inner_vars = []
             for var in var_list
@@ -508,6 +514,7 @@ function internalize(outer_graph, body_func, cond_func, var_list, input_override
     end
     if external_name !== nothing
         external_tensor = get_tensor_by_name(outer_graph, external_name)
+        @show external_tensor
         new_var_list = copy(var_list)
         push!(new_var_list, external_tensor)
         push!(input_overrides, length(new_var_list))
@@ -519,13 +526,14 @@ function internalize(outer_graph, body_func, cond_func, var_list, input_override
         function new_cond_func(vars...)
             cond_func((vars[1:end-1])...)
         end
-        internalize(outer_graph, new_body_func, new_cond_func, new_var_list, input_overrides)
+        internalize(outer_graph, new_body_func, new_cond_func, new_var_list, loop_name, stack_depth+1, input_overrides)
     else
         return WhileGraph(body_func, cond_func, var_list, input_overrides)
     end
 end
 
 function add_overrides(overrides, variables, inputs)
+
     for override in overrides#internalized_graph.input_overrides
         add_input_override(get_def_graph(), variables[override], inputs[override])
     end
@@ -538,22 +546,26 @@ function while_loop(condition, body, variables; name=nothing, options=WhileLoopO
     # TODO: fix underlying GC issue
     n_variable_original = length(variables)
     variables = Tensor.(variables)
-    internalized_graph = internalize(get_def_graph(), body, condition, variables)
+    name === nothing && (name = get_name("while"))
+    name = String(name)
+    internalized_graph = internalize(get_def_graph(), body, condition, variables, name)
     body = internalized_graph.body_func
     condition = internalized_graph.cond_func
     variables = internalized_graph.vars
+    identity_variables = identity.(variables)
     gc_enable(false)
 
-    name === nothing && (name = get_name("while"))
-    name = String(name)
+
     graph = get_def_graph()
-    params = new_while(graph, variables)
+    params = new_while(graph, identity_variables)
     params.name = pointer(name)
     n_inputs = length(variables)
     cond_inputs_c = unsafe_wrap(Array, params.cond_inputs, n_inputs)
     cond_inputs = Tensor.(cond_inputs_c)
     local cond_output
-    as_default(Graph(params.cond_graph)) do
+    cond_graph = Graph(params.cond_graph)
+    cond_graph.parent = ParentGraph(graph, name)
+    as_default(cond_graph) do
         add_overrides(internalized_graph.input_overrides, variables, cond_inputs)
         cond_output = condition(cond_inputs...)
     end
@@ -561,8 +573,12 @@ function while_loop(condition, body, variables; name=nothing, options=WhileLoopO
     body_inputs_c = unsafe_wrap(Array, params.body_inputs, n_inputs)
     body_inputs = Tensor.(body_inputs_c)
     local body_outputs
-    as_default(Graph(params.body_graph)) do
+    body_graph = Graph(params.body_graph)
+    body_graph.parent = ParentGraph(graph, name)
+
+    as_default(body_graph) do
         add_overrides(internalized_graph.input_overrides, variables, body_inputs)
+
         body_outputs = body(body_inputs...)
     end
     body_outputs_c = unsafe_wrap(Array, params.body_outputs, n_inputs)

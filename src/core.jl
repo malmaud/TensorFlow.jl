@@ -240,6 +240,11 @@ TensorShape(t::TensorShape) = copy(t)
 
 function get_shape end
 
+struct ParentGraph
+    graph::Any # Really, Graph
+    prefix::String
+end
+
 """
 A TensorFlow computation graph
 """
@@ -250,6 +255,7 @@ mutable struct Graph
     name_idx::Dict{String, Int}
     op_context::OperationContext
     input_override::Dict
+    parent::Union{Void, ParentGraph}
 
     function Graph(ptr::Ptr)
         collections = Dict{Symbol, Any}()
@@ -258,7 +264,7 @@ mutable struct Graph
         collections[:Summaries] = []
         collections[:QueueRunners] = []
         collections[:while_context] = []
-        self = new(ptr, collections, Dict{String, TensorShape}(), Dict{String, Int}(), OperationContext(Vector{Operation}[], String[], tensorflow.WhileContextDef[], Device[], Ref(false)), Dict())
+        self = new(ptr, collections, Dict{String, TensorShape}(), Dict{String, Int}(), OperationContext(Vector{Operation}[], String[], tensorflow.WhileContextDef[], Device[], Ref(false)), Dict(), nothing)
         self
     end
 
