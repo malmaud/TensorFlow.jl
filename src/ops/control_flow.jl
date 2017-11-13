@@ -473,10 +473,10 @@ end
 
 """
 function internalize(outer_graph, body_func, cond_func, var_list, loop_name, stack_depth=1, input_overrides=Int[])
-    if stack_depth > 2
-        error("internalize is recursing too much")
-        return nothing
-    end
+    # if stack_depth > 2
+    #     error("internalize is recursing too much")
+    #     return nothing
+    # end
     external_name = nothing
     try
         body_graph = Graph()

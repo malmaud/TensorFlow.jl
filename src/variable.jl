@@ -79,7 +79,8 @@ function Variable(initial_value; name="", trainable=true, literal_name=false)
         return self
     else
         parent_graph = graph.parent.graph
-        base_name = name[(length(graph.parent.prefix)+2):end]  # maybe use regex instead
+        # base_name = name[(length(graph.parent.prefix)+2):end]  # maybe use regex instead
+        base_name = name
         parent_var =  tf.get_tensor_by_name(parent_graph, base_name)
         if parent_var === nothing
             tf.as_default(parent_graph) do
