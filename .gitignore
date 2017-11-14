@@ -10,3 +10,4 @@ docs/build
 *.swp
 *.jld
 scratch
+.vscode
