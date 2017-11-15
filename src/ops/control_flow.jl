@@ -248,7 +248,7 @@ Example using shape_invariants:
       shape_invariants=[i0.get_shape(), tensor_shape.TensorShape([None, 2])])
   ```
 """
-@op function while_loop(condition, body, variables; name=nothing, shape_invariants=nothing,
+@op function jl_while_loop(condition, body, variables; name=nothing, shape_invariants=nothing,
                         parallel_iterations=10, back_prop=true, swap_memory=false)
     g = Graph()
     def_graph = get_def_graph()
@@ -402,4 +402,235 @@ Example using shape_invariants:
 
     extend_graph(g_def.node)
     build_output(variables, output)
+end
+
+mutable struct WhileParams
+    ninputs::Cint
+    cond_graph::Ptr{Void}
+    cond_inputs::Ptr{TF_Output}
+    cond_output::TF_Output
+    body_graph::Ptr{Void}
+    body_inputs::Ptr{TF_Output}
+    body_outputs::Ptr{TF_Output}
+    name::Ptr{UInt8}
+end
+
+function new_while(graph, inputs)
+    status = Status()
+    c_inputs = TF_Output.(inputs)
+    params = @tfcall(:TF_NewWhile, WhileParams, (Ptr{Void}, Ptr{Void}, Cint, Ptr{Void}), graph.ptr, c_inputs, length(c_inputs), status.ptr)
+    check_status(status)
+    params
+end
+
+function abort_while(params)
+    @tfcall(:TF_AbortWhile, Void, (Ptr{Void},), Ref(params))
+end
+
+function finish_while(params)
+    status = Status()
+    outputs = Vector{TF_Output}(params.ninputs)
+    @tfcall(:TF_FinishWhile, Void, (Ptr{Void}, Ptr{Void}, Ptr{Void}), Ref(params), status.ptr, outputs)
+    check_status(status)
+    outputs
+end
+
+struct WhileLoopOptions
+    parallel_iterations::Int
+    back_prop::Bool
+    swap_memory::Bool
+end
+
+function WhileLoopOptions(;parallel_iterations=10, back_prop=true, swap_memory=false)
+    WhileLoopOptions(parallel_iterations, back_prop, swap_memory)
+end
+
+function external_tensor_from_err(err)
+    if isa(err, TFException)
+        errmsg = string(err)
+        m  = match(r"Input \d+ \('(.*)'\) for '(.*)' was not previously added to ShapeRefiner.", errmsg)
+        if m !== nothing
+            return m[1]
+        end
+    end
+    return nothing
+end
+
+function make_placeholder(tensor)
+    placeholder(eltype(tensor))
+end
+
+struct WhileGraph
+    body_func
+    cond_func
+    vars
+    input_overrides
+end
+
+"""
+    internalize()
+
+
+"""
+function internalize(outer_graph, body_func, cond_func, var_list, loop_name, stack_depth=1, input_overrides=Int[])
+    # if stack_depth > 2
+    #     error("internalize is recursing too much")
+    #     return nothing
+    # end
+    external_name = nothing
+    try
+        body_graph = Graph()
+        body_graph.parent = ParentGraph(outer_graph, loop_name)
+        as_default(body_graph) do
+            inner_vars = []
+            for var in var_list
+                new_var = make_placeholder(var)
+                push!(inner_vars, new_var)
+            end
+            for override in input_overrides
+                add_input_override(body_graph, var_list[override], inner_vars[override])
+            end
+            body_func(inner_vars...)
+        end
+        cond_graph = Graph()
+        cond_graph.parent = ParentGraph(outer_graph, loop_name)
+        as_default(cond_graph) do
+            inner_vars = []
+            for var in var_list
+                new_var = make_placeholder(var)
+                push!(inner_vars, new_var)
+            end
+            for override in input_overrides
+                add_input_override(cond_graph, var_list[override], inner_vars[override])
+            end
+            cond_func(inner_vars...)
+        end
+    catch err
+        external_name = external_tensor_from_err(err)
+        if external_name === nothing
+            info("got err")
+            rethrow()
+        end
+    end
+    if external_name !== nothing
+        external_tensor = get_tensor_by_name(outer_graph, external_name)
+        @show external_tensor
+        new_var_list = copy(var_list)
+        push!(new_var_list, external_tensor)
+        push!(input_overrides, length(new_var_list))
+        function new_body_func(vars...)
+            out = body_func((vars[1:end-1])...)
+            push!(out, vars[end])
+            return out
+        end
+        function new_cond_func(vars...)
+            cond_func((vars[1:end-1])...)
+        end
+        internalize(outer_graph, new_body_func, new_cond_func, new_var_list, loop_name, stack_depth+1, input_overrides)
+    else
+        return WhileGraph(body_func, cond_func, var_list, input_overrides)
+    end
+end
+
+function add_overrides(overrides, variables, inputs)
+
+    for override in overrides#internalized_graph.input_overrides
+        add_input_override(get_def_graph(), variables[override], inputs[override])
+    end
+end
+
+function while_loop(condition, body, variables; name=nothing, options=WhileLoopOptions())
+    # GC is somehow corrupting the WhileParams object before finish_while
+    # can be called on it. For now we just turn off GC.
+    # As a result, this function would stochastically segfault.
+    # TODO: fix underlying GC issue
+    n_variable_original = length(variables)
+    variables = Tensor.(variables)
+    name === nothing && (name = get_name("while"))
+    name = String(name)
+    internalized_graph = internalize(get_def_graph(), body, condition, variables, name)
+    body = internalized_graph.body_func
+    condition = internalized_graph.cond_func
+    variables = internalized_graph.vars
+    identity_variables = identity.(variables)
+    gc_enable(false)
+
+
+    graph = get_def_graph()
+    params = new_while(graph, identity_variables)
+    params.name = pointer(name)
+    n_inputs = length(variables)
+    cond_inputs_c = unsafe_wrap(Array, params.cond_inputs, n_inputs)
+    cond_inputs = Tensor.(cond_inputs_c)
+    local cond_output
+    cond_graph = Graph(params.cond_graph)
+    cond_graph.parent = ParentGraph(graph, name)
+    as_default(cond_graph) do
+        add_overrides(internalized_graph.input_overrides, variables, cond_inputs)
+        cond_output = condition(cond_inputs...)
+    end
+    params.cond_output = TF_Output(cond_output)
+    body_inputs_c = unsafe_wrap(Array, params.body_inputs, n_inputs)
+    body_inputs = Tensor.(body_inputs_c)
+    local body_outputs
+    body_graph = Graph(params.body_graph)
+    body_graph.parent = ParentGraph(graph, name)
+
+    as_default(body_graph) do
+        add_overrides(internalized_graph.input_overrides, variables, body_inputs)
+
+        body_outputs = body(body_inputs...)
+    end
+    body_outputs_c = unsafe_wrap(Array, params.body_outputs, n_inputs)
+    for i in 1:n_inputs
+        body_outputs_c[i] = TF_Output(body_outputs[i])
+    end
+    # return params
+    result = Tensor.(finish_while(params))
+    gc_enable(true)
+    ctx = create_while_context(graph, name, n_inputs; options=options)
+    add_to_collection(:while_context, ctx)
+
+    return result[1:n_variable_original]
+end
+
+function create_while_context(graph, name, n_inputs; options=WhileLoopOptions())
+    ctx = tensorflow.WhileContextDef(
+        parallel_iterations=options.parallel_iterations,
+        context_name=name,
+        back_prop=options.back_prop,
+        swap_memory=options.swap_memory,
+        values_def=tensorflow.ValuesDef(values=String[]),
+        loop_exit_names=String[])
+    context_matcher = Regex("^$(name)/")
+    for op in get_operations(graph)
+        # @show op
+        if ismatch(context_matcher, get_def(op).name)
+            def = get_def(op)
+            n_outputs = length(get_op_def(def.op).output_arg)
+            for i in 1:n_outputs
+                push!(ctx.values_def.values, "$(def.name):$(i-1)")
+            end
+        end
+    end
+    # push!(ctx.values_def.values, "$(name)/merge0:1")
+    # push!(ctx.values_def.values, "$(name)/switch0:1")
+    set_field!(ctx, :pivot_for_pred_name, "$(name)/Merge:0")
+    switch_name = "$(name)/Switch"
+    switch_op = get_node_by_name(switch_name) |> get |> get_def
+    # We assume the pivot tensor is the second input to the switch statement.
+    # The first input is the result of the merge.
+    cond_op = switch_op.input[2]
+    set_field!(ctx, :pivot_for_body_name, "$(switch_name):0")
+    set_field!(ctx, :pivot_name, "$(cond_op):0")
+    for i in 1:n_inputs
+        if i == 1
+            tensor_name = "Exit"
+        else
+            tensor_name = "Exit_$(i-1)"
+        end
+        push!(ctx.loop_exit_names, "$(name)/$(tensor_name):0")
+    end
+    # dump(ctx)
+    return ctx
 end

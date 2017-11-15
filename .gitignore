@@ -1,12 +1,10 @@
 deps/usr
 deps/downloads
 deps/miniconda
-src/scratch.jl
 tfdocs
 docs/build
 *.DS_Store
 *.*~
-
 *.swp
 *.jld
 scratch

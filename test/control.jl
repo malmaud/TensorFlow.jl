@@ -19,10 +19,12 @@ end
     f2 = ()->y+23
     result = run(sess, cond(x<y, f1, f2))
     @test 17*2 == result
-    inc = constant(1)
-    i = constant(1)
-    w = TensorFlow.while_loop((i,s)->i≤5, (i,s)->[i+inc, s+i], [i, 0])
-    @test run(sess, w)[2] == sum(1:5)
-    grad = gradients(w[1], i)
-    @test run(sess, grad) == 1
+
+    s=Session(Graph())
+    @tf i = constant(1)
+    @tf weight = placeholder(Float32)
+    w=while_loop((i,res)->i<5, (i,res)->[i+1, res.*weight], [i, 2.0])
+
+
+    g=gradients(w[2], weight)
 end

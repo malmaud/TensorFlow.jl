@@ -67,16 +67,34 @@ function Variable(initial_value; name="", trainable=true, literal_name=false)
     if !literal_name
         name = tf.get_name(name)
     end
-    self.var_node = tf.Ops.variable_v2(name=name, dtype=eltype(initial_value), shape=tf.TensorShape([size(initial_value)...]))
+    graph = tf.get_def_graph()
+    if graph.parent === nothing
+        self.var_node = tf.Ops.variable_v2(name=name, dtype=eltype(initial_value), shape=tf.TensorShape([size(initial_value)...]))
 
-    self.assign_node = tf.Ops.assign(tf.Tensor(self.var_node), initial_value, name="$name/Assign")
-    tf.add_to_collection(:Variables, self)
-    if trainable
-        tf.add_to_collection(:TrainableVariables, self)
+        self.assign_node = tf.Ops.assign(tf.Tensor(self.var_node), initial_value, name="$name/Assign")
+        tf.add_to_collection(:Variables, self)
+        if trainable
+            tf.add_to_collection(:TrainableVariables, self)
+        end
+        return self
+    else
+        parent_graph = graph.parent.graph
+        # base_name = name[(length(graph.parent.prefix)+2):end]  # maybe use regex instead
+        base_name = name
+        parent_var =  tf.get_tensor_by_name(parent_graph, base_name)
+        if parent_var === nothing
+            tf.as_default(parent_graph) do
+                parent_var = Variable(initial_value; name=base_name, trainable=trainable, literal_name=literal_name)
+            end
+        end
+        return parent_var
     end
-    return self
 end
 
+"""
+Assumes a variable named `s` in graph `graph` already exists and returns
+a reference to it.
+"""
 @tf.with_def_graph function Variable(graph::tf.Graph, s::AbstractString)
     var_node = tf.Tensor(get(tf.get_node_by_name(graph, s)))
     assign_node = tf.Tensor(get(tf.get_node_by_name(graph, "$s/Assign")))
@@ -149,7 +167,11 @@ function tf.get_variable(var_name, shape, dtype; trainable=true, kwargs...)
         push!(scope_stack, scope)
         name = join([get(x.name) for x in scope_stack], "/")
         try
-            initializer = Distributions.Normal(0, .01)
+            if dtype <: Integer
+                initializer = tf.ConstantInitializer(0)
+            else
+                initializer = Distributions.Normal(0, .01)
+            end
             reuse = false
             for scope in scope_stack
                 if !isnull(scope.initializer)
