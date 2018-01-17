@@ -73,15 +73,15 @@ end
     end
 end
 
-@testset "While" begin
-    let
-        sess = Session(Graph())
-        i = constant(1)
-        loop_sum = constant(0)
-        res = @tf while i ≤ 10
-            sq = i.^2
-            [i=>i+1, loop_sum=>loop_sum+sq]
-        end
-        @test run(sess, res) == [11, 385]
-    end
-end
+# @testset "While" begin
+#     let
+#         sess = Session(Graph())
+#         i = constant(1)
+#         loop_sum = constant(0)
+#         res = @tf while i ≤ 10
+#             sq = i.^2
+#             [i=>i+1, loop_sum=>loop_sum+sq]
+#         end
+#         @test run(sess, res) == [11, 385]
+#     end
+# end
