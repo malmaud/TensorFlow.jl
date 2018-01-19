@@ -234,26 +234,28 @@ end
 end
 
 
-# @testset "broadcasting operations" begin
-#     x_jl = [1.0 5.0; 7.0 13.0]
-#     x = constant(x_jl)
-#     y_jl = [31.0 331.0; 3331.0 333331.0]
-#     y = constant(y_jl)
+@testset "broadcasting operations" begin
+    x_jl = [1.0 5.0; 7.0 13.0]
+    x = constant(x_jl)
+    y_jl = [31.0 331.0; 3331.0 333331.0]
+    y = constant(y_jl)
 
-#     @test run(sess, x.^2 .* y) == x_jl.^2 .* y_jl
+    @test run(sess, x.^2 .* y) == x_jl.^2 .* y_jl
 
-#     #issue #336
-#     a = [0.01]
-#     b = [0.02]
-#     v = constant([1.,2.])
-#     @test_throws TensorFlow.TFException run(sess, v[1] * a)
-#     @test 0.01 ≈ run(sess, v[1] .* a) |> first
-#     @test 0.02 ≈ run(sess, v[1].* b) |> first
-#     @test 0.0002 ≈ run(sess, v[1].* a .* b) |> first
-#     @test 0.0002 ≈ run(sess, (v[1].* a) .* b) |> first
-#     @test 0.0002 ≈ run(sess, v[1].* (a .* b)) |> first
-# end
+    #issue #336
+    a = [0.01]
+    b = [0.02]
+    v = constant([1.,2.])
 
+    @test 0.01 ≈ run(sess, v[1] .* a) |> first
+    @test 0.02 ≈ run(sess, v[1].* b) |> first
+    @test 0.0002 ≈ run(sess, v[1].* a .* b) |> first
+    @test 0.0002 ≈ run(sess, (v[1].* a) .* b) |> first
+    @test 0.0002 ≈ run(sess, v[1].* (a .* b)) |> first
+    @test_throws TensorFlow.TFException run(sess, v[1] * a)
+end
+
+sess = Session(Graph())
 
 @test [-1, 1, 0] == run(sess, TensorFlow.sign(constant([-1, 2, 0])))
 
