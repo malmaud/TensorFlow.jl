@@ -106,6 +106,7 @@ all elements but all later dimensions may vary.
 """
 function dynamic_rnn(cell, inputs, sequence_length=nothing; initial_state=nothing, dtype=nothing, parallel_iterations=nothing, swap_memory=false, time_major=false, scope="RNN")
     error("Dynamic RNNs are not implemented.")
+    #==
     input_dim = tf.get_shape(inputs, 3)
     #TODO Make this all work with non-3D inputs
 
@@ -157,6 +158,7 @@ function dynamic_rnn(cell, inputs, sequence_length=nothing; initial_state=nothin
     final_state = while_output[2]
     final_output = while_output[3]
     final_output, final_state
+    ==#
 end
 
 @not_implemented function state_saving_rnn()
@@ -199,6 +201,7 @@ end
         out = -logits.*targets + log(1+ exp(logits))
     end
     out
+
 end
 
 

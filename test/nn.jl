@@ -154,17 +154,19 @@ for (rnn_fun, post_proc_outputs) in ((nn.rnn, last),)
     end
 end
 
-# @testset "rnn gradients" begin
-#     sess = Session(Graph())
-#     cell = nn.rnn_cell.LSTMCell(10)
-#     inputs = constant(randn(Float32, 5, 32, 5))
-#     out = nn.dynamic_rnn(cell, inputs)
-#     loss = reduce_sum(out[1]).^2
-#     minimizer = train.GradientDescentOptimizer(.01)
-#     minimize_op = train.minimize(minimizer, loss)
-#     run(sess, global_variables_initializer())
-#     run(sess, minimize_op)
-# end
+@testset "rnn gradients" begin
+    @test_broken begin
+        sess = Session(Graph())
+        cell = nn.rnn_cell.LSTMCell(10)
+        inputs = constant(randn(Float32, 5, 32, 5))
+        out = nn.dynamic_rnn(cell, inputs)
+        loss = reduce_sum(out[1]).^2
+        minimizer = train.GradientDescentOptimizer(.01)
+        minimize_op = train.minimize(minimizer, loss)
+        run(sess, global_variables_initializer())
+        run(sess, minimize_op)
+    end
+end
 
 
 @testset "LSTMcell biases" begin
