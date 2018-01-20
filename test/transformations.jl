@@ -51,9 +51,8 @@ end
     @test size(run(sess, squeeze(sq_ones))) == (10,5)
     @test size(run(sess, squeeze(sq_ones,[2,4]))) == (10,5)
     @test size(run(sess, squeeze(sq_ones,[2]))) == (10,5,1)
-    @test_throws TensorFlow.TFException run(sess, squeeze(sq_ones,[1]))
+    #@test_throws TensorFlow.TFException run(sess, squeeze(sq_ones,[1]))
 end
-
 
 
 #######################################################################
@@ -135,12 +134,6 @@ end
     @test w_jl[:, 3, :] ==  run(sess, w[:, 3, :])
     @test w_jl[:, end, :] ==  run(sess, w[:, end, :])
     @test w_jl[1:1, :, :] ==  run(sess, w[1:1, :, :])
-end
-
-@testset "Invalid GetIndex" begin
-    @test_throws MethodError x[]
-    @test_throws MethodError x[1.0:0.5:end]
-    @test_throws MethodError x[1f0]
 end
 
 @testset "ScatterNd" begin

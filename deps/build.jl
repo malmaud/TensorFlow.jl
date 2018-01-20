@@ -1,8 +1,8 @@
 using PyCall
 using Conda
 
-const cur_version = "1.2.0"
-const cur_py_version = "1.2.0"
+const cur_version = "1.4.0"
+const cur_py_version = "1.4.0"
 
 
 
@@ -65,6 +65,7 @@ end
 
 base = dirname(@__FILE__)
 download_dir = joinpath(base, "downloads")
+lib_dir = joinpath(download_dir, "lib")
 bin_dir = joinpath(base, "usr/bin")
 
 if !isdir(download_dir)
@@ -75,60 +76,12 @@ if !isdir(bin_dir)
     run(`mkdir -p $bin_dir`)
 end
 
-
 function download_and_unpack(url)
-    tensorflow_zip_path = joinpath(base, "downloads/tensorflow.zip")
+    tensorflow_zip_path = joinpath(base, "downloads/tensorflow.tar.gz")
     # Download
     download(url, tensorflow_zip_path)
     # Unpack
-    try
-        run(`unzip -o $(tensorflow_zip_path)`)
-    catch err
-        if !isfile(joinpath(base, "libtensorflow_c.so"))
-            throw(err)
-        else
-            warn("Problem unzipping: $err")
-        end
-    end
-end
-
-
-@static if is_apple()
-    download_and_unpack("https://storage.googleapis.com/malmaud-stuff/tensorflow_mac_$cur_version.zip")
-    mv("libtensorflow.so", "usr/bin/libtensorflow.dylib", remove_destination=true)
-end
-
-@static if is_linux()
-    if use_gpu
-        url = "https://storage.googleapis.com/malmaud-stuff/tensorflow_linux_$cur_version.zip"
-    else
-        url = "https://storage.googleapis.com/malmaud-stuff/tensorflow_linux_cpu_$cur_version.zip"
-    end
-    download_and_unpack(url)
-    mv("libtensorflow.so", "usr/bin/libtensorflow.so", remove_destination=true)
-end
-
-
-
-# When TensorFlow issue #8669 is closed and a new version is released, use the official release binaries
-# of the TensorFlow C library.
-# see https://github.com/tensorflow/tensorflow/issues/8669
-# and then replacing the blocks above in this section below with:
-#=
-function download_and_unpack(url)
-    tensorflow_zip_path = joinpath(base, "downloads/tensorflow.zip")
-    # Download
-    download(url, tensorflow_zip_path)
-    # Unpack
-    try
-        run(`tar -xvzf $(tensorflow_zip_path) --strip-components=2 ./lib/libtensorflow.so`)
-    catch err
-        if !isfile(joinpath(base, "libtensorflow_c.so"))
-            throw(err)
-        else
-            warn("Problem unzipping: $err")
-        end
-    end
+    run(`tar -xzf $tensorflow_zip_path -C downloads`)
 end
 
 @static if is_apple()
@@ -138,7 +91,8 @@ end
         url = "https://storage.googleapis.com/tensorflow/libtensorflow/libtensorflow-cpu-darwin-x86_64-$cur_version.tar.gz"
     end
     download_and_unpack(url)
-    mv("libtensorflow.so", "usr/bin/libtensorflow.dylib", remove_destination=true)
+    mv("$lib_dir/libtensorflow.so", "usr/bin/libtensorflow.dylib", remove_destination=true)
+    mv("$lib_dir/libtensorflow_framework.so", "usr/bin/libtensorflow_framework.so", remove_destination=true)
 end
 
 @static if is_linux()
@@ -148,6 +102,7 @@ end
         url = "https://storage.googleapis.com/tensorflow/libtensorflow/libtensorflow-cpu-linux-x86_64-$cur_version.tar.gz"
     end
     download_and_unpack(url)
-    mv("libtensorflow.so", "usr/bin/libtensorflow.so", remove_destination=true)
+    mv("$lib_dir/libtensorflow.so", "usr/bin/libtensorflow.so", remove_destination=true)
+    mv("$lib_dir/libtensorflow_framework.so", "usr/bin/libtensorflow_framework.so", remove_destination=true)
 end
-=#
+

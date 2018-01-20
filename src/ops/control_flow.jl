@@ -250,6 +250,8 @@ Example using shape_invariants:
 """
 @op function while_loop(condition, body, variables; name=nothing, shape_invariants=nothing,
                         parallel_iterations=10, back_prop=true, swap_memory=false)
+    error("Dynamic while loops are not currently ipmlemented.")
+    #==
     g = Graph()
     def_graph = get_def_graph()
     # Not transfering def_graph.shapes as shape inference on placehoders is not used here.
@@ -402,4 +404,5 @@ Example using shape_invariants:
 
     extend_graph(g_def.node)
     build_output(variables, output)
+    ==#
 end
