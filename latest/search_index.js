@@ -157,7 +157,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Visualizing with Tensorboard",
     "title": "Visualizing learning with Tensorboard",
     "category": "section",
-    "text": "You can visualize your graph structure and various learning-related statistics using Google's Tensorboard tool. Read its documentation to get a sense of how it works.Write out summary statistics to a file using the summary.FileWriter type, which works in the same way as the Python version.Generate the summaries using the summary operations, documented in the reference. They incldue summary.scalar, summary.histogram, etc."
+    "text": "You can visualize your graph structure and various learning-related statistics using Google\'s Tensorboard tool. Read its documentation to get a sense of how it works.Write out summary statistics to a file using the summary.FileWriter type, which works in the same way as the Python version.Generate the summaries using the summary operations, documented in the reference. They incldue summary.scalar, summary.histogram, etc."
 },
 
 {
@@ -221,7 +221,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Saving and restoring",
     "title": "Saving and restoring variable values",
     "category": "section",
-    "text": "See the main TensorFlow docs for an overview.First create a saver object:saver = train.Saver()Then call the save method to save your variables:train.save(saver, session, \"/path/to/variable_file\")The newly-created \"variable_file\" is a JLD file that contains a mapping from variable names to their values. The value of variables can later be restored in a new Julia session withtrain.restore(saver, session, \"/path/to/variable_file\")For example, in one Julia session I might haveusing TensorFlow\nsession = Session()\n@tf x = get_variable([], Float32)\nrun(session, assign(x, 5.0f0))\nsaver = train.Saver()\ntrain.save(saver, session, \"weights.jld\")Then to restore in another session,using TensorFlow\nsession = Session()\n@tf x = get_variable([], Float32)\nsaver = train.Saver()\ntrain.restore(saver, session, \"weights.jld\")\nrun(session, x)  # Outputs '5.0f0'Just as in the Python API, there is an easy way to save multiple variable files during different iterations of training, making it easy to retrospectively analyze the value of variables during training.save can be passed a global_step keyword parameter, which is an integer that will be suffixed to the variable file name. The Saver constructor accepts an optional max_to_keep argument, which is an integer specifying how many of the latest versions of the variable files to save (older ones will be discarded to save space). For example, this code will keep the value of variables during the 5 most recent training iterations: ...\n saver = train.Saver(max_to_keep=5)\n for iteration in 1:100\n   ...\n   train.save(saver, session, \"variable_file\", global_step=iteration)\nendBy the end of this loop, file \"variable_file_95\" contains the variable values during the 95th iteration, \"variable_file_96\" the 96th iteration, etc."
+    "text": "See the main TensorFlow docs for an overview.First create a saver object:saver = train.Saver()Then call the save method to save your variables:train.save(saver, session, \"/path/to/variable_file\")The newly-created \"variable_file\" is a JLD file that contains a mapping from variable names to their values. The value of variables can later be restored in a new Julia session withtrain.restore(saver, session, \"/path/to/variable_file\")For example, in one Julia session I might haveusing TensorFlow\nsession = Session()\n@tf x = get_variable([], Float32)\nrun(session, assign(x, 5.0f0))\nsaver = train.Saver()\ntrain.save(saver, session, \"weights.jld\")Then to restore in another session,using TensorFlow\nsession = Session()\n@tf x = get_variable([], Float32)\nsaver = train.Saver()\ntrain.restore(saver, session, \"weights.jld\")\nrun(session, x)  # Outputs \'5.0f0\'Just as in the Python API, there is an easy way to save multiple variable files during different iterations of training, making it easy to retrospectively analyze the value of variables during training.save can be passed a global_step keyword parameter, which is an integer that will be suffixed to the variable file name. The Saver constructor accepts an optional max_to_keep argument, which is an integer specifying how many of the latest versions of the variable files to save (older ones will be discarded to save space). For example, this code will keep the value of variables during the 5 most recent training iterations: ...\n saver = train.Saver(max_to_keep=5)\n for iteration in 1:100\n   ...\n   train.save(saver, session, \"variable_file\", global_step=iteration)\nendBy the end of this loop, file \"variable_file_95\" contains the variable values during the 95th iteration, \"variable_file_96\" the 96th iteration, etc."
 },
 
 {
@@ -229,7 +229,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Saving and restoring",
     "title": "Saving and restoring models",
     "category": "section",
-    "text": "The actual structure of the model can also be saved and restored from disk. In TensorFlow jargon, the complete structure of the model is referred to as the \"metagraph\".To save the metagraph, calltrain.export_meta_graph(\"filename\")To restore it, calltrain.import_meta_graph(\"filename\")For example, in one Julia session you might writeusing TensorFlow\nx = constant(1)\n@tf y = x+1\ntrain.export_meta_graph(\"my_model\")Then in a new Julia session,using TensorFlow\nsession = Session()\ntrain.import_meta_graph(\"my_model\")\ny = get_tensor_by_name(\"y\")\nrun(session, y)  # Outputs '2'The metagraph file format is the same as that used by the Python TensorFlow version, so models can be freely passed to and from Python TensorFlow sessions."
+    "text": "The actual structure of the model can also be saved and restored from disk. In TensorFlow jargon, the complete structure of the model is referred to as the \"metagraph\".To save the metagraph, calltrain.export_meta_graph(\"filename\")To restore it, calltrain.import_meta_graph(\"filename\")For example, in one Julia session you might writeusing TensorFlow\nx = constant(1)\n@tf y = x+1\ntrain.export_meta_graph(\"my_model\")Then in a new Julia session,using TensorFlow\nsession = Session()\ntrain.import_meta_graph(\"my_model\")\ny = get_tensor_by_name(\"y\")\nrun(session, y)  # Outputs \'2\'The metagraph file format is the same as that used by the Python TensorFlow version, so models can be freely passed to and from Python TensorFlow sessions."
 },
 
 {
@@ -286,6 +286,70 @@ var documenterSearchIndex = {"docs": [
     "title": "Types",
     "category": "section",
     "text": "The computation graph as a whole is stored in the Graph type. Individual nodes in the graph are referred to as operations, stored in the Operation type. Operations can produce one or more outputs, represented as the Tensor type.Tensor\nOperation\nSession\nGraph"
+},
+
+{
+    "location": "core.html#Base.eltype",
+    "page": "Core functions",
+    "title": "Base.eltype",
+    "category": "Function",
+    "text": "eltype(s::Sampleable)\n\nThe default element type of a sample. This is the type of elements of the samples generated by the rand method. However, one can provide an array of different element types to store the samples using rand!.\n\n\n\n"
+},
+
+{
+    "location": "core.html#TensorFlow.node_name",
+    "page": "Core functions",
+    "title": "TensorFlow.node_name",
+    "category": "Function",
+    "text": "node_name(node::AbstractOperation)\n\nReturns the name of a node in the computation graph.\n\n\n\n"
+},
+
+{
+    "location": "core.html#TensorFlow.get_collection",
+    "page": "Core functions",
+    "title": "TensorFlow.get_collection",
+    "category": "Function",
+    "text": "get_collection(g::Graph, name)\n\nReturns a collection attached to the graph g named name\n\n\n\n"
+},
+
+{
+    "location": "core.html#TensorFlow.get_def_graph",
+    "page": "Core functions",
+    "title": "TensorFlow.get_def_graph",
+    "category": "Function",
+    "text": "get_def_graph()\n\nReturns the default computation graph, an object of type Graph.\n\nSee also as_default for setting the default graph\n\n\n\n"
+},
+
+{
+    "location": "core.html#Base.run",
+    "page": "Core functions",
+    "title": "Base.run",
+    "category": "Function",
+    "text": "run(sess::Session, output, input_dict::Dict)\n\nCompute the result of one of more operations in the computation graph.\n\n\n\n"
+},
+
+{
+    "location": "core.html#TensorFlow.get_node_by_name",
+    "page": "Core functions",
+    "title": "TensorFlow.get_node_by_name",
+    "category": "Function",
+    "text": "get_node_by_name(graph::Graph, name::AbstractString)\n\nReturns an operation by searching for its name in the given graph.\n\n\n\n"
+},
+
+{
+    "location": "core.html#TensorFlow.get_shape",
+    "page": "Core functions",
+    "title": "TensorFlow.get_shape",
+    "category": "Function",
+    "text": "Runs shape inference to return the shape of the tensor produced by the given operation.\n\nNote this runs statically. Use the shape operation to dynamically get the shape of an operation.\n\n\n\n"
+},
+
+{
+    "location": "core.html#TensorFlow.get_def",
+    "page": "Core functions",
+    "title": "TensorFlow.get_def",
+    "category": "Function",
+    "text": "get_def(n)\n\nReturns the definition of the given operation or graph\n\n\n\n"
 },
 
 {
@@ -541,7 +605,7 @@ var documenterSearchIndex = {"docs": [
     "page": "IO pipelines with queues",
     "title": "TensorFlow.train.add_queue_runner",
     "category": "Function",
-    "text": "add_queue_runner(runner::QueueRunner)\n\nManually adds a queue runner to the graph's collection of queue runners. All runners in the collection will be executed in parallel when start_queue_runners is invoked.\n\n\n\n"
+    "text": "add_queue_runner(runner::QueueRunner)\n\nManually adds a queue runner to the graph\'s collection of queue runners. All runners in the collection will be executed in parallel when start_queue_runners is invoked.\n\n\n\n"
 },
 
 {
@@ -549,7 +613,7 @@ var documenterSearchIndex = {"docs": [
     "page": "IO pipelines with queues",
     "title": "TensorFlow.train.start_queue_runners",
     "category": "Function",
-    "text": "start_queue_runners(session::Session)\n\nRun all queue runners in parallel that were previously added to the graph's collection of queue runners via add_queue_runner.\n\nArgs:\n\nsession: The TensorFlow session containing the queues\n\n\n\n"
+    "text": "start_queue_runners(session::Session)\n\nRun all queue runners in parallel that were previously added to the graph\'s collection of queue runners via add_queue_runner.\n\nArgs:\n\nsession: The TensorFlow session containing the queues\n\n\n\n"
 },
 
 {
@@ -565,7 +629,7 @@ var documenterSearchIndex = {"docs": [
     "page": "IO pipelines with queues",
     "title": "TensorFlow.train.input_producer",
     "category": "Function",
-    "text": "input_producer(input; element_shape=nothing, num_epochs=nothing, do_shuffle=true, seed=0, capacity=32)\n\nOutputs the rows of input to a queue for input pipelining.\n\nArgs:\n\ninput: A Tensor with the rows to produce.\nelement_shape: The shape of the input rows, in case it can't be inferred. Defaults to nothing.\nnum_epochs: Number of times to produce each row. If unspecified (default), input_producer can produce each row an unlimited number of times.\ndo_shuffle: If true, shuffle the inputs each epoch.\nseed: Seed to use for the RNG if do_shuffle is true.\ncapacity: Sets the queue capacity. Default is 32.\n\n\n\n"
+    "text": "input_producer(input; element_shape=nothing, num_epochs=nothing, do_shuffle=true, seed=0, capacity=32)\n\nOutputs the rows of input to a queue for input pipelining.\n\nArgs:\n\ninput: A Tensor with the rows to produce.\nelement_shape: The shape of the input rows, in case it can\'t be inferred. Defaults to nothing.\nnum_epochs: Number of times to produce each row. If unspecified (default), input_producer can produce each row an unlimited number of times.\ndo_shuffle: If true, shuffle the inputs each epoch.\nseed: Seed to use for the RNG if do_shuffle is true.\ncapacity: Sets the queue capacity. Default is 32.\n\n\n\n"
 },
 
 {
@@ -669,7 +733,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Summaries",
     "title": "TensorFlow.summary.summary_ops.image",
     "category": "Function",
-    "text": " image_summary(tag, tensor; max_images=3, bad_color=?)\n\nOutputs a Summary protocol buffer with images.\n\nThe summary has up to max_images summary values containing images. The images are built from tensor which must be 4-D with shape [batch_size, height, width, channels] and where channels can be:\n\n1: tensor is interpreted as Grayscale.\n3: tensor is interpreted as RGB.\n4: tensor is interpreted as RGBA.\n\nThe images have the same number of channels as the input tensor. For float input, the values are normalized one image at a time to fit in the range [0, 255].  uint8 values are unchanged.  The op uses two different normalization algorithms:\n\nIf the input values are all positive, they are rescaled so the largest one  is 255.\nIf any input value is negative, the values are shifted so input value 0.0  is at 127.  They are then rescaled so that either the smallest value is 0,  or the largest one is 255.\n\nThe tag argument is a scalar Tensor of type string.  It is used to build the tag of the summary values:\n\nIf max_images is 1, the summary value tag is 'tag/image'.\nIf max_images is greater than 1, the summary value tags are  generated sequentially as 'tag/image/0', 'tag/image/1', etc.\n\nThe bad_color argument is the color to use in the generated images for non-finite input values.  It is a unit8 1-D tensor of length channels. Each element must be in the range [0, 255] (It represents the value of a pixel in the output image).  Non-finite values in the input tensor are replaced by this tensor in the output image.  The default value is the color red.\n\n\n\n\n\n"
+    "text": " image_summary(tag, tensor; max_images=3, bad_color=?)\n\nOutputs a Summary protocol buffer with images.\n\nThe summary has up to max_images summary values containing images. The images are built from tensor which must be 4-D with shape [batch_size, height, width, channels] and where channels can be:\n\n1: tensor is interpreted as Grayscale.\n3: tensor is interpreted as RGB.\n4: tensor is interpreted as RGBA.\n\nThe images have the same number of channels as the input tensor. For float input, the values are normalized one image at a time to fit in the range [0, 255].  uint8 values are unchanged.  The op uses two different normalization algorithms:\n\nIf the input values are all positive, they are rescaled so the largest one  is 255.\nIf any input value is negative, the values are shifted so input value 0.0  is at 127.  They are then rescaled so that either the smallest value is 0,  or the largest one is 255.\n\nThe tag argument is a scalar Tensor of type string.  It is used to build the tag of the summary values:\n\nIf max_images is 1, the summary value tag is \'tag/image\'.\nIf max_images is greater than 1, the summary value tags are  generated sequentially as \'tag/image/0\', \'tag/image/1\', etc.\n\nThe bad_color argument is the color to use in the generated images for non-finite input values.  It is a unit8 1-D tensor of length channels. Each element must be in the range [0, 255] (It represents the value of a pixel in the output image).  Non-finite values in the input tensor are replaced by this tensor in the output image.  The default value is the color red.\n\n\n\n\n\n"
 },
 
 {
@@ -757,7 +821,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Build TensorFlow from source",
     "title": "Step 3: Check that the custom binary is loaded",
     "category": "section",
-    "text": "After running using TensorFlow, it should no longer complain that TensorFlow wasn't compiled with the necessary instructions. Try generating two random matrices and multiplying them together. You can time the computation with @time run(sess, x), which should be much faster."
+    "text": "After running using TensorFlow, it should no longer complain that TensorFlow wasn\'t compiled with the necessary instructions. Try generating two random matrices and multiplying them together. You can time the computation with @time run(sess, x), which should be much faster."
 },
 
 {
@@ -765,7 +829,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Build TensorFlow from source",
     "title": "Tips & known issues",
     "category": "section",
-    "text": "Dynamic RNNs require a custom patch due to an upstream bug in TensorFlow. See: https://github.com/malmaud/TensorFlow.jl/issues/203 and https://github.com/tensorflow/tensorflow/issues/8669. To enable them on custom binaries, apply this patch to the TensorFlow source before compiling with git apply.\nIf you encounter segmentation faults or other errors, try Pkg.checkout(\"TensorFlow\").\nFor maximum performance, you should always compile on the same system that will be running the computation, and with the correct CUDA Compute Capability version supported by your GPU.\nIf TensorFlow.jl fails to load with the error Library not loaded: @rpath/libcublas.8.0.dylib or any similar error, it means that the CUDA libraries are not in LD_LIBRARY_PATH as required by Nvidia. Be sure to add /usr/local/cuda/lib, or wherever your CUDA instalation is located, to LD_LIBRARY_PATH. This may be done by editing .profile, or for Atom/Juno users editing init.coffee, or any other method supported by your OS, as described in Step 2. Be careful that you append this folder and do not mistakenly overwrite your entire path.\nIf you get CUDA_ERROR_NOT_INITIALIZED, then for some reason TensorFlow cannot find your GPU. Make sure that the appropriate software is installed, and if using an external GPU, make sure it is plugged in correctly.\nTo check whether the GPU is being used, create your session with TensorFlow.Session(config=TensorFlow.tensorflow.ConfigProto(log_device_placement=true)). TensorFlow will then print information about which device is used.\nYou may need to add symlinks from libcudnn5.dylib to libcudnn.5.dylib so that Bazel is able to correctly locate the necessary dependencies.\nOn Mac OS X, nvcc, Nvidia's CUDA compiler, requires OS X Command Line Tools version 8.2 and does not work with the latest version. You can download this version from Apple's website, and switch to it by running sudo xcode-select -s /path/to/CommandLineTools.\nOn Mac OS X, make sure to set the environment variable GCC_HOST_COMPILER_PATH to /usr/bin/gcc - do not install GCC yourself, or the build may fail with obscure error messages.\nOn Mac OS X, if you don't wish to install Homebrew, you can instead use Julia's internal Homebrew-based dependency manager Homebrew.jl by running Homebrew.brew(`install --build-from-source libtensorflow`). GPU support can be enabled by modifying the Ruby formula using Homebrew.brew(`edit libtensorflow`) – you should set all necessary environment variables in the Ruby formula, as Homebrew may not display prompts correctly."
+    "text": "Dynamic RNNs require a custom patch due to an upstream bug in TensorFlow. See: https://github.com/malmaud/TensorFlow.jl/issues/203 and https://github.com/tensorflow/tensorflow/issues/8669. To enable them on custom binaries, apply this patch to the TensorFlow source before compiling with git apply.\nIf you encounter segmentation faults or other errors, try Pkg.checkout(\"TensorFlow\").\nFor maximum performance, you should always compile on the same system that will be running the computation, and with the correct CUDA Compute Capability version supported by your GPU.\nIf TensorFlow.jl fails to load with the error Library not loaded: @rpath/libcublas.8.0.dylib or any similar error, it means that the CUDA libraries are not in LD_LIBRARY_PATH as required by Nvidia. Be sure to add /usr/local/cuda/lib, or wherever your CUDA instalation is located, to LD_LIBRARY_PATH. This may be done by editing .profile, or for Atom/Juno users editing init.coffee, or any other method supported by your OS, as described in Step 2. Be careful that you append this folder and do not mistakenly overwrite your entire path.\nIf you get CUDA_ERROR_NOT_INITIALIZED, then for some reason TensorFlow cannot find your GPU. Make sure that the appropriate software is installed, and if using an external GPU, make sure it is plugged in correctly.\nTo check whether the GPU is being used, create your session with TensorFlow.Session(config=TensorFlow.tensorflow.ConfigProto(log_device_placement=true)). TensorFlow will then print information about which device is used.\nYou may need to add symlinks from libcudnn5.dylib to libcudnn.5.dylib so that Bazel is able to correctly locate the necessary dependencies.\nOn Mac OS X, nvcc, Nvidia\'s CUDA compiler, requires OS X Command Line Tools version 8.2 and does not work with the latest version. You can download this version from Apple\'s website, and switch to it by running sudo xcode-select -s /path/to/CommandLineTools.\nOn Mac OS X, make sure to set the environment variable GCC_HOST_COMPILER_PATH to /usr/bin/gcc - do not install GCC yourself, or the build may fail with obscure error messages.\nOn Mac OS X, if you don\'t wish to install Homebrew, you can instead use Julia\'s internal Homebrew-based dependency manager Homebrew.jl by running Homebrew.brew(`install --build-from-source libtensorflow`). GPU support can be enabled by modifying the Ruby formula using Homebrew.brew(`edit libtensorflow`) – you should set all necessary environment variables in the Ruby formula, as Homebrew may not display prompts correctly."
 },
 
 ]}
