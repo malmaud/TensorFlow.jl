@@ -252,7 +252,7 @@ var documenterSearchIndex = {"docs": [
     "location": "core.html#TensorFlow.Tensor",
     "page": "Core functions",
     "title": "TensorFlow.Tensor",
-    "category": "Type",
+    "category": "type",
     "text": "Represents the output of an operation in the computation graph\n\n\n\n"
 },
 
@@ -260,7 +260,7 @@ var documenterSearchIndex = {"docs": [
     "location": "core.html#TensorFlow.Operation",
     "page": "Core functions",
     "title": "TensorFlow.Operation",
-    "category": "Type",
+    "category": "type",
     "text": "An operation in the computation graph.\n\n\n\n"
 },
 
@@ -268,7 +268,7 @@ var documenterSearchIndex = {"docs": [
     "location": "core.html#TensorFlow.Session",
     "page": "Core functions",
     "title": "TensorFlow.Session",
-    "category": "Type",
+    "category": "type",
     "text": "A TensorFlow session.\n\n\n\n"
 },
 
@@ -276,7 +276,7 @@ var documenterSearchIndex = {"docs": [
     "location": "core.html#TensorFlow.Graph",
     "page": "Core functions",
     "title": "TensorFlow.Graph",
-    "category": "Type",
+    "category": "type",
     "text": "A TensorFlow computation graph\n\n\n\n"
 },
 
@@ -364,7 +364,7 @@ var documenterSearchIndex = {"docs": [
     "location": "ops.html#TensorFlow.Ops.conv2d",
     "page": "Operations",
     "title": "TensorFlow.Ops.conv2d",
-    "category": "Function",
+    "category": "function",
     "text": " conv2d(input, filter; use_cudnn_on_gpu=true, data_format=NHWC)\n\nComputes a 2-D convolution given 4-D input and filter tensors.\n\nGiven an input tensor of shape [batch, in_height, in_width, in_channels] and a filter / kernel tensor of shape [filter_height, filter_width, in_channels, out_channels], this op performs the following:\n\nFlattens the filter to a 2-D matrix with shape [filter_height * filter_width * in_channels, output_channels].\nExtracts image patches from the input tensor to form a virtual tensor of shape [batch, out_height, out_width, filter_height * filter_width * in_channels].\nFor each patch, right-multiplies the filter matrix and the image patch vector.\n\nIn detail, with the default NHWC format,\n\noutput[b, i, j, k] =\n    sum_{di, dj, q} input[b, strides[1] * i + di, strides[2] * j + dj, q] *\n                    filter[di, dj, q, k]\n\nMust have strides[0] = strides[3] = 1.  For the most common case of the same horizontal and vertices strides, strides = [1, stride, stride, 1].\n\n\n\n"
 },
 
@@ -372,7 +372,7 @@ var documenterSearchIndex = {"docs": [
     "location": "ops.html#TensorFlow.Ops.max_pool",
     "page": "Operations",
     "title": "TensorFlow.Ops.max_pool",
-    "category": "Function",
+    "category": "function",
     "text": " max_pool(input; data_format=NHWC)\n\nPerforms max pooling on the input.\n\n\n\n"
 },
 
@@ -388,7 +388,7 @@ var documenterSearchIndex = {"docs": [
     "location": "ops.html#TensorFlow.nn.embedding_lookup",
     "page": "Operations",
     "title": "TensorFlow.nn.embedding_lookup",
-    "category": "Function",
+    "category": "function",
     "text": "embedding_lookup(params, ids; partition_strategy=\"mod\", name=\"\", validate_indices=true)\n\nLooks up values of ids in params. Currently only supports one Tensor in params.\n\nArgs:\n\nparams: A list of Tensors of the same type and which can be concatenated along their first dimension.\nids: A Tensor of Int32 or Int64 ids to be looked up in params.\npartition_strategy: If \"mod\" (default), assign each id to partition p = id % len(params). If \"div\", assign each id contiguously.\nname: An optional name for the operation.\nvalidate_indices: If true (default), make sure the indices are valid.\n\n\n\n"
 },
 
@@ -420,7 +420,7 @@ var documenterSearchIndex = {"docs": [
     "location": "ops.html#TensorFlow.nn.l2_loss",
     "page": "Operations",
     "title": "TensorFlow.nn.l2_loss",
-    "category": "Function",
+    "category": "function",
     "text": "l2_loss(t)\n\nComputes half the L2-norm of a Tensor t, without taking the square root.\n\n\n\n"
 },
 
@@ -436,7 +436,7 @@ var documenterSearchIndex = {"docs": [
     "location": "ops.html#TensorFlow.nn.dropout",
     "page": "Operations",
     "title": "TensorFlow.nn.dropout",
-    "category": "Function",
+    "category": "function",
     "text": "dropout(x, keep_prob; noise_shape=nothing, seed=0)\n\nKeeps each element of x with keep_prob, scaled by 1/keep_prob, otherwise outputs 0. This computes dropout.\n\nArgs:\n\nx: A Tensor.\nkeep_prob: Probability that each element is kept.\nnoise_shape: Shape for randomly generated keep/drop flags.\nseed: Integer used to seed the RNG. Defaults to 0.\n\n\n\n"
 },
 
@@ -452,7 +452,7 @@ var documenterSearchIndex = {"docs": [
     "location": "ops.html#TensorFlow.nn.top_k",
     "page": "Operations",
     "title": "TensorFlow.nn.top_k",
-    "category": "Function",
+    "category": "function",
     "text": "top_k(input, k=1; sorted=true)\n\nFinds values and indices of the top k largest entries of input in its last dimension.\n\nArgs:\n\ninput: One or more dimensional Tensor with last dimension at least size k.\nk: Number of largest elements of input to look for. Defaults to 1.\nsorted: If true (default), the returned values will be sorted in descending order.\n\n\n\n"
 },
 
@@ -460,7 +460,7 @@ var documenterSearchIndex = {"docs": [
     "location": "ops.html#TensorFlow.nn.in_top_k",
     "page": "Operations",
     "title": "TensorFlow.nn.in_top_k",
-    "category": "Function",
+    "category": "function",
     "text": "in_top_k(predictions, targets, k)\n\nDetermines whether the targets are in the top k predictions. Outputs a batch_size (first dimension of predictions) array of boolean values.\n\nArgs:\n\npredictions: Two dimensional Tensor.\ntargets: A Tensor.\nk: Number of elements to look at for comparison.\n\n\n\n"
 },
 
@@ -476,7 +476,7 @@ var documenterSearchIndex = {"docs": [
     "location": "ops.html#TensorFlow.Ops.logical_and",
     "page": "Operations",
     "title": "TensorFlow.Ops.logical_and",
-    "category": "Function",
+    "category": "function",
     "text": " logical_and(x, y)\n\nReturns the truth value of x AND y element-wise.\n\nNOTE: LogicalAnd supports broadcasting. More about broadcasting here\n\n\n\n"
 },
 
@@ -484,7 +484,7 @@ var documenterSearchIndex = {"docs": [
     "location": "ops.html#TensorFlow.Ops.logical_not",
     "page": "Operations",
     "title": "TensorFlow.Ops.logical_not",
-    "category": "Function",
+    "category": "function",
     "text": " logical_not(x)\n\nReturns the truth value of NOT x element-wise.\n\n\n\n"
 },
 
@@ -492,7 +492,7 @@ var documenterSearchIndex = {"docs": [
     "location": "ops.html#TensorFlow.Ops.logical_or",
     "page": "Operations",
     "title": "TensorFlow.Ops.logical_or",
-    "category": "Function",
+    "category": "function",
     "text": " logical_or(x, y)\n\nReturns the truth value of x OR y element-wise.\n\nNOTE: LogicalOr supports broadcasting. More about broadcasting here\n\n\n\n"
 },
 
@@ -500,7 +500,7 @@ var documenterSearchIndex = {"docs": [
     "location": "ops.html#TensorFlow.logical_xor",
     "page": "Operations",
     "title": "TensorFlow.logical_xor",
-    "category": "Function",
+    "category": "function",
     "text": "logical_xor(x, y; name=\"LogicalXor\")\n\nReturns the truth value of x XOR y element-wise.\n\nNOTE: LogicalXor supports broadcasting. More about broadcasting here\n\nArgs:\n\nx: A Tensor of type bool.\ny: A Tensor of type bool.\nname: A name for the operation (optional).\n\nReturns:   A Tensor of type bool.\n\n\n\n"
 },
 
@@ -540,7 +540,7 @@ var documenterSearchIndex = {"docs": [
     "location": "io_ref.html#TensorFlow.train.add_queue_runner",
     "page": "IO pipelines with queues",
     "title": "TensorFlow.train.add_queue_runner",
-    "category": "Function",
+    "category": "function",
     "text": "add_queue_runner(runner::QueueRunner)\n\nManually adds a queue runner to the graph\'s collection of queue runners. All runners in the collection will be executed in parallel when start_queue_runners is invoked.\n\n\n\n"
 },
 
@@ -548,7 +548,7 @@ var documenterSearchIndex = {"docs": [
     "location": "io_ref.html#TensorFlow.train.start_queue_runners",
     "page": "IO pipelines with queues",
     "title": "TensorFlow.train.start_queue_runners",
-    "category": "Function",
+    "category": "function",
     "text": "start_queue_runners(session::Session)\n\nRun all queue runners in parallel that were previously added to the graph\'s collection of queue runners via add_queue_runner.\n\nArgs:\n\nsession: The TensorFlow session containing the queues\n\n\n\n"
 },
 
@@ -556,7 +556,7 @@ var documenterSearchIndex = {"docs": [
     "location": "io_ref.html#TensorFlow.train.range_input_producer",
     "page": "IO pipelines with queues",
     "title": "TensorFlow.train.range_input_producer",
-    "category": "Function",
+    "category": "function",
     "text": "range_input_producer(limit; num_epochs=nothing, do_shuffle=true, seed=0, capacity=32)\n\nProduces the integers from 1 to limit in a queue.\n\nArgs:\n\nlimit: Inclusive upper bound on the endpoint of the range of integers to produce\nnum_epochs: Number of times to produce the integers.\ndo_shuffle: If true, shuffle the inputs each epoch.\nseed: Seed to use for the RNG if do_shuffle is true.\ncapacity: Sets the queue capacity. Default is 32.\n\n\n\n"
 },
 
@@ -564,7 +564,7 @@ var documenterSearchIndex = {"docs": [
     "location": "io_ref.html#TensorFlow.train.input_producer",
     "page": "IO pipelines with queues",
     "title": "TensorFlow.train.input_producer",
-    "category": "Function",
+    "category": "function",
     "text": "input_producer(input; element_shape=nothing, num_epochs=nothing, do_shuffle=true, seed=0, capacity=32)\n\nOutputs the rows of input to a queue for input pipelining.\n\nArgs:\n\ninput: A Tensor with the rows to produce.\nelement_shape: The shape of the input rows, in case it can\'t be inferred. Defaults to nothing.\nnum_epochs: Number of times to produce each row. If unspecified (default), input_producer can produce each row an unlimited number of times.\ndo_shuffle: If true, shuffle the inputs each epoch.\nseed: Seed to use for the RNG if do_shuffle is true.\ncapacity: Sets the queue capacity. Default is 32.\n\n\n\n"
 },
 
@@ -572,7 +572,7 @@ var documenterSearchIndex = {"docs": [
     "location": "io_ref.html#TensorFlow.train.string_input_producer",
     "page": "IO pipelines with queues",
     "title": "TensorFlow.train.string_input_producer",
-    "category": "Function",
+    "category": "function",
     "text": "string_input_producer(string_tensors; num_epochs=nothing, do_shuffle=true, seed=0, capacity=32)\n\nOutput strings to a queue for an input pipeline.\n\nArgs:\n\nstring_tensor: A one dimensional Tensor of strings to produce.\nnum_epochs: Number of times to produce the strings.\ndo_shuffle: If true, shuffle the inputs each epoch.\nseed: Seed to use for the RNG if do_shuffle is true.\ncapacity: Sets the queue capacity. Default is 32.\n\n\n\n"
 },
 
@@ -580,7 +580,7 @@ var documenterSearchIndex = {"docs": [
     "location": "io_ref.html#TensorFlow.train.shuffle_batch",
     "page": "IO pipelines with queues",
     "title": "TensorFlow.train.shuffle_batch",
-    "category": "Function",
+    "category": "function",
     "text": "shuffle_batch(tensors, batch_size; capacity=32, enqueue_many=false, shapes=nothing, dynamic_pad=false, allow_smaller_final_batch=false)\n\nCreate batches by randomly shuffling tensors.\n\nArgs:\n\ntensors: A list of tensors to enqueue.\nbatch_size: The batch size which will be pulled from the queue.\ncapacity: Sets the queue capacity. Default is 32.\ndynamic_pad: If true all tensors will be padded on unknown dimensions to batch_size. Otherwise tensors shapes must be fully known. Currently only false is supported.\nenqueue_many: If false, tensors represents a single example. Otherwise tensors represents a batch of examples. Currently only false is supported.\nshapes: The shapes for each example. Defaults to the inferred shapes from tensors.\nallow_smaller_final_batch: If true (default false), the final batch is allowed to be smaller than the other batches if there are not enough samples remaining.\n\n\n\n"
 },
 
@@ -588,7 +588,7 @@ var documenterSearchIndex = {"docs": [
     "location": "io_ref.html#TensorFlow.train.QueueRunner",
     "page": "IO pipelines with queues",
     "title": "TensorFlow.train.QueueRunner",
-    "category": "Type",
+    "category": "type",
     "text": "QueueRunner\n\nRepresents an object that continually enqueues elements to a TensorFlow queue in parallel with other operations.\n\n\n\n"
 },
 
@@ -596,7 +596,7 @@ var documenterSearchIndex = {"docs": [
     "location": "io_ref.html#TensorFlow.train.create_threads",
     "page": "IO pipelines with queues",
     "title": "TensorFlow.train.create_threads",
-    "category": "Function",
+    "category": "function",
     "text": "create_threads(runner::QueueRunner, session::Session)\n\nCreates tasks that run the enqueue operations in runner in parallel.\n\n\n\n"
 },
 
@@ -636,7 +636,7 @@ var documenterSearchIndex = {"docs": [
     "location": "summary_ref.html#TensorFlow.summary.FileWriter",
     "page": "Summaries",
     "title": "TensorFlow.summary.FileWriter",
-    "category": "Type",
+    "category": "type",
     "text": "FileWriter(logdir; graph=get_def_graph())\n\nThe FileWriter type provides a mechanism to create an event file in a given directory and add summaries and events to it. The class updates the file contents asynchronously. This allows a training program to call methods to add data to the file directly from the training loop, without slowing down training.\n\nOn construction the summary writer creates a new event file in logdir.\n\nIf you pass a Graph to the constructor it is added to the event file.\n\nArguments:\n\nlogdir: A string. Directory where event file will be written.\ngraph: A Graph object.\n\n\n\n"
 },
 
@@ -652,7 +652,7 @@ var documenterSearchIndex = {"docs": [
     "location": "summary_ref.html#TensorFlow.summary.summary_ops.scalar",
     "page": "Summaries",
     "title": "TensorFlow.summary.summary_ops.scalar",
-    "category": "Function",
+    "category": "function",
     "text": " scalar_summary(tags, values)\n\nOutputs a Summary protocol buffer with scalar values.\n\nThe input tags and values must have the same shape.  The generated summary has a summary value for each tag-value pair in tags and values.\n\n\n\n\n\n"
 },
 
@@ -660,7 +660,7 @@ var documenterSearchIndex = {"docs": [
     "location": "summary_ref.html#TensorFlow.summary.summary_ops.histogram",
     "page": "Summaries",
     "title": "TensorFlow.summary.summary_ops.histogram",
-    "category": "Function",
+    "category": "function",
     "text": " histogram_summary(tag, values)\n\nOutputs a Summary protocol buffer with a histogram.\n\nThe generated Summary has one summary value containing a histogram for values.\n\nThis op reports an InvalidArgument error if any value is not finite.\n\n\n\n\n\n"
 },
 
@@ -668,7 +668,7 @@ var documenterSearchIndex = {"docs": [
     "location": "summary_ref.html#TensorFlow.summary.summary_ops.image",
     "page": "Summaries",
     "title": "TensorFlow.summary.summary_ops.image",
-    "category": "Function",
+    "category": "function",
     "text": " image_summary(tag, tensor; max_images=3, bad_color=?)\n\nOutputs a Summary protocol buffer with images.\n\nThe summary has up to max_images summary values containing images. The images are built from tensor which must be 4-D with shape [batch_size, height, width, channels] and where channels can be:\n\n1: tensor is interpreted as Grayscale.\n3: tensor is interpreted as RGB.\n4: tensor is interpreted as RGBA.\n\nThe images have the same number of channels as the input tensor. For float input, the values are normalized one image at a time to fit in the range [0, 255].  uint8 values are unchanged.  The op uses two different normalization algorithms:\n\nIf the input values are all positive, they are rescaled so the largest one  is 255.\nIf any input value is negative, the values are shifted so input value 0.0  is at 127.  They are then rescaled so that either the smallest value is 0,  or the largest one is 255.\n\nThe tag argument is a scalar Tensor of type string.  It is used to build the tag of the summary values:\n\nIf max_images is 1, the summary value tag is \'tag/image\'.\nIf max_images is greater than 1, the summary value tags are  generated sequentially as \'tag/image/0\', \'tag/image/1\', etc.\n\nThe bad_color argument is the color to use in the generated images for non-finite input values.  It is a unit8 1-D tensor of length channels. Each element must be in the range [0, 255] (It represents the value of a pixel in the output image).  Non-finite values in the input tensor are replaced by this tensor in the output image.  The default value is the color red.\n\n\n\n\n\n"
 },
 
@@ -676,7 +676,7 @@ var documenterSearchIndex = {"docs": [
     "location": "summary_ref.html#TensorFlow.summary.summary_ops.merge_all",
     "page": "Summaries",
     "title": "TensorFlow.summary.summary_ops.merge_all",
-    "category": "Function",
+    "category": "function",
     "text": "merge_all(key=:Summaries)\n\nMerges all summaries collected in the default graph.\n\nArgs:   key: GraphKey used to collect the summaries.  Defaults to           :Summaries\n\nReturns:   If no summaries were collected, returns nothing.  Otherwise returns a scalar   Tensor of type String containing the serialized Summary protocol   buffer resulting from the merging.\n\n\n\n"
 },
 
