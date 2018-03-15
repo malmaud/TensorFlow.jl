@@ -239,6 +239,7 @@ function FileIO.save(saver::Saver, session::Session, path; global_step=nothing)
     end
     if length(versions) > saver.max_to_keep
         to_delete = length(versions) - saver.max_to_keep
+        sort!(versions)
         for i in 1:to_delete
             rm(joinpath(dirname(path), "$base_path-$(versions[i])"), force=true)
         end
