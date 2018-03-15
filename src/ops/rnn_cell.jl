@@ -90,8 +90,13 @@ function (cell::BasicRNNCell)(input, state, input_dim=-1)
     T = eltype(state)
     W = get_variable("weights", [N, cell.hidden_size], T)
     B = get_variable("bias", [cell.hidden_size], T)
-    X = cat(2, input, state)
-    activity = tanh(X*W + B)
+
+    local activity
+    tf.with_op_name(nothing, "BasicRNNCell") do
+        X = cat(2, input, state)
+        activity = tanh(X*W + B)
+    end
+
     return [activity, activity]
 end
 
@@ -146,7 +151,6 @@ function (cell::LSTMCell)(input, state, input_dim=-1)
     N = get_input_dim(input, input_dim) + cell.hidden_size
     T = eltype(state)
     input = Tensor(input)
-    X = [input state.h]
 
     Wi = get_variable("Wi", [N, cell.hidden_size], T)
     Wf = get_variable("Wf", [N, cell.hidden_size], T)
@@ -164,13 +168,17 @@ function (cell::LSTMCell)(input, state, input_dim=-1)
         Bf = get_variable("Bf", [cell.hidden_size], T)
     end
 
-    # TODO make this all one multiply
-    I = sigmoid(X*Wi + Bi)
-    F = sigmoid(X*Wf + Bf)
-    O = sigmoid(X*Wo + Bo)
-    G = tanh(X*Wg + Bg)
-    C = state.c.*F + G.*I
-    S = tanh(C).*O
+    local S, C
+    tf.with_op_name(nothing, "LSTMCell") do
+        X = [input state.h]
+        # TODO make this all one multiply
+        I = sigmoid(X*Wi + Bi)
+        F = sigmoid(X*Wf + Bf)
+        O = sigmoid(X*Wo + Bo)
+        G = tanh(X*Wg + Bg)
+        C = state.c.*F + G.*I
+        S = tanh(C).*O
+    end
 
     return (S, LSTMStateTuple(C, S))
 end
@@ -187,7 +195,6 @@ function (cell::GRUCell)(input, state, input_dim=-1)
     N = get_input_dim(input, input_dim) + cell.hidden_size
     input = Tensor(input)
     state = Tensor(state)
-    X = [input state]
     Wz = get_variable("Wz", [N, cell.hidden_size], T)
     Wr = get_variable("Wr", [N, cell.hidden_size], T)
     Wh = get_variable("Wh", [N, cell.hidden_size], T)
@@ -198,11 +205,16 @@ function (cell::GRUCell)(input, state, input_dim=-1)
         Br = get_variable("Br", [cell.hidden_size], T)
         Bh = get_variable("Bh", [cell.hidden_size], T)
     end
-    z = sigmoid(X*Wz + Bz)
-    r = sigmoid(X*Wr + Br)
-    X2 = [input state.*r]
-    h = nn.tanh(sigmoid(X2*Wh + Bh))
-    s2 = (1-z).*h + z.*state
+
+    local s2
+    tf.with_op_name(nothing, "GRUCell") do
+        X = [input state]
+        z = sigmoid(X*Wz + Bz)
+        r = sigmoid(X*Wr + Br)
+        X2 = [input state.*r]
+        h = nn.tanh(sigmoid(X2*Wh + Bh))
+        s2 = (1-z).*h + z.*state
+    end
     return [s2, s2]
 end
 
