@@ -176,36 +176,37 @@ end
 # TODO Clean this up
 for reduction in [:sum, :prod, :min, :max, :all, :any, :mean]
     @eval @op function $(Symbol("reduce_", reduction))(n::AbstractTensor; axis=nothing, keep_dims=false, name=nothing)
-        if name === nothing
-            name = get_name("reduce")
-        end
-        if axis == nothing
-            n = Tensor(n)  # TODO: rewrite this
-            range_start = constant(Int32(0))
-            range_delta = constant(Int32(1))
-            desc = NodeDescription("Rank", "$name/rank")
-            add_input(desc, n)
-            rank = Tensor(Operation(desc), 1)
-            desc = NodeDescription("Range", "$name/range")
-            add_input(desc, range_start)
-            add_input(desc, rank)
-            add_input(desc, range_delta)
-            range = Tensor(Operation(desc), 1)
-            desc = NodeDescription($(capitalize(reduction)), name)
-            add_input(desc, n)
-            add_input(desc, range)
-            Tensor(Operation(desc), 1)
-        else
-            if isa(axis, Number)
-                axis = [axis]
+        local desc
+        with_op_name(name, string("reduce_", $(reduction))) do
+            node_name = get_cur_node_name()
+            
+            if axis == nothing
+                n = Tensor(n)  # TODO: rewrite this
+                range_start = constant(Int32(0))
+                range_delta = constant(Int32(1))
+                rank_desc = NodeDescription("Rank", "$node_name/rank")
+                add_input(rank_desc, n)
+                rank = Tensor(Operation(rank_desc), 1)
+                desc_range = NodeDescription("Range", "$node_name/range")
+                add_input(desc_range, range_start)
+                add_input(desc_range, rank)
+                add_input(desc_range, range_delta)
+                range = Tensor(Operation(desc_range), 1)
+                desc = NodeDescription($(capitalize(reduction)), string(node_name, "/", $(reduction)))
+                add_input(desc, n)
+                add_input(desc, range)
+            else
+                if isa(axis, Number)
+                    axis = [axis]
+                end
+                axis = [Int32(idx-1) for idx in axis]
+                desc = NodeDescription($(capitalize(reduction)), string(node_name, "/", $(reduction)))
+                add_input(desc, Tensor(n))
+                add_input(desc, Tensor(axis))
+                desc["keep_dims"] = keep_dims
             end
-            axis = [Int32(idx-1) for idx in axis]
-            desc = NodeDescription($(capitalize(reduction)), name)
-            add_input(desc, Tensor(n))
-            add_input(desc, Tensor(axis))
-            desc["keep_dims"] = keep_dims
-            Tensor(Operation(desc), 1)
         end
+        Tensor(Operation(desc), 1)
     end
 end
 
