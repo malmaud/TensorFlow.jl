@@ -147,6 +147,16 @@ for func in ["Log", "Exp", "Neg", "Ceil", "Floor", "Sqrt", "Square",
     end
 end
 
+register_shape("Select") do op
+    shape1 = _get_shape(get_input(op, 2))
+    shape2 = _get_shape(get_input(op, 3))
+    if shape1 == shape2
+        [shape1]
+    else
+        [TensorShape(nothing)]
+    end
+end
+
 register_shape("Switch") do op
     input_shape = _get_shape(get_input(op, 1))
     [input_shape, input_shape]
