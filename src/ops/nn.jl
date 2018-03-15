@@ -71,10 +71,12 @@ function rnn(cell, inputs::Vector, sequence_length=nothing; initial_state=nothin
             new_output, new_state = cell(input, state)
         end
         if sequence_length!==nothing && time_step > 1 # This should be removed by the julia lowering process
-            # Only update output and state for rows that are not yet passed their ends
-            have_passed_end = sequence_length .< time_step
-            new_output = tf.select(have_passed_end, outputs[end], new_output)
-            new_state = tf.select(have_passed_end, state, new_state)
+            tf.with_op_name(nothing, "dynamic_length") do
+                # Only update output and state for rows that are not yet passed their ends
+                have_passed_end = sequence_length .< time_step
+                new_output = tf.select(have_passed_end, outputs[end], new_output)
+                new_state = tf.select(have_passed_end, state, new_state)
+            end
         end
         state = new_state
         push!(outputs, new_output)
