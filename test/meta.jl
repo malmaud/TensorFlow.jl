@@ -64,10 +64,10 @@ end
         @test Tensor(W.assign_node) == get_tensor_by_name(g, "logisitic_model/W/Assign")
         @test Y == get_tensor_by_name(g, "Y")
 
-        @test Ysum1 == get_tensor_by_name(g, "Ysum1")
-        @test Ysum2 == get_tensor_by_name(g, "Ysum2")
-        @test Ysum3 == get_tensor_by_name(g, "Ysum3")
-        @test Ysum4 == get_tensor_by_name(g, "namefor_Ysum4")
+        @test Ysum1 == get_tensor_by_name(g, "Ysum1/sum")
+        @test Ysum2 == get_tensor_by_name(g, "Ysum2/sum")
+        @test Ysum3 == get_tensor_by_name(g, "Ysum3/sum")
+        @test Ysum4 == get_tensor_by_name(g, "namefor_Ysum4/sum")
 
 
     end
