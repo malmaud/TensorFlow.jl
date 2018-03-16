@@ -144,6 +144,14 @@ end
     end
 end
 
+@testset "Select" begin
+    c = placeholder(Float32; shape=[10])
+    t = placeholder(Float32; shape=[10, 20, 30])
+
+    @test get_shape(select(c, t, m)) == TensorShape([10, 20, 30])
+    @test get_shape(select(c, t, k)) == TensorShape(nothing)
+end
+
 @testset "nn.softmax_cross_entropy_with_logits" begin
     a = placeholder(Float32; shape=[10, 20])
     b = placeholder(Float32)
