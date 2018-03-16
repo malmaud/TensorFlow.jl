@@ -192,7 +192,7 @@ for reduction in [:sum, :prod, :min, :max, :all, :any, :mean]
                 add_input(desc_range, rank)
                 add_input(desc_range, range_delta)
                 range = Tensor(Operation(desc_range), 1)
-                desc = NodeDescription($(capitalize(reduction)), string(node_name, "/", $(reduction)))
+                desc = NodeDescription($(capitalize(reduction)))
                 add_input(desc, n)
                 add_input(desc, range)
             else
@@ -200,7 +200,7 @@ for reduction in [:sum, :prod, :min, :max, :all, :any, :mean]
                     axis = [axis]
                 end
                 axis = [Int32(idx-1) for idx in axis]
-                desc = NodeDescription($(capitalize(reduction)), node_name)
+                desc = NodeDescription($(capitalize(reduction)))
                 add_input(desc, Tensor(n))
                 add_input(desc, Tensor(axis))
                 desc["keep_dims"] = keep_dims
