@@ -24,6 +24,38 @@ using Base.Test
 end
 
 
+@testset "train.save and train.resore global_step" begin
+    try
+        let
+            session = Session(Graph())
+            x = get_variable("x", [], Float32)
+            run(session, assign(x, 5.f0))
+            saver = train.Saver(max_to_keep=5)
+            for i in 1:12
+                train.save(saver, session, "weights.jld", global_step=i)
+            end
+        end
+
+        let
+            session = Session(Graph())
+            @tf x = get_variable([], Float32)
+            saver = train.Saver()
+            for i in 1:7
+                @test_throws SystemError train.restore(saver, session, "weights.jld-$i")
+            end
+            for i in 8:12
+                train.restore(saver, session, "weights.jld-$i")
+                @test run(session, x) == 5.0f0
+            end
+        end
+    finally
+        for i in 1:12
+            rm("weights.jld-$i"; force=true)
+        end
+    end
+end
+
+
 @testset "metagraph importing and exporting" begin
     mktempdir() do tmppath
         modelfile = joinpath(tmppath, "my_model")
