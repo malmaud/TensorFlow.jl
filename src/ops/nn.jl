@@ -67,6 +67,7 @@ function rnn(cell, inputs::Vector, sequence_length=nothing; initial_state=nothin
     outputs = tf.Tensor[]
     state = initial_state
     for (time_step, input) in enumerate(inputs)
+        local new_output, new_state
         tf.variable_scope(scope; reuse=time_step>1) do
             new_output, new_state = cell(input, state)
         end
