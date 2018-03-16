@@ -18,7 +18,7 @@ end
 @testset "Naming" begin
     let
         g = Graph()
-        local i, j_jl, j, k, ijk, ij, ij2, fq, m, W, Y, Ysum1, Ysum2, Ysum3, Ysum4
+        local i, j_jl, j, k, ijk, ij, ij2, fq, m, W, Y, Ysum1, Ysum2, Ysum3, Ysum4, Ysum5
         as_default(g) do
             @tf begin
                 i = constant(1.0)
@@ -46,6 +46,8 @@ end
                 Ysum3 = reduce_sum(Y, keep_dims=true) # With a comma (issue #188)
 
                 Ysum4 = reduce_sum(Y, keep_dims=true, name="namefor_Ysum4") # With a comma (issue #188)
+
+                Ysum5 = reduce_sum(Y, axis=2)
             end
         end
 
@@ -68,6 +70,7 @@ end
         @test Ysum2 == get_tensor_by_name(g, "Ysum2/sum")
         @test Ysum3 == get_tensor_by_name(g, "Ysum3/sum")
         @test Ysum4 == get_tensor_by_name(g, "namefor_Ysum4/sum")
+        @test Ysum5 == get_tensor_by_name(g, "Ysum5")
 
 
     end
