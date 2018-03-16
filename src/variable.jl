@@ -77,6 +77,9 @@ function Variable(initial_value; name="", trainable=true, literal_name=false)
     return self
 end
 
+"""Variable is not an @op, but it supports the name argument"""
+tf.withname(::Type{Variable}, name) = tf.withname(tf.RegisteredOp(), Variable, name)
+
 @tf.with_def_graph function Variable(graph::tf.Graph, s::AbstractString)
     var_node = tf.Tensor(get(tf.get_node_by_name(graph, s)))
     assign_node = tf.Tensor(get(tf.get_node_by_name(graph, "$s/Assign")))
