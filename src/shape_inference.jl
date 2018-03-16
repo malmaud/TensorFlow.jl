@@ -150,10 +150,18 @@ end
 register_shape("Select") do op
     shape1 = _get_shape(get_input(op, 2))
     shape2 = _get_shape(get_input(op, 3))
-    if shape1 == shape2
-        [shape1]
-    else
+    if shape1.rank_unknown || shape2.rank_unknown
         [TensorShape(nothing)]
+    elseif length(shape1.dims) != length(shape2.dims)
+        [TensorShape(nothing)]
+    else
+        if any(.!isequal.(shape1.dims, shape2.dims) .& .!isnull.(shape1.dims) .& .!isnull.(shape2.dims))
+            # some non-null dimension was different
+            [TensorShape(nothing)]
+        else
+            dims = ifelse.(isnull.(shape1.dims), shape1.dims, shape2.dims)
+            [TensorShape(dims)]
+        end
     end
 end
 
