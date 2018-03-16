@@ -82,6 +82,20 @@ end
 end
 
 
+@testset "ArgMinMax" begin
+    @testset "$f" for f in (indmin, indmax, Ops.arg_min, Ops.arg_max)
+        @test get_shape(f(k, 1)) == TensorShape([20, -1])
+        @test get_shape(f(k, 2)) == TensorShape([10, -1])
+        @test get_shape(f(k, 3)) == TensorShape([10, 20])
+        @test get_shape(f(m, 1)) == TensorShape([20, 30])
+        @test get_shape(f(m, 2)) == TensorShape([10, 30])
+        @test get_shape(f(m, 3)) == TensorShape([10, 20])
+        @test get_shape(f(n, 1)) == TensorShape(nothing)
+        @test get_shape(f(n, 2)) == TensorShape(nothing)
+        @test get_shape(f(n, 3)) == TensorShape(nothing)
+    end
+end
+
 
 @testset "Concat" begin
     @test get_shape(cat(2, m,m)) == TensorShape([10, 40, 30])
