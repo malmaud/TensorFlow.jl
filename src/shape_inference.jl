@@ -383,11 +383,8 @@ for func in ["ArgMax", "ArgMin"]
     register_shape(func) do op
         value_shape = copy(_get_shape(get_input(op, 1)))
         reduction_dims = get_input(op, 2)
-        if value_shape.rank_unknown
-            return [TensorShape(nothing)]
-        end
         reduction_dim_values = load_const(reduction_dims)
-        if isnull(reduction_dim_values)
+        if value_shape.rank_unknown || isnull(reduction_dim_values)
             return [TensorShape(nothing)]
         else
             dims = get(reduction_dim_values)+1
