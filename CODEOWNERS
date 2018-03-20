@@ -1,4 +1,3 @@
 # See https://github.com/blog/2392-introducing-code-owners
-* @malmaud
-src/meta.jl @oxinabox
-src/ops/indexing.jl @oxinabox
+* @malmaud @oxinabox
+
