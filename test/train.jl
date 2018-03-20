@@ -1,7 +1,7 @@
 using TensorFlow
 using Base.Test
 
-@testset "train.save and train.resore" begin
+@testset "save and resore" begin
     try
         let
             session = Session(Graph())
@@ -24,7 +24,7 @@ using Base.Test
 end
 
 
-@testset "train.save and train.resore global_step" begin
+@testset "save and restore max_to_keep" begin
     try
         let
             session = Session(Graph())
