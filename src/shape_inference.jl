@@ -379,6 +379,24 @@ for func in ["Sum", "Prod", "Min", "Max", "All", "Any", "Mean"]
     end
 end
 
+for func in ["ArgMax", "ArgMin"]
+    register_shape(func) do op
+        value_shape = copy(_get_shape(get_input(op, 1)))
+        reduction_dims = get_input(op, 2)
+        reduction_dim_values = load_const(reduction_dims)
+        if value_shape.rank_unknown || isnull(reduction_dim_values)
+            return [TensorShape(nothing)]
+        else
+            dims = get(reduction_dim_values)+1
+            to_keep = fill(true, length(value_shape.dims))
+            for dim in dims
+                to_keep[dim] = false
+            end
+            return [TensorShape(value_shape.dims[to_keep])]
+        end
+    end
+end
+
 register_shape("UnsortedSegmentSum") do op
     value_shape = copy(_get_shape(get_input(op, 1)))
     if value_shape.rank_unknown
