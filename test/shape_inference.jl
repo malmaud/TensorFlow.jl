@@ -158,6 +158,24 @@ end
     end
 end
 
+@testset "Select" begin
+    c = placeholder(Float32; shape=[10])
+    e = placeholder(Float32; shape=[10, 20, 30])
+    e2 = placeholder(Float32; shape=[10, 20, 31])
+
+    @testset "$r" for (a1, a2, r) in [
+        (m, e, [10, 20, 30])
+        (m, k, [10, 20, -1])
+        (m, e2, nothing)
+        (m, n, nothing)
+        (m, i, nothing)
+        ]
+        # test commutativeness
+        @test get_shape(select(c, a1, a2)) == TensorShape(r)
+        @test get_shape(select(c, a2, a1)) == TensorShape(r)
+    end
+end
+
 @testset "nn.softmax_cross_entropy_with_logits" begin
     a = placeholder(Float32; shape=[10, 20])
     b = placeholder(Float32)
@@ -224,7 +242,7 @@ end
 
     # m_by_n = nn.dropout(m, 0.5*n) # a fully unknown keepprob
     #@test get_shape(m_by_n).rank_unknown == false
-    
+
 end
 
 @testset "Ensure broadcasting operations do not change shape (issue #285)" begin
