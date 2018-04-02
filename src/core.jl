@@ -1,5 +1,5 @@
 using ProtoBuf
-using PyCall
+#using PyCall
 using Compat
 using Compat.Iterators
 using MacroTools
@@ -8,7 +8,7 @@ using AutoHashEquals
 import Base: setindex!, getindex, run, ==
 
 const LIB_BASE = joinpath(dirname(@__FILE__), "..", "deps")
-include("py.jl")
+#include("py.jl")
 
 const LIBTF_PTR = Base.RefValue(C_NULL)
 
@@ -91,7 +91,7 @@ function py_version_check(;print_warning=true, force_warning=false)
     lib_version = tf_version(kind=:backend)
     if (py_version < lib_version) || force_warning
         base_msg = "Your Python TensorFlow client version ($py_version) is below the TensorFlow backend version ($lib_version). This can cause various errors. Please upgrade your Python TensorFlow installation and then restart Julia."
-        if PyCall.conda
+        if false #PyCall.conda
             upgrade_msg = "You can upgrade by calling `using Conda; Conda.update();` from Julia."
         else
             upgrade_msg = "Typically, executing `pip install --upgrade tensorflow` from the command line will upgrade Python TensorFlow. You may need admninistrator privileges."
@@ -215,13 +215,13 @@ struct OperationContext
 end
 
 @auto_hash_equals immutable TensorShape
-    dims::Vector{Nullable{Int}}
+    dims::Vector{Union{Nothing, Int}}
     rank_unknown::Bool
 end
 
 
 function TensorShape(dims::AbstractVector{<:Integer})
-    TensorShape([x<0 ? Nullable{Int}() : Nullable{Int}(x) for x in dims])
+    TensorShape([x<0 ? nothing : x for x in dims])
 end
 
 function TensorShape(dims)
@@ -229,11 +229,11 @@ function TensorShape(dims)
 end
 
 function TensorShape(::Void)
-    TensorShape(Nullable{Int}[], true)
+    TensorShape(Union{Nothing, Int}[], true)
 end
 
 function TensorShape(::Vector{Union{}}) # NB: `Vector{Union{}} == typeof(collect(tuple())))`
-    TensorShape(Nullable{Int}[], false)
+    TensorShape(Union{Nothing, Int}[], false)
 end
 
 TensorShape(t::TensorShape) = copy(t)
@@ -885,7 +885,7 @@ function NodeDescription(op_type)
     NodeDescription(op_type, name)
 end
 
-get_graph(desc::NodeDescription) = Nullable(desc.graph)
+get_graph(desc::NodeDescription) = desc.graph
 
 abstract type AbstractOperation end
 
@@ -894,7 +894,7 @@ An operation in the computation graph.
 """
 mutable struct Operation <: AbstractOperation
     ptr::Ptr{Void}
-    graph::Nullable{Graph}
+    graph::Union{Nothing, Graph}
     op_name::String
     name::String
     Operation() = new()
@@ -1088,7 +1088,7 @@ function Operation(desc::NodeDescription)
     check_status(status)
     self.ptr = ptr
     graph = desc.graph
-    self.graph = Nullable(graph)
+    self.graph = graph
     fillin(self)
 
     if graph.op_context.is_top_level[]
@@ -1101,7 +1101,7 @@ end
 function Operation(ptr::Ptr)
     self = Operation()
     self.ptr = ptr
-    self.graph = Nullable{Graph}()
+    self.graph = nothing 
     fillin(self)
     return self
 end
@@ -1520,9 +1520,9 @@ Returns an operation by searching for its name in the given graph.
     name, port = parse_port_name(name)
     node_ptr = @tfcall(:TF_GraphOperationByName, Ptr{Void}, (Ptr{Void}, Cstring), graph.ptr, name)
     if node_ptr == C_NULL
-        return Nullable{Operation}()
+        return nothing 
     else
-        return Nullable(Operation(node_ptr))
+        return Operation(node_ptr)
     end
 end
 
@@ -1695,12 +1695,12 @@ struct OperationIterator
 end
 
 struct OperationIteratorState
-    next_op::Nullable{Operation}
+    next_op::Union{Nothing, Operation}
     pos::Int
 end
 
 function Base.start(iter::OperationIterator)
-    state = OperationIteratorState(Nullable{Operation}(), 0)
+    state = OperationIteratorState(nothing, 0)
     _next(iter, state)[2]
 end
 
@@ -1710,12 +1710,12 @@ function _next(iter::OperationIterator, state)
         (Ptr{Void}, Ref{Csize_t}),
         iter.graph.ptr, pos)
     if op_ptr == C_NULL
-        next_op = Nullable{Operation}()
+        next_op = nothing 
     else
         op = Operation()
         op.ptr = op_ptr
         op.graph = iter.graph
-        next_op = Nullable(op)
+        next_op = op
     end
     next_state = OperationIteratorState(next_op, pos[])
     (state.next_op, next_state)

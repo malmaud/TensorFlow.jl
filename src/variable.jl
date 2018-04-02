@@ -98,20 +98,18 @@ run(sess::tf.Session, var::Variable) = run(sess, tf.Tensor(var))
 run(sess::tf.Session, vars::AbstractVector{Variable}) = run(sess, map(tf.Tensor, vars))
 
 type Scope
-    name::Nullable{String}
-    initializer::Nullable{Any}
+    name::Union{Nothing, String}
+    initializer::Any # May be nothing
     reuse::Bool
-    Scope() = new(Nullable{String}(), Nullable{Any}(), false)
+    Scope() = new(nothing, nothing, false)
 end
 
 const scope_stack = Scope[]
 
 function make_scope(name; initializer=nothing, reuse=false)
     scope = Scope()
-    scope.name = Nullable(name)
-    if initializer != nothing
-        scope.initializer = Nullable(initializer)
-    end
+    scope.name = name
+    scope.initializer = initializer
     scope.reuse = reuse
     return scope
 end

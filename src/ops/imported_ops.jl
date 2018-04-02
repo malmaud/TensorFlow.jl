@@ -3,7 +3,7 @@
 module Ops
 import TensorFlow
 const tf = TensorFlow
-"""
+doc"""
      equal(x, y)
 
 Returns the truth value of (x == y) element-wise.
@@ -24,7 +24,7 @@ tf.@op function equal(x_, y_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      not_equal(x, y)
 
 Returns the truth value of (x != y) element-wise.
@@ -45,7 +45,7 @@ tf.@op function not_equal(x_, y_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      less_equal(x, y)
 
 Returns the truth value of (x <= y) element-wise.
@@ -66,7 +66,7 @@ tf.@op function less_equal(x_, y_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      greater(x, y)
 
 Returns the truth value of (x > y) element-wise.
@@ -87,7 +87,7 @@ tf.@op function greater(x_, y_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      greater_equal(x, y)
 
 Returns the truth value of (x >= y) element-wise.
@@ -108,7 +108,7 @@ tf.@op function greater_equal(x_, y_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      less(x, y)
 
 Returns the truth value of (x < y) element-wise.
@@ -129,7 +129,7 @@ tf.@op function less(x_, y_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      no_op()
 
 Does nothing. Only useful as a placeholder for control edges.
@@ -144,7 +144,7 @@ tf.@op function no_op(; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      count_up_to(ref)
 
 Increments 'ref' until it reaches 'limit'.
@@ -165,7 +165,7 @@ tf.@op function count_up_to(ref_; name=nothing, limit=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      decode_gif(contents)
 
 Decode the first frame of a GIF-encoded image to a uint8 tensor.
@@ -188,7 +188,7 @@ tf.@op function decode_gif(contents_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      decode_jpeg(contents; channels=0, ratio=1, fancy_upscaling=true, try_recover_truncated=false, acceptable_fraction=nothing, dct_method=)
 
 Decode a JPEG-encoded image to a uint8 tensor.
@@ -240,7 +240,7 @@ tf.@op function decode_jpeg(contents_; name=nothing, channels=nothing, ratio=not
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      encode_jpeg(image; format=, quality=95, progressive=false, optimize_size=false, chroma_downsampling=true, density_unit=in, x_density=300, y_density=300, xmp_metadata=)
 
 JPEG-encode an image.
@@ -299,7 +299,7 @@ tf.@op function encode_jpeg(image_; name=nothing, format=nothing, quality=nothin
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      encode_png(image; compression=-1)
 
 PNG-encode an image.
@@ -330,7 +330,7 @@ tf.@op function encode_png(image_; name=nothing, compression=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      resize_area(images, size; align_corners=false)
 
 Resize `images` to `size` using area interpolation.
@@ -353,7 +353,7 @@ tf.@op function resize_area(images_, size_; name=nothing, align_corners=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      resize_bicubic(images, size; align_corners=false)
 
 Resize `images` to `size` using bicubic interpolation.
@@ -376,7 +376,7 @@ tf.@op function resize_bicubic(images_, size_; name=nothing, align_corners=nothi
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      resize_bilinear(images, size; align_corners=false)
 
 Resize `images` to `size` using bilinear interpolation.
@@ -399,7 +399,7 @@ tf.@op function resize_bilinear(images_, size_; name=nothing, align_corners=noth
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      resize_nearest_neighbor(images, size; align_corners=false)
 
 Resize `images` to `size` using nearest neighbor interpolation.
@@ -422,7 +422,7 @@ tf.@op function resize_nearest_neighbor(images_, size_; name=nothing, align_corn
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      extract_glimpse(input, size, offsets; centered=true, normalized=true, uniform_noise=true)
 
 Extracts a glimpse from the input tensor.
@@ -472,7 +472,7 @@ tf.@op function extract_glimpse(input_, size_, offsets_; name=nothing, centered=
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      crop_and_resize(image, boxes, box_ind, crop_size; method=bilinear, extrapolation_value=nothing)
 
 Extracts crops from the input image tensor and bilinearly resizes them (possibly
@@ -509,7 +509,7 @@ tf.@op function crop_and_resize(image_, boxes_, box_ind_, crop_size_; name=nothi
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      adjust_hue(images, delta)
 
 Adjust the hue of one or more images.
@@ -533,7 +533,7 @@ tf.@op function adjust_hue(images_, delta_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      adjust_saturation(images, scale)
 
 Adjust the saturation of one or more images.
@@ -557,7 +557,7 @@ tf.@op function adjust_saturation(images_, scale_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      draw_bounding_boxes(images, boxes)
 
 Draw bounding boxes on a batch of images.
@@ -587,7 +587,7 @@ tf.@op function draw_bounding_boxes(images_, boxes_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      non_max_suppression(boxes, scores, max_output_size; iou_threshold=nothing)
 
 Greedily selects a subset of bounding boxes in descending order of score,
@@ -628,7 +628,7 @@ tf.@op function non_max_suppression(boxes_, scores_, max_output_size_; name=noth
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      sample_distorted_bounding_box(image_size, bounding_boxes; seed=0, seed2=0, min_object_covered=nothing, aspect_ratio_range=Int64[], area_range=Int64[], max_attempts=100, use_image_if_no_bounding_boxes=false)
 
 Generate a single randomly distorted bounding box for an image.
@@ -711,7 +711,7 @@ tf.@op function sample_distorted_bounding_box(image_size_, bounding_boxes_; name
         out
     end
 
-"""
+doc"""
      logical_and(x, y)
 
 Returns the truth value of x AND y element-wise.
@@ -731,7 +731,7 @@ tf.@op function logical_and(x_, y_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      logical_not(x)
 
 Returns the truth value of NOT x element-wise.
@@ -748,7 +748,7 @@ tf.@op function logical_not(x_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      logical_or(x, y)
 
 Returns the truth value of x OR y element-wise.
@@ -768,7 +768,7 @@ tf.@op function logical_or(x_, y_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      add_n(inputs)
 
 Add all input tensors element wise.
@@ -789,7 +789,7 @@ tf.@op function add_n(inputs_; name=nothing, N=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      arg_min(input, dimension)
 
 Returns the index with the smallest value across dimensions of a tensor.
@@ -811,7 +811,7 @@ tf.@op function arg_min(input_, dimension_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      arg_max(input, dimension)
 
 Returns the index with the largest value across dimensions of a tensor.
@@ -833,7 +833,7 @@ tf.@op function arg_max(input_, dimension_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      add(x, y)
 
 Returns x + y element-wise.
@@ -854,7 +854,7 @@ tf.@op function add(x_, y_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      sub(x, y)
 
 Returns x - y element-wise.
@@ -875,7 +875,7 @@ tf.@op function sub(x_, y_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      mat_mul(a, b; transpose_a=false, transpose_b=false)
 
 Multiply the matrix "a" by the matrix "b".
@@ -907,7 +907,7 @@ tf.@op function mat_mul(a_, b_; name=nothing, transpose_a=nothing, transpose_b=n
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      mul(x, y)
 
 Returns x * y element-wise.
@@ -928,7 +928,7 @@ tf.@op function mul(x_, y_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      pow(x, y)
 
 Computes the power of one value to another.
@@ -955,7 +955,7 @@ tf.@op function pow(x_, y_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      matrix_solve(matrix, rhs; adjoint=false)
 
 Solves systems of linear equations.
@@ -983,7 +983,7 @@ tf.@op function matrix_solve(matrix_, rhs_; name=nothing, adjoint=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      matrix_triangular_solve(matrix, rhs; lower=true, adjoint=false)
 
 Solves systems of linear equations with upper or lower triangular matrices by
@@ -1023,7 +1023,7 @@ tf.@op function matrix_triangular_solve(matrix_, rhs_; name=nothing, lower=nothi
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      matrix_solve_ls(matrix, rhs, l2_regularizer; fast=true)
 
 Solves one or more linear least-squares problems.
@@ -1078,7 +1078,7 @@ tf.@op function matrix_solve_ls(matrix_, rhs_, l2_regularizer_; name=nothing, fa
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      cholesky(input)
 
 Computes the Cholesky decomposition of one or more square matrices.
@@ -1099,7 +1099,7 @@ tf.@op function cholesky(input_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      neg(x)
 
 Computes numerical negative value element-wise.
@@ -1117,7 +1117,7 @@ tf.@op function neg(x_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      square(x)
 
 Computes square of x element-wise.
@@ -1135,7 +1135,7 @@ tf.@op function square(x_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      shape(input; out_type=Int32)
 
 Returns the shape of a tensor.
@@ -1163,7 +1163,7 @@ tf.@op function shape(input_; name=nothing, out_type=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      unsorted_segment_sum(data, segment_ids, num_segments)
 
 Computes the sum along segments of a tensor.
@@ -1202,7 +1202,7 @@ tf.@op function unsorted_segment_sum(data_, segment_ids_, num_segments_; name=no
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      unsorted_segment_max(data, segment_ids, num_segments)
 
 Computes the Max along segments of a tensor.
@@ -1241,7 +1241,7 @@ tf.@op function unsorted_segment_max(data_, segment_ids_, num_segments_; name=no
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      segment_sum(data, segment_ids)
 
 Computes the sum along segments of a tensor.
@@ -1274,7 +1274,7 @@ tf.@op function segment_sum(data_, segment_ids_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      segment_max(data, segment_ids)
 
 Computes the maximum along segments of a tensor.
@@ -1307,7 +1307,7 @@ tf.@op function segment_max(data_, segment_ids_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      segment_mean(data, segment_ids)
 
 Computes the mean along segments of a tensor.
@@ -1341,7 +1341,7 @@ tf.@op function segment_mean(data_, segment_ids_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      segment_min(data, segment_ids)
 
 Computes the minimum along segments of a tensor.
@@ -1374,7 +1374,7 @@ tf.@op function segment_min(data_, segment_ids_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      segment_prod(data, segment_ids)
 
 Computes the product along segments of a tensor.
@@ -1407,7 +1407,7 @@ tf.@op function segment_prod(data_, segment_ids_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      relu(features)
 
 Computes rectified linear: `max(features, 0)`.
@@ -1425,7 +1425,7 @@ tf.@op function relu(features_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      relu6(features)
 
 Computes rectified linear 6: `min(max(features, 0), 6)`.
@@ -1443,7 +1443,7 @@ tf.@op function relu6(features_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      elu(features)
 
 Computes exponential linear: `exp(features) - 1` if < 0, `features` otherwise.
@@ -1462,7 +1462,7 @@ tf.@op function elu(features_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      softplus(features)
 
 Computes softplus: `log(exp(features) + 1)`.
@@ -1480,7 +1480,7 @@ tf.@op function softplus(features_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      softsign(features)
 
 Computes softsign: `features / (abs(features) + 1)`.
@@ -1498,7 +1498,7 @@ tf.@op function softsign(features_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      softmax(logits)
 
 Computes softmax activations.
@@ -1518,7 +1518,7 @@ tf.@op function softmax(logits_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      sigmoid(x)
 
 Computes sigmoid of `x` element-wise.
@@ -1536,7 +1536,7 @@ tf.@op function sigmoid(x_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      conv3d(input, filter; data_format=NDHWC)
 
 Computes a 3-D convolution given 5-D `input` and `filter` tensors.
@@ -1569,7 +1569,7 @@ tf.@op function conv3d(input_, filter_; name=nothing, strides=nothing, padding=n
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      max_pool(input; data_format=NHWC)
 
 Performs max pooling on the input.
@@ -1599,7 +1599,7 @@ tf.@op function max_pool(input_; name=nothing, ksize=nothing, strides=nothing, p
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      max_pool3d(input; data_format=NDHWC)
 
 Performs 3D max pooling on the input.
@@ -1629,7 +1629,7 @@ tf.@op function max_pool3d(input_; name=nothing, ksize=nothing, strides=nothing,
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      avg_pool(value; data_format=NHWC)
 
 Performs average pooling on the input.
@@ -1660,7 +1660,7 @@ tf.@op function avg_pool(value_; name=nothing, ksize=nothing, strides=nothing, p
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      avg_pool3d(input; data_format=NDHWC)
 
 Performs 3D average pooling on the input.
@@ -1690,7 +1690,7 @@ tf.@op function avg_pool3d(input_; name=nothing, ksize=nothing, strides=nothing,
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      log_softmax(logits)
 
 Computes log softmax activations.
@@ -1710,7 +1710,7 @@ tf.@op function log_softmax(logits_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      dilation2d(input, filter)
 
 Computes the grayscale dilation of 4-D `input` and 3-D `filter` tensors.
@@ -1761,7 +1761,7 @@ tf.@op function dilation2d(input_, filter_; name=nothing, strides=nothing, rates
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      conv2d(input, filter; use_cudnn_on_gpu=true, data_format=NHWC)
 
 Computes a 2-D convolution given 4-D `input` and `filter` tensors.
@@ -1813,7 +1813,7 @@ tf.@op function conv2d(input_, filter_; name=nothing, strides=nothing, use_cudnn
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      random_uniform(shape; seed=0, seed2=0)
 
 Outputs random values from a uniform distribution.
@@ -1841,7 +1841,7 @@ tf.@op function random_uniform(shape_; name=nothing, seed=nothing, seed2=nothing
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      random_standard_normal(shape; seed=0, seed2=0)
 
 Outputs random values from a normal distribution.
@@ -1868,7 +1868,7 @@ tf.@op function random_standard_normal(shape_; name=nothing, seed=nothing, seed2
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      random_shuffle(value; seed=0, seed2=0)
 
 Randomly shuffles a tensor along its first dimension.
@@ -1900,7 +1900,7 @@ tf.@op function random_shuffle(value_; name=nothing, seed=nothing, seed2=nothing
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      strided_slice(input, begin, end, strides; begin_mask=0, end_mask=0, ellipsis_mask=0, new_axis_mask=0, shrink_axis_mask=0)
 
 Return a strided slice from `input`.
@@ -2049,7 +2049,7 @@ tf.@op function strided_slice(input_, begin_, end_, strides_; name=nothing, Inde
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      expand_dims(input, dim)
 
 Inserts a dimension of 1 into a tensor's shape.
@@ -2100,7 +2100,7 @@ tf.@op function expand_dims(input_, dim_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      tile(input, multiples)
 
 Constructs a tensor by tiling a given tensor.
@@ -2125,7 +2125,7 @@ tf.@op function tile(input_, multiples_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      pad(input, paddings)
 
 Pads a tensor with zeros.
@@ -2167,7 +2167,7 @@ tf.@op function pad(input_, paddings_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      gather(params, indices; validate_indices=true)
 
 Gather slices from `params` according to `indices`.
@@ -2216,7 +2216,7 @@ tf.@op function gather(params_, indices_; name=nothing, validate_indices=nothing
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      gather_nd(params, indices)
 
 Gather values or slices from `params` according to `indices`.
@@ -2325,7 +2325,7 @@ tf.@op function gather_nd(params_, indices_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      scatter_nd(indices, updates, shape)
 
 Scatter `updates` into a new (initially zero) tensor according to `indices`.
@@ -2419,7 +2419,7 @@ tf.@op function scatter_nd(indices_, updates_, shape_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      dynamic_partition(data, partitions)
 
 Partitions `data` into `num_partitions` tensors using indices from `partitions`.
@@ -2483,7 +2483,7 @@ tf.@op function dynamic_partition(data_, partitions_; name=nothing, num_partitio
         out
     end
 
-"""
+doc"""
      dynamic_stitch(indices, data)
 
 Interleave the values from the `data` tensors into a single tensor.
@@ -2566,7 +2566,7 @@ tf.@op function dynamic_stitch(indices_, data_; name=nothing, N=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      pack(values; axis=0)
 
 Packs a list of `N` rank-`R` tensors into one rank-`(R+1)` tensor.
@@ -2611,7 +2611,7 @@ tf.@op function pack(values_; name=nothing, N=nothing, axis=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      concat_v2(values, axis)
 
 Concatenates tensors along one dimension.
@@ -2636,7 +2636,7 @@ tf.@op function concat_v2(values_, axis_; name=nothing, N=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      self_adjoint_eig_v2(input; compute_v=true)
 
 Computes the eigen decomposition of one or more square self-adjoint matrices.
@@ -2671,7 +2671,7 @@ tf.@op function self_adjoint_eig_v2(input_; name=nothing, compute_v=nothing)
         out
     end
 
-"""
+doc"""
      is_finite(x)
 
 Returns which elements of x are finite.
@@ -2691,7 +2691,7 @@ tf.@op function is_finite(x_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      is_nan(x)
 
 Returns which elements of x are NaN.
@@ -2711,7 +2711,7 @@ tf.@op function is_nan(x_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      is_inf(x)
 
 Returns which elements of x are Inf.
@@ -2731,7 +2731,7 @@ tf.@op function is_inf(x_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      lrn(input; depth_radius=5, bias=nothing, alpha=nothing, beta=nothing)
 
 Local Response Normalization.
@@ -2771,7 +2771,7 @@ tf.@op function lrn(input_; name=nothing, depth_radius=nothing, bias=nothing, al
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      assign(ref, value; validate_shape=true, use_locking=true)
 
 Update 'ref' by assigning 'value' to it.
@@ -2798,7 +2798,7 @@ tf.@op function assign(ref_, value_; name=nothing, validate_shape=nothing, use_l
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      assign_add(ref, value; use_locking=false)
 
 Update 'ref' by adding 'value' to it.
@@ -2822,7 +2822,7 @@ tf.@op function assign_add(ref_, value_; name=nothing, use_locking=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      assign_sub(ref, value; use_locking=false)
 
 Update 'ref' by subtracting 'value' from it.
@@ -2846,7 +2846,7 @@ tf.@op function assign_sub(ref_, value_; name=nothing, use_locking=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      scatter_update(ref, indices, updates; use_locking=true)
 
 Applies sparse updates to a variable reference.
@@ -2897,7 +2897,7 @@ tf.@op function scatter_update(ref_, indices_, updates_; name=nothing, use_locki
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      scatter_sub(ref, indices, updates; use_locking=false)
 
 Subtracts sparse updates to a variable reference.
@@ -2945,7 +2945,7 @@ tf.@op function scatter_sub(ref_, indices_, updates_; name=nothing, use_locking=
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      scatter_add(ref, indices, updates; use_locking=false)
 
 Adds sparse updates to a variable reference.
@@ -2993,7 +2993,7 @@ tf.@op function scatter_add(ref_, indices_, updates_; name=nothing, use_locking=
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      scatter_mul(ref, indices, updates; use_locking=false)
 
 Multiplies sparse updates into a variable reference.
@@ -3039,7 +3039,7 @@ tf.@op function scatter_mul(ref_, indices_, updates_; name=nothing, use_locking=
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      scatter_div(ref, indices, updates; use_locking=false)
 
 Divides a variable reference by sparse updates.
@@ -3085,7 +3085,7 @@ tf.@op function scatter_div(ref_, indices_, updates_; name=nothing, use_locking=
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      merge_summary(inputs)
 
 Merges summaries.
@@ -3111,7 +3111,7 @@ tf.@op function merge_summary(inputs_; name=nothing, N=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      scalar_summary(tags, values)
 
 Outputs a `Summary` protocol buffer with scalar values.
@@ -3132,7 +3132,7 @@ tf.@op function scalar_summary(tags_, values_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      audio_summary_v2(tag, tensor, sample_rate; max_outputs=3)
 
 Outputs a `Summary` protocol buffer with audio.
@@ -3166,7 +3166,7 @@ tf.@op function audio_summary_v2(tag_, tensor_, sample_rate_; name=nothing, max_
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      histogram_summary(tag, values)
 
 Outputs a `Summary` protocol buffer with a histogram.
@@ -3190,7 +3190,7 @@ tf.@op function histogram_summary(tag_, values_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      image_summary(tag, tensor; max_images=3, bad_color=?)
 
 Outputs a `Summary` protocol buffer with images.
@@ -3248,7 +3248,7 @@ tf.@op function image_summary(tag_, tensor_; name=nothing, max_images=nothing, b
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      decode_png(contents; channels=0, dtype=UInt8)
 
 Decode a PNG-encoded image to a uint8 or uint16 tensor.
@@ -3285,7 +3285,7 @@ tf.@op function decode_png(contents_; name=nothing, channels=nothing, dtype=noth
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      where(input)
 
 Returns locations of true values in a boolean tensor.
@@ -3332,7 +3332,7 @@ tf.@op function where(input_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      const_()
 
 Returns a constant tensor.
@@ -3353,7 +3353,7 @@ tf.@op function const_(; name=nothing, value=nothing, dtype=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      variable_v2(; container=, shared_name=)
 
 Holds state in the form of a tensor that persists across steps.
@@ -3382,7 +3382,7 @@ tf.@op function variable_v2(; name=nothing, shape=nothing, dtype=nothing, contai
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      log(x)
 
 Computes natural logarithm of x element-wise.
@@ -3400,7 +3400,7 @@ tf.@op function log(x_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      exp(x)
 
 Computes exponential of x element-wise.  \\(y = e^x\\).
@@ -3418,7 +3418,7 @@ tf.@op function exp(x_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      ceil(x)
 
 Returns element-wise smallest integer in not less than x.
@@ -3436,7 +3436,7 @@ tf.@op function ceil(x_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      floor(x)
 
 Returns element-wise largest integer not greater than x.
@@ -3454,7 +3454,7 @@ tf.@op function floor(x_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      sqrt(x)
 
 Computes square root of x element-wise.
@@ -3472,7 +3472,7 @@ tf.@op function sqrt(x_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      abs(x)
 
 Computes the absolute value of a tensor.
@@ -3492,7 +3492,7 @@ tf.@op function abs(x_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      cos(x)
 
 Computes cos of x element-wise.
@@ -3510,7 +3510,7 @@ tf.@op function cos(x_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      sin(x)
 
 Computes sin of x element-wise.
@@ -3528,7 +3528,7 @@ tf.@op function sin(x_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      tan(x)
 
 Computes tan of x element-wise.
@@ -3546,7 +3546,7 @@ tf.@op function tan(x_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      atan(x)
 
 Computes atan of x element-wise.
@@ -3564,7 +3564,7 @@ tf.@op function atan(x_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      asin(x)
 
 Computes asin of x element-wise.
@@ -3582,7 +3582,7 @@ tf.@op function asin(x_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      acos(x)
 
 Computes acos of x element-wise.
@@ -3600,7 +3600,7 @@ tf.@op function acos(x_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      tanh(x)
 
 Computes hyperbolic tangent of `x` element-wise.
@@ -3618,7 +3618,7 @@ tf.@op function tanh(x_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      lgamma(x)
 
 Computes the log of the absolute value of `Gamma(x)` element-wise.
@@ -3636,7 +3636,7 @@ tf.@op function lgamma(x_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      erf(x)
 
 Computes the Gauss error function of `x` element-wise.
@@ -3654,7 +3654,7 @@ tf.@op function erf(x_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      erfc(x)
 
 Computes the complementary error function of `x` element-wise.
@@ -3672,7 +3672,7 @@ tf.@op function erfc(x_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      real(input)
 
 Returns the real part of a complex number.
@@ -3700,7 +3700,7 @@ tf.@op function real(input_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      imag(input)
 
 Returns the imaginary part of a complex number.
@@ -3728,7 +3728,7 @@ tf.@op function imag(input_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      sign(x)
 
 Returns an element-wise indication of the sign of a number.
@@ -3748,7 +3748,7 @@ tf.@op function sign(x_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      conj(input)
 
 Returns the complex conjugate of a complex number.
@@ -3778,7 +3778,7 @@ tf.@op function conj(input_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      round(x)
 
 Rounds the values of a tensor to the nearest integer, element-wise.
@@ -3797,7 +3797,7 @@ tf.@op function round(x_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      polygamma(a, x)
 
 Compute the polygamma function \\(\psi^{(n)}(x)\\).
@@ -3822,7 +3822,7 @@ tf.@op function polygamma(a_, x_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      zeta(x, q)
 
 Compute the Hurwitz zeta function \\(\zeta(x, q)\\).
@@ -3845,7 +3845,7 @@ tf.@op function zeta(x_, q_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      matrix_inverse(input; adjoint=false)
 
 Computes the inverse of one or more square invertible matrices or their
@@ -3876,7 +3876,7 @@ tf.@op function matrix_inverse(input_; name=nothing, adjoint=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      matrix_determinant(input)
 
 Computes the determinant of one ore more square matrices.
@@ -3896,7 +3896,7 @@ tf.@op function matrix_determinant(input_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      diag(diagonal)
 
 Returns a diagonal tensor with a given diagonal values.
@@ -3930,7 +3930,7 @@ tf.@op function diag(diagonal_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      matrix_diag_part(input)
 
 Returns the batched diagonal part of a batched tensor.
@@ -3975,7 +3975,7 @@ tf.@op function matrix_diag_part(input_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      cast(x)
 
 Cast x of type SrcT to y of DstT.
@@ -3999,7 +3999,7 @@ tf.@op function cast(x_; name=nothing, SrcT=nothing, DstT=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      one_hot(indices, depth, on_value, off_value; axis=-1)
 
 Returns a one-hot tensor.
@@ -4118,7 +4118,7 @@ tf.@op function one_hot(indices_, depth_, on_value_, off_value_; name=nothing, a
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      reshape(tensor, shape)
 
 Reshapes a tensor.
@@ -4194,7 +4194,7 @@ tf.@op function reshape(tensor_, shape_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      split(split_dim, value)
 
 Splits a tensor into `num_split` tensors along one dimension.
@@ -4223,7 +4223,7 @@ tf.@op function split(split_dim_, value_; name=nothing, num_split=nothing)
         out
     end
 
-"""
+doc"""
      div(x, y)
 
 Returns x / y element-wise.
@@ -4244,7 +4244,7 @@ tf.@op function div(x_, y_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      minimum(x, y)
 
 Returns the min of x and y (i.e. x < y ? x : y) element-wise.
@@ -4265,7 +4265,7 @@ tf.@op function minimum(x_, y_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      maximum(x, y)
 
 Returns the max of x and y (i.e. x > y ? x : y) element-wise.
@@ -4286,7 +4286,7 @@ tf.@op function maximum(x_, y_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      select(condition, t, e)
 
 Selects elements from `t` or `e`, depending on `condition`.
@@ -4346,7 +4346,7 @@ tf.@op function select(condition_, t_, e_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      switch(data, pred)
 
 Forwards `data` to the output port determined by `pred`.
@@ -4374,7 +4374,7 @@ tf.@op function switch(data_, pred_; name=nothing)
         out
     end
 
-"""
+doc"""
      identity(input)
 
 Return a tensor with the same shape and contents as the input tensor or value.
@@ -4392,7 +4392,7 @@ tf.@op function identity(input_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      merge(inputs)
 
 Forwards the value of an available tensor from `inputs` to `output`.
@@ -4422,7 +4422,7 @@ tf.@op function merge(inputs_; name=nothing, N=nothing)
         out
     end
 
-"""
+doc"""
      enter(data; is_constant=false, parallel_iterations=10)
 
 Creates or finds a child frame, and makes `data` available to the child frame.
@@ -4453,7 +4453,7 @@ tf.@op function enter(data_; name=nothing, frame_name=nothing, is_constant=nothi
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      loop_cond(input)
 
 Forwards the input to the output.
@@ -4471,7 +4471,7 @@ tf.@op function loop_cond(input_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      exit(data)
 
 Exits the current frame to its parent frame.
@@ -4489,7 +4489,7 @@ tf.@op function exit(data_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      next_iteration(data)
 
 Makes its input available to the next iteration.
@@ -4507,7 +4507,7 @@ tf.@op function next_iteration(data_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      complex(real, imag)
 
 Converts two real numbers to a complex number.
@@ -4540,7 +4540,7 @@ tf.@op function complex(real_, imag_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      print(input, data; message=, first_n=-1, summarize=3)
 
 Prints a list of tensors.
@@ -4572,7 +4572,7 @@ tf.@op function print(input_, data_; name=nothing, U=nothing, message=nothing, f
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      reverse_v2(tensor, axis)
 
 Reverses specific dimensions of a tensor.
@@ -4639,7 +4639,7 @@ tf.@op function reverse_v2(tensor_, axis_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      size(input; out_type=Int32)
 
 Returns the size of a tensor.
@@ -4668,7 +4668,7 @@ tf.@op function size(input_; name=nothing, out_type=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      softmax_cross_entropy_with_logits(features, labels)
 
 Computes softmax cross entropy cost and gradients to backpropagate.
@@ -4693,7 +4693,7 @@ tf.@op function softmax_cross_entropy_with_logits(features_, labels_; name=nothi
         out
     end
 
-"""
+doc"""
      sparse_softmax_cross_entropy_with_logits(features, labels)
 
 Computes softmax cross entropy cost and gradients to backpropagate.
@@ -4724,7 +4724,7 @@ tf.@op function sparse_softmax_cross_entropy_with_logits(features_, labels_; nam
         out
     end
 
-"""
+doc"""
      top_kv2(input, k; sorted=true)
 
 Finds values and indices of the `k` largest elements for the last dimension.
@@ -4761,7 +4761,7 @@ tf.@op function top_kv2(input_, k_; name=nothing, sorted=nothing)
         out
     end
 
-"""
+doc"""
      in_top_k(predictions, targets)
 
 Says whether the targets are in the top `K` predictions.
@@ -4797,7 +4797,7 @@ tf.@op function in_top_k(predictions_, targets_; name=nothing, k=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      fifo_queue_v2(; shapes=Int64[], capacity=-1, container=, shared_name=)
 
 A queue that produces elements in first-in first-out order.
@@ -4827,7 +4827,7 @@ tf.@op function fifo_queue_v2(; name=nothing, component_types=nothing, shapes=no
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      random_shuffle_queue_v2(; shapes=Int64[], capacity=-1, min_after_dequeue=0, seed=0, seed2=0, container=, shared_name=)
 
 A queue that randomizes the order of elements.
@@ -4866,7 +4866,7 @@ tf.@op function random_shuffle_queue_v2(; name=nothing, component_types=nothing,
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      queue_enqueue_v2(handle, components; timeout_ms=-1)
 
 Enqueues a tuple of one or more tensors in the given queue.
@@ -4895,7 +4895,7 @@ tf.@op function queue_enqueue_v2(handle_, components_; name=nothing, Tcomponents
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      queue_enqueue_many_v2(handle, components; timeout_ms=-1)
 
 Enqueues zero or more tuples of one or more tensors in the given queue.
@@ -4928,7 +4928,7 @@ tf.@op function queue_enqueue_many_v2(handle_, components_; name=nothing, Tcompo
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      queue_size_v2(handle)
 
 Computes the number of elements in the given queue.
@@ -4945,7 +4945,7 @@ tf.@op function queue_size_v2(handle_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      queue_close_v2(handle; cancel_pending_enqueues=false)
 
 Closes the given queue.
@@ -4969,7 +4969,7 @@ tf.@op function queue_close_v2(handle_; name=nothing, cancel_pending_enqueues=no
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      lin_space(start, stop, num)
 
 Generates values in an interval.
@@ -5001,7 +5001,7 @@ tf.@op function lin_space(start_, stop_, num_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      range(start, limit, delta)
 
 Creates a sequence of numbers.
@@ -5033,7 +5033,7 @@ tf.@op function range(start_, limit_, delta_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      fill(dims, value)
 
 Creates a tensor filled with a scalar value.
@@ -5061,7 +5061,7 @@ tf.@op function fill(dims_, value_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      squeeze(input; squeeze_dims=Int64[])
 
 Removes dimensions of size 1 from the shape of a tensor.
@@ -5099,7 +5099,7 @@ tf.@op function squeeze(input_; name=nothing, squeeze_dims=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      unpack(value; axis=0)
 
 Unpacks a given dimension of a rank-`R` tensor into `num` rank-`(R-1)` tensors.
@@ -5142,7 +5142,7 @@ tf.@op function unpack(value_; name=nothing, num=nothing, axis=nothing)
         out
     end
 
-"""
+doc"""
      transpose(x, perm)
 
 Shuffle dimensions of x according to a permutation.
@@ -5164,7 +5164,7 @@ tf.@op function transpose(x_, perm_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      slice(input, begin, size)
 
 Return a slice from 'input'.
@@ -5196,7 +5196,7 @@ tf.@op function slice(input_, begin_, size_; name=nothing, Index=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      rank(input)
 
 Returns the rank of a tensor.
@@ -5226,7 +5226,7 @@ tf.@op function rank(input_; name=nothing)
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      conv2d_backprop_input(input_sizes, filter, out_backprop; use_cudnn_on_gpu=true, data_format=NHWC)
 
 Computes the gradients of convolution with respect to the input.
@@ -5260,7 +5260,7 @@ tf.@op function conv2d_backprop_input(input_sizes_, filter_, out_backprop_; name
         tf.Tensor(tf.Operation(desc))
     end
 
-"""
+doc"""
      svd(input; compute_uv=true, full_matrices=false)
 
 Computes the singular value decompositions of one or more matrices.
@@ -5299,7 +5299,7 @@ tf.@op function svd(input_; name=nothing, compute_uv=nothing, full_matrices=noth
         out
     end
 
-"""
+doc"""
      cross(a, b)
 
 Compute the pairwise cross product.
