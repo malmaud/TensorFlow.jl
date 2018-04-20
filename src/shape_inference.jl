@@ -205,7 +205,8 @@ end
 
 # Binary functions that broadcast
 for func in ["Add", "Sub", "Mul", "Div", "Pow", "SquaredDifference", "Less",
-             "LessEqual", "Greater", "GreaterEqual", "Equal", "NotEqual"]
+             "LessEqual", "Greater", "GreaterEqual", "Equal", "NotEqual",
+             "Maximum", "Minimum"]
     register_shape(func) do op
         s1 = _get_shape(get_input(op, 1))
         s2 = _get_shape(get_input(op, 2))

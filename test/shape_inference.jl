@@ -46,6 +46,15 @@ end
     @test get_shape(m+k) == TensorShape([10, 20, -1])
 end
 
+@testset "$f" for f in [max,min]
+    @testset "$xs against scalar" for xs in [:k, :m, :n, :i]
+        x = eval(xs)
+        @test get_shape(f(x,i)) == get_shape(x)
+        @test get_shape(f(x,x)) == get_shape(x)
+    end
+    @test get_shape(f(k,m)) == get_shape(k)
+end
+
 @testset "Find (i.e Where)" begin
     @test get_shape(find(placeholder(Bool; shape=[10, 20, 30]))) == TensorShape([-1,3])
     @test get_shape(find(placeholder(Bool; shape=[10, 20, -1]))) == TensorShape([-1,3])
