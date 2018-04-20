@@ -203,6 +203,30 @@ end
     end
 end
 
+@testset "simple 1-input 1-output" begin
+    @testset "int" begin
+        @testset "$f" for f in [-,
+                                tan, atan, asin, acos,
+                                round, identity,
+                                sign,
+                                ]
+            @test get_shape(f(i)) == get_shape(i)
+        end
+    end
+
+    @testset "float" begin
+        @testset "$f" for f in [log, exp, -, ceil, floor, sqrt,
+                                cos, sin, tan, atan, asin, acos, tanh,
+                                round, identity,
+                                sign,
+                                isfinite, isinf, isnan]
+            @testset "$(get_shape(var))" for var in [k,m,n]
+                @test get_shape(f(var)) == get_shape(var)
+            end
+        end
+    end
+end
+
 @testset "squared_difference" begin
     @test get_shape(squared_difference([1,2], 3)) == TensorShape([2])
 end

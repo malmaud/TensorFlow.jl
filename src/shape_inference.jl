@@ -137,7 +137,7 @@ end
 # Simple 1-input 1-output functions that preserve the input shape
 for func in ["Log", "Exp", "Neg", "Ceil", "Floor", "Sqrt", "Square",
     "Cos", "Sin", "Tan", "Atan", "Asin", "Acos", "Tanh",
-    "Round", "Cast",
+    "Round", "Cast", "Identity",
     "Relu", "Relu6", "Elu", "Softplus", "Softsign","Softmax", "Sigmoid",
     "LogSoftmax", "LRN", "LogicalAnd", "LogicalNot", "LogicalOr", "LogicalXor",
     "Sign", "Exit", "Enter", "NextIteration", "LoopCond",
