@@ -180,7 +180,8 @@ for reduction in [:sum, :prod, :min, :max, :all, :any, :mean]
             name = $(capitalize(reduction))
         end
 
-        if axis == nothing
+        shape = get_shape(n)
+        if axis == nothing && shape.rank_unknown
             n = Tensor(n)  # TODO: rewrite this
             desc_rank = tf.with_op_name(nothing, "Rank") do
                 NodeDescription("Rank")
@@ -204,6 +205,9 @@ for reduction in [:sum, :prod, :min, :max, :all, :any, :mean]
             end
         else
             desc = tf.with_op_name(nothing, name) do
+                if axis == nothing
+                    axis = 1:length(shape.dims)
+                end
                 @tf reduction_indices = constant(Int32.(axis.-1))
                 desc = NodeDescription($(capitalize(reduction)))
                 add_input(desc, Tensor(n))
