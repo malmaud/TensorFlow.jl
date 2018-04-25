@@ -176,18 +176,20 @@ end
 # TODO Clean this up
 for reduction in [:sum, :prod, :min, :max, :all, :any, :mean]
     @eval @op function $(Symbol("reduce_", reduction))(n::AbstractTensor; axis=nothing, keep_dims=false, name=nothing)
+        local desc
+        shape = get_shape(n)
+
         if name == nothing
             name = $(capitalize(reduction))
         end
 
-        shape = get_shape(n)
         if axis == nothing && shape.rank_unknown
             n = Tensor(n)  # TODO: rewrite this
-            desc_rank = tf.with_op_name(nothing, "Rank") do
-                NodeDescription("Rank")
+            rank = tf.with_op_name(nothing, "Rank") do
+                desc_rank = NodeDescription("Rank")
+                add_input(desc_rank, n)
+                Tensor(Operation(desc_rank), 1)
             end
-            add_input(desc_rank, n)
-            rank = Tensor(Operation(desc_rank), 1)
             range = tf.with_op_name(nothing, "range") do
                 @tf start = constant(Int32(0))
                 @tf delta = constant(Int32(1))
@@ -197,14 +199,13 @@ for reduction in [:sum, :prod, :min, :max, :all, :any, :mean]
                 add_input(desc_range, delta)
                 Tensor(Operation(desc_range), 1)
             end
-            desc = tf.with_op_name(nothing, name) do
+            tf.with_op_name(nothing, name) do
                 desc = NodeDescription($(capitalize(reduction)))
                 add_input(desc, n)
                 add_input(desc, range)
-                desc
             end
         else
-            desc = tf.with_op_name(nothing, name) do
+            tf.with_op_name(nothing, name) do
                 if axis == nothing
                     axis = 1:length(shape.dims)
                 end
@@ -213,7 +214,6 @@ for reduction in [:sum, :prod, :min, :max, :all, :any, :mean]
                 add_input(desc, Tensor(n))
                 add_input(desc, reduction_indices)
                 desc["keep_dims"] = keep_dims
-                desc
             end
         end
         Tensor(Operation(desc), 1)
