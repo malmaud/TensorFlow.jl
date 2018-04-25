@@ -18,7 +18,9 @@ end
 @testset "Naming" begin
     let
         g = Graph()
-        local i, j_jl, j, k, ijk, ij, ij2, fq, m, W, Y, Ysum1, Ysum2, Ysum3, Ysum4, Ysum5, Ysum6, Ysum7, Ysum8
+        local i, j_jl, j, k, ijk, ij, ij2, fq, m, W, Y,
+              Ysum1, Ysum2, Ysum3, Ysum4, Ysum5, Ysum6, Ysum7, Ysum8,
+              psum1, psum2, psum3, psum4, psum5
         as_default(g) do
             @tf begin
                 i = constant(1.0)
@@ -56,6 +58,19 @@ end
                         Ysum8 = reduce_sum(Y, axis=1)
                     end
                 end
+
+                p = placeholder(Float32)
+                psum1 = reduce_sum(p)
+                psum2 = reduce_sum(p, axis=1)
+
+                nn.tf.with_op_name("anotherlevel1") do
+                    psum3 = reduce_sum(p)
+
+                    nn.tf.with_op_name("level2") do
+                        psum4 = reduce_sum(p)
+                        psum5 = reduce_sum(p, axis=1)
+                    end
+                end
             end
         end
 
@@ -82,6 +97,12 @@ end
         @test Ysum6 == get_tensor_by_name(g, "level1/Ysum6")
         @test Ysum7 == get_tensor_by_name(g, "level1/level2/Ysum7")
         @test Ysum8 == get_tensor_by_name(g, "level1/level2/Ysum8")
+
+        @test psum1 == get_tensor_by_name(g, "psum1")
+        @test psum2 == get_tensor_by_name(g, "psum2")
+        @test psum3 == get_tensor_by_name(g, "anotherlevel1/psum3")
+        @test psum4 == get_tensor_by_name(g, "anotherlevel1/level2/psum4")
+        @test psum5 == get_tensor_by_name(g, "anotherlevel1/level2/psum5")
     end
 end
 
