@@ -176,34 +176,40 @@ end
 # TODO Clean this up
 for reduction in [:sum, :prod, :min, :max, :all, :any, :mean]
     @eval @op function $(Symbol("reduce_", reduction))(n::AbstractTensor; axis=nothing, keep_dims=false, name=nothing)
-        local desc
-        with_op_name(name, string("reduce_", $(reduction))) do
-            node_name = get_cur_node_name()
-            
-            if axis == nothing
-                n = Tensor(n)  # TODO: rewrite this
-                range_start = constant(Int32(0))
-                range_delta = constant(Int32(1))
-                rank_desc = NodeDescription("Rank", "$node_name/rank")
-                add_input(rank_desc, n)
-                rank = Tensor(Operation(rank_desc), 1)
-                desc_range = NodeDescription("Range", "$node_name/range")
-                add_input(desc_range, range_start)
+        if name == nothing
+            name = $(capitalize(reduction))
+        end
+
+        if axis == nothing
+            n = Tensor(n)  # TODO: rewrite this
+            desc_rank = tf.with_op_name(nothing, "Rank") do
+                NodeDescription("Rank")
+            end
+            add_input(desc_rank, n)
+            rank = Tensor(Operation(desc_rank), 1)
+            range = tf.with_op_name(nothing, "range") do
+                @tf start = constant(Int32(0))
+                @tf delta = constant(Int32(1))
+                desc_range = NodeDescription("Range")
+                add_input(desc_range, start)
                 add_input(desc_range, rank)
-                add_input(desc_range, range_delta)
-                range = Tensor(Operation(desc_range), 1)
+                add_input(desc_range, delta)
+                Tensor(Operation(desc_range), 1)
+            end
+            desc = tf.with_op_name(nothing, name) do
                 desc = NodeDescription($(capitalize(reduction)))
                 add_input(desc, n)
                 add_input(desc, range)
-            else
-                if isa(axis, Number)
-                    axis = [axis]
-                end
-                axis = [Int32(idx-1) for idx in axis]
+                desc
+            end
+        else
+            desc = tf.with_op_name(nothing, name) do
+                @tf reduction_indices = constant(Int32.(axis.-1))
                 desc = NodeDescription($(capitalize(reduction)))
                 add_input(desc, Tensor(n))
-                add_input(desc, Tensor(axis))
+                add_input(desc, reduction_indices)
                 desc["keep_dims"] = keep_dims
+                desc
             end
         end
         Tensor(Operation(desc), 1)
