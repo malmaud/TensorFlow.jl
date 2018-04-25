@@ -1,5 +1,6 @@
 using Juno
 using PyCall
+import Hiccup
 import Juno: Tree, Row, fade, interleave
 
 @render Juno.Inline t::Tensor begin
@@ -7,7 +8,7 @@ import Juno: Tree, Row, fade, interleave
   shape = s.rank_unknown ? [fade("unknown")] :
     interleave(map(dim -> get(dim, fade("?")), s.dims), fade("×"))
   Tree(Row(fade(try string(eltype(t)," ") catch e "" end),
-           Juno.span(".constant.support.type", "Tensor "),
+           Hiccup.span(".constant.support.type", "Tensor "),
            shape...),
        [Text("name: $(node_name(t.op))"),
         Text("index: $(t.value_index)")])
