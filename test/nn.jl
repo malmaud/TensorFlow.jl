@@ -149,7 +149,55 @@ for (rnn_fun, post_proc_outputs) in ((nn.rnn, last),)
             run(sess, global_variables_initializer())
             outs_jl, state_jl = run(sess, [out, state], Dict(x=>rand(19, 1, 5)))
 
+            @test size(outs_jl) == (1,) # time steps in x
+            @test size(outs_jl[1]) == (19, 7) #batchsize, hidden_size
             @test size(state_jl) == (19, 7) #batchsize, hidden_size
+        end
+    end
+
+    @testset "$testname dynamic length" begin
+        hiddenstates(x) = (x, )
+        hiddenstates(x::nn.rnn_cell.LSTMStateTuple) = (x.h, x.c)
+
+        @testset "$celltype" for celltype in (nn.rnn_cell.GRUCell, nn.rnn_cell.LSTMCell)
+            let
+                sess = Session(Graph())
+
+                batch_size = 4
+                hidden_size = 7
+                time_steps = 3
+                input_dim = 5
+
+                x = placeholder(Float32, shape=[-1, time_steps, input_dim])
+                xlen = placeholder(Float32, shape=[-1])
+                cell = celltype(hidden_size)
+                out, state = rnn_fun(cell, x, xlen)
+
+                run(sess, global_variables_initializer())
+
+                xdata = ones(batch_size, time_steps, input_dim)
+                xlendata = [1, 2, 3, 2]
+
+                outs_jl, state_jl = run(sess, [out, state], Dict(x=>xdata, xlen=>xlendata))
+
+                @test size(outs_jl) == (time_steps,)
+                @test all(size.(outs_jl) .== [(batch_size, hidden_size)])
+
+                # the output from the first sequence is repeated 3 times since the length is 1
+                # the second output from the second and fourth sequence is repeated twice
+                # the third sequence has some new output from each of the 3 time steps
+                @test all(outs_jl[1] .== outs_jl[2], 2) == [true false false false]'
+                @test all(outs_jl[2] .== outs_jl[3], 2) == [true true false true]'
+
+                # since xdata is the same for all sequences the hidden state will be the same
+                # if the sequences have equal length. Sequence number 2 and 4 are both of length 2.
+                for s in hiddenstates(state_jl)
+                    @test s[1,:] != s[2,:]
+                    @test s[1,:] != s[3,:]
+                    @test s[2,:] != s[3,:]
+                    @test s[2,:] == s[4,:]
+                end
+            end
         end
     end
 end

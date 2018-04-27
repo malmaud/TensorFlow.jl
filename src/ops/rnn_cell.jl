@@ -13,7 +13,7 @@ IdentityRNNCell
 using Compat
 import ..nn
 import .nn: TensorFlow
-import .TensorFlow: Operation, get_shape, get_variable, tanh, Tensor, nn, concat, expand_dims, with_op_name, AbstractTensor
+import .TensorFlow: Operation, get_shape, get_variable, select, tanh, Tensor, nn, concat, expand_dims, with_op_name, AbstractTensor
 import .nn: sigmoid
 const tf = TensorFlow
 
@@ -146,6 +146,12 @@ function zero_state(cell::LSTMCell, input, T)
         zero_mat(input, cell.hidden_size, T))
 end
 
+"""
+Select state tuple based on condition.
+"""
+function select{C, H}(condition::TensorFlow.AbstractTensor, t::LSTMStateTuple{C, H}, e::LSTMStateTuple{C, H})
+    LSTMStateTuple{C, H}(select(condition, t.c, e.c), select(condition, t.h, e.h))
+end
 
 function (cell::LSTMCell)(input, state, input_dim=-1)
     N = get_input_dim(input, input_dim) + cell.hidden_size
