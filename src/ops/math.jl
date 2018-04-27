@@ -178,10 +178,7 @@ for reduction in [:sum, :prod, :min, :max, :all, :any, :mean]
     @eval @op function $(Symbol("reduce_", reduction))(n::AbstractTensor; axis=nothing, keep_dims=false, name=nothing)
         local desc
         shape = get_shape(n)
-
-        if name == nothing
-            name = $(capitalize(reduction))
-        end
+        nodetype = $(capitalize(reduction))
 
         if axis == nothing && shape.rank_unknown
             n = Tensor(n)  # TODO: rewrite this
@@ -199,18 +196,18 @@ for reduction in [:sum, :prod, :min, :max, :all, :any, :mean]
                 add_input(desc_range, delta)
                 Tensor(Operation(desc_range), 1)
             end
-            tf.with_op_name(nothing, name) do
-                desc = NodeDescription($(capitalize(reduction)))
+            tf.with_op_name(name, nodetype) do
+                desc = NodeDescription(nodetype)
                 add_input(desc, n)
                 add_input(desc, range)
             end
         else
-            tf.with_op_name(nothing, name) do
+            tf.with_op_name(name, nodetype) do
                 if axis == nothing
                     axis = 1:length(shape.dims)
                 end
                 @tf reduction_indices = constant(Int32.(axis.-1))
-                desc = NodeDescription($(capitalize(reduction)))
+                desc = NodeDescription(nodetype)
                 add_input(desc, Tensor(n))
                 add_input(desc, reduction_indices)
                 desc["keep_dims"] = keep_dims

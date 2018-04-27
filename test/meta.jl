@@ -20,7 +20,7 @@ end
         g = Graph()
         local i, j_jl, j, k, ijk, ij, ij2, fq, m, W, Y,
               Ysum1, Ysum2, Ysum3, Ysum4, Ysum5, Ysum6, Ysum7, Ysum8,
-              psum1, psum2, psum3, psum4, psum5
+              p, psum1, psum2, psum3, psum4, psum5
         as_default(g) do
             @tf begin
                 i = constant(1.0)
@@ -103,6 +103,8 @@ end
         @test psum3 == get_tensor_by_name(g, "anotherlevel1/psum3")
         @test psum4 == get_tensor_by_name(g, "anotherlevel1/level2/psum4")
         @test psum5 == get_tensor_by_name(g, "anotherlevel1/level2/psum5")
+
+        @test_throws TensorFlow.TFException reduce_sum(p, name="Ysum1")
     end
 end
 
