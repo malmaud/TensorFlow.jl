@@ -218,7 +218,7 @@ function (cell::GRUCell)(input, state, input_dim=-1)
         z = sigmoid(X*Wz + Bz)
         r = sigmoid(X*Wr + Br)
         X2 = [input state.*r]
-        h = nn.tanh(sigmoid(X2*Wh + Bh))
+        h = nn.tanh(X2*Wh + Bh)
         s2 = (1-z).*h + z.*state
     end
     return [s2, s2]
