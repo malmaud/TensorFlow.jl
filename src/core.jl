@@ -338,22 +338,24 @@ function Base.convert(::Type{tensorflow.NodeDef}, proto::Vector{UInt8})
     node_def
 end
 
-@with_def_graph function extend_graph(graph::Graph, node_defs)
+@with_def_graph function extend_graph(graph::Graph, node_def_bytes)
+
+    #println(@__LINE__, " GRAPH:"); println.(" a ".*collect(keys(graph)))
     new_graph = tensorflow.GraphDef()
     set_field!(new_graph, :node, tensorflow.NodeDef[])
     import_options = GraphImportOptions()
     ph_names = Set{String}()
-    for node_bytes in node_defs
-        node_def = convert(tensorflow.NodeDef, node_bytes)
+    for node_def in convert.(tensorflow.NodeDef, node_def_bytes)
         if isnull(get_node_by_name(graph, node_def.name))
             # First try to directly add this node to the graph
+           #= 
             try
                 new_op = Operation(node_def)
                 continue
             catch err
-                DEBUG_EXTEND_GRAPH && warn(err)
+                DEBUG_EXTEND_GRAPH && warn(err, "\n\t", join(catch_stacktrace()[1:3], "\n\t"))
             end
-
+            =#
             # If that doesn't work (for example, the node has a
             # back edge), then import the node instead.
 
@@ -424,6 +426,9 @@ end
             end
         end
     end
+    
+    #println(@__LINE__, " GRAPH:"); println.(" b ".*collect(keys(graph)))
+    #println(@__LINE__, "New GRAPH:"); println.("+ ".*[def.name for def in new_graph.node])
     import_graph_def(graph, new_graph, import_options)
 end
 
@@ -1132,7 +1137,7 @@ function load_proto(tensor::tensorflow.TensorProto)
     elseif dtype == tensorflow._DataType.DT_BOOL
         val = tensor.bool_val
     else
-        # warn("Unrecognized datatype $dtype")
+        warn("Unrecognized datatype $dtype")
     end
     # Sometimes Tensorflow store the tensor content in the 'tensor_content' byte array,
     # and sometimes in a typed field. Haven't figured out the rational yet.
@@ -1571,10 +1576,11 @@ A user can provide their own initial `grad_ys` to compute the derivatives using 
 
 see: [Python Docs](https://www.tensorflow.org/versions/master/api_docs/python/tf/gradients)
 """
-function gradients(y, x::AbstractArray, grad_y=nothing)
+function pyg_gradients(y, x::AbstractArray, grad_y=nothing)
     x_names = node_name(x)
     y_names = node_name(y)
     grad_y_names = node_name(grad_y)
+
     meta_graph = train.export_meta_graph()
     b = IOBuffer()
     writeproto(b, meta_graph)
@@ -1594,13 +1600,12 @@ function gradients(y, x::AbstractArray, grad_y=nothing)
     return out
 end
 
-gradients(y, x, grad_y=nothing) = gradients(y, [x], grad_y)[1]
-
-function c_gradients(y, x, dx=nothing)
+c_gradients(y, x, dx=nothing) = c_gradients([y], x, dx)
+function c_gradients(y::AbstractArray, x::AbstractArray, dx=nothing)
     status = Status()
     graph = get_def_graph()
     grads = Array{Port}(length(x))
-    if dx === nothing
+    if dx isa AbstractArray{Void} || dx isa Void
         c_dx = C_NULL
     else
         c_dx = Port.(Tensor.(dx))
@@ -1612,6 +1617,10 @@ function c_gradients(y, x, dx=nothing)
     check_status(status)
     return Tensor.(grads)
 end
+
+gradients(y, x::AbstractArray, dx=nothing) = pyg_gradients(y, x, dx)
+gradients(y, x, grad_y=nothing) = gradients(y, [x], [grad_y])[1]
+
 
 function get_num_outputs(op::Operation)
     @tfcall(:TF_OperationNumOutputs, Cint, (Ptr{Void},), op.ptr) |> Int
@@ -1653,31 +1662,42 @@ end
 @with_def_graph function import_graph_def(graph::Graph, graph_def::Vector{UInt8}, options=GraphImportOptions())
     version_check(v"1.0.0-rc1")
     options_ptr = @tfcall(:TF_NewImportGraphDefOptions, Ptr{Void}, ())
+
+    ##BEGIN SET OPTIONS
     for ((input_name, input_port), tensor) in options.input_mapping
         @tfcall(:TF_ImportGraphDefOptionsAddInputMapping, Void,
             (Ptr{Void}, Cstring, Cint, Port),
             options_ptr, input_name, input_port-1, Port(tensor))
     end
+    
     for (output_name, output_port) in options.return_output
         @tfcall(:TF_ImportGraphDefOptionsAddReturnOutput, Void,
             (Ptr{Void}, Cstring, Cint),
             options_ptr, output_name, output_port-1)
     end
+    
     for operation in options.control_dependencies
         @tfcall(:TF_ImportGraphDefOptionsAddControlDependency, Void,
             (Ptr{Void}, Ptr{Void}),
             options_ptr, operation.ptr)
     end
+
     @tfcall(:TF_ImportGraphDefOptionsSetPrefix, Void,
         (Ptr{Void}, Cstring),
         options_ptr, options.prefix)
+    ##END SET OPTIONS
+
     status = Status()
     buffer = Buffer(graph_def)
     output_ports = Vector{Port}(length(options.return_output))
+    
     @tfcall(:TF_GraphImportGraphDefWithReturnOutputs, Void,
         (Ptr{Void}, Ptr{Void}, Ptr{Void}, Ptr{Void}, Cint, Ptr{Void}),
         graph.ptr, buffer.ptr, options_ptr, output_ports, length(output_ports), status.ptr)
+    
+    #print(@__LINE__); println.(" + " .* collect(keys(graph)))
     check_status(status)
+    
     @tfcall(:TF_DeleteImportGraphDefOptions, Void, (Ptr{Void},), options_ptr)
     output_tensors = map(Tensor, output_ports)
     output_tensors
