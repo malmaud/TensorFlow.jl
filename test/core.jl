@@ -129,7 +129,7 @@ end
             gradients([u, s, v], x)
         catch ee
             errmsg = repr(ee)
-            @test contains(errmsg, "No gradient defined for operation 'Svd'")
+            @test contains(errmsg, "SVD gradient is not implemented for compute_uv=True and full_matrices=False.")
         end
     end
 end
