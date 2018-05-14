@@ -339,26 +339,12 @@ function Base.convert(::Type{tensorflow.NodeDef}, proto::Vector{UInt8})
 end
 
 @with_def_graph function extend_graph(graph::Graph, node_def_bytes)
-
-    #println(@__LINE__, " GRAPH:"); println.(" a ".*collect(keys(graph)))
     new_graph = tensorflow.GraphDef()
     set_field!(new_graph, :node, tensorflow.NodeDef[])
     import_options = GraphImportOptions()
     ph_names = Set{String}()
     for node_def in convert.(tensorflow.NodeDef, node_def_bytes)
         if isnull(get_node_by_name(graph, node_def.name))
-            # First try to directly add this node to the graph
-           #= 
-            try
-                new_op = Operation(node_def)
-                continue
-            catch err
-                DEBUG_EXTEND_GRAPH && warn(err, "\n\t", join(catch_stacktrace()[1:3], "\n\t"))
-            end
-            =#
-            # If that doesn't work (for example, the node has a
-            # back edge), then import the node instead.
-
             # Hack to deal with imported nodes which have
             # colocation dependencies on existing nodes
             if has_field(node_def, :attr) && haskey(node_def.attr, "_class")
@@ -426,9 +412,6 @@ end
             end
         end
     end
-    
-    #println(@__LINE__, " GRAPH:"); println.(" b ".*collect(keys(graph)))
-    #println(@__LINE__, "New GRAPH:"); println.("+ ".*[def.name for def in new_graph.node])
     import_graph_def(graph, new_graph, import_options)
 end
 
@@ -1137,7 +1120,7 @@ function load_proto(tensor::tensorflow.TensorProto)
     elseif dtype == tensorflow._DataType.DT_BOOL
         val = tensor.bool_val
     else
-        warn("Unrecognized datatype $dtype")
+        #warn("Unrecognized datatype $dtype")
     end
     # Sometimes Tensorflow store the tensor content in the 'tensor_content' byte array,
     # and sometimes in a typed field. Haven't figured out the rational yet.
@@ -1664,7 +1647,7 @@ end
     version_check(v"1.0.0-rc1")
     options_ptr = @tfcall(:TF_NewImportGraphDefOptions, Ptr{Void}, ())
 
-    ##BEGIN SET OPTIONS
+    ## BEGIN SET OPTIONS
     for ((input_name, input_port), tensor) in options.input_mapping
         @tfcall(:TF_ImportGraphDefOptionsAddInputMapping, Void,
             (Ptr{Void}, Cstring, Cint, Port),
@@ -1686,7 +1669,7 @@ end
     @tfcall(:TF_ImportGraphDefOptionsSetPrefix, Void,
         (Ptr{Void}, Cstring),
         options_ptr, options.prefix)
-    ##END SET OPTIONS
+    ## END SET OPTIONS
 
     status = Status()
     buffer = Buffer(graph_def)
@@ -1696,7 +1679,6 @@ end
         (Ptr{Void}, Ptr{Void}, Ptr{Void}, Ptr{Void}, Cint, Ptr{Void}),
         graph.ptr, buffer.ptr, options_ptr, output_ports, length(output_ports), status.ptr)
     
-    #print(@__LINE__); println.(" + " .* collect(keys(graph)))
     check_status(status)
     
     @tfcall(:TF_DeleteImportGraphDefOptions, Void, (Ptr{Void},), options_ptr)
