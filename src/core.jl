@@ -1576,6 +1576,9 @@ A user can provide their own initial `grad_ys` to compute the derivatives using 
 
 see: [Python Docs](https://www.tensorflow.org/versions/master/api_docs/python/tf/gradients)
 """
+gradients(y, x::AbstractArray, dx=nothing) = pyg_gradients(y, x, dx)
+gradients(y, x, grad_y=nothing) = gradients(y, [x], grad_y)[1]
+
 function pyg_gradients(y, x::AbstractArray, grad_y=nothing)
     x_names = node_name(x)
     y_names = node_name(y)
@@ -1618,8 +1621,6 @@ function c_gradients(y::AbstractArray, x::AbstractArray, dx=nothing)
     return Tensor.(grads)
 end
 
-gradients(y, x::AbstractArray, dx=nothing) = pyg_gradients(y, x, dx)
-gradients(y, x, grad_y=nothing) = gradients(y, [x], [grad_y])[1]
 
 
 function get_num_outputs(op::Operation)
