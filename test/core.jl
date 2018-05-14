@@ -12,8 +12,8 @@ const tf = TensorFlow
     @test TensorShape(nothing).rank_unknown == true
 end
 
-#== TODO: Export a new graph from python to test this
-@testset "Graph importing" begin
+#TODO: Export a new graph from python to test this with current versions
+@testset "Graph importing: from older versions" begin
     graph_pb = read(joinpath(dirname(@__FILE__), "graph.pb"))
     graph = Graph()
     sess = Session(graph)
@@ -24,7 +24,6 @@ end
     z = import_graph_def(graph, graph_pb, options)
     @test run(sess, z) == [Int32(7)]
 end
-=#
 
 @testset "Session closing" begin
     session = tf.Session(Graph())
