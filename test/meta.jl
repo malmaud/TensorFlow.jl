@@ -68,8 +68,13 @@ end
         @test Ysum2 == get_tensor_by_name(g, "Ysum2")
         @test Ysum3 == get_tensor_by_name(g, "Ysum3")
         @test Ysum4 == get_tensor_by_name(g, "namefor_Ysum4")
+    end
+end
 
-
+@testset "Types with typeparams" begin
+    @tf begin
+        fooo = nn.rnn_cell.DropoutWrapper(nn.rnn_cell.GRUCell(3), Tensor(0.2))
+            @test true # Above line would have errored if @tf macro was broken
     end
 end
 

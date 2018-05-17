@@ -8,7 +8,8 @@ abstract type OpRegistration end
 struct RegisteredOp <: OpRegistration end
 struct NotRegisteredOp <: OpRegistration end
 
-is_registered_op(::DataType) = NotRegisteredOp() # By default nothing is registered
+# By default nothing is registered
+is_registered_op(::Type{T}) where T =  TensorFlow.NotRegisteredOp()
 
 const registered_ops = Set()
 
@@ -26,7 +27,7 @@ macro op(f)
         end
     end
     opname === nothing && error("Invalid usage of @op")
-    # opname = f.args[1].args[1]
+    
     already_registered = opname ∈ registered_ops
     push!(registered_ops, opname)
     @assert(isdefined(:tf)) # Need tf as name for module where this code is located
@@ -68,8 +69,8 @@ withname(::typeof(get_variable), name) = (args...; kwargs...) -> begin
     end
 end
 
-withname(d::DataType, name) = withname(is_registered_op(d), d, name) # will do a static(?) dispatch to one of the two traited methods
-withname{F<:Function}(f::F, name) = withname(is_registered_op(F), f, name) # will do a static dispatch to one of the two traited methods
+withname(d::Type{T}, name) where T = withname(is_registered_op(d), d, name) # will do a static(?) dispatch to one of the two traited methods
+withname(f::F, name) where F<:Function = withname(is_registered_op(F), f, name) # will do a static dispatch to one of the two traited methods
 
 withname(::NotRegisteredOp, f, name) = (args...; kws...) -> f(args...; kws...)
 withname(::RegisteredOp, f, name) = (args...; kws...) -> begin
