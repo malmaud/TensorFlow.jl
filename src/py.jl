@@ -75,7 +75,7 @@ function py_gradients(jl_graph_proto, x_names, y_names, grad_y_names)
     py_graph = make_py_graph(jl_graph_proto)
 
     to_py_node(node_name) = py_graph[:get_tensor_by_name](string(node_name[1], ":", node_name[2]-1))
-    to_py_node(node_names::AbstractVector) = to_py_node.(node_names) # Boardcast via dispatch
+    to_py_node(node_names::AbstractVector) = tuple(to_py_node.(node_names)...) #Need tuple as Vector will not be accepted
     to_py_node(::Void) = nothing
 
     py_x = to_py_node(x_names)

@@ -1,8 +1,8 @@
 using PyCall
 using Conda
 
-const cur_version = "1.4.0"
-const cur_py_version = "1.4.0"
+const cur_version = "1.7.0"
+const cur_py_version = "1.7.0"
 
 
 
@@ -40,6 +40,7 @@ end
 if PyCall.conda
     Conda.add_channel("conda-forge")
     Conda.add("tensorflow=" * cur_py_version)
+    Conda.add("tensorboard=" * cur_py_version)
 else
     try
         pyimport("tensorflow")
