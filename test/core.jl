@@ -86,8 +86,8 @@ end
             used = get_variable("used", [], Float64)
             loss = used.^2
             grad = gradients(loss, unused)
-            @test true
-            # This would have thrown an error if Disconnected gradients were causing issues
+            @test grad == nothing # The gradient between disconnected nodes is nothing
+            # This would also have thrown an error if Disconnected gradients were causing issues
         end
     end
 end
