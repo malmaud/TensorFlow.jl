@@ -18,7 +18,9 @@ end
 @testset "Naming" begin
     let
         g = Graph()
-        local i, j_jl, j, k, ijk, ij, ij2, fq, m, W, Y, Ysum1, Ysum2, Ysum3, Ysum4
+        local i, j_jl, j, k, ijk, ij, ij2, fq, m, W, Y,
+              Ysum1, Ysum2, Ysum3, Ysum4, Ysum5, Ysum6, Ysum7, Ysum8,
+              p, psum1, psum2, psum3, psum4, psum5
         as_default(g) do
             @tf begin
                 i = constant(1.0)
@@ -46,6 +48,29 @@ end
                 Ysum3 = reduce_sum(Y, keep_dims=true) # With a comma (issue #188)
 
                 Ysum4 = reduce_sum(Y, keep_dims=true, name="namefor_Ysum4") # With a comma (issue #188)
+
+                Ysum5 = reduce_sum(Y, axis=2)
+
+                nn.tf.with_op_name("level1") do
+                    Ysum6 = reduce_sum(Y)
+                    nn.tf.with_op_name("level2") do
+                        Ysum7 = reduce_sum(Y)
+                        Ysum8 = reduce_sum(Y, axis=1)
+                    end
+                end
+
+                p = placeholder(Float32)
+                psum1 = reduce_sum(p)
+                psum2 = reduce_sum(p, axis=1)
+
+                nn.tf.with_op_name("anotherlevel1") do
+                    psum3 = reduce_sum(p)
+
+                    nn.tf.with_op_name("level2") do
+                        psum4 = reduce_sum(p)
+                        psum5 = reduce_sum(p, axis=1)
+                    end
+                end
             end
         end
 
@@ -68,8 +93,18 @@ end
         @test Ysum2 == get_tensor_by_name(g, "Ysum2")
         @test Ysum3 == get_tensor_by_name(g, "Ysum3")
         @test Ysum4 == get_tensor_by_name(g, "namefor_Ysum4")
+        @test Ysum5 == get_tensor_by_name(g, "Ysum5")
+        @test Ysum6 == get_tensor_by_name(g, "level1/Ysum6")
+        @test Ysum7 == get_tensor_by_name(g, "level1/level2/Ysum7")
+        @test Ysum8 == get_tensor_by_name(g, "level1/level2/Ysum8")
 
+        @test psum1 == get_tensor_by_name(g, "psum1")
+        @test psum2 == get_tensor_by_name(g, "psum2")
+        @test psum3 == get_tensor_by_name(g, "anotherlevel1/psum3")
+        @test psum4 == get_tensor_by_name(g, "anotherlevel1/level2/psum4")
+        @test psum5 == get_tensor_by_name(g, "anotherlevel1/level2/psum5")
 
+        @test_throws TensorFlow.TFException reduce_sum(p, name="Ysum1")
     end
 end
 
