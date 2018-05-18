@@ -78,6 +78,9 @@ end
     sess= Session(g)
     x = placeholder(Float64, name="x")
     @test g["x"] == x
+    @test haskey(g,"x")
+    @test !haskey(g,"y")
+    @test collect(keys(g)) == ["x"]
 end
 @testset "Disconnected gradients" begin
     let
