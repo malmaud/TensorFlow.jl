@@ -328,11 +328,13 @@ Returns a reference to a Julia function corresponding to the operation.
 function import_op(name)
     jl_name = opname_to_jlname(name)
     mod = TensorFlow.Ops
-    if !isdefined(mod, jl_name)
+    if jl_name ∉ names(mod, true)
         ops = Dict(get_all_op_list())
         op = ops[name]
         op_desc = to_function(op)
         eval(Ops, op_desc.expr)
+    else
+        warn("Import Skipped: tried to import op $name as $(mod).$(jl_name), but that already exists.")
     end
 
     return getfield(Ops, jl_name)
