@@ -7,7 +7,7 @@ import Juno: Tree, Row, fade, interleave
   shape = s.rank_unknown ? [fade("unknown")] :
     interleave(map(dim -> get(dim, fade("?")), s.dims), fade("×"))
   Tree(Row(fade(try string(eltype(t)," ") catch e "" end),
-           Juno.span(".constant.support.type", "Tensor "),
+           HTML("<span class='constant support type'>Tensor</span> "),
            shape...),
        [Text("name: $(node_name(t.op))"),
         Text("index: $(t.value_index)")])
