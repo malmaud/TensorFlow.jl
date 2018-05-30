@@ -39,9 +39,8 @@ end
 
 if PyCall.conda
     Conda.add_channel("conda-forge")
-    Conda.add("tensorflow=" * cur_py_version)
     Conda.add("tensorboard=" * cur_py_version)
-    Conda.add("numpy") # unclear why this is needed
+    Conda.add("tensorflow=" * cur_py_version)
 else
     try
         pyimport("tensorflow")
