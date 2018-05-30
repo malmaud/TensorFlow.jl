@@ -39,9 +39,9 @@ end
 
 if PyCall.conda
     Conda.add_channel("conda-forge")
-    Conda.add("numpy") # missing dependency of the conda tensorflow package
     Conda.add("tensorflow=" * cur_py_version)
     Conda.add("tensorboard=" * cur_py_version)
+    Conda.add("numpy") # unclear why this is needed
 else
     try
         pyimport("tensorflow")
@@ -107,4 +107,3 @@ end
     mv("$lib_dir/libtensorflow.so", "usr/bin/libtensorflow.so", remove_destination=true)
     mv("$lib_dir/libtensorflow_framework.so", "usr/bin/libtensorflow_framework.so", remove_destination=true)
 end
-
