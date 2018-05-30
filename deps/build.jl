@@ -1,8 +1,8 @@
 using PyCall
 using Conda
 
-const cur_version = "1.7.0"
-const cur_py_version = "1.7.0"
+const cur_version = "1.8.0"
+const cur_py_version = "1.8.0"
 
 
 
@@ -39,8 +39,8 @@ end
 
 if PyCall.conda
     Conda.add_channel("conda-forge")
-    Conda.add("tensorflow=" * cur_py_version)
     Conda.add("tensorboard=" * cur_py_version)
+    Conda.add("tensorflow=" * cur_py_version)
 else
     try
         pyimport("tensorflow")
@@ -106,4 +106,3 @@ end
     mv("$lib_dir/libtensorflow.so", "usr/bin/libtensorflow.so", remove_destination=true)
     mv("$lib_dir/libtensorflow_framework.so", "usr/bin/libtensorflow_framework.so", remove_destination=true)
 end
-
