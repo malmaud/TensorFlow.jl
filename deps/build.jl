@@ -1,8 +1,8 @@
 using PyCall
 using Conda
 
-const cur_version = "1.7.0"
-const cur_py_version = "1.7.0"
+const cur_version = "1.8.0"
+const cur_py_version = "1.8.0"
 
 
 
@@ -39,6 +39,7 @@ end
 
 if PyCall.conda
     Conda.add_channel("conda-forge")
+    Conda.add("numpy") # missing dependency of the conda tensorflow package
     Conda.add("tensorflow=" * cur_py_version)
     Conda.add("tensorboard=" * cur_py_version)
 else
