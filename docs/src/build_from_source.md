@@ -32,10 +32,6 @@ After running `using TensorFlow`, it should no longer complain that TensorFlow w
 
 ## Tips & known issues
 
-  * Dynamic RNNs require a custom patch due to an upstream bug in TensorFlow. See: https://github.com/malmaud/TensorFlow.jl/issues/203 and https://github.com/tensorflow/tensorflow/issues/8669. To enable them on custom binaries, apply [this patch](https://github.com/malmaud/TensorFlow.jl/blob/master/deps/build_libtensorflow/cpu/upstream_patch) to the TensorFlow source before compiling with `git apply`.
-
-  * If you encounter segmentation faults or other errors, try `Pkg.checkout("TensorFlow")`.
-
   * For maximum performance, you should always compile on the same system that will be running the computation, and with the correct CUDA Compute Capability version supported by your GPU.
 
   * If TensorFlow.jl fails to load with the error `Library not loaded: @rpath/libcublas.8.0.dylib` or any similar error, it means that the CUDA libraries are not in `LD_LIBRARY_PATH` as required by Nvidia. Be sure to add `/usr/local/cuda/lib`, or wherever your CUDA instalation is located, to `LD_LIBRARY_PATH`. This may be done by editing `.profile`, or for Atom/Juno users editing `init.coffee`, or any other method supported by your OS, as described in Step 2. Be careful that you append this folder and do not mistakenly overwrite your entire path.
