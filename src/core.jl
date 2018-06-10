@@ -18,7 +18,7 @@ macro tfcall(sym, ret, args, vals...)
             "LIBTENSORFLOW",
             joinpath(LIB_BASE, "usr", "bin", "libtensorflow"))
         if LIBTF_PTR[] == C_NULL
-            LIBTF_PTR[] = Libdl.dlopen(tf_path)
+            LIBTF_PTR[] = Libdl.dlopen(expanduser(tf_path))
         end
         func = Libdl.dlsym(LIBTF_PTR[], $sym)
         ccall(func, $(esc(ret)), $(esc(args)), $(esc.(vals)...))
