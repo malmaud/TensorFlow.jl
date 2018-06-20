@@ -246,7 +246,7 @@ The function is returned with a triple-quoted docstring.
 function stringify_func(opfunc::OpFunc)
     s = string(opfunc.expr)
     docstring = replace(opfunc.docstring, "\$", "")
-    doc_line = "\"\"\"\n$(docstring)\n\"\"\""
+    doc_line = "doc\"\"\"\n$(docstring)\n\"\"\""
     lines = []
     "$doc_line\n$s"
 end

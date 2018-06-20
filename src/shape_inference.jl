@@ -26,10 +26,10 @@ Base.copy(shape::TensorShape) = TensorShape(copy(shape.dims), shape.rank_unknown
 
 function Base.broadcast!(s1::TensorShape, s2::TensorShape)
     while length(s1.dims) < length(s2.dims)
-        unshift!(s1.dims, Nullable(1))
+        unshift!(s1.dims, 1)
     end
     while length(s2.dims) < length(s1.dims)
-        unshift!(s2.dims, Nullable(1))
+        unshift!(s2.dims, 1)
     end
     s1, s2
 end
@@ -173,7 +173,7 @@ end
 register_shape("Merge") do op
     # TODO what if inputs have different lengths?
     input_shape = _get_shape(get_input(op, 1))
-    [input_shape, TensorShape(Nullable{Int}[])]
+    [input_shape, TensorShape(Union{Int, Nothing}[])]
 end
 
 register_shape("SparseSoftmaxCrossEntropyWithLogits") do op
@@ -188,7 +188,7 @@ end
 register_shape("SoftmaxCrossEntropyWithLogits") do op
     s1 = _get_shape(get_input(op, 1))
     s2 = _get_shape(get_input(op, 2))
-    dim = Nullable{Int}()
+    dim = nothing
     if !s1.rank_unknown
         dim = s1.dims[1]
     end
@@ -214,12 +214,12 @@ for func in ["Add", "Sub", "Mul", "Div", "Pow", "SquaredDifference", "Less",
             return [TensorShape(nothing)]
         end
         s1, s2 = broadcast(s1, s2)
-        dims = Nullable{Int}[]
+        dims = Union{Int, Nothing}[]
         for (d1, d2) in zip(s1.dims, s2.dims)
             if isnull(d1) || isnull(d2)
-                push!(dims, Nullable())
+                push!(dims, nothing)
             else
-                push!(dims, Nullable(max(get(d1), get(d2))))
+                push!(dims, max(get(d1), get(d2)))
             end
         end
         return [TensorShape(dims)]
@@ -237,7 +237,7 @@ register_shape("Transpose") do op
         if input_shape.rank_unknown
             # We know the rank,
             # it must be the same as the number of elements in the perm
-            [TensorShape(fill(Nullable{Int32}(), length(order)))]
+            [TensorShape(fill(nothing, length(order)))]
         else
             # Ideal case
             [TensorShape(input_shape.dims[order])]
@@ -268,61 +268,60 @@ function load_const(op)
         if ndims(value) == 0 && length(value) ≥ 1
             value = value[1]
         end
-        value = Nullable(value)
     elseif op.op_name == "Cast"
         value = load_const(get_input(op, 1))
     elseif op.op_name ∈ ("Sub", "Add")
         x1 = load_const(get_input(op, 1))
         x2 = load_const(get_input(op, 2))
         if isnull(x1) || isnull(x2)
-            return Nullable()
+            return nothing 
         else
             tf_get(x) = get(x)
             # We need this since element-wise operations between Array{..., N}
             # and Array{..., 0} raises a deprecation error.
-            tf_get{T}(x::Nullable{Array{T, 0}}) = get(x)[1]
+            tf_get{T}(x::Union{Nothing, Array{T, 0}}) = get(x)[1]
             if op.op_name == "Sub"
-                value = Nullable(tf_get(x1) .- tf_get(x2))
+                value = tf_get(x1) .- tf_get(x2)
             elseif op.op_name == "Add"
-                value = Nullable(tf_get(x1) .+ tf_get(x2))
+                value = tf_get(x1) .+ tf_get(x2)
             end
         end
     elseif op.op_name == "Shape"
-        value = Nullable(_get_shape(get_input(op, 1)))
+        value = _get_shape(get_input(op, 1))
     elseif op.op_name == "Rank"
         x = _get_shape(get_input(op, 1))
         if x.rank_unknown
-            value = Nullable()
+            value = nothing 
         else
-            value = Nullable(length(x.dims))
+            value = length(x.dims)
         end
     elseif op.op_name == "Range"
         start = load_const(get_input(op, 1))
         limit = load_const(get_input(op, 2))
         delta = load_const(get_input(op, 3))
         if any(map(isnull, [start, limit, delta]))
-            value = Nullable()
+            value = nothing
         else
-            value = Nullable(collect(get(start)[]:get(delta)[]:(get(limit)[]-1)))
+            value = collect(get(start)[]:get(delta)[]:(get(limit)[]-1))
         end
     elseif op.op_name == "Stack"
         n_inputs = tf.get_input_list_length(op, "values")
         inputs = [get_input(op, i) for i in 1:n_inputs]
         maybe_vals = load_const.(inputs)
-        if any(isnull.(maybe_vals))
-            value = Nullable()
+        if any(==(nothing), maybe_vals)
+            value = nothing 
         else
             vals = get.(maybe_vals)
             # We only handle packing scalars for now, so bail is anything else
             # is encountered.
             if any(size.(vals) .!= ())
-                value = Nullable()
+                value = nothing
             else
-                value = Nullable([x[1] for x in vals])
+                value = [x[1] for x in vals]
             end
         end
     else
-        value = Nullable()
+        value = nothing
     end
     return value
 end
@@ -376,7 +375,7 @@ for func in ["Sum", "Prod", "Min", "Max", "All", "Any", "Mean"]
         reduction_dim_values = load_const(reduction_dims)
         if isnull(reduction_dim_values)
             if keep_dims
-                return [TensorShape([Nullable{Int}() for x in 1:length(value_shape.dims)])]
+                return [TensorShape([nothing for x in 1:length(value_shape.dims)])]
             else
                 return [TensorShape(nothing)]
             end
@@ -384,7 +383,7 @@ for func in ["Sum", "Prod", "Min", "Max", "All", "Any", "Mean"]
             dims = get(reduction_dim_values)+1
             if keep_dims
                 for dim in dims
-                    value_shape.dims[dim] = Nullable(1)
+                    value_shape.dims[dim] = 1
                 end
             else
                 to_keep = fill(true, length(value_shape.dims))
@@ -422,8 +421,8 @@ register_shape("UnsortedSegmentSum") do op
         return [TensorShape(nothing)]
     end
     b = load_const(get_input(op,3))
-    if isnull(b)
-        value_shape.dims[1] = Nullable{Int}()
+    if b === nothing
+        value_shape.dims[1] = nothing
     else
         value_shape.dims[1] = b.value[1]
     end
@@ -461,15 +460,15 @@ register_shape("Concat") do op
         else
             axis_length += get(shape.dims[dim])
         end
-        shape.dims[dim] = Nullable{Int64}() #Null it for purposes of passing unification
+        shape.dims[dim] = nothing #Null it for purposes of passing unification
         push!(shapes, shape)
     end
 
     base_shape = unify(shapes...)
     if axis_length_known
-        base_shape.dims[dim] = Nullable(axis_length)
+        base_shape.dims[dim] = axis_length
     else
-        @assert(isnull(base_shape.dims[dim])) # Should be null from unification
+        @assert(base_shape.dims[dim] === nothing) # Should be null from unification
     end
     [base_shape]
 end
@@ -495,13 +494,13 @@ register_shape("ConcatV2") do op
         else
             axis_length += get(shape.dims[dim])
         end
-        shape.dims[dim] = Nullable{Int64}() #Null it for purposes of passing unification
+        shape.dims[dim] = nothing #Null it for purposes of passing unification
         push!(shapes, shape)
     end
 
     base_shape = unify(shapes...)
     if axis_length_known
-        base_shape.dims[dim] = Nullable(axis_length)
+        base_shape.dims[dim] = axis_length
     else
         @assert(isnull(base_shape.dims[dim])) # Should be null from unification
     end
@@ -524,7 +523,7 @@ register_shape("OneHot") do op
     if indices_shape.rank_unknown
         return [TensorShape(nothing)]
     end
-    return [TensorShape([indices_shape.dims[1], Nullable(depth_value)])]
+    return [TensorShape([indices_shape.dims[1], depth_value])]
 end
 
 register_shape("ExpandDims") do op
@@ -538,14 +537,14 @@ register_shape("ExpandDims") do op
     if !isnull(maybe_dim_value)
         dim_value = get(maybe_dim_value)[]  # [] is to dereference the Array{Int32,0} returned
         dim_value = mod(dim_value, length(x_shape.dims) + 1) + 1 #allow inserting at `end-dim`
-        insert!(x_shape.dims, dim_value, Nullable(1))
+        insert!(x_shape.dims, dim_value, 1)
         [x_shape]
     else #Non-Const dim
         # Rank is known, because it is one greater than before
         # (Assuming the `dim` was a valid operation)
         # But we do not know where it was added in
         # so all dimensions are Null since we can't know which from which
-        [TensorShape(fill(Nullable{Int}(), length(x_shape.dims)+1))]
+        [TensorShape(fill(nothing, length(x_shape.dims)+1))]
     end
 end
 
@@ -581,12 +580,12 @@ register_shape("Conv2D") do op
         @assert length(shape.dims) == 4 "Convolution $name must be 4D"
     end
     @assert length(strides) == 4
-    dims = Nullable{Int}[]
+    dims = Unions{Int, Nothing}[]
     push!(dims, input_shape.dims[1])
     if padding == "SAME"
         for i in 1:2
             if isnull(input_shape.dims[i+1]) || isnull(filter_shape.dims[i])
-                push!(dims,  Nullable{Int}())
+                push!(dims, nothing)
             else
                 push!(dims, ceil(get(input_shape.dims[i+1])/strides[i+1]))
             end
@@ -594,12 +593,12 @@ register_shape("Conv2D") do op
     elseif padding == "VALID"
         if isnull(input_shape.dims[2]) || isnull(input_shape.dims[3]) || isnull(filter_shape.dims[1]) || isnull(filter_shape.dims[2])
             for i in 1:2
-                push!(dims, Nullable{Int}())
+                push!(dims, nothing)
             end
         else
             new_dims = conv_sizer([get(input_shape.dims[2]), get(input_shape.dims[3])], [strides[2], strides[3]], [get(filter_shape.dims[1]), get(filter_shape.dims[2])])
             for i in 1:2
-                push!(dims, Nullable(new_dims[i]))
+                push!(dims, new_dims[i])
             end
         end
     end
@@ -616,12 +615,12 @@ register_shape("MaxPool") do op
     if input_shape.rank_unknown
         return [TensorShape(nothing)]
     end
-    dims = Nullable{Int}[]
+    dims = Union{Int, Nothing}[]
     push!(dims, input_shape.dims[1])
     if padding == "SAME"
         for i in 1:2
             if isnull(input_shape.dims[i+1])
-                push!(dims, Nullable{Int}())
+                push!(dims, nothing)
             else
                 push!(dims, ceil(get(input_shape.dims[i+1])/strides[i+1]))
             end
@@ -629,12 +628,12 @@ register_shape("MaxPool") do op
     elseif padding == "VALID"
         if isnull(input_shape.dims[2]) || isnull(input_shape.dims[3])
             for i in 1:2
-                push!(dims, Nullable{Int}())
+                push!(dims, nothing)
             end
         else
             new_dims = 1+conv_sizer([get(input_shape.dims[2]), get(input_shape.dims[3])], [strides[2], strides[3]], [ksize[2], ksize[3]])
             for i in 1:2
-                push!(dims, Nullable(new_dims[i]))
+                push!(dims, new_dims[i])
             end
         end
     end
@@ -653,9 +652,9 @@ register_shape("Split") do op
 
     value_shape = copy(_get_shape(get_input(op, 2)))
     if isnull(value_shape.dims[split_dim_value])
-        split_value = Nullable{Int}()
+        split_value = nothing
     else
-        split_value = Nullable(get(value_shape.dims[split_dim_value])/num_split)
+        split_value = get(value_shape.dims[split_dim_value])/num_split
     end
     value_shape.dims[split_dim_value] = split_value
     [value_shape for i in 1:num_split]
@@ -702,14 +701,14 @@ register_shape("Pad") do op
     tensor_shape = copy(_get_shape(get_input(op, 1)))
     paddings = get_input(op, 2)
     if paddings.op.op_name != "Const"
-        return [TensorShape([Nullable{Int}() for dim in 1:length(tensor_shape.dims)])]
+        return [TensorShape([nothing for dim in 1:length(tensor_shape.dims)])]
     end
     padding_value = Array(tf.load_proto(padding.attrs["value"]))  # TODO: this might be transposed
     for dim in 1:length(tensor_shape.dims)
         if isnull(tensor_shape.dims[dim])
             continue
         end
-        tensor_shape.dims[dim] = Nullable(get(tensorshape.dims[dim]) + padding_value[dim, 1] + padding_value[dim, 2])
+        tensor_shape.dims[dim] = get(tensorshape.dims[dim]) + padding_value[dim, 1] + padding_value[dim, 2]
     end
     [tensor_shape]
 end
@@ -749,7 +748,7 @@ register_shape("Pack") do op
     @assert(length(packed_values)==packed_len)
     union_dims = unify(_get_shape.(packed_values)...)
     if !union_dims.rank_unknown
-       insert!(union_dims.dims, axis, Nullable(packed_len))
+       insert!(union_dims.dims, axis, packed_len)
     end
     [union_dims]
 end
@@ -797,7 +796,7 @@ register_shape("Where") do op
     if shape.rank_unknown
         [TensorShape(nothing)]
     else
-        [TensorShape([Nullable{Int64}(), Nullable(length(shape.dims))])]
+        [TensorShape([nothing, length(shape.dims)])]
     end
 end
 

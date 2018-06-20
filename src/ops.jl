@@ -60,7 +60,7 @@ macro not_implemented(f)
     res = @match f begin
         function name_(args__)
             body__
-        end => name, args
+        end => (name, args)
     end
     res === nothing && error("Invalid use of not_implemented")
     func_name, args = res

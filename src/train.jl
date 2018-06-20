@@ -22,8 +22,8 @@ QueueRunner,
 create_threads
 
 using Compat
-using JLD
-using FileIO
+#using JLD
+#using FileIO
 using ProtoBuf
 
 import ..TensorFlow: Graph, Operation, get_def_graph, extend_graph, gradients, variable_scope, ConstantInitializer, node_name, get_variable, get_shape, get_collection, Session, placeholder, Tensor, Variable, cast, group, @not_implemented, AbstractQueue, tensorflow, add_to_collection, get_proto, get_def, @op
@@ -213,6 +213,7 @@ function Saver(;var_list=nothing, max_to_keep=5)
     Saver(var_list, max_to_keep, placeholders, restore_ops)
 end
 
+#=
 function FileIO.save(saver::Saver, session::Session, path; global_step=nothing)
     base_path = basename(path)
     if global_step !== nothing
@@ -245,6 +246,7 @@ function FileIO.save(saver::Saver, session::Session, path; global_step=nothing)
         end
     end
 end
+=#
 
 function restore_helper!(feed_dict::Dict, saver::Saver, prefix::String, namespace_dict::Dict)
     for (var_name, var_value) in namespace_dict

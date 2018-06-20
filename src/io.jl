@@ -9,8 +9,8 @@ import TensorFlow: @op
 const tf = TensorFlow
 
 include("io/readers.jl")
-include("io/tfrecord.jl")
+#include("io/tfrecord.jl")
 
-using .TFRecord
+#using .TFRecord
 
 end

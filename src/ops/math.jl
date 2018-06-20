@@ -1,3 +1,5 @@
+using SpecialFunctions
+
 import .Ops:
     add_n,
     arg_min,
@@ -134,14 +136,18 @@ for jl_func_name in [
     :acos,
     :tanh,
     :lgamma,
-    :erf,
-    :erfc,
     :real,
     :imag,
     :sign,
     :conj,
     :round]
     @eval @define_unary Base.$jl_func_name Ops.$jl_func_name
+end
+
+for jl_func_name in [
+    :erf,
+    :erfc]
+    @eval @define_unary SpecialFunctions.$jl_func_name Ops.$jl_func_name
 end
 
 function Base.round{T}(::Type{T}, value::AbstractTensor)
@@ -151,7 +157,7 @@ end
 for jl_func_name in [
     :polygamma,
     :zeta]
-    @eval @define_binary Base.$jl_func_name Ops.$jl_func_name
+    @eval @define_binary SpecialFunctions.$jl_func_name Ops.$jl_func_name
 end
 
 -(n::AbstractTensor) = negative(n)

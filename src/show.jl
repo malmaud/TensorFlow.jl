@@ -1,5 +1,5 @@
 using Juno
-using PyCall
+#using PyCall
 import Juno: Tree, Row, fade, interleave
 
 @render Juno.Inline t::Tensor begin
@@ -152,9 +152,9 @@ associated with the Conda.jl installation, should it exist.
 function find_tensorboard()
     path = nothing
     dirs = split(ENV["PATH"], ":")
-    if PyCall.conda
-        push!(dirs, PyCall.Conda.BINDIR)
-    end
+    #if PyCall.conda
+    #    push!(dirs, PyCall.Conda.BINDIR)
+    #end
     for dir in dirs
         loc = joinpath(dir, "tensorboard")
         if isfile(loc)
