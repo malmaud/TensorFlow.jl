@@ -124,7 +124,8 @@ get_all_op_list,
 Ops,
 slice,
 import_op,
-@tfimport
+@tfimport,
+tf_versioninfo
 
 const pyproc = Ref(0)
 
@@ -176,6 +177,7 @@ macro py_proc(expr)
     end
 end
 
+include("version.jl")
 include("meta.jl")
 include("constants.jl")
 include("tensorflow_protos.jl")
