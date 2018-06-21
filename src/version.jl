@@ -58,52 +58,49 @@ function py_version_check(;print_warning=true, force_warning=false)
 end
 
 macro tryshow(ex)
-	quote
-		try
-			@show $(esc(ex))
-		catch err
-			println("Trying to evaluate ",
-					$(Meta.quot(ex)),
-					" but got error: ",
-					err
-					)
-		end
-		nothing
-	end
+    quote
+        try
+            @show $(esc(ex))
+        catch err
+            println("Trying to evaluate ",
+                    $(Meta.quot(ex)),
+                    " but got error: ",
+                    err
+                    )
+        end
+        nothing
+    end
 end
 
 function tf_versioninfo()
-	println("Please copy-paste all this info into any bug reports.")
-	println("Note that this may display some errors. But not all errors are bad. Some are expected")
-	
-	println()
-	println("----------------")
-	println("Library Versions")
-	println("----------------")
-	@tryshow tf_version(kind=:backend) 
-	@tryshow tf_version(kind=:python)
-	@tryshow tf_version(kind=:julia)
-	
-	println()
-	println("---------------------")
-	println("Environment Variables")
-	println("---------------------")
-	
-	@tryshow ENV["TF_USE_GPU"]
-	@tryshow ENV["LIBTENSORFLOW"]
-	
-	println()
-	println("-------------")
-	println("Python Status")
-	println("-------------")
-	@tryshow PyCall.conda
-	@tryshow PyCall.PYTHONHOME
-	@tryshow readstring(`pip --version`)
-	@tryshow readstring(`pip3 --version`)
-	
-	println()
-	println("------------")
-	println("Julia Status")
-	println("------------")
-	versioninfo()
+    println("Please copy-paste all this info into any bug reports.")
+    println("Note that this may display some errors. But not all errors are bad. Some are expected")
+    
+    println()
+    println("----------------")
+    println("Library Versions")
+    println("----------------")
+    @tryshow ENV["TF_USE_GPU"]
+    @tryshow ENV["LIBTENSORFLOW"]
+    println()
+    @tryshow tf_version(kind=:backend) 
+    @tryshow tf_version(kind=:python)
+    @tryshow tf_version(kind=:julia)  
+    
+    
+    println()
+    println("-------------")
+    println("Python Status")
+    println("-------------")
+    @tryshow PyCall.conda
+	@tryshow ENV["PYTHON"]
+    @tryshow PyCall.PYTHONHOME
+    @tryshow readstring(`pip --version`)
+    @tryshow readstring(`pip3 --version`)
+    
+    println()
+    println("------------")
+    println("Julia Status")
+    println("------------")
+    versioninfo()
 end
