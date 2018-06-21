@@ -5,7 +5,6 @@ const cur_version = "1.8.0"
 const cur_py_version = "1.8.0"
 
 
-
 ############################
 # Error message for Windows
 ############################
@@ -54,6 +53,7 @@ Please either:
  - Or install the python binding yourself, eg by running pip
     - `pip install tensorflow`
     - then rebuilding TensorFlow.jl via `Pkg.build("TensorFlow")` in the julia REPL
+    - make sure you run the right pip, for the instance of python that PyCall is looking at.
 """)
     end
 end
@@ -68,19 +68,14 @@ download_dir = joinpath(base, "downloads")
 lib_dir = joinpath(download_dir, "lib")
 bin_dir = joinpath(base, "usr/bin")
 
-if !isdir(download_dir)
-    mkdir(download_dir)
-end
+mkpath(download_dir)
+mkpath(lib_dir)
+mkpath(bin_dir)
 
-if !isdir(bin_dir)
-    run(`mkdir -p $bin_dir`)
-end
 
 function download_and_unpack(url)
     tensorflow_zip_path = joinpath(base, "downloads/tensorflow.tar.gz")
-    # Download
     download(url, tensorflow_zip_path)
-    # Unpack
     run(`tar -xzf $tensorflow_zip_path -C downloads`)
 end
 
