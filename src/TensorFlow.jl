@@ -177,12 +177,13 @@ macro py_proc(expr)
     end
 end
 
-include("version.jl")
+
 include("meta.jl")
 include("constants.jl")
 include("tensorflow_protos.jl")
 include("core.jl")
 include("run.jl")
+include("version.jl")
 include("ops.jl")
 
 include("variable.jl")
