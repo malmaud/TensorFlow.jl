@@ -40,6 +40,9 @@ if !isdefined(Base.Test, Symbol("@test_nowarn"))
     end
 end
 
+
+tf_versioninfo()
+
 for filename in tests
     name = first(splitext(filename))
     @testset "$name" begin
