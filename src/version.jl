@@ -73,8 +73,8 @@ macro tryshow(ex)
 end
 
 function tf_versioninfo()
-    println("Please copy-paste all this info into any bug reports.")
-    println("Note that this may display some errors. But not all errors are bad. Some are expected")
+    println("Wording: Please copy-paste the entirely of the below output into any bug reports.")
+    println("Note that this may display some errors, depending upon on your configuration. This is fine.")
     
     println()
     println("----------------")
