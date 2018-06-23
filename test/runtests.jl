@@ -41,7 +41,7 @@ if !isdefined(Base.Test, Symbol("@test_nowarn"))
 end
 
 
-tf_versioninfo()
+tf_versioninfo() # Dump out all the info at start of the test, for easy debugging from logs. (also check `tf_versioninfo()` itself works)
 
 for filename in tests
     name = first(splitext(filename))
