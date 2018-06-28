@@ -4,7 +4,7 @@ using ProtoBuf
 import ProtoBuf.meta
 import Base: hash, isequal, ==
 
-type NodeDef_AttrEntry
+mutable struct NodeDef_AttrEntry
     key::AbstractString
     value::AttrValue
     NodeDef_AttrEntry(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
@@ -13,7 +13,7 @@ hash(v::NodeDef_AttrEntry) = ProtoBuf.protohash(v)
 isequal(v1::NodeDef_AttrEntry, v2::NodeDef_AttrEntry) = ProtoBuf.protoisequal(v1, v2)
 ==(v1::NodeDef_AttrEntry, v2::NodeDef_AttrEntry) = ProtoBuf.protoeq(v1, v2)
 
-type NodeDef
+mutable struct NodeDef
     name::AbstractString
     op::AbstractString
     input::Array{AbstractString,1}

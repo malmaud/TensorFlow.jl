@@ -86,7 +86,7 @@ function tfimport(expr)
         if res
             jlname = opname_to_jlname(string(fname))
             quote
-                const $(esc(jlname)) = import_op($(string(fname)))
+                $(esc(jlname)) = import_op($(string(fname)))
             end
         else
             error("Invalid use of @tfimport on $(expr)")

@@ -4,7 +4,7 @@ using ProtoBuf
 import ProtoBuf.meta
 import Base: hash, isequal, ==
 
-type ValuesDef_ExternalValuesEntry
+mutable struct ValuesDef_ExternalValuesEntry
     key::AbstractString
     value::AbstractString
     ValuesDef_ExternalValuesEntry(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
@@ -13,7 +13,7 @@ hash(v::ValuesDef_ExternalValuesEntry) = ProtoBuf.protohash(v)
 isequal(v1::ValuesDef_ExternalValuesEntry, v2::ValuesDef_ExternalValuesEntry) = ProtoBuf.protoisequal(v1, v2)
 ==(v1::ValuesDef_ExternalValuesEntry, v2::ValuesDef_ExternalValuesEntry) = ProtoBuf.protoeq(v1, v2)
 
-type ValuesDef
+mutable struct ValuesDef
     values::Array{AbstractString,1}
     external_values::Dict{AbstractString,AbstractString} # map entry
     ValuesDef(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
@@ -22,7 +22,7 @@ hash(v::ValuesDef) = ProtoBuf.protohash(v)
 isequal(v1::ValuesDef, v2::ValuesDef) = ProtoBuf.protoisequal(v1, v2)
 ==(v1::ValuesDef, v2::ValuesDef) = ProtoBuf.protoeq(v1, v2)
 
-type CondContextDef
+mutable struct CondContextDef
     context_name::AbstractString
     pred_name::AbstractString
     pivot_name::AbstractString
@@ -34,7 +34,7 @@ hash(v::CondContextDef) = ProtoBuf.protohash(v)
 isequal(v1::CondContextDef, v2::CondContextDef) = ProtoBuf.protoisequal(v1, v2)
 ==(v1::CondContextDef, v2::CondContextDef) = ProtoBuf.protoeq(v1, v2)
 
-type WhileContextDef
+mutable struct WhileContextDef
     context_name::AbstractString
     parallel_iterations::Int32
     back_prop::Bool

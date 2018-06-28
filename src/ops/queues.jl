@@ -1,6 +1,6 @@
-@compat abstract type AbstractQueue end
+abstract type AbstractQueue end
 
-type FIFOQueue <: AbstractQueue
+mutable struct FIFOQueue <: AbstractQueue
     op::Operation
     dtypes
     FIFOQueue() = new()
@@ -10,7 +10,7 @@ function Base.show(io::IO, f::FIFOQueue)
     print(io, "FIFOQueue")
 end
 
-type RandomShuffleQueue <: AbstractQueue
+mutable struct RandomShuffleQueue <: AbstractQueue
     op::Operation
     dtypes
     RandomShuffleQueue() = new()

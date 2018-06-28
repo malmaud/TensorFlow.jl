@@ -4,7 +4,7 @@ using ProtoBuf
 import ProtoBuf.meta
 import Base: hash, isequal, ==
 
-type __enum__DataType <: ProtoEnum
+mutable struct __enum__DataType <: ProtoEnum
     DT_INVALID::Int32
     DT_FLOAT::Int32
     DT_DOUBLE::Int32

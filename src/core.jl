@@ -154,7 +154,7 @@ function device_index_from_zero(device::Device)
         print(b, "/")
         print(b, device_index_from_zero(part))
     end
-    @compat String(take!(b))
+    String(take!(b))
 end
 
 Base.show(io::IO, part::DevicePart) = print(io, "$(part.name):$(part.index)")
@@ -214,7 +214,7 @@ struct OperationContext
     is_top_level::Ref{Bool}
 end
 
-@auto_hash_equals immutable TensorShape
+@auto_hash_equals struct TensorShape
     dims::Vector{Nullable{Int}}
     rank_unknown::Bool
 end
@@ -789,7 +789,7 @@ function RawTensor(data::Array{String}, is_scalar=false)
     for str in data
         write(encoded_buf, str)
     end
-    data_encoded = @compat take!(encoded_buf)
+    data_encoded = take!(encoded_buf)
     dt = jl_to_df_type(String)
     ptr = @tfcall(:TF_NewTensor, Ptr{Void}, (Cint, Ptr{Int64}, Cint, Ptr{Void}, Csize_t, Ptr{Void}, Ptr{Void}),
         Int(dt),
@@ -1246,7 +1246,7 @@ abstract type AbstractTensor{T} end
 """
 Represents the output of an operation in the computation graph
 """
-@auto_hash_equals immutable Tensor{T} <: AbstractTensor{T}
+@auto_hash_equals struct Tensor{T} <: AbstractTensor{T}
     op::Operation
     value_index::Int
 end
@@ -1466,7 +1466,7 @@ get_proto(tensor::AbstractTensor) = get_proto(get_op(tensor))
 function get_proto(w::tensorflow.WhileContextDef)
     b = IOBuffer()
     writeproto(b, w)
-    @compat take!(b)
+    take!(b)
 end
 
 get_def_type(::Type{Operation}) = tensorflow.NodeDef
@@ -1570,7 +1570,7 @@ function add_gradients_py(y, x::AbstractArray, grad_y=nothing)
     meta_graph = train.export_meta_graph()
     b = IOBuffer()
     writeproto(b, meta_graph)
-    graph_proto = @compat take!(b)
+    graph_proto = take!(b)
     node_protos, grad_names = fetch(@py_proc py_gradients($graph_proto, $x_names, $y_names, $grad_y_names))
     extend_graph(node_protos)
     out = []
@@ -1689,7 +1689,7 @@ end
 @with_def_graph function import_graph_def(graph::Graph, graph_def::tensorflow.GraphDef, options=GraphImportOptions())
     b = IOBuffer()
     writeproto(b, graph_def)
-    data = @compat take!(b)
+    data = take!(b)
     import_graph_def(graph, data, options)
 end
 

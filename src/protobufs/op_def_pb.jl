@@ -4,7 +4,7 @@ using ProtoBuf
 import ProtoBuf.meta
 import Base: hash, isequal, ==
 
-type OpDeprecation
+mutable struct OpDeprecation
     version::Int32
     explanation::AbstractString
     OpDeprecation(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
@@ -13,7 +13,7 @@ hash(v::OpDeprecation) = ProtoBuf.protohash(v)
 isequal(v1::OpDeprecation, v2::OpDeprecation) = ProtoBuf.protoisequal(v1, v2)
 ==(v1::OpDeprecation, v2::OpDeprecation) = ProtoBuf.protoeq(v1, v2)
 
-type OpDef_ArgDef
+mutable struct OpDef_ArgDef
     name::AbstractString
     description::AbstractString
     _type::Int32
@@ -29,7 +29,7 @@ hash(v::OpDef_ArgDef) = ProtoBuf.protohash(v)
 isequal(v1::OpDef_ArgDef, v2::OpDef_ArgDef) = ProtoBuf.protoisequal(v1, v2)
 ==(v1::OpDef_ArgDef, v2::OpDef_ArgDef) = ProtoBuf.protoeq(v1, v2)
 
-type OpDef_AttrDef
+mutable struct OpDef_AttrDef
     name::AbstractString
     _type::AbstractString
     default_value::AttrValue
@@ -43,7 +43,7 @@ hash(v::OpDef_AttrDef) = ProtoBuf.protohash(v)
 isequal(v1::OpDef_AttrDef, v2::OpDef_AttrDef) = ProtoBuf.protoisequal(v1, v2)
 ==(v1::OpDef_AttrDef, v2::OpDef_AttrDef) = ProtoBuf.protoeq(v1, v2)
 
-type OpDef
+mutable struct OpDef
     name::AbstractString
     input_arg::Array{OpDef_ArgDef,1}
     output_arg::Array{OpDef_ArgDef,1}
@@ -63,7 +63,7 @@ hash(v::OpDef) = ProtoBuf.protohash(v)
 isequal(v1::OpDef, v2::OpDef) = ProtoBuf.protoisequal(v1, v2)
 ==(v1::OpDef, v2::OpDef) = ProtoBuf.protoeq(v1, v2)
 
-type OpList
+mutable struct OpList
     op::Array{OpDef,1}
     OpList(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
 end #type OpList

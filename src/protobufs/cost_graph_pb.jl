@@ -4,7 +4,7 @@ using ProtoBuf
 import ProtoBuf.meta
 import Base: hash, isequal, ==
 
-type CostGraphDef_Node_InputInfo
+mutable struct CostGraphDef_Node_InputInfo
     preceding_node::Int32
     preceding_port::Int32
     CostGraphDef_Node_InputInfo(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
@@ -13,7 +13,7 @@ hash(v::CostGraphDef_Node_InputInfo) = ProtoBuf.protohash(v)
 isequal(v1::CostGraphDef_Node_InputInfo, v2::CostGraphDef_Node_InputInfo) = ProtoBuf.protoisequal(v1, v2)
 ==(v1::CostGraphDef_Node_InputInfo, v2::CostGraphDef_Node_InputInfo) = ProtoBuf.protoeq(v1, v2)
 
-type CostGraphDef_Node_OutputInfo
+mutable struct CostGraphDef_Node_OutputInfo
     size::Int64
     alias_input_port::Int64
     CostGraphDef_Node_OutputInfo(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
@@ -22,7 +22,7 @@ hash(v::CostGraphDef_Node_OutputInfo) = ProtoBuf.protohash(v)
 isequal(v1::CostGraphDef_Node_OutputInfo, v2::CostGraphDef_Node_OutputInfo) = ProtoBuf.protoisequal(v1, v2)
 ==(v1::CostGraphDef_Node_OutputInfo, v2::CostGraphDef_Node_OutputInfo) = ProtoBuf.protoeq(v1, v2)
 
-type CostGraphDef_Node
+mutable struct CostGraphDef_Node
     name::AbstractString
     device::AbstractString
     id::Int32
@@ -39,7 +39,7 @@ hash(v::CostGraphDef_Node) = ProtoBuf.protohash(v)
 isequal(v1::CostGraphDef_Node, v2::CostGraphDef_Node) = ProtoBuf.protoisequal(v1, v2)
 ==(v1::CostGraphDef_Node, v2::CostGraphDef_Node) = ProtoBuf.protoeq(v1, v2)
 
-type CostGraphDef
+mutable struct CostGraphDef
     node::Array{CostGraphDef_Node,1}
     CostGraphDef(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
 end #type CostGraphDef

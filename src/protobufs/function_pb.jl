@@ -4,7 +4,7 @@ using ProtoBuf
 import ProtoBuf.meta
 import Base: hash, isequal, ==
 
-type FunctionDef_Node_AttrEntry
+mutable struct FunctionDef_Node_AttrEntry
     key::AbstractString
     value::AttrValue
     FunctionDef_Node_AttrEntry(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
@@ -13,7 +13,7 @@ hash(v::FunctionDef_Node_AttrEntry) = ProtoBuf.protohash(v)
 isequal(v1::FunctionDef_Node_AttrEntry, v2::FunctionDef_Node_AttrEntry) = ProtoBuf.protoisequal(v1, v2)
 ==(v1::FunctionDef_Node_AttrEntry, v2::FunctionDef_Node_AttrEntry) = ProtoBuf.protoeq(v1, v2)
 
-type FunctionDef_Node
+mutable struct FunctionDef_Node
     ret::Array{AbstractString,1}
     op::AbstractString
     arg::Array{AbstractString,1}
@@ -25,7 +25,7 @@ hash(v::FunctionDef_Node) = ProtoBuf.protohash(v)
 isequal(v1::FunctionDef_Node, v2::FunctionDef_Node) = ProtoBuf.protoisequal(v1, v2)
 ==(v1::FunctionDef_Node, v2::FunctionDef_Node) = ProtoBuf.protoeq(v1, v2)
 
-type FunctionDef_RetEntry
+mutable struct FunctionDef_RetEntry
     key::AbstractString
     value::AbstractString
     FunctionDef_RetEntry(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
@@ -34,7 +34,7 @@ hash(v::FunctionDef_RetEntry) = ProtoBuf.protohash(v)
 isequal(v1::FunctionDef_RetEntry, v2::FunctionDef_RetEntry) = ProtoBuf.protoisequal(v1, v2)
 ==(v1::FunctionDef_RetEntry, v2::FunctionDef_RetEntry) = ProtoBuf.protoeq(v1, v2)
 
-type FunctionDef
+mutable struct FunctionDef
     signature::OpDef
     node::Array{FunctionDef_Node,1}
     node_def::Array{NodeDef,1}
@@ -45,7 +45,7 @@ hash(v::FunctionDef) = ProtoBuf.protohash(v)
 isequal(v1::FunctionDef, v2::FunctionDef) = ProtoBuf.protoisequal(v1, v2)
 ==(v1::FunctionDef, v2::FunctionDef) = ProtoBuf.protoeq(v1, v2)
 
-type GradientDef
+mutable struct GradientDef
     function_name::AbstractString
     gradient_func::AbstractString
     GradientDef(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
@@ -54,7 +54,7 @@ hash(v::GradientDef) = ProtoBuf.protohash(v)
 isequal(v1::GradientDef, v2::GradientDef) = ProtoBuf.protoisequal(v1, v2)
 ==(v1::GradientDef, v2::GradientDef) = ProtoBuf.protoeq(v1, v2)
 
-type FunctionDefLibrary
+mutable struct FunctionDefLibrary
     _function::Array{FunctionDef,1}
     gradient::Array{GradientDef,1}
     FunctionDefLibrary(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)

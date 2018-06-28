@@ -280,7 +280,7 @@ function load_const(op)
             tf_get(x) = get(x)
             # We need this since element-wise operations between Array{..., N}
             # and Array{..., 0} raises a deprecation error.
-            tf_get{T}(x::Nullable{Array{T, 0}}) = get(x)[1]
+            tf_get(x::Nullable{Array{T, 0}}) where {T} = get(x)[1]
             if op.op_name == "Sub"
                 value = Nullable(tf_get(x1) .- tf_get(x2))
             elseif op.op_name == "Add"

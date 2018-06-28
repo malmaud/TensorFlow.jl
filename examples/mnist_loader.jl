@@ -1,6 +1,6 @@
 using MNIST
 
-type DataLoader
+mutable struct DataLoader
     cur_id::Int
     order::Vector{Int}
 end

@@ -4,7 +4,7 @@ using ProtoBuf
 import ProtoBuf.meta
 import Base: hash, isequal, ==
 
-type AttrValue_ListValue
+mutable struct AttrValue_ListValue
     s::Array{Array{UInt8,1},1}
     i::Array{Int64,1}
     f::Array{Float32,1}
@@ -21,7 +21,7 @@ hash(v::AttrValue_ListValue) = ProtoBuf.protohash(v)
 isequal(v1::AttrValue_ListValue, v2::AttrValue_ListValue) = ProtoBuf.protoisequal(v1, v2)
 ==(v1::AttrValue_ListValue, v2::AttrValue_ListValue) = ProtoBuf.protoeq(v1, v2)
 
-type AttrValue
+mutable struct AttrValue
     s::Array{UInt8,1}
     i::Int64
     f::Float32
@@ -35,13 +35,13 @@ type AttrValue
 end #type AttrValue
 const __fnum_AttrValue = Int[2,3,4,5,6,7,8,1,9]
 const __oneofs_AttrValue = Int[1,1,1,1,1,1,1,1,1]
-const __oneof_names_AttrValue = [@compat(Symbol("value"))]
+const __oneof_names_AttrValue = [Symbol("value")]
 meta(t::Type{AttrValue}) = meta(t, ProtoBuf.DEF_REQ, __fnum_AttrValue, ProtoBuf.DEF_VAL, true, ProtoBuf.DEF_PACK, ProtoBuf.DEF_WTYPES, __oneofs_AttrValue, __oneof_names_AttrValue)
 hash(v::AttrValue) = ProtoBuf.protohash(v)
 isequal(v1::AttrValue, v2::AttrValue) = ProtoBuf.protoisequal(v1, v2)
 ==(v1::AttrValue, v2::AttrValue) = ProtoBuf.protoeq(v1, v2)
 
-type NameAttrList_AttrEntry
+mutable struct NameAttrList_AttrEntry
     key::AbstractString
     value::AttrValue
     NameAttrList_AttrEntry(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
@@ -50,7 +50,7 @@ hash(v::NameAttrList_AttrEntry) = ProtoBuf.protohash(v)
 isequal(v1::NameAttrList_AttrEntry, v2::NameAttrList_AttrEntry) = ProtoBuf.protoisequal(v1, v2)
 ==(v1::NameAttrList_AttrEntry, v2::NameAttrList_AttrEntry) = ProtoBuf.protoeq(v1, v2)
 
-type NameAttrList
+mutable struct NameAttrList
     name::AbstractString
     attr::Dict{AbstractString,AttrValue} # map entry
     NameAttrList(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
