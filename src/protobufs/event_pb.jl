@@ -4,7 +4,7 @@ using ProtoBuf
 import ProtoBuf.meta
 import Base: hash, isequal, ==
 
-type __enum_LogMessage_Level <: ProtoEnum
+mutable struct __enum_LogMessage_Level <: ProtoEnum
     UNKNOWN::Int32
     DEBUG::Int32
     INFO::Int32
@@ -15,7 +15,7 @@ type __enum_LogMessage_Level <: ProtoEnum
 end #type __enum_LogMessage_Level
 const LogMessage_Level = __enum_LogMessage_Level()
 
-type LogMessage
+mutable struct LogMessage
     level::Int32
     message::AbstractString
     LogMessage(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
@@ -24,7 +24,7 @@ hash(v::LogMessage) = ProtoBuf.protohash(v)
 isequal(v1::LogMessage, v2::LogMessage) = ProtoBuf.protoisequal(v1, v2)
 ==(v1::LogMessage, v2::LogMessage) = ProtoBuf.protoeq(v1, v2)
 
-type __enum_SessionLog_SessionStatus <: ProtoEnum
+mutable struct __enum_SessionLog_SessionStatus <: ProtoEnum
     STATUS_UNSPECIFIED::Int32
     START::Int32
     STOP::Int32
@@ -33,7 +33,7 @@ type __enum_SessionLog_SessionStatus <: ProtoEnum
 end #type __enum_SessionLog_SessionStatus
 const SessionLog_SessionStatus = __enum_SessionLog_SessionStatus()
 
-type SessionLog
+mutable struct SessionLog
     status::Int32
     checkpoint_path::AbstractString
     msg::AbstractString
@@ -43,7 +43,7 @@ hash(v::SessionLog) = ProtoBuf.protohash(v)
 isequal(v1::SessionLog, v2::SessionLog) = ProtoBuf.protoisequal(v1, v2)
 ==(v1::SessionLog, v2::SessionLog) = ProtoBuf.protoeq(v1, v2)
 
-type TaggedRunMetadata
+mutable struct TaggedRunMetadata
     tag::AbstractString
     run_metadata::Array{UInt8,1}
     TaggedRunMetadata(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
@@ -52,7 +52,7 @@ hash(v::TaggedRunMetadata) = ProtoBuf.protohash(v)
 isequal(v1::TaggedRunMetadata, v2::TaggedRunMetadata) = ProtoBuf.protoisequal(v1, v2)
 ==(v1::TaggedRunMetadata, v2::TaggedRunMetadata) = ProtoBuf.protoeq(v1, v2)
 
-type Event
+mutable struct Event
     wall_time::Float64
     step::Int64
     file_version::AbstractString
@@ -64,7 +64,7 @@ type Event
     Event(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
 end #type Event
 const __oneofs_Event = Int[0,0,1,1,1,1,1,1]
-const __oneof_names_Event = [@compat(Symbol("what"))]
+const __oneof_names_Event = [Symbol("what")]
 meta(t::Type{Event}) = meta(t, ProtoBuf.DEF_REQ, ProtoBuf.DEF_FNUM, ProtoBuf.DEF_VAL, true, ProtoBuf.DEF_PACK, ProtoBuf.DEF_WTYPES, __oneofs_Event, __oneof_names_Event)
 hash(v::Event) = ProtoBuf.protohash(v)
 isequal(v1::Event, v2::Event) = ProtoBuf.protoisequal(v1, v2)

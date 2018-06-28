@@ -4,7 +4,7 @@ using ProtoBuf
 import ProtoBuf.meta
 import Base: hash, isequal, ==
 
-type GPUOptions
+mutable struct GPUOptions
     per_process_gpu_memory_fraction::Float64
     allocator_type::AbstractString
     deferred_deletion_bytes::Int64
@@ -16,14 +16,14 @@ hash(v::GPUOptions) = ProtoBuf.protohash(v)
 isequal(v1::GPUOptions, v2::GPUOptions) = ProtoBuf.protoisequal(v1, v2)
 ==(v1::GPUOptions, v2::GPUOptions) = ProtoBuf.protoeq(v1, v2)
 
-type __enum_OptimizerOptions_Level <: ProtoEnum
+mutable struct __enum_OptimizerOptions_Level <: ProtoEnum
     L1::Int32
     L0::Int32
     __enum_OptimizerOptions_Level() = new(0,0)
 end #type __enum_OptimizerOptions_Level
 const OptimizerOptions_Level = __enum_OptimizerOptions_Level()
 
-type OptimizerOptions
+mutable struct OptimizerOptions
     do_common_subexpression_elimination::Bool
     do_constant_folding::Bool
     do_function_inlining::Bool
@@ -36,7 +36,7 @@ hash(v::OptimizerOptions) = ProtoBuf.protohash(v)
 isequal(v1::OptimizerOptions, v2::OptimizerOptions) = ProtoBuf.protoisequal(v1, v2)
 ==(v1::OptimizerOptions, v2::OptimizerOptions) = ProtoBuf.protoeq(v1, v2)
 
-type GraphOptions
+mutable struct GraphOptions
     enable_recv_scheduling::Bool
     optimizer_options::OptimizerOptions
     build_cost_model::Int64
@@ -50,7 +50,7 @@ hash(v::GraphOptions) = ProtoBuf.protohash(v)
 isequal(v1::GraphOptions, v2::GraphOptions) = ProtoBuf.protoisequal(v1, v2)
 ==(v1::GraphOptions, v2::GraphOptions) = ProtoBuf.protoeq(v1, v2)
 
-type ThreadPoolOptionProto
+mutable struct ThreadPoolOptionProto
     num_threads::Int32
     ThreadPoolOptionProto(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
 end #type ThreadPoolOptionProto
@@ -58,7 +58,7 @@ hash(v::ThreadPoolOptionProto) = ProtoBuf.protohash(v)
 isequal(v1::ThreadPoolOptionProto, v2::ThreadPoolOptionProto) = ProtoBuf.protoisequal(v1, v2)
 ==(v1::ThreadPoolOptionProto, v2::ThreadPoolOptionProto) = ProtoBuf.protoeq(v1, v2)
 
-type ConfigProto_DeviceCountEntry
+mutable struct ConfigProto_DeviceCountEntry
     key::AbstractString
     value::Int32
     ConfigProto_DeviceCountEntry(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
@@ -67,7 +67,7 @@ hash(v::ConfigProto_DeviceCountEntry) = ProtoBuf.protohash(v)
 isequal(v1::ConfigProto_DeviceCountEntry, v2::ConfigProto_DeviceCountEntry) = ProtoBuf.protoisequal(v1, v2)
 ==(v1::ConfigProto_DeviceCountEntry, v2::ConfigProto_DeviceCountEntry) = ProtoBuf.protoeq(v1, v2)
 
-type ConfigProto
+mutable struct ConfigProto
     device_count::Dict{AbstractString,Int32} # map entry
     intra_op_parallelism_threads::Int32
     inter_op_parallelism_threads::Int32
@@ -88,7 +88,7 @@ hash(v::ConfigProto) = ProtoBuf.protohash(v)
 isequal(v1::ConfigProto, v2::ConfigProto) = ProtoBuf.protoisequal(v1, v2)
 ==(v1::ConfigProto, v2::ConfigProto) = ProtoBuf.protoeq(v1, v2)
 
-type DebugTensorWatch
+mutable struct DebugTensorWatch
     node_name::AbstractString
     output_slot::Int32
     debug_ops::Array{AbstractString,1}
@@ -99,7 +99,7 @@ hash(v::DebugTensorWatch) = ProtoBuf.protohash(v)
 isequal(v1::DebugTensorWatch, v2::DebugTensorWatch) = ProtoBuf.protoisequal(v1, v2)
 ==(v1::DebugTensorWatch, v2::DebugTensorWatch) = ProtoBuf.protoeq(v1, v2)
 
-type __enum_RunOptions_TraceLevel <: ProtoEnum
+mutable struct __enum_RunOptions_TraceLevel <: ProtoEnum
     NO_TRACE::Int32
     SOFTWARE_TRACE::Int32
     HARDWARE_TRACE::Int32
@@ -108,7 +108,7 @@ type __enum_RunOptions_TraceLevel <: ProtoEnum
 end #type __enum_RunOptions_TraceLevel
 const RunOptions_TraceLevel = __enum_RunOptions_TraceLevel()
 
-type RunOptions
+mutable struct RunOptions
     trace_level::Int32
     timeout_in_ms::Int64
     inter_op_thread_pool::Int32
@@ -120,7 +120,7 @@ hash(v::RunOptions) = ProtoBuf.protohash(v)
 isequal(v1::RunOptions, v2::RunOptions) = ProtoBuf.protoisequal(v1, v2)
 ==(v1::RunOptions, v2::RunOptions) = ProtoBuf.protoeq(v1, v2)
 
-type RunMetadata
+mutable struct RunMetadata
     step_stats::StepStats
     cost_graph::CostGraphDef
     partition_graphs::Array{GraphDef,1}

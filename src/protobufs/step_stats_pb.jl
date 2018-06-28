@@ -4,7 +4,7 @@ using ProtoBuf
 import ProtoBuf.meta
 import Base: hash, isequal, ==
 
-type AllocatorMemoryUsed
+mutable struct AllocatorMemoryUsed
     allocator_name::AbstractString
     total_bytes::Int64
     peak_bytes::Int64
@@ -14,7 +14,7 @@ hash(v::AllocatorMemoryUsed) = ProtoBuf.protohash(v)
 isequal(v1::AllocatorMemoryUsed, v2::AllocatorMemoryUsed) = ProtoBuf.protoisequal(v1, v2)
 ==(v1::AllocatorMemoryUsed, v2::AllocatorMemoryUsed) = ProtoBuf.protoeq(v1, v2)
 
-type NodeOutput
+mutable struct NodeOutput
     slot::Int32
     tensor_description::TensorDescription
     NodeOutput(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
@@ -25,7 +25,7 @@ hash(v::NodeOutput) = ProtoBuf.protohash(v)
 isequal(v1::NodeOutput, v2::NodeOutput) = ProtoBuf.protoisequal(v1, v2)
 ==(v1::NodeOutput, v2::NodeOutput) = ProtoBuf.protoeq(v1, v2)
 
-type NodeExecStats
+mutable struct NodeExecStats
     node_name::AbstractString
     all_start_micros::Int64
     op_start_rel_micros::Int64
@@ -43,7 +43,7 @@ hash(v::NodeExecStats) = ProtoBuf.protohash(v)
 isequal(v1::NodeExecStats, v2::NodeExecStats) = ProtoBuf.protoisequal(v1, v2)
 ==(v1::NodeExecStats, v2::NodeExecStats) = ProtoBuf.protoeq(v1, v2)
 
-type DeviceStepStats
+mutable struct DeviceStepStats
     device::AbstractString
     node_stats::Array{NodeExecStats,1}
     DeviceStepStats(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
@@ -52,7 +52,7 @@ hash(v::DeviceStepStats) = ProtoBuf.protohash(v)
 isequal(v1::DeviceStepStats, v2::DeviceStepStats) = ProtoBuf.protoisequal(v1, v2)
 ==(v1::DeviceStepStats, v2::DeviceStepStats) = ProtoBuf.protoeq(v1, v2)
 
-type StepStats
+mutable struct StepStats
     dev_stats::Array{DeviceStepStats,1}
     StepStats(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
 end #type StepStats

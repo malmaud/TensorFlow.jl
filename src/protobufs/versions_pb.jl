@@ -4,7 +4,7 @@ using ProtoBuf
 import ProtoBuf.meta
 import Base: hash, isequal, ==
 
-type VersionDef
+mutable struct VersionDef
     producer::Int32
     min_consumer::Int32
     bad_consumers::Array{Int32,1}

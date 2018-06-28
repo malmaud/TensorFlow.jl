@@ -4,7 +4,7 @@ using ProtoBuf
 import ProtoBuf.meta
 import Base: hash, isequal, ==
 
-type TensorDescription
+mutable struct TensorDescription
     dtype::Int32
     shape::TensorShapeProto
     allocation_description::AllocationDescription

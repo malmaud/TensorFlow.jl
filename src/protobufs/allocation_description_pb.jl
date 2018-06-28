@@ -4,7 +4,7 @@ using ProtoBuf
 import ProtoBuf.meta
 import Base: hash, isequal, ==
 
-type AllocationDescription
+mutable struct AllocationDescription
     requested_bytes::Int64
     allocated_bytes::Int64
     allocator_name::AbstractString

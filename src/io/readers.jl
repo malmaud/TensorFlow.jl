@@ -4,7 +4,7 @@ abstract type AbstractReader end
 
 macro reader(name)
     quote
-        type $(esc(name)) <: AbstractReader
+        mutable struct $(esc(name)) <: AbstractReader
             op::tf.Operation
         end
     end

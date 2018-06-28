@@ -4,7 +4,7 @@ using ProtoBuf
 import ProtoBuf.meta
 import Base: hash, isequal, ==
 
-type __enum_SaverDef_CheckpointFormatVersion <: ProtoEnum
+mutable struct __enum_SaverDef_CheckpointFormatVersion <: ProtoEnum
     LEGACY::Int32
     V1::Int32
     V2::Int32
@@ -12,7 +12,7 @@ type __enum_SaverDef_CheckpointFormatVersion <: ProtoEnum
 end #type __enum_SaverDef_CheckpointFormatVersion
 const SaverDef_CheckpointFormatVersion = __enum_SaverDef_CheckpointFormatVersion()
 
-type SaverDef
+mutable struct SaverDef
     filename_tensor_name::AbstractString
     save_tensor_name::AbstractString
     restore_op_name::AbstractString

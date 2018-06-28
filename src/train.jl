@@ -58,7 +58,7 @@ macro advance_step()
     end |> esc
 end
 
-type GradientDescentOptimizer <: Optimizer
+mutable struct GradientDescentOptimizer <: Optimizer
     learning_rate::Tensor
     name::String
 end
@@ -96,7 +96,7 @@ function apply_gradients(optimizer::GradientDescentOptimizer, grads_and_vars; gl
     return group(ops...)
 end
 
-type MomentumOptimizer <: Optimizer
+mutable struct MomentumOptimizer <: Optimizer
     learning_rate::Tensor
     momentum::Tensor
     name::String
@@ -131,7 +131,7 @@ function apply_gradients(optimizer::MomentumOptimizer, grads_and_vars; global_st
     return group(ops...)
 end
 
-type AdamOptimizer <: Optimizer
+mutable struct AdamOptimizer <: Optimizer
     η::Float64
     β1::Float64
     β2::Float64
@@ -187,7 +187,7 @@ function apply_gradients(optimizer::AdamOptimizer, grads_and_vars; global_step=n
     return group(ops...)
 end
 
-type Saver
+mutable struct Saver
     var_list
     max_to_keep
     placeholder_nodes

@@ -97,7 +97,7 @@ end
 run(sess::tf.Session, var::Variable) = run(sess, tf.Tensor(var))
 run(sess::tf.Session, vars::AbstractVector{Variable}) = run(sess, map(tf.Tensor, vars))
 
-type Scope
+mutable struct Scope
     name::Nullable{String}
     initializer::Nullable{Any}
     reuse::Bool

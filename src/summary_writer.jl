@@ -3,7 +3,7 @@ import TensorFlow
 const tf = TensorFlow
 import ..TensorFlow: tensorflow, Graph, get_def_graph, @py_proc
 
-immutable FileWriter
+struct FileWriter
     pyo::Future
     logdir::String
 end

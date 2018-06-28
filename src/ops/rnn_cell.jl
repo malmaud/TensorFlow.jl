@@ -100,7 +100,7 @@ function (cell::BasicRNNCell)(input, state, input_dim=-1)
     return [activity, activity]
 end
 
-type LSTMCell{T} <: RNNCell
+mutable struct LSTMCell{T} <: RNNCell
     hidden_size::Int
     forget_bias::T
 end
@@ -149,7 +149,7 @@ end
 """
 Select state tuple based on condition.
 """
-function select{C, H}(condition::TensorFlow.AbstractTensor, t::LSTMStateTuple{C, H}, e::LSTMStateTuple{C, H})
+function select(condition::TensorFlow.AbstractTensor, t::LSTMStateTuple{C, H}, e::LSTMStateTuple{C, H}) where {C, H}
     LSTMStateTuple{C, H}(select(condition, t.c, e.c), select(condition, t.h, e.h))
 end
 

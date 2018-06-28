@@ -4,7 +4,7 @@ using ProtoBuf
 import ProtoBuf.meta
 import Base: hash, isequal, ==
 
-type GraphDef
+mutable struct GraphDef
     node::Array{NodeDef,1}
     versions::VersionDef
     version::Int32
