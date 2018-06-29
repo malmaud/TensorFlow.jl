@@ -1,4 +1,4 @@
-julia 0.6
+julia 0.7-alpha
 ProtoBuf 0.3.0
 PyCall 1.7.1
 TakingBroadcastSeriously 0.1.1
