@@ -27,8 +27,6 @@ import .tf.Ops:
     scatter_mul,
     scatter_div
 
-import Distributions
-
 mutable struct Variable{T} <: tf.AbstractTensor{T}
     var_node::tf.Tensor{T}
     assign_node::tf.Tensor{T}
@@ -137,6 +135,11 @@ end
 get_dims(t::tf.TensorShape) = map(get, t.dims)
 get_dims(x) = x
 
+struct DefaultInitializer
+end
+
+Base.rand(::DefaultInitializer, shape...) = .01randn(shape)
+
 """
 Gets an existing variable with these parameters (`shape`, `dtype`, `trainable`)
 or create a new one.
@@ -149,7 +152,7 @@ function tf.get_variable(var_name, shape, dtype; trainable=true, kwargs...)
         push!(scope_stack, scope)
         name = join([get(x.name) for x in scope_stack], "/")
         try
-            initializer = Distributions.Normal(0, .01)
+            initializer = DefaultInitializer()
             reuse = false
             for scope in scope_stack
                 if !isnull(scope.initializer)
