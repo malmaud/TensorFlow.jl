@@ -18,7 +18,7 @@ Then call the `save` method to save your variables:
 train.save(saver, session, "/path/to/variable_file")
 ```
 
-The newly-created "variable_file" is a [JLD](https://github.com/JuliaIO/JLD.jl) file that contains a mapping from variable names to their values. The value of variables can later be restored in a new Julia session with
+The newly-created "variable_file" is a [JLD2](https://github.com/simonster/JLD2.jl) file that contains a mapping from variable names to their values. The value of variables can later be restored in a new Julia session with
 
 ```julia
 train.restore(saver, session, "/path/to/variable_file")
