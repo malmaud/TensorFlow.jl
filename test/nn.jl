@@ -284,3 +284,13 @@ end
     @test softplus(x) == run_op(log1pexp, x) == run_op(nn.softplus, x)
     @test softplus.(xs) == run_op(log1pexp, xs) == run_op(nn.softplus, xs)
 end
+
+@testset "Pooling" begin
+    sess = Session(Graph())
+    input = ones(32, 4, 4, 3)
+    for pool_fn in [nn.max_pool, nn.avg_pool]
+        op = pool_fn(input, ksize=[1,2,2,1], strides=[1,2,2,1], padding="SAME")
+        output = run(sess, op)
+        @test size(output) == (32, 2, 2, 3)
+    end
+end
