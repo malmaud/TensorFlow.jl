@@ -135,10 +135,13 @@ end
 get_dims(t::tf.TensorShape) = map(get, t.dims)
 get_dims(x) = x
 
-struct DefaultInitializer
+struct NormalInitializer
+    sd::Float64
 end
 
-Base.rand(::DefaultInitializer, shape...) = .01randn(shape)
+NormalInitializer() = NormalInitializer(.01)
+
+Base.rand(rng::NormalInitializer, shape...) = rng.sd * randn(shape)
 
 """
 Gets an existing variable with these parameters (`shape`, `dtype`, `trainable`)
@@ -152,7 +155,7 @@ function tf.get_variable(var_name, shape, dtype; trainable=true, kwargs...)
         push!(scope_stack, scope)
         name = join([get(x.name) for x in scope_stack], "/")
         try
-            initializer = DefaultInitializer()
+            initializer = NormalInitializer()
             reuse = false
             for scope in scope_stack
                 if !isnull(scope.initializer)
