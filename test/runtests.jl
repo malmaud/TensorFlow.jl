@@ -3,7 +3,6 @@ using Base.Test
 
 srand(0)  # Make tests deterministic
 
-include(joinpath(dirname(@__FILE__), "..", "examples", "logistic.jl"))
 
 # Main tests
 
@@ -49,3 +48,7 @@ for filename in tests
         include(filename)
     end
 end
+
+
+
+include(joinpath(dirname(@__FILE__), "..", "examples", "runexamples.jl"))

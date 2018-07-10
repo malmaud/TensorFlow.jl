@@ -3,11 +3,10 @@ An example implementaion of an Autoencoder inspired by
 https://github.com/alrojo/tensorflow-tutorial/blob/master/lab5_AE/lab5_AE.ipynb
 This example trains an undercomplete autoencoder with a bottleneck of three hidden neurons, the activation of which can be used for a low-dimensional visualization of the 768-dimensional MNIST data.
 
-The plotting functionality require Plots.jl and a backend, e.g., PyPlot.jl or GR.jl
-`Pkg.add("Plots")`
-`Pkg.add("PyPlot")` or `Pkg.add("GR")`
+The plotting functionality require Plots.jl and a backend, e.g., PyPlot.jl, GR.jl or UnicodePlots.jl
 =#
 using MNIST, Plots, TensorFlow, ValueHistories
+unicodeplots() # change this to use a different plotting backend
 
 function showdigit(x; kwargs...)
     d = reshape(x,28,28)
@@ -23,8 +22,7 @@ end
 num_features = 28^2
 
 
-include(Pkg.dir("TensorFlow","examples","mnist_loader.jl"))
-include(Pkg.dir("TensorFlow","src","layers","fully_connected.jl"))
+include("mnist_loader.jl")
 loader = DataLoader()
 session = Session(Graph())
 
