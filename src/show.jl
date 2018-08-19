@@ -14,7 +14,7 @@ import Juno: Tree, Row, fade, interleave
 end
 
 function Base.show(io::IO, s::Status)
-    msg = @tfcall(:TF_Message, Cstring, (Ptr{Void},), s.ptr) |> unsafe_string
+    msg = @tfcall(:TF_Message, Cstring, (Ptr{Cvoid},), s.ptr) |> unsafe_string
     print(io, @sprintf("Status: %s", msg))
 end
 

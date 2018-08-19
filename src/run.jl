@@ -92,8 +92,8 @@ function run(sess::Session, inputs, input_values, outputs, targets)
     status = Status()
     output_values = fill(C_NULL, length(outputs))
     input_tensors = [RawTensor(x) for x in input_values]
-    @tfcall(:TF_SessionRun, Void,
-    (Ptr{Void}, Ptr{Void}, Ptr{Void}, Ptr{Void}, Cint, Ptr{Void}, Ptr{Ptr{Void}}, Cint, Ptr{Void}, Cint, Ptr{Void}, Ptr{Void}),
+    @tfcall(:TF_SessionRun, Cvoid,
+    (Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Cint, Ptr{Cvoid}, Ptr{Ptr{Cvoid}}, Cint, Ptr{Cvoid}, Cint, Ptr{Cvoid}, Ptr{Cvoid}),
         sess.ptr,
         C_NULL,
         inputs,
@@ -157,7 +157,7 @@ end
 function run(sess::Session, outputs::AbstractVector, input_dict)
     output_map = Dict{Tensor, Tuple{Symbol, Int}}()
     output_ports = Port[]
-    target_ptrs= Ptr{Void}[]
+    target_ptrs= Ptr{Cvoid}[]
     for tensor in get_tensors(outputs)
         if !haskey(output_map, tensor)
             if num_outputs(get_op(tensor)) == 0
