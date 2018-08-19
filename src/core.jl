@@ -1644,9 +1644,14 @@ struct OperationIteratorState
     pos::Int
 end
 
-function Base.start(iter::OperationIterator)
-    state = OperationIteratorState(Nullable{Operation}(), 0)
-    _next(iter, state)[2]
+#function Base.start(iter::OperationIterator)
+#    state = OperationIteratorState(Nullable{Operation}(), 0)
+#    _next(iter, state)[2]
+#end
+
+function Base.iterate(iter::OperationIterator, state=_next(iter, OperationIteratorState(Nullable{Operation}(), 0))[2])
+    value, new_state = _next(iter, state)
+    isnull(state.next_op) ? nothing : (get(value), new_state)
 end
 
 function _next(iter::OperationIterator, state)
@@ -1666,12 +1671,12 @@ function _next(iter::OperationIterator, state)
     (state.next_op, next_state)
 end
 
-function Base.next(iter::OperationIterator, state)
-    value, new_state = _next(iter, state)
-    (get(value), new_state)
-end
+#function Base.next(iter::OperationIterator, state)
+#    value, new_state = _next(iter, state)
+#    (get(value), new_state)
+#end
 
-Base.done(iter::OperationIterator, state) = isnull(state.next_op)
+#Base.done(iter::OperationIterator, state) = isnull(state.next_op)
 
 Base.iteratorsize(::Type{OperationIterator}) = Base.SizeUnknown()
 Base.eltype(::Type{OperationIterator}) = Operation
