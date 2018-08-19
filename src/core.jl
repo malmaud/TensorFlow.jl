@@ -1344,8 +1344,8 @@ end
 
 const type_map = Dict(TF_UINT8=>UInt8, TF_FLOAT=>Float32, TF_INT32=>Int32,
                       TF_INT64=>Int64, TF_DOUBLE=>Float64, TF_STRING=>String,
-                      TF_BOOL=>Bool, TF_COMPLEX64=>Complex64,
-                      TF_COMPLEX128=>Complex128)
+                      TF_BOOL=>Bool, TF_COMPLEX64=>ComplexF32,
+                      TF_COMPLEX128=>ComplexF64)
 const inv_type_map = Dict(v=>k for (k, v) in type_map)
 
 function tf_to_jl_type(dt::TF_DataType)
