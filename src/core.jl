@@ -771,7 +771,7 @@ end
 
 function Base.size(t::RawTensor)
     d = (size(t, x) for x in 1:ndims(t))
-    (d...)
+    (d...,)
 end
 
 function Base.sizeof(t::RawTensor)
