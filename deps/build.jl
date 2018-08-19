@@ -97,6 +97,6 @@ end
         url = "https://storage.googleapis.com/tensorflow/libtensorflow/libtensorflow-cpu-linux-x86_64-$cur_version.tar.gz"
     end
     download_and_unpack(url)
-    mv("$lib_dir/libtensorflow.so", "usr/bin/libtensorflow.so", remove_destination=true)
-    mv("$lib_dir/libtensorflow_framework.so", "usr/bin/libtensorflow_framework.so", remove_destination=true)
+    mv("$lib_dir/libtensorflow.so", "usr/bin/libtensorflow.so", force=true)
+    mv("$lib_dir/libtensorflow_framework.so", "usr/bin/libtensorflow_framework.so", force=true)
 end
