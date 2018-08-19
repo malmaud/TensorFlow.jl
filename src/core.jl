@@ -1180,8 +1180,8 @@ const proto_type_map = Dict(
     dt.DT_STRING=>String,
     dt.DT_BOOL=>Bool,
     dt.DT_UINT8=>UInt8,
-    dt.DT_COMPLEX64=>ComplexF64,
-    dt.DT_COMPLEX128=>ComplexF128)
+    dt.DT_COMPLEX64=>ComplexF32,
+    dt.DT_COMPLEX128=>ComplexF64)
 
 abstract type AbstractTensor{T} end
 
