@@ -9,7 +9,7 @@ const cur_py_version = "1.8.0"
 # Error message for Windows
 ############################
 
-if is_windows()
+if Sys.iswindows()
     error("TensorFlow.jl does not support Windows. Please see https://github.com/malmaud/TensorFlow.jl/issues/204")
 end
 
@@ -19,15 +19,15 @@ end
 
 use_gpu = "TF_USE_GPU" ∈ keys(ENV) && ENV["TF_USE_GPU"] == "1"
 
-if is_apple() && use_gpu
+if Sys.isapple() && use_gpu
     warn("No support for TF_USE_GPU on OS X - to enable the GPU, build TensorFlow from source. Falling back to CPU")
     use_gpu=false
 end
 
 if use_gpu
-    info("Building TensorFlow.jl for use on the GPU")
+    print("Building TensorFlow.jl for use on the GPU")
 else
-    info("Building TensorFlow.jl for CPU use only. To enable the GPU, set the TF_USE_GPU environment variable to 1 and rebuild TensorFlow.jl")
+    print("Building TensorFlow.jl for CPU use only. To enable the GPU, set the TF_USE_GPU environment variable to 1 and rebuild TensorFlow.jl")
 end
 
 
@@ -79,7 +79,7 @@ function download_and_unpack(url)
     run(`tar -xzf $tensorflow_zip_path -C downloads`)
 end
 
-@static if is_apple()
+@static if Sys.isapple()
     if use_gpu
         url = "https://storage.googleapis.com/tensorflow/libtensorflow/libtensorflow-gpu-darwin-x86_64-$cur_version.tar.gz"
     else
@@ -90,7 +90,7 @@ end
     mv("$lib_dir/libtensorflow_framework.so", "usr/bin/libtensorflow_framework.so", remove_destination=true)
 end
 
-@static if is_linux()
+@static if Sys.islinux()
     if use_gpu
         url = "https://storage.googleapis.com/tensorflow/libtensorflow/libtensorflow-gpu-linux-x86_64-$cur_version.tar.gz"
     else
