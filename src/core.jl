@@ -1678,7 +1678,7 @@ end
 
 #Base.done(iter::OperationIterator, state) = isnull(state.next_op)
 
-Base.iteratorsize(::Type{OperationIterator}) = Base.SizeUnknown()
+Base.IteratorSize(::Type{OperationIterator}) = Base.SizeUnknown()
 Base.eltype(::Type{OperationIterator}) = Operation
 
 @with_def_graph function get_operations(g::Graph)
