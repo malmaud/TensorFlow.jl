@@ -10,7 +10,7 @@ const cur_py_version = "1.8.0"
 ############################
 
 if Sys.iswindows()
-    error("TensorFlow.jl does not support Windows. Please see https://github.com/malmaud/TensorFlow.jl/issues/204")
+    @error("TensorFlow.jl does not support Windows. Please see https://github.com/malmaud/TensorFlow.jl/issues/204")
 end
 
 ############################
@@ -20,14 +20,14 @@ end
 use_gpu = "TF_USE_GPU" ∈ keys(ENV) && ENV["TF_USE_GPU"] == "1"
 
 if Sys.isapple() && use_gpu
-    warn("No support for TF_USE_GPU on OS X - to enable the GPU, build TensorFlow from source. Falling back to CPU")
+    @warn("No support for TF_USE_GPU on OS X - to enable the GPU, build TensorFlow from source. Falling back to CPU")
     use_gpu=false
 end
 
 if use_gpu
-    print("Building TensorFlow.jl for use on the GPU")
+    @info("Building TensorFlow.jl for use on the GPU")
 else
-    print("Building TensorFlow.jl for CPU use only. To enable the GPU, set the TF_USE_GPU environment variable to 1 and rebuild TensorFlow.jl")
+    @info("Building TensorFlow.jl for CPU use only. To enable the GPU, set the TF_USE_GPU environment variable to 1 and rebuild TensorFlow.jl")
 end
 
 
@@ -45,7 +45,7 @@ else
         # See if it works already
     catch ee
         typeof(ee) <: PyCall.PyError || rethrow(ee)
-        error("""
+        @error("""
 Python TensorFlow not installed
 Please either:
  - Rebuild PyCall to use Conda, by running in the julia REPL:

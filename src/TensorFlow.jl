@@ -1,7 +1,7 @@
 __precompile__(true)
 module TensorFlow
 
-warn("Loading a new version of TensorFlow.jl for the first time. This initial load can take around 5 minutes as code is precompiled; subsequent usage will only take a few seconds.")
+@warn("Loading a new version of TensorFlow.jl for the first time. This initial load can take around 5 minutes as code is precompiled; subsequent usage will only take a few seconds.")
 
 export
 Graph,
