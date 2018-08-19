@@ -287,7 +287,7 @@ function import_ops(op_names)
                 print(ops_file, "\n\n")
             catch err
                 err_msg = sprint(showerror, err)
-                warn("Could not import operation $name: $err_msg")
+                @warn("Could not import operation $name: $err_msg")
             end
         end
         write(ops_file, """
@@ -334,7 +334,7 @@ function import_op(name)
         op_desc = to_function(op)
         eval(Ops, op_desc.expr)
     else
-        warn("Import Skipped: tried to import op $name as $(mod).$(jl_name), but that already exists.")
+        @warn("Import Skipped: tried to import op $name as $(mod).$(jl_name), but that already exists.")
     end
 
     return getfield(Ops, jl_name)

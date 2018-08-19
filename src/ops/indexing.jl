@@ -83,7 +83,7 @@ function Base.getindex(params::AbstractTensor, ind1::Union{Slice, Index},  inds:
         if ind_shape.rank_unknown
             #warn("Unknown rank tensor ($ind) used for indexing. Assuming 0D scalar.")
         elseif length(ind_shape.dims)!=0
-            error("Non-OD scalar used for indexing ($ind). This form of mixed mode indexing is not currently supported.")
+            @error("Non-OD scalar used for indexing ($ind). This form of mixed mode indexing is not currently supported.")
         end
         proc_singleton!(ind)
     end

@@ -11,7 +11,7 @@ function init()
         py_tf_core[] = pyimport("tensorflow.core")
         pywrap_tensorflow[] = pyimport("tensorflow.python.pywrap_tensorflow")
     catch err
-        error("The Python TensorFlow package could not be imported. You must install Python TensorFlow before using this package.")
+        @error("The Python TensorFlow package could not be imported. You must install Python TensorFlow before using this package.")
     end
 end
 
@@ -42,7 +42,7 @@ macro py_catch(ex)
             $(esc(ex))
         catch err
             s = string("Python error: ", repr(err.val))
-            error(s)
+            @error(s)
         end
     end
 end

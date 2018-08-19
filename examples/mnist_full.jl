@@ -72,13 +72,13 @@ for i in 1:200
     batch = next_batch(loader, 50)
     if i%100 == 1
         train_accuracy = run(session, accuracy, Dict(x=>batch[1], y_=>batch[2], keep_prob=>1.0))
-        info("step $i, training accuracy $train_accuracy")
+        @info("step $i, training accuracy $train_accuracy")
     end
     run(session, train_step, Dict(x=>batch[1], y_=>batch[2], keep_prob=>.5))
 end
 
 testx, testy = load_test_set()
 test_accuracy = run(session, accuracy, Dict(x=>testx, y_=>testy, keep_prob=>1.0))
-info("test accuracy $test_accuracy")
+@info("test accuracy $test_accuracy")
 
 visualize()

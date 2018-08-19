@@ -144,7 +144,7 @@ Args:
     local dequeue_op
     with_op_name(name, "ShuffleBatch") do
         if enqueue_many || dynamic_pad
-            error("Not supported")  # TODO support this
+            @error("Not supported")  # TODO support this
         end
         if shapes === nothing
             shapes = [tf.get_shape(x) for x in tensors]
@@ -181,7 +181,7 @@ Args:
     local dequeue_op
     with_op_name(name, "Batch") do
         if enqueue_many || dynamic_pad
-            error("Not supported")  # TODO support this
+            @error("Not supported")  # TODO support this
         end
         if shapes === nothing
             shapes = [tf.get_shape(x) for x in tensors]
@@ -252,7 +252,7 @@ function create_threads(runner::QueueRunner, sess)
                         status.ptr)
                     tf.check_status(status)
                 catch err
-                    info("got $err on queue")
+                    @info("got $err on queue")
                     break
                 end
             end

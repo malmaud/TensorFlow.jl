@@ -77,7 +77,7 @@ history = MVHistory()
             push!(history,:loss_val, epoch, val_loss)
             plot(history, reuse=true)
             scatter3d(center[:,1],center[:,2],center[:,3], zcolor = testy, legend=false, title="Latent space", reuse=true)
-            info("step $epoch, training loss $train_loss, time taken: $(printtime(t0))")
+            @info("step $epoch, training loss $train_loss, time taken: $(printtime(t0))")
             train.save(saver, session, joinpath(checkpoint_path, "ae_mnist"), global_step=epoch)
         end
         run(session, train_step, Dict(x=>batch))
@@ -85,7 +85,7 @@ history = MVHistory()
 end
 
 test_loss, center, reconstruction = run(session, [loss_MSE, l_z, l_out], Dict(x=>testx))
-info("test accuracy $test_loss")
+@info("test accuracy $test_loss")
 
 # Plot som example reconstructions
 offset = 0
