@@ -1048,7 +1048,7 @@ get_graph(n::AbstractOperation) = Operation(n).graph
 
 function load_proto(tensor::tensorflow.TensorProto)
     dtype = tensor.dtype
-    dim = (Int[x.size for x in tensor.tensor_shape.dim]...)
+    dim = (Int[x.size for x in tensor.tensor_shape.dim]...,)
     if dtype == tensorflow._DataType.DT_FLOAT
         val = tensor.float_val
     elseif dtype == tensorflow._DataType.DT_INT32
