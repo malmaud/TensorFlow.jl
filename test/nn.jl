@@ -1,5 +1,5 @@
 using TensorFlow
-using Base.Test
+using Test
 using StatsFuns
 
 @testset "conv2d_transpose" begin
@@ -17,7 +17,7 @@ end
 
 
 @testset "Cross Entropy Loss" begin
-    srand(1)
+    Random.seed!(1)
     let
         sess = Session(Graph())
         targets = constant(collect(1:10))

@@ -1,5 +1,5 @@
 using TensorFlow
-using Base.Test
+using Test
 
 sess = TensorFlow.Session(TensorFlow.Graph())
 a_raw = collect(1:5)
@@ -28,5 +28,5 @@ result = run(sess, TensorFlow.select(cond_tf, a, b))
 @test [1; 7; 3; 4; 10] == result
 
 
-@test run(sess, find(constant([true,true, false,true]))) == [1 2 4]'
-@test run(sess, find(constant([true true  false true; false true false true]))) == [1 1; 1 2; 1 4; 2 2; 2 4]
+@test run(sess, findall(constant([true,true, false,true]))) == [1 2 4]'
+@test run(sess, findall(constant([true true  false true; false true false true]))) == [1 1; 1 2; 1 4; 2 2; 2 4]

@@ -1,7 +1,7 @@
 using TensorFlow
-using Base.Test
+using Test
 
-srand(0)  # Make tests deterministic
+Random.seed!(0)  # Make tests deterministic
 
 include(joinpath(dirname(@__FILE__), "..", "examples", "logistic.jl"))
 

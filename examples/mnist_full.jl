@@ -62,7 +62,7 @@ end
 
 train_step = train.minimize(train.AdamOptimizer(1e-4), cross_entropy)
 
-correct_prediction = indmax(y_conv, 2) .== indmax(y_, 2)
+correct_prediction = argmax(y_conv, 2) .== argmax(y_, 2)
 
 accuracy = reduce_mean(cast(correct_prediction, Float32))
 

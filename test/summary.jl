@@ -1,6 +1,6 @@
 using TensorFlow
 const tf = TensorFlow
-using Base.Test
+using Test
 
 graph = Graph()
 sess = Session(graph)

@@ -1,5 +1,5 @@
 using TensorFlow
-using Base.Test
+using Test
 
 
 sess = TensorFlow.Session(TensorFlow.Graph())
@@ -149,7 +149,7 @@ end
 # Tests after this point must provide their own sessions and graphs
 
 @testset "Concatenation Syntax" begin
-    srand(37)
+    Random.seed!(37)
     sess4 = Session(Graph())
 
     a_jl = rand(10,5); a = constant(a_jl);

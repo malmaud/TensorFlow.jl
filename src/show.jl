@@ -188,9 +188,9 @@ end
 
 function open_url(url)
     cmd = nothing
-    if is_apple()
+    if Sys.isapple()
         cmd = `open $url`
-    elseif is_unix()
+    elseif Sys.isunix()
         cmd = `xdg-open $url`
     end
     cmd === nothing || run(cmd)

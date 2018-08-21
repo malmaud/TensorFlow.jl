@@ -1,5 +1,5 @@
 using TensorFlow
-using Base.Test
+using Test
 
 sess = Session(Graph())
 
@@ -12,7 +12,7 @@ sess = Session(Graph())
         x = random_normal(shape, dtype=dtype)
         @test get_shape(x) == TensorShape(shape)
         result = run(sess, x)
-        @test size(result) == (shape...)
+        @test size(result) == (shape...,)
         @test eltype(result) == dtype
     end
 end

@@ -1,5 +1,5 @@
 using TensorFlow
-using Base.Test
+using Test
 
 k = placeholder(Float32; shape=[10, 20, -1])
 m = placeholder(Float32; shape=[10, 20, 30])
@@ -56,9 +56,9 @@ end
 end
 
 @testset "Find (i.e Where)" begin
-    @test get_shape(find(placeholder(Bool; shape=[10, 20, 30]))) == TensorShape([-1,3])
-    @test get_shape(find(placeholder(Bool; shape=[10, 20, -1]))) == TensorShape([-1,3])
-    @test get_shape(find(placeholder(Bool))) == TensorShape(nothing)
+    @test get_shape(findall(placeholder(Bool; shape=[10, 20, 30]))) == TensorShape([-1,3])
+    @test get_shape(findall(placeholder(Bool; shape=[10, 20, -1]))) == TensorShape([-1,3])
+    @test get_shape(findall(placeholder(Bool))) == TensorShape(nothing)
 end
 
 @testset "Stack/Unstack" begin
@@ -92,7 +92,7 @@ end
 
 
 @testset "ArgMinMax" begin
-    @testset "$f" for f in (indmin, indmax, Ops.arg_min, Ops.arg_max)
+    @testset "$f" for f in (argmin, argmax, Ops.arg_min, Ops.arg_max)
         @test get_shape(f(k, 1)) == TensorShape([20, -1])
         @test get_shape(f(k, 2)) == TensorShape([10, -1])
         @test get_shape(f(k, 3)) == TensorShape([10, 20])
@@ -180,8 +180,8 @@ end
         (m, i, nothing)
         ]
         # test commutativeness
-        @test get_shape(select(c, a1, a2)) == TensorShape(r)
-        @test get_shape(select(c, a2, a1)) == TensorShape(r)
+        @test get_shape(partialsort(c, a1, a2)) == TensorShape(r)
+        @test get_shape(partialsort(c, a2, a1)) == TensorShape(r)
     end
 end
 

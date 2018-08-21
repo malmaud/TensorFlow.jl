@@ -1,5 +1,5 @@
 using TensorFlow
-using Base.Test
+using Test
 
 sess = TensorFlow.Session()
 

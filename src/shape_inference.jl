@@ -27,10 +27,10 @@ Base.copy(shape::TensorShape) = TensorShape(copy(shape.dims), shape.rank_unknown
 
 function Base.broadcast!(s1::TensorShape, s2::TensorShape)
     while length(s1.dims) < length(s2.dims)
-        unshift!(s1.dims, Nullable(1))
+        pushfirst!(s1.dims, Nullable(1))
     end
     while length(s2.dims) < length(s1.dims)
-        unshift!(s2.dims, Nullable(1))
+        pushfirst!(s2.dims, Nullable(1))
     end
     s1, s2
 end
@@ -261,7 +261,7 @@ function load_const(op)
         catch err
             if isa(err, tf.EmptyTensorError)
                 T = eltype(Tensor(op, 1))
-                value = Array{T}(0)
+                value = Array{T}(undef, 0)
             else
                 rethrow(err)
             end

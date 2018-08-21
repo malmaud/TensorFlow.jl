@@ -1,5 +1,5 @@
 using TensorFlow
-using Base.Test
+using Test
 
 # Try your first TensorFlow program
 # https://github.com/tensorflow/tensorflow#try-your-first-tensorflow-program
