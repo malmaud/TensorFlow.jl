@@ -1,3 +1,6 @@
+import LinearAlgebra
+import SpecialFunctions
+
 import .Ops:
     add_n,
     arg_min,
@@ -31,7 +34,7 @@ import .Ops:
 @op Base.min(x::AbstractTensor, y; kwargs...) = Ops.minimum(x, y; kwargs...)
 
 
-@op function Base.svd(a::AbstractTensor; thin=true, kwargs...)
+@op function LinearAlgebra.svd(a::AbstractTensor; thin=true, kwargs...)
     # Match Base names and ordering of results
     s,u,v = Ops.svd(a; compute_uv=true, full_matrices=!thin, kwargs...)
     u,s,v
@@ -39,8 +42,6 @@ end
 
 
 
-# const multiply = Ops.mul
-# const negative = Ops.neg
 @define_unary negative Ops.neg
 @define_binary multiply Ops.mul
 const self_adjoint_eig = Ops.self_adjoint_eig_v2
@@ -111,7 +112,7 @@ Returns:
     Tensor(Operation(desc), 1)
 end
 
-@op function Base.cross(n1::AbstractTensor, n2::AbstractTensor; kwargs...)
+@op function LinearAlgebra.cross(n1::AbstractTensor, n2::AbstractTensor; kwargs...)
     Ops.cross(n1, n2; kwargs...)
 end
 
@@ -133,9 +134,6 @@ for jl_func_name in [
     :asin,
     :acos,
     :tanh,
-    :lgamma,
-    :erf,
-    :erfc,
     :real,
     :imag,
     :sign,
@@ -144,15 +142,18 @@ for jl_func_name in [
     @eval @define_unary Base.$jl_func_name Ops.$jl_func_name
 end
 
+
+for jl_func_name in [
+    :lgamma,
+    :erf,
+    :erfc]
+    @eval @define_unary SpecialFunctions.$jl_func_name Ops.$jl_func_name
+end
+
 function Base.round(::Type{T}, value::AbstractTensor) where T
     convert(Tensor{T}, round(value))
 end
 
-for jl_func_name in [
-    :polygamma,
-    :zeta]
-    @eval @define_binary Base.$jl_func_name Ops.$jl_func_name
-end
 
 -(n::AbstractTensor) = negative(n)
 
@@ -162,13 +163,14 @@ end
 
 # Matrix math
 
+@define_unary Base.inv Ops.matrix_inverse
+
 for (jl_func_name, tf_func_name) in [
-    (:inv, :matrix_inverse),
     (:det, :matrix_determinant),
     (:diagm, :diag),
     (:diag, :matrix_diag_part)]
 
-    @eval @define_unary Base.$jl_func_name Ops.$tf_func_name
+    @eval @define_unary LinearAlgebra.$jl_func_name Ops.$tf_func_name
 end
 
 # Reductions
