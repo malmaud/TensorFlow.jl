@@ -1,5 +1,6 @@
 module ShapeInference
 
+using Nullables
 using Compat
 using ..TensorFlow
 import TensorFlow: get_input, get_attr, TensorShape, get_shape

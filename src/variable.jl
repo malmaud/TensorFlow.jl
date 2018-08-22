@@ -27,6 +27,8 @@ import .tf.Ops:
     scatter_mul,
     scatter_div
 
+using Nullables
+
 import Distributions
 
 mutable struct Variable{T} <: tf.AbstractTensor{T}

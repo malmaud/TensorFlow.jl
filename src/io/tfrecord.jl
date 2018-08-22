@@ -6,6 +6,8 @@ RecordIterator
 
 import TensorFlow
 const tf = TensorFlow
+
+using Nullables
 using PyCall
 
 struct RecordWriter
