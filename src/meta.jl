@@ -30,7 +30,7 @@ macro op(f)
     
     already_registered = opname ∈ registered_ops
     push!(registered_ops, opname)
-    @assert(isdefined(:tf)) # Need tf as name for module where this code is located
+    @assert(@isdefined(tf)) # Need tf as name for module where this code is located
     if already_registered
         register_block = nothing
     else

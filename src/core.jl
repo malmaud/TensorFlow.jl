@@ -4,6 +4,7 @@ using Compat
 using Compat.Iterators
 using MacroTools
 using AutoHashEquals
+using Libdl
 
 import Base: setindex!, getindex, run, ==
 
