@@ -365,7 +365,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Operations",
     "title": "TensorFlow.Ops.conv2d",
     "category": "function",
-    "text": " conv2d(input, filter; use_cudnn_on_gpu=true, data_format=NHWC)\n\nComputes a 2-D convolution given 4-D input and filter tensors.\n\nGiven an input tensor of shape [batch, in_height, in_width, in_channels] and a filter / kernel tensor of shape [filter_height, filter_width, in_channels, out_channels], this op performs the following:\n\nFlattens the filter to a 2-D matrix with shape [filter_height * filter_width * in_channels, output_channels].\nExtracts image patches from the input tensor to form a virtual tensor of shape [batch, out_height, out_width, filter_height * filter_width * in_channels].\nFor each patch, right-multiplies the filter matrix and the image patch vector.\n\nIn detail, with the default NHWC format,\n\noutput[b, i, j, k] =\n    sum_{di, dj, q} input[b, strides[1] * i + di, strides[2] * j + dj, q] *\n                    filter[di, dj, q, k]\n\nMust have strides[0] = strides[3] = 1.  For the most common case of the same horizontal and vertices strides, strides = [1, stride, stride, 1].\n\n\n\n"
+    "text": " conv2d(input, filter; use_cudnn_on_gpu=true, data_format=NHWC, dilations=[1, 1, 1, 1])\n\n\n\n"
 },
 
 {
@@ -373,7 +373,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Operations",
     "title": "TensorFlow.Ops.max_pool",
     "category": "function",
-    "text": " max_pool(input; data_format=NHWC)\n\nPerforms max pooling on the input.\n\n\n\n"
+    "text": " max_pool(input; data_format=NHWC)\n\n\n\n"
 },
 
 {
@@ -477,7 +477,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Operations",
     "title": "TensorFlow.Ops.logical_and",
     "category": "function",
-    "text": " logical_and(x, y)\n\nReturns the truth value of x AND y element-wise.\n\nNOTE: LogicalAnd supports broadcasting. More about broadcasting here\n\n\n\n"
+    "text": " logical_and(x, y)\n\n\n\n"
 },
 
 {
@@ -485,7 +485,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Operations",
     "title": "TensorFlow.Ops.logical_not",
     "category": "function",
-    "text": " logical_not(x)\n\nReturns the truth value of NOT x element-wise.\n\n\n\n"
+    "text": " logical_not(x)\n\n\n\n"
 },
 
 {
@@ -493,7 +493,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Operations",
     "title": "TensorFlow.Ops.logical_or",
     "category": "function",
-    "text": " logical_or(x, y)\n\nReturns the truth value of x OR y element-wise.\n\nNOTE: LogicalOr supports broadcasting. More about broadcasting here\n\n\n\n"
+    "text": " logical_or(x, y)\n\n\n\n"
 },
 
 {
@@ -653,7 +653,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Summaries",
     "title": "TensorFlow.summary.summary_ops.scalar",
     "category": "function",
-    "text": " scalar_summary(tags, values)\n\nOutputs a Summary protocol buffer with scalar values.\n\nThe input tags and values must have the same shape.  The generated summary has a summary value for each tag-value pair in tags and values.\n\n\n\n\n\n"
+    "text": " scalar_summary(tags, values)\n\n\n\n\n\n"
 },
 
 {
@@ -661,7 +661,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Summaries",
     "title": "TensorFlow.summary.summary_ops.histogram",
     "category": "function",
-    "text": " histogram_summary(tag, values)\n\nOutputs a Summary protocol buffer with a histogram.\n\nThe generated Summary has one summary value containing a histogram for values.\n\nThis op reports an InvalidArgument error if any value is not finite.\n\n\n\n\n\n"
+    "text": " histogram_summary(tag, values)\n\n\n\n\n\n"
 },
 
 {
@@ -669,7 +669,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Summaries",
     "title": "TensorFlow.summary.summary_ops.image",
     "category": "function",
-    "text": " image_summary(tag, tensor; max_images=3, bad_color=?)\n\nOutputs a Summary protocol buffer with images.\n\nThe summary has up to max_images summary values containing images. The images are built from tensor which must be 4-D with shape [batch_size, height, width, channels] and where channels can be:\n\n1: tensor is interpreted as Grayscale.\n3: tensor is interpreted as RGB.\n4: tensor is interpreted as RGBA.\n\nThe images have the same number of channels as the input tensor. For float input, the values are normalized one image at a time to fit in the range [0, 255].  uint8 values are unchanged.  The op uses two different normalization algorithms:\n\nIf the input values are all positive, they are rescaled so the largest one  is 255.\nIf any input value is negative, the values are shifted so input value 0.0  is at 127.  They are then rescaled so that either the smallest value is 0,  or the largest one is 255.\n\nThe tag argument is a scalar Tensor of type string.  It is used to build the tag of the summary values:\n\nIf max_images is 1, the summary value tag is \'tag/image\'.\nIf max_images is greater than 1, the summary value tags are  generated sequentially as \'tag/image/0\', \'tag/image/1\', etc.\n\nThe bad_color argument is the color to use in the generated images for non-finite input values.  It is a unit8 1-D tensor of length channels. Each element must be in the range [0, 255] (It represents the value of a pixel in the output image).  Non-finite values in the input tensor are replaced by this tensor in the output image.  The default value is the color red.\n\n\n\n\n\n"
+    "text": " image_summary(tag, tensor; max_images=3, bad_color=?)\n\n\n\n\n\n"
 },
 
 {
