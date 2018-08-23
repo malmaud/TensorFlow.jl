@@ -1,4 +1,4 @@
-using Base.Test
+using Test
 using TensorFlow
 
 @testset "Placeholder Size Matching" begin
@@ -37,7 +37,7 @@ using TensorFlow
 end
 
 @testset begin
-    srand(1)
+    Random.seed!(1)
     data = rand(Int64.(1:10), 3,4)
     sess = Session(Graph())
 

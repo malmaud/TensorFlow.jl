@@ -186,7 +186,7 @@ end
 tf.get_tensors(v::Variable) = [v.var_node]
 
 function is_variable(name::AbstractString)
-    return ismatch(r"^(Variable|VariableV\d+)$", name)
+    return occursin(r"^(Variable|VariableV\d+)$", name)
 end
 
 is_variable(name::Union{tf.Operation, tf.AbstractTensor}) = is_variable(tf.get_op(name).op_name)

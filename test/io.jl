@@ -1,5 +1,5 @@
 using TensorFlow
-using Base.Test
+using Test
 
 mktempdir() do dirname
     filename = joinpath(dirname, "tfrecords")

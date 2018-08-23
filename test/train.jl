@@ -1,5 +1,5 @@
 using TensorFlow
-using Base.Test
+using Test
 
 @testset "save and resore" begin
     try

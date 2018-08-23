@@ -1,5 +1,5 @@
 using TensorFlow
-using Base.Test
+using Test
 
 sess = TensorFlow.Session(TensorFlow.Graph())
 
@@ -89,15 +89,15 @@ end
 
     a_raw = rand(10)
     a = TensorFlow.constant(a_raw)
-    result = run(sess, indmin(a, 1))
-    @test indmin(a_raw) == result
-    result = run(sess, indmax(a, 1))
-    @test indmax(a_raw) == result
+    result = run(sess, argmin(a, 1))
+    @test argmin(a_raw) == result
+    result = run(sess, argmax(a, 1))
+    @test argmax(a_raw) == result
 
     #check it find the first instance of lowest/highers number as the result for indmin/indmax
     x=constant([1 2 3; 0 2 3; 0 0 3; 0 0 0]')
-    @test [2, 3, 4] == run(sess, indmin(x, 2))
-    @test [1, 1, 1] == run(sess, indmax(x, 2))
+    @test [2, 3, 4] == run(sess, argmin(x, 2))
+    @test [1, 1, 1] == run(sess, argmax(x, 2))
 end
 
 @testset "logic" begin
