@@ -1,4 +1,5 @@
 using Compat
+import LinearAlgebra # cond
 
 import .Ops: no_op, count_up_to
 
@@ -103,7 +104,7 @@ Example:
   # Operations in f2 (e.g., tf.add) are not executed.
 ```
 """
-@op function Base.cond(pred::AbstractTensor, fn1, fn2; name=nothing)
+@op function LinearAlgebra.cond(pred::AbstractTensor, fn1, fn2; name=nothing)
     #  TODO add control dependencies to subgraphs
     local merge
     with_op_name(name, "cond") do

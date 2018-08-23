@@ -1,5 +1,6 @@
 import LinearAlgebra
 import SpecialFunctions
+import Statistics
 
 import .Ops:
     add_n,
@@ -26,9 +27,9 @@ import .Ops:
     segment_prod
 
 
-@op Base.indmin(n::AbstractTensor, dim; name=nothing) = Ops.arg_min(n, dim; name=name)+1
+@op Base.argmin(n::AbstractTensor, dim; name=nothing) = Ops.arg_min(n, dim; name=name)+1
 
-@op Base.indmax(n::AbstractTensor, dim; name=nothing) = Ops.arg_max(n, dim; name=name)+1
+@op Base.argmax(n::AbstractTensor, dim; name=nothing) = Ops.arg_max(n, dim; name=name)+1
 
 @op Base.max(x::AbstractTensor, y; kwargs...) = Ops.maximum(x, y; kwargs...)
 @op Base.min(x::AbstractTensor, y; kwargs...) = Ops.minimum(x, y; kwargs...)
@@ -213,15 +214,15 @@ end
 
 # TODO Match Julia reduction behavior when `axis` is passed
 for (jl_func, tf_func) in [
-    (:sum, :reduce_sum),
-    (:prod, :reduce_prod),
-    (:minimum, :reduce_min),
-    (:maximum, :reduce_max),
-    (:all, :reduce_all),
-    (:any, :reduce_any),
-    (:mean, :reduce_mean),
+    (:(Base.sum), :reduce_sum),
+    (:(Base.prod), :reduce_prod),
+    (:(Base.minimum), :reduce_min),
+    (:(Base.maximum), :reduce_max),
+    (:(Base.all), :reduce_all),
+    (:(Base.any), :reduce_any),
+    (:(Statistics.mean), :reduce_mean),
     ]
-    @eval function Base.$jl_func(n::AbstractTensor, axis=nothing; kwargs...)
+    @eval function $jl_func(n::AbstractTensor, axis=nothing; kwargs...)
         $tf_func(n; axis=axis, kwargs...)
     end
 end

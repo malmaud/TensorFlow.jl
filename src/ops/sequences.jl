@@ -3,6 +3,8 @@ import .Ops:
     random_standard_normal,
     random_shuffle
 
+import Random # shuffle
+
 function convert_eltype(x::Array, dtype)
     convert(Array{dtype}, x)
 end
@@ -76,11 +78,11 @@ A `Tensor` of the specified `shape` and `dtype` containing random values.
 end
 
 
-@op function Base.shuffle(t::AbstractTensor; kwargs...)
+@op function Random.shuffle(t::AbstractTensor; kwargs...)
     Ops.random_shuffle(t; kwargs...)
 end
 
-@op function Base.linspace(start::AbstractTensor, stop, num; kwargs...)
+@op function Base.range(start::AbstractTensor; stop, num=Union{Integer, Nothin}, kwargs...)
     Ops.lin_space(start, stop, num; kwargs...)
 end
 
