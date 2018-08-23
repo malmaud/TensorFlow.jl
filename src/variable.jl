@@ -41,6 +41,7 @@ function Variable(var_node::tf.Tensor{T}, assign_node::tf.Tensor{T}) where T
     v
 end
 
+
 """
 A variable maintains state in the graph across calls to `run()`.
 You add a variable to the graph by constructing an instance of the type `Variable`.
