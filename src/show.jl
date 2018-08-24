@@ -45,7 +45,7 @@ function Base.show(io::IO, n::Operation)
 end
 
 function Base.show(io::IO, t::Tensor{T}) where T
-    @assert T==eltype(t)
+    @assert(T==eltype(t), "eltype = $(eltype(t)), but Tensor{$(T)})")
 
     s = get_shape(t)
     if s.rank_unknown

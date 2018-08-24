@@ -1200,6 +1200,9 @@ end
 
 Tensor(op::Operation) = Tensor(op, 1)
 
+Tensor(value) = convert(Tensor, value)
+Tensor{T}(value) where {T}  = convert(Tensor{T}, value)
+
 Base.convert(::Type{Tensor{T}}, value::AbstractTensor) where {T} = convert(Tensor{T}, convert(Tensor, value))
 Base.convert(::Type{Tensor}, value) = constant(value)
 Base.convert(::Type{Tensor}, value::Tensor) = value

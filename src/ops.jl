@@ -151,7 +151,7 @@ Returns:
         node = Operation(desc)
         node_name = get_cur_node_name()
         if haskey(graph.shapes, node_name)
-            @error("A shape has already been recorded for $(node_name). Probable duplicate node.")
+            error("A shape has already been recorded for $(node_name). Probable duplicate node.")
         end
         graph.shapes[node_name] = ShapeInference.TensorShape(shape)
     end
