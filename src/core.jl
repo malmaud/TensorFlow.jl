@@ -52,9 +52,9 @@ mutable struct Status
     function Status()
         ptr = @tfcall(:TF_NewStatus, Ptr{Cvoid}, ())
         this = new(ptr)
-        finalizer(this, status->begin
-            @tfcall(:TF_DeleteStatus, Cvoid, (Ptr{Cvoid},), status.ptr)
-        end)
+#        finalizer(this, status->begin
+#            @tfcall(:TF_DeleteStatus, Cvoid, (Ptr{Cvoid},), status.ptr)
+#        end)
         this
     end
 end
@@ -203,9 +203,9 @@ mutable struct Graph
         collections[:QueueRunners] = []
         collections[:while_context] = []
         self = new(ptr, collections, Dict{String, TensorShape}(), Dict{String, Int}(), OperationContext(Vector{Operation}[], String[], tensorflow.WhileContextDef[], Device[], Ref(false)))
-        finalizer(self, self->begin
-            @tfcall(:TF_DeleteGraph, Cvoid, (Ptr{Cvoid},), self.ptr)
-        end)
+#        finalizer(self, self->begin
+#            @tfcall(:TF_DeleteGraph, Cvoid, (Ptr{Cvoid},), self.ptr)
+#        end)
         self
     end
 end
@@ -376,9 +376,9 @@ mutable struct SessionOptions
 end
 
 function set_tf_finalizer(options::SessionOptions)
-    finalizer(options, options->begin
-        @tfcall(:TF_DeleteSessionOptions, Cvoid, (Ptr{Cvoid},), options.ptr)
-    end)
+#    finalizer(options, options->begin
+#        @tfcall(:TF_DeleteSessionOptions, Cvoid, (Ptr{Cvoid},), options.ptr)
+#    end)
     options
 end
 
@@ -485,9 +485,9 @@ mutable struct Session
         ptr = @tfcall(:TF_NewSession, Ptr{Cvoid}, (Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}), graph.ptr, options.ptr, status.ptr)
         this = new(ptr, graph)
         check_status(status)
-        finalizer(this, self->begin
-            close(self)
-        end)
+#        finalizer(this, self->begin
+#            close(self)
+#        end)
         return this
     end
 

@@ -5,7 +5,7 @@ using Distributions
 x = randn(100, 50)
 w = randn(50, 10)
 y_prob = exp.(x*w)
-y_prob ./= sum(y_prob,2)
+y_prob ./= sum(y_prob,dims=2)
 
 function draw(probs)
     y = zeros(size(probs))
