@@ -1,13 +1,0 @@
-  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
-                                 Dload  Upload   Total   Spent    Left  Speed
-  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0 17.2M    0     0    0     0      0      0 --:--:--  0:00:01 --:--:--     0 10 17.2M   10 1790k    0     0   883k      0  0:00:20  0:00:02  0:00:18  883k100 17.2M  100 17.2M    0     0  6308k      0  0:00:02  0:00:02 --:--:-- 6308k
-[ Info: Building TensorFlow.jl for CPU use only. To enable the GPU, set the TF_USE_GPU environment variable to 1 and rebuild TensorFlow.jl
-┌ Error: Python TensorFlow not installed
-│ Please either:
-│  - Rebuild PyCall to use Conda, by running in the julia REPL:
-│     - `ENV["PYTHON"]=""; Pkg.build("PyCall"); Pkg.build("TensorFlow")`
-│  - Or install the python binding yourself, eg by running pip
-│     - `pip install tensorflow`
-│     - then rebuilding TensorFlow.jl via `Pkg.build("TensorFlow")` in the julia REPL
-│     - make sure you run the right pip, for the instance of python that PyCall is looking at.
-└ @ Main ~/.julia/dev/TensorFlow/deps/build.jl:48
