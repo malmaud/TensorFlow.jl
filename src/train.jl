@@ -287,7 +287,7 @@ end
 """
     import_meta_graph
 
-Recreates a Graph saved in a `MetaGraphDef` proto.
+Recreates a Graph saved in a `MetaGraphDef` protocol buffer.
 
 This function takes a `MetaGraphDef` protocol buffer as input. If the argument
 is a file containing a `MetaGraphDef` protocol buffer, it constructs a protocol

@@ -230,7 +230,9 @@ function to_function(op::tensorflow.OpDef)
     end
 
     sig = "$jl_name($(posargs_str)$(kwargs_str))"
-    doc_str = string("     ", sig, "\n\n", op.summary, "\n\n", op.description)
+    doc_str = string("     ", sig, "\n\n",
+                     escape_string(op.summary)
+                    ) #TODO Workout how to get descriptions for docstrings
     expr = unblock(MacroTools.flatten(MacroTools.striplines(expr)))
     OpFunc(expr, doc_str, jl_name)
 end
