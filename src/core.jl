@@ -1239,7 +1239,7 @@ function get_output_type(t::AbstractTensor)
     end
 end
 
-Base.eltype(::Type{AbstractTensor{T}}) where {T} = T
+Base.eltype(::Type{<:AbstractTensor{T}}) where {T} = T
 
 Port(t::Tensor) = Port(t.op.ptr, t.value_index-1)
 Port(op::Operation) = Port(Tensor(op))
