@@ -197,7 +197,7 @@ end
 
 
 """
-    squeeze(x::AbstractTensor, squeeze_dims; name="squeeze")
+    dropdims(x::AbstractTensor, dims; name="squeeze")
 
 Removes dimensions of size 1 from the shape of a tensor.
 Given a tensor `input`, this operation returns a tensor of the same type with
@@ -207,37 +207,37 @@ dimensions, you can remove specific size 1 dimensions by specifying
 For example:
 ```prettyprint
 # 't' is a tensor of shape [1, 2, 1, 3, 1, 1]
-shape(squeeze(t)) ==> [2, 3]
+shape(dropdims(t)) ==> [2, 3]
 ```
 Or, to remove specific size 1 dimensions:
 ```prettyprint
 # 't' is a tensor of shape [1, 2, 1, 3, 1, 1]
-shape(squeeze(t, [3, 5])) ==> [1, 2, 3, 1]
+shape(dropdims(t; dims=[3, 5])) ==> [1, 2, 3, 1]
 ```
 Args:
-  input: A `Tensor`. The `input` to squeeze.
+  input: A `Tensor`. The `input` to dropdims.
   axis: An optional list of `ints`. Defaults to `[]`.
     If specified, only squeezes the dimensions listed. The dimension
     index starts at 1. It is an error to squeeze a dimension that is not 1.
   name: A name for the operation (optional).
-  squeeze_dims: Deprecated keyword argument that is now axis.
+  dims: Deprecated keyword argument that is now axis.
 Returns:
   A `Tensor`. Has the same type as `input`.
   Contains the same data as `input`, but has one or more dimensions of
   size 1 removed.
 Raises:
-  ValueError: When both `squeeze_dims` and `axis` are specified.
+  ValueError: When both `dims` and `axis` are specified.
 """
-@op function Base.squeeze(x::AbstractTensor, squeeze_dims=nothing; kwargs...)
-    if squeeze_dims !== nothing
-        squeeze_dims = squeeze_dims - 1
+@op function Base.dropdims(x::AbstractTensor; dims=nothing, kwargs...)
+    if dims !== nothing
+        dims = dims - 1
     end
-    Ops.squeeze(x; squeeze_dims=squeeze_dims, kwargs...)
+    Ops.squeeze(x; squeeze_dims=dims, kwargs...)
 end
 
 
 """
-Base.rank(n::AbstractTensor; name="")
+LinearAlgebra.rank(n::AbstractTensor; name="")
 
 Returns the rank of a tensor.
 
@@ -260,7 +260,7 @@ A Tensor of type int32.
 
 https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#rank
 """
-@define_unary Base.rank Ops.rank
+@define_unary LinearAlgebra.rank Ops.rank
 
 @op function scatter_nd(indices, updates, shape::TensorFlow.TensorShape; name=nothing)
     if shape.rank_unknown || any(isnull.(shape.dims))
@@ -392,7 +392,7 @@ end
     transpose(n, perm - 1; name=name)
 end
 
-@define_unary Base.ctranspose transpose
+@define_unary Base.adjoint transpose
 
 
 """

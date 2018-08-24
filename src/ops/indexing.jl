@@ -21,7 +21,7 @@ This matchs python TensorFlow `size` operation
 https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#size
 """
 @define_unary Base.length Ops.size
-@define_unary Base.endof length
+@define_unary Base.lastindex length
 
 
 struct TensorRange
@@ -31,7 +31,7 @@ end
 Base.first(tr::TensorRange)=tr.start
 Base.last(tr::TensorRange)=tr.stop
 
-@define_binary Base.colon TensorRange
+@define_binary Base.:(:) TensorRange
 
     
 const Slice = Union{TensorRange, UnitRange, Colon}
@@ -71,7 +71,7 @@ function Base.getindex(params::AbstractTensor, ind1::Union{Slice, Index},  inds:
     end
 
     function proc_ind!(ind::Union{UnitRange, TensorRange})
-        #NOTE: end has (during code lowering) been replace with `endof(X)` or `size(X,d)` giving the actual size
+        #NOTE: end has (during code lowering) been replace with `lastindex(X)` or `size(X,d)` giving the actual size
         begin_ =  first(ind)
         push!(begins, begin_)
         end_ = last(ind)

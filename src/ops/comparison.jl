@@ -22,6 +22,8 @@ for (func, sym) in func_list
     @eval @define_broadcast($sym, $func)
 end
 
-Base.select(condition::AbstractTensor, args...; kwargs...) = Ops.select(condition, args...; kwargs...)
+function select(condition::AbstractTensor, args...; kwargs...)
+    Ops.select(condition, args...; kwargs...)
+end
 
-Base.find(input::AbstractTensor) = Ops.where(input)+1  # Convert from 0-based indices
+Base.findall(input::AbstractTensor) = Ops.where(input)+1  # Convert from 0-based indices
