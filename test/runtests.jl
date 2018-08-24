@@ -1,5 +1,6 @@
 using TensorFlow
 using Test
+import Random
 
 Random.seed!(0)  # Make tests deterministic
 
