@@ -1146,11 +1146,11 @@ function load_proto(value::tensorflow.AttrValue)
 end
 
 """
-    node_name(node::AbstractOperation)
+    node_name(node::Operation)
 
 Returns the name of a node in the computation graph.
 """
-node_name(node::AbstractOperation) = @tfcall(:TF_OperationName, Cstring, (Ptr{Cvoid},), Operation(node).ptr) |> unsafe_string
+node_name(node::Operation) = @tfcall(:TF_OperationName, Cstring, (Ptr{Cvoid},), node.ptr) |> unsafe_string
 
 
 function get_attr_value_proto(node::Operation, attr_name)
