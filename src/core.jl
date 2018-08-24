@@ -560,10 +560,6 @@ function Base.convert(::Type{Array}, buf::Buffer)
     copy(array)
 end
 
-function deallocator(data, len, arg)
-
-end
-
 const c_deallocator = Ref{Ptr}()
 
 """
