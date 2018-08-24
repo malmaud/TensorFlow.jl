@@ -129,7 +129,7 @@ tf_versioninfo
 const pyproc = Ref(0)
 
 function __init__()
-    c_deallocator[] = cfunction(deallocator, Cvoid, (Ptr{Cvoid}, Csize_t, Ptr{Cvoid}))
+    c_deallocator[] = @cfunction(deallocator, Cvoid, (Ptr{Cvoid}, Csize_t, Ptr{Cvoid}))
 end
 
 function load_python_process(;force_reload=false)

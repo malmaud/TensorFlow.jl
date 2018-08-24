@@ -5,13 +5,14 @@ RecordWriter,
 RecordIterator
 
 import TensorFlow
+import Distributed
 const tf = TensorFlow
 
 using Nullables
 using PyCall
 
 struct RecordWriter
-    pyo::Future
+    pyo::Distributed.Future
 end
 
 """
@@ -49,7 +50,7 @@ function Base.close(writer::RecordWriter)
 end
 
 struct RecordIterator
-    pyo::Future
+    pyo::Distributed.Future
 end
 
 struct RecordIteratorState
@@ -89,20 +90,24 @@ function _next(iter::RecordIterator)
     end
 end
 
-function Base.start(iter::RecordIterator)
-    return _next(iter)
+function Base.iterate(iter::RecordIterator, state=_next(iter))
+    isnull(state.val) ? nothing : (get(state.val), _next(iter))
 end
 
-function Base.next(iter::RecordIterator, state)
-    val = get(state.val)
-    return val, _next(iter)
-end
+#function Base.start(iter::RecordIterator)
+#    return _next(iter)
+#end
 
-function Base.done(iter::RecordIterator, state)
-    isnull(state.val)
-end
+#function Base.next(iter::RecordIterator, state)
+#    val = get(state.val)
+#    return val, _next(iter)
+#end
 
-Base.iteratorsize(::Type{RecordIterator}) = Base.SizeUnknown()
-Base.eltype(::Type{RecordIterator}) = Vector{UInt8}
+#function Base.done(iter::RecordIterator, state)
+#    isnull(state.val)
+#end
+
+Base.IteratorSize(::Type{RecordIterator}) = Base.SizeUnknown()
+Base.IteratorEltype(::Type{RecordIterator}) = Vector{UInt8}
 
 end

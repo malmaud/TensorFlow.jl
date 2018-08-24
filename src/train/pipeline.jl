@@ -233,7 +233,7 @@ Creates tasks that run the enqueue operations in `runner` in parallel.
 function create_threads(runner::QueueRunner, sess)
     tasks = Task[]
     for op in runner.enqueue_ops
-        task = @schedule begin
+        task = @async begin
             status = tf.Status()
             while true
                 try

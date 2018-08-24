@@ -22,9 +22,10 @@ QueueRunner,
 create_threads
 
 using Compat
-using JLD
+using JLD2
 using FileIO
 using ProtoBuf
+import Printf
 
 import ..TensorFlow: Graph, Operation, get_def_graph, extend_graph, gradients, variable_scope, ConstantInitializer, node_name, get_variable, get_shape, get_collection, Session, placeholder, Tensor, Variable, cast, group, @not_implemented, AbstractQueue, tensorflow, add_to_collection, get_proto, get_def, @op
 
@@ -216,7 +217,7 @@ end
 function FileIO.save(saver::Saver, session::Session, path; global_step=nothing)
     base_path = basename(path)
     if global_step !== nothing
-        path = @sprintf("%s-%d", path, global_step)
+        path = Printf.@sprintf("%s-%d", path, global_step)
     end
     jldopen(path, "w") do file
         for var_node in saver.var_list

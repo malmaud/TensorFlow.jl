@@ -1,6 +1,7 @@
 using Juno
 using PyCall
 import Juno: Tree, Row, fade, interleave
+import Printf
 
 @render Juno.Inline t::Tensor begin
   s = get_shape(t)
@@ -15,11 +16,11 @@ end
 
 function Base.show(io::IO, s::Status)
     msg = @tfcall(:TF_Message, Cstring, (Ptr{Cvoid},), s.ptr) |> unsafe_string
-    print(io, @sprintf("Status: %s", msg))
+    print(io, Printf.@sprintf("Status: %s", msg))
 end
 
 function Base.show(io::IO, err::TFException)
-    println(io, @sprintf("Tensorflow error: %s", string(err.status)))
+    println(io, Printf.@sprintf("Tensorflow error: %s", string(err.status)))
 end
 
 function Base.show(io::IO, s::Session)

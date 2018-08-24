@@ -1,10 +1,11 @@
 using ProtoBuf
 import TensorFlow
+import Distributed
 const tf = TensorFlow
 import ..TensorFlow: tensorflow, Graph, get_def_graph, @py_proc
 
 struct FileWriter
-    pyo::Future
+    pyo::Distributed.Future
     logdir::String
 end
 
