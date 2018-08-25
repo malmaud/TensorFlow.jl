@@ -10,7 +10,7 @@ const cur_py_version = "1.8.0"
 ############################
 
 if Sys.iswindows()
-    @error("TensorFlow.jl does not support Windows. Please see https://github.com/malmaud/TensorFlow.jl/issues/204")
+    error("TensorFlow.jl does not support Windows. Please see https://github.com/malmaud/TensorFlow.jl/issues/204")
 end
 
 ############################
@@ -45,7 +45,7 @@ else
         # See if it works already
     catch ee
         typeof(ee) <: PyCall.PyError || rethrow(ee)
-        @error("""
+        error("""
 Python TensorFlow not installed
 Please either:
  - Rebuild PyCall to use Conda, by running in the julia REPL:

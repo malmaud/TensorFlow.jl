@@ -30,7 +30,7 @@ end
 @op function clip_by_global_norm(t_list, clip_norm; use_norm=nothing, name=nothing)
     local out, gn
     if isempty(t_list)
-        @error("Must pass at least one tensor to clip_by_global_norm")
+        error("Must pass at least one tensor to clip_by_global_norm")
     end
     clip_tensor(t, ratio) = t .* ratio
     clip_tensor(t::IndexedSlices, ratio) = IndexedSlices(t.values .* ratio, t.indices)
