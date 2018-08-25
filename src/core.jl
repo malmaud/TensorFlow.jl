@@ -38,7 +38,7 @@ macro required(keywords...)
     for keyword in keywords
         push!(blocks, quote
             err_msg = string($(string(keyword)), " is required")
-            $(esc(keyword)) === nothing && @error(err_msg)
+            $(esc(keyword)) === nothing && error(err_msg)
         end)
     end
     quote
@@ -80,7 +80,7 @@ Device() = Device(DevicePart[])
 
 function DevicePart(s::AbstractString)
     parts = split(s, ":")
-    length(parts) == 2 || @error("Invalid device: $s")
+    length(parts) == 2 || error("Invalid device: $s")
     name = String(parts[1])
     index_part = String(parts[2])
     maybe_index = tryparse(Int, index_part)
@@ -227,7 +227,7 @@ function with_def_graph(ex)
             body_
         end
     end) ||
-    @error("Improper use of with_def_graph")
+    error("Improper use of with_def_graph")
     (kwargs === nothing) && (kwargs = [])
     new_args = args[2:end]
     quote
@@ -740,7 +740,7 @@ function RawTensor(data::Array{String}, is_scalar=false)
         c_deallocator[],
         C_NULL)
     if ptr == C_NULL
-        @error("Error creating tensor")
+        error("Error creating tensor")
     end
 
     t.ptr = ptr
