@@ -1158,7 +1158,7 @@ function get_attr_value_proto(node::Operation, attr_name)
     status = Status()
     @tfcall(:TF_OperationGetAttrValueProto, Cvoid, (Ptr{Cvoid}, Cstring, Ptr{Cvoid}, Ptr{Cvoid}), node.ptr, attr_name, buf.ptr, status.ptr)
     check_status(status)
-    proto = Array(buf)
+    proto = convert(Array, buf)
     b = IOBuffer()
     write(b, proto)
     seekstart(b)
@@ -1209,12 +1209,9 @@ Base.convert(::Type{Tensor}, value::Tensor) = value
 
 Base.convert(::Type{Tensor{T}}, value::Tensor{R}) where {T, R} = cast(value, T)
 Base.convert(::Type{Tensor{T}}, value::Tensor{T}) where {T} = value
-Base.convert(::Type{Tensor{Any}}, value::Tensor{R}) where {R} = convert(Tensor, value)
-Base.convert(::Type{Tensor{Any}}, value::Tensor{Any}) = value
+Base.convert(::Type{Tensor{Any}}, value::Tensor{R}) where {R} = value
 
-function Base.convert(::Type{Tensor{T}}, value) where T
-    convert(Tensor{T}, constant(value))
-end
+Base.convert(::Type{Tensor{T}}, value) where {T} =  convert(Tensor{T}, constant(value))
 
 function operation_output_type(port::Port)
     @tfcall(:TF_OperationOutputType, TF_DataType, (Port,), port)
@@ -1226,10 +1223,12 @@ function get_output_type(t::AbstractTensor)
         local dtype
         try
             dtype = get_op(t)["T"]._type
-        catch
+        catch err1
+            err1 isa TFException || rethrow(err1)
             try
                 dtype = get_op(t)["dtype"]._type
-            catch
+            catch err2
+                err2 isa TFException || rethrow(err2)
                 return Any
             end
         end

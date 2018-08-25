@@ -69,9 +69,11 @@ function Variable(initial_value; name="", trainable=true, literal_name=false)
     if !literal_name
         name = tf.get_name(name)
     end
-    self.var_node = tf.Ops.variable_v2(name=name, dtype=eltype(initial_value), shape=tf.TensorShape([size(initial_value)...]))
+    self.var_node = tf.Ops.variable_v2(name=name,
+                                       dtype=eltype(initial_value),
+                                       shape=tf.TensorShape([size(initial_value)...]))
 
-    self.assign_node = tf.Ops.assign(tf.Tensor(self.var_node), initial_value, name="$name/Assign")
+    self.assign_node = tf.Ops.assign(self.var_node, initial_value, name="$name/Assign")
     tf.add_to_collection(:Variables, self)
     if trainable
         tf.add_to_collection(:TrainableVariables, self)
