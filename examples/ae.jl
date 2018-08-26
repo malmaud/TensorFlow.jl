@@ -23,8 +23,8 @@ end
 num_features = 28^2
 
 
-include(Pkg.dir("TensorFlow","examples","mnist_loader.jl"))
-include(Pkg.dir("TensorFlow","src","layers","fully_connected.jl"))
+include(joinpath(dirname(pathof(TensorFlow)), "..", "examples","mnist_loader.jl"))
+include(joinpath(dirname(pathof(TensorFlow)), "..", "src","layers","fully_connected.jl"))
 loader = DataLoader()
 session = Session(Graph())
 
