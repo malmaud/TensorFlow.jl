@@ -1,5 +1,6 @@
 using TensorFlow
 using Test
+import LinearAlgebra
 
 sess = TensorFlow.Session(TensorFlow.Graph())
 a_raw = rand(10, 10)
@@ -10,10 +11,10 @@ result = run(sess, clamp(a, 0.3, 0.7))
 a_raw = rand(10)
 a = TensorFlow.constant(a_raw)
 result = run(sess, TensorFlow.clip_by_norm(a, 1.))
-@test normalize(a_raw) ≈ result
+@test LinearAlgebra.normalize(a_raw) ≈ result
 
 b_raw = rand(10)
 b = TensorFlow.constant(b_raw)
 result = run(sess, TensorFlow.global_norm([a,b]))
-gn = hypot(norm(a_raw), norm(b_raw))
+gn = hypot(LinearAlgebra.norm(a_raw), LinearAlgebra.norm(b_raw))
 @test gn ≈ result

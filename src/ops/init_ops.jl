@@ -6,6 +6,14 @@ function Base.rand(c::ConstantInitializer, shape...)
     fill(c.value, shape)
 end
 
+function Base.rand(c::ConstantInitializer, shape::Integer...)
+    fill(c.value, shape)
+end
+
+#function rand(c::ConstantInitializer, shape::Integer, shapes::Integer...)
+#	fill(c.value, [shape, shapes...]...)
+#end
+
 """
     zeros_initializer(dtype=Float32)
 

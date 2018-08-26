@@ -1615,7 +1615,7 @@ end
 
     status = Status()
     buffer = Buffer(graph_def)
-    output_ports = Vector{Port}(length(options.return_output))
+    output_ports = Vector{Port}(undef, length(options.return_output))
     
     @tfcall(:TF_GraphImportGraphDefWithReturnOutputs, Cvoid,
         (Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Cint, Ptr{Cvoid}),

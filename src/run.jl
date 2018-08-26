@@ -112,10 +112,10 @@ function run(sess::Session, inputs, input_values, outputs, targets)
             if eltype(tensor) == String
                 String(tensor)
             else
-                Number(tensor)
+                convert(Number, tensor)
             end
         else
-            Array(tensor)
+            convert(Array, tensor)
         end
     end
     return [as_native(RawTensor(x)) for x in output_values]

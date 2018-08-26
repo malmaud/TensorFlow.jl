@@ -1,5 +1,6 @@
 using TensorFlow
 using Distributions
+using Printf
 
 # Generate some synthetic data
 x = randn(100, 50)

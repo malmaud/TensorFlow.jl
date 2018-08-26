@@ -179,7 +179,7 @@ function apply_gradients(optimizer::AdamOptimizer, grads_and_vars; global_step=n
             push!(ops, tf.scatter_update(v.var_node, grad.indices, v_new))
         else
             m_new = β1 .* m + (1-β1).*grad
-            v_new = β2 .* v + (1-β2).*(grad.^2)
+            v_new = β2 .* v + (1-β2).*(grad.*grad)
             push!(ops, tf.assign_sub(var, lr/(sqrt(v_new)+ϵ) .* m_new))
             push!(ops, tf.assign(m, m_new))
             push!(ops, tf.assign(v, v_new))
