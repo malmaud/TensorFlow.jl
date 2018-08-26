@@ -1,3 +1,5 @@
+import Pkg
+
 """
     tf_version(kind=:backend)
 
@@ -18,7 +20,7 @@ function tf_version(; kind=:backend)
     elseif kind == :julia
         return Pkg.installed("TensorFlow")
     else
-        @error("Kind '$kind' not recognized")
+        error("Kind '$kind' not recognized")
     end
     # Deal with version strings like "0.12.head"
     res = replace(res, r"\.head$"=>"")
@@ -27,7 +29,7 @@ end
 
 function version_check(v)
     if tf_version() < v
-        @error("You have TensorFlow binary version $(tf_version()), but need version $v to use this functionality. Please upgrade with `Pkg.build(\"TensorFlow\").")
+        error("You have TensorFlow binary version $(tf_version()), but need version $v to use this functionality. Please upgrade with `Pkg.build(\"TensorFlow\").")
     end
 end
 

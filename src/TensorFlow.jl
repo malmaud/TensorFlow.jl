@@ -126,6 +126,9 @@ import_op,
 @tfimport,
 tf_versioninfo
 
+
+using Distributed
+
 const pyproc = Ref(0)
 
 function deallocator(data, len, arg)

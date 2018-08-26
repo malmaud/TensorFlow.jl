@@ -38,7 +38,7 @@ macro required(keywords...)
     for keyword in keywords
         push!(blocks, quote
             err_msg = string($(string(keyword)), " is required")
-            $(esc(keyword)) === nothing && @error(err_msg)
+            $(esc(keyword)) === nothing && error(err_msg)
         end)
     end
     quote
@@ -80,7 +80,7 @@ Device() = Device(DevicePart[])
 
 function DevicePart(s::AbstractString)
     parts = split(s, ":")
-    length(parts) == 2 || @error("Invalid device: $s")
+    length(parts) == 2 || error("Invalid device: $s")
     name = String(parts[1])
     index_part = String(parts[2])
     maybe_index = tryparse(Int, index_part)
@@ -227,7 +227,7 @@ function with_def_graph(ex)
             body_
         end
     end) ||
-    @error("Improper use of with_def_graph")
+    error("Improper use of with_def_graph")
     (kwargs === nothing) && (kwargs = [])
     new_args = args[2:end]
     quote
@@ -740,7 +740,7 @@ function RawTensor(data::Array{String}, is_scalar=false)
         c_deallocator[],
         C_NULL)
     if ptr == C_NULL
-        @error("Error creating tensor")
+        error("Error creating tensor")
     end
 
     t.ptr = ptr
@@ -1158,7 +1158,7 @@ function get_attr_value_proto(node::Operation, attr_name)
     status = Status()
     @tfcall(:TF_OperationGetAttrValueProto, Cvoid, (Ptr{Cvoid}, Cstring, Ptr{Cvoid}, Ptr{Cvoid}), node.ptr, attr_name, buf.ptr, status.ptr)
     check_status(status)
-    proto = Array(buf)
+    proto = convert(Array, buf)
     b = IOBuffer()
     write(b, proto)
     seekstart(b)
@@ -1209,12 +1209,9 @@ Base.convert(::Type{Tensor}, value::Tensor) = value
 
 Base.convert(::Type{Tensor{T}}, value::Tensor{R}) where {T, R} = cast(value, T)
 Base.convert(::Type{Tensor{T}}, value::Tensor{T}) where {T} = value
-Base.convert(::Type{Tensor{Any}}, value::Tensor{R}) where {R} = convert(Tensor, value)
-Base.convert(::Type{Tensor{Any}}, value::Tensor{Any}) = value
+Base.convert(::Type{Tensor{Any}}, value::Tensor{R}) where {R} = value
 
-function Base.convert(::Type{Tensor{T}}, value) where T
-    convert(Tensor{T}, constant(value))
-end
+Base.convert(::Type{Tensor{T}}, value) where {T} =  convert(Tensor{T}, constant(value))
 
 function operation_output_type(port::Port)
     @tfcall(:TF_OperationOutputType, TF_DataType, (Port,), port)
@@ -1226,10 +1223,12 @@ function get_output_type(t::AbstractTensor)
         local dtype
         try
             dtype = get_op(t)["T"]._type
-        catch
+        catch err1
+            err1 isa TFException || rethrow(err1)
             try
                 dtype = get_op(t)["dtype"]._type
-            catch
+            catch err2
+                err2 isa TFException || rethrow(err2)
                 return Any
             end
         end

@@ -48,7 +48,7 @@ end
 
 @testset "$f" for f in [max,min]
     @testset "$xs against scalar" for xs in [:k, :m, :n, :i]
-        x = eval(xs)
+        x = Core.eval(Main, xs)
         @test get_shape(f(x,i)) == get_shape(x)
         @test get_shape(f(x,x)) == get_shape(x)
     end

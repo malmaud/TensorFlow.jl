@@ -111,7 +111,7 @@ all elements but all later dimensions may vary.
 * `scope`: `VariableScope` for the subgraph. Defaults to `RNN`.
 """
 function dynamic_rnn(cell, inputs, sequence_length=nothing; initial_state=nothing, dtype=nothing, parallel_iterations=nothing, swap_memory=false, time_major=false, scope="RNN")
-    @error("Dynamic RNNs are not implemented.")
+    error("Dynamic RNNs are not implemented.")
     #==
     input_dim = tf.get_shape(inputs, 3)
     #TODO Make this all work with non-3D inputs

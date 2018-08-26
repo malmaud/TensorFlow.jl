@@ -26,7 +26,7 @@ macro op(f)
             (opname_(args__) = body_) => opname
         end
     end
-    opname === nothing && @error("Invalid usage of @op")
+    opname === nothing && error("Invalid usage of @op")
     
     already_registered = opname ∈ registered_ops
     push!(registered_ops, opname)
@@ -85,10 +85,10 @@ function tf_while(ex)
         while cond_
             block_
         end
-    end) || @error("tf_while expects a `while` loop")
+    end) || error("tf_while expects a `while` loop")
 
     return_val = block.args[end]
-    loop_err() = @error("loop must end with a list of pairs")
+    loop_err() = error("loop must end with a list of pairs")
     (@capture return_val [return_items__]) || loop_err()
 
     # derive the variables involved from the last expression

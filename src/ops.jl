@@ -58,11 +58,11 @@ macro not_implemented(ff)
     if @capture(ff, function name_(args__) body__ end)
         quote
             function $(esc(name))(args...)
-                @error("Not implemented yet")
+                error("Not implemented yet")
             end
         end
     else
-        @error("Invalid use of not_implemented")
+        error("Invalid use of not_implemented")
     end
 end
 
@@ -84,7 +84,7 @@ function tfimport(expr)
                 $(esc(jlname)) = import_op($(string(fname)))
             end
         else
-            @error("Invalid use of @tfimport on $(expr)")
+            error("Invalid use of @tfimport on $(expr)")
         end
     end
 end
