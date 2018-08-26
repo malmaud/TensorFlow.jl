@@ -1,8 +1,8 @@
-import InteractiveUtils #less
+#import InteractiveUtils #less
 
 import .Ops: equal, not_equal, less_equal, greater, greater_equal, where
 
-InteractiveUtils.less(x::AbstractTensor, y::AbstractTensor; kwargs...) = Ops.less(x, y; kwargs...)
+less(x::AbstractTensor, y::AbstractTensor; kwargs...) = Ops.less(x, y; kwargs...)
 
 const func_list = [
     (:less, :<),

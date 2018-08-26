@@ -84,11 +84,7 @@ function DevicePart(s::AbstractString)
     name = String(parts[1])
     index_part = String(parts[2])
     maybe_index = tryparse(Int, index_part)
-    if isnull(maybe_index)
-        index = index_part
-    else
-        index = get(maybe_index)
-    end
+    index=something(maybe_index, index_part)
     DevicePart(name, index)
 end
 
@@ -663,7 +659,7 @@ end
 
 function tf_string_encode(src::Vector{UInt8})
     dest_length = @tfcall(:TF_StringEncodedSize, Csize_t, (Csize_t,), length(src)) |> Int
-    dest = Vector{UInt8}(dest_length)
+    dest = Vector{UInt8}(undef, dest_length)
     status = Status()
     @tfcall(:TF_StringEncode, Csize_t,
         (Ptr{Cvoid}, Csize_t, Ptr{Cvoid}, Csize_t, Ptr{Cvoid}),
@@ -871,7 +867,7 @@ end
 
 function get_control_inputs(op::Operation)
     N = get_num_control_inputs(op)
-    ptrs = Vector{Ptr{Cvoid}}(N)
+    ptrs = Vector{Ptr{Cvoid}}(undef, N)
     N_out = @tfcall(:TF_OperationGetControlInputs, Cint, (Ptr{Cvoid}, Ptr{Ptr{Cvoid}}, Cint),
                     op.ptr, ptrs, N)
     out = Vector{Operation}()
@@ -931,7 +927,7 @@ end
 
 function get_attr(op::Operation, attr, ::Type{Vector{Int}})
     meta = get_attr_metadata(op, attr)
-    out = Vector{Int}(meta.list_size)
+    out = Vector{Int}(undef, meta.list_size)
     status = Status()
     @tfcall(:TF_OperationGetAttrIntList, Cvoid, (Ptr{Cvoid}, Cstring, Ptr{Int}, Cint, Ptr{Cvoid}), op.ptr, attr, out, length(out), status.ptr)
     check_status(status)
@@ -940,7 +936,7 @@ end
 
 function get_attr(op::Operation, attr, ::Type{String})
     meta = get_attr_metadata(op, attr)
-    out = Vector{UInt8}(meta.total_size)
+    out = Vector{UInt8}(undef, meta.total_size)
     status = Status()
     @tfcall(:TF_OperationGetAttrString, Cvoid, (Ptr{Cvoid}, Cstring, Ptr{UInt8}, Cint, Ptr{Cvoid}), op.ptr, attr, out, length(out), status.ptr)
     check_status(status)
@@ -1366,10 +1362,10 @@ function Base.convert(::Type{Array}, t::RawTensor)
         array = unsafe_wrap(Array, convert(Ptr{UInt8}, data), sizeof(t))
         b = IOBuffer(array)
         seekstart(b)
-        read(b, UInt64, prod(d))  # The offsets
+        read(b, prod(d))  # The offsets
         for i in 1:prod(d)
             len = varint_decode(b)
-            raw_data = read(b, UInt8, len)
+            raw_data = read(b, len)
             push!(out, String(raw_data))
         end
         out

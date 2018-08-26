@@ -1,6 +1,6 @@
 using Test
 using TensorFlow
-
+import LinearAlgebra
 
 @testset "identity and make_tuple" begin
     sess = Session(Graph())
@@ -17,7 +17,7 @@ end
     y = constant(5)
     f1 = ()->17x
     f2 = ()->y+23
-    result = run(sess, cond(x<y, f1, f2))
+    result = run(sess, LinearAlgebra.cond(x<y, f1, f2))
     @test 17*2 == result
     @test_broken begin
         inc = constant(1)

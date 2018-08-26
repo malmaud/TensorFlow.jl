@@ -110,7 +110,7 @@ function run(sess::Session, inputs, input_values, outputs, targets)
     as_native = tensor->begin
         if ndims(tensor) == 0
             if eltype(tensor) == String
-                String(tensor)
+                convert(String, tensor)
             else
                 convert(Number, tensor)
             end
