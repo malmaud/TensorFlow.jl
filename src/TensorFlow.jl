@@ -145,8 +145,9 @@ function load_python_process(;force_reload=false)
         addprocs(1)
         pyproc[] = nprocs()
         py_file = joinpath(dirname(@__FILE__), "py.jl")
-        eval(Main, quote
+        Base.eval(Main, quote
             # These have to be split for unclear reasons on .6
+            using Distributed
             remotecall_wait($(pyproc[]), $py_file) do py_file
                 include(py_file)
             end
@@ -157,7 +158,7 @@ function load_python_process(;force_reload=false)
         py_version_check()
         return pyproc[]
     else
-        remotecall_fetch(1) do
+        Distributed.remotecall_fetch(1) do
             load_python_process()
         end
     end
@@ -175,7 +176,7 @@ Returns a future to the result.
 """
 macro py_proc(expr)
     quote
-        eval(Main, quote
+        Base.eval(Main, quote
             remotecall_wait($(TensorFlow.load_python_process())) do
                 $($(Expr(:quote, expr)))
             end

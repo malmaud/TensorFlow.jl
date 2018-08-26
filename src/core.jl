@@ -1492,8 +1492,8 @@ ys and xs are each a Tensor or a list of tensors. grad_ys is a list of Tensor, h
 gradients() adds ops to the graph to output the partial derivatives of ys with respect to xs. It returns a list of Tensor of length len(xs) where each tensor is the sum(dy/dx) for y in ys.
 
 `grad_ys` is a tensor or list of tensors which holds the initial gradients for each y in ys.
-If `ys` is a single tensor `grad_ys` must be a single tensor; if `ys` is a list of tensors then likewise `grad_ys` must be a list of the smae size.
-When `grad_ys` is `nothing`, it is effectiely defaulted to a tensor of '1's of the shape of y for each y in ys.
+If `ys` is a single tensor `grad_ys` must be a single tensor; if `ys` is a list of tensors then likewise `grad_ys` must be a list of the same size.
+When `grad_ys` is `nothing`, it is effectively defaulted to a tensor of '1's of the shape of y for each y in ys.
 `grad_ys` can be partialy specified, with some gradients given and others left to default, py passing their values as  `nothing`.
 A user can provide their own initial `grad_ys` to compute the derivatives using a different initial gradient for each y (e.g., if one wanted to weight the gradient differently for each value in each y).
 
