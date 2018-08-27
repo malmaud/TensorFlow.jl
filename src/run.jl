@@ -110,8 +110,6 @@ function run(sess::Session, inputs, input_values, outputs, targets)
 
     map(output_values) do x
         tensor = RawTensor(x)
-        @show x
-        @show tensor
         if ndims(tensor) == 0
             if eltype(tensor) == String
                 convert(String, tensor)

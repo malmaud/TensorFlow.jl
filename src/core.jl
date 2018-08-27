@@ -1362,7 +1362,7 @@ function Base.convert(::Type{Array}, t::RawTensor)
         array = unsafe_wrap(Array, convert(Ptr{UInt8}, data), sizeof(t))
         b = IOBuffer(array)
         seekstart(b)
-        read(b, UInt64, prod(d))  # The offsets
+        read(b, sizeof(Int64)*prod(d))  # The offsets
         for i in 1:prod(d)
             len = varint_decode(b)
             raw_data = read(b, len)
