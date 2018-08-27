@@ -269,7 +269,7 @@ end
 
 const DEBUG_EXTEND_GRAPH = false
 
-function Base.convert(::Type{tensorflow.NodeDef}, proto::Vector{UInt8})
+function Base.convert(::Type{tensorflow.NodeDef}, proto::DenseVector{UInt8})
     b = IOBuffer()
     write(b, proto)
     seekstart(b)
