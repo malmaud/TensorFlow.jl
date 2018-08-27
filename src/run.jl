@@ -107,7 +107,11 @@ function run(sess::Session, inputs, input_values, outputs, targets)
         C_NULL,
         status.ptr)
     check_status(status)
-    as_native = tensor->begin
+
+    map(output_values) do x
+        tensor = RawTensor(x)
+        @show x
+        @show tensor
         if ndims(tensor) == 0
             if eltype(tensor) == String
                 convert(String, tensor)
@@ -118,7 +122,6 @@ function run(sess::Session, inputs, input_values, outputs, targets)
             convert(Array, tensor)
         end
     end
-    return [as_native(RawTensor(x)) for x in output_values]
 end
 
 function cast_type(T, val::AbstractArray{<:Number})

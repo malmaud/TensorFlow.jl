@@ -657,7 +657,7 @@ function varint_decode(b::IO)
     return n
 end
 
-function tf_string_encode(src::Vector{UInt8})
+function tf_string_encode(src::DenseVector{UInt8})
     dest_length = @tfcall(:TF_StringEncodedSize, Csize_t, (Csize_t,), length(src)) |> Int
     dest = Vector{UInt8}(undef, dest_length)
     status = Status()
@@ -668,9 +668,9 @@ function tf_string_encode(src::Vector{UInt8})
     dest
 end
 
-tf_string_encode(src) = tf_string_encode(Vector{UInt8}(src))
+tf_string_encode(src) = tf_string_encode(codeunits(src))
 
-function tf_string_decode(src::Vector{UInt8})
+function tf_string_decode(src::DenseVector{UInt8})
     status = Status()
     dst = Ref{Ptr{UInt8}}()
     dst_len = Ref{Csize_t}()
@@ -681,7 +681,7 @@ function tf_string_decode(src::Vector{UInt8})
     copy(unsafe_wrap(Array, dst[], Int(dst_len[])))
 end
 
-tf_string_decode(src) = tf_string_decode(Vector{UInt8}(src))
+tf_string_decode(src) = tf_string_decode(codeunits(src))
 tf_string_decode(T, src) = T(tf_string_decode(src))
 
 # cf this section of c_api.h in upstream tensorflow/c_api.h

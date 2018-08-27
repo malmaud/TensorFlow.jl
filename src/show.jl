@@ -31,12 +31,12 @@ function Base.show(io::IO, t::RawTensor)
     print(io, "RawTensor: ")
     if ndims(t) == 0
         if eltype(t) == String
-            show(io, String(t))
+            show(io, convert(String, t))
         else
-            show(io, Number(t))
+            show(io, convert(Number, t))
         end
     else
-        show(io, Array(t))
+        show(io, convert(Array, t))
     end
 end
 

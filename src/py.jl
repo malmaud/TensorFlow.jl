@@ -21,11 +21,11 @@ function py_with(f, ctx_mngr)
     ctx_mngr[:__exit__](nothing, nothing, nothing)
 end
 
-function py_bytes(b::Vector{UInt8})
+function py_bytes(b::DenseVector{UInt8})
     PyCall.PyObject(ccall(@PyCall.pysym(PyCall.PyString_FromStringAndSize), PyCall.PyPtr, (Ptr{UInt8}, Int), b, sizeof(b)))
 end
 
-py_bytes(s::AbstractString) = py_bytes(Vector{UInt8}(s))
+py_bytes(s::AbstractString) = py_bytes(codeunits(s))
 
 macro py_catch(ex)
     target = @match ex begin
@@ -65,7 +65,7 @@ function to_protos(py_graph)
     protos = []
     for node_idx in 1:n_nodes
         node_py = nodes[node_idx]
-        proto = Vector{UInt8}(node_py[:SerializeToString]())
+        proto = codeunits(node_py[:SerializeToString]())
         push!(protos, proto)
     end
     return protos
