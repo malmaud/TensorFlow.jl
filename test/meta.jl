@@ -1,6 +1,5 @@
 using Test
 using TensorFlow
-using Distributions
 
 @testset "Registering Ops" begin
 

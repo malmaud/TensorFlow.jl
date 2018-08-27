@@ -27,9 +27,8 @@ import .tf.Ops:
     scatter_mul,
     scatter_div
 
-using Nullables
-
 import Distributions
+using Nullables
 
 mutable struct Variable{T} <: tf.AbstractTensor{T}
     var_node::tf.Tensor{T}
@@ -69,11 +68,9 @@ function Variable(initial_value; name="", trainable=true, literal_name=false)
     if !literal_name
         name = tf.get_name(name)
     end
-    self.var_node = tf.Ops.variable_v2(name=name,
-                                       dtype=eltype(initial_value),
-                                       shape=tf.TensorShape([size(initial_value)...]))
+    self.var_node = tf.Ops.variable_v2(name=name, dtype=eltype(initial_value), shape=tf.TensorShape([size(initial_value)...]))
 
-    self.assign_node = tf.Ops.assign(self.var_node, initial_value, name="$name/Assign")
+    self.assign_node = tf.Ops.assign(tf.Tensor(self.var_node), initial_value, name="$name/Assign")
     tf.add_to_collection(:Variables, self)
     if trainable
         tf.add_to_collection(:TrainableVariables, self)
@@ -141,6 +138,14 @@ end
 get_dims(t::tf.TensorShape) = map(get, t.dims)
 get_dims(x) = x
 
+struct NormalInitializer
+    sd::Float64
+end
+
+NormalInitializer() = NormalInitializer(.01)
+
+Base.rand(rng::NormalInitializer, shape...) = rng.sd * randn(shape)
+
 """
 Gets an existing variable with these parameters (`shape`, `dtype`, `trainable`)
 or create a new one.
@@ -153,7 +158,7 @@ function tf.get_variable(var_name, shape, dtype; trainable=true, kwargs...)
         push!(scope_stack, scope)
         name = join([get(x.name) for x in scope_stack], "/")
         try
-            initializer = Distributions.Normal(0, .01)
+            initializer = NormalInitializer()
             reuse = false
             for scope in scope_stack
                 if !isnull(scope.initializer)
