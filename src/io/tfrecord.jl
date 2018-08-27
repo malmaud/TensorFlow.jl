@@ -80,7 +80,7 @@ function _next(iter::RecordIterator)
         end
         RecordIteratorState(Nullable(record))
     catch err
-        if isa(err, RemoteException) && isa(err.captured.ex, PyCall.PyError)
+        if isa(err, Distributed.RemoteException) && isa(err.captured.ex, PyCall.PyError)
             # Only catch it, if it could be an  StopIteration exception thrown in python
             # which signifies the end of iteration being reached normally
             RecordIteratorState(Nullable())
@@ -107,7 +107,10 @@ end
 #    isnull(state.val)
 #end
 
-Base.IteratorSize(::Type{RecordIterator}) = Base.SizeUnknown()
-Base.IteratorEltype(::Type{RecordIterator}) = Vector{UInt8}
+#Base.IteratorSize(::RecordIterator) = Base.SizeUnknown()
+#Base.IteratorEltype(::RecordIterator) = Vector{UInt8}
+
+Base.IteratorSize(::RecordIterator) = Base.SizeUnknown()
+Base.eltype(::RecordIterator) = Vector{UInt8}
 
 end

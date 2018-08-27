@@ -29,9 +29,9 @@ convert_eltype(x, dtype) = x
 end
 
 for f in [:zeros, :ones]
-    @eval Base.$f(::Type{Tensor}, args...) = $f(Tensor{Float32}, args...)
+    @eval Base.$f(::Type{Tensor}, args::Integer...) = $f(Tensor{Float32}, args...)
     @eval Base.$f(::Type{Tensor}, args::Tuple) = $f(Tensor, args...)
-    @eval Base.$f(::Type{Tensor{T}}, args...) where {T} = constant($f(T, args...))
+    @eval Base.$f(::Type{Tensor{T}}, args::Integer...) where {T} = constant($f(T, args...))
     @eval Base.$f(::Type{Tensor{T}}, args::Tuple) where {T} = constant($f(T, args))
 end
 

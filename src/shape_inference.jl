@@ -551,7 +551,7 @@ register_shape("ExpandDims") do op
 end
 
 function conv_sizer(widths, strides, filter_shape)
-    pos = ones(length(widths))
+    pos = ones(Int64, length(widths))
     while true
         while true
             if pos[1] + filter_shape[1] > widths[1]
@@ -566,7 +566,7 @@ function conv_sizer(widths, strides, filter_shape)
         end
         pos[2] += strides[2]
     end
-    return div.(pos-1, strides)+1
+    return div.(pos.-1, strides).+1
 end
 
 register_shape("Conv2D") do op
@@ -633,7 +633,7 @@ register_shape("MaxPool") do op
                 push!(dims, Nullable{Int}())
             end
         else
-            new_dims = 1+conv_sizer([get(input_shape.dims[2]), get(input_shape.dims[3])], [strides[2], strides[3]], [ksize[2], ksize[3]])
+            new_dims = 1 .+ conv_sizer([get(input_shape.dims[2]), get(input_shape.dims[3])], [strides[2], strides[3]], [ksize[2], ksize[3]])
             for i in 1:2
                 push!(dims, Nullable(new_dims[i]))
             end

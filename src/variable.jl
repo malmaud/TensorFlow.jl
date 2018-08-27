@@ -144,7 +144,7 @@ end
 
 NormalInitializer() = NormalInitializer(.01)
 
-Base.rand(rng::NormalInitializer, shape...) = rng.sd * randn(shape)
+Base.rand(rng::NormalInitializer, shape::Integer...) = rng.sd * randn(shape)
 
 """
 Gets an existing variable with these parameters (`shape`, `dtype`, `trainable`)
