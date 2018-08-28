@@ -914,7 +914,7 @@ function get_attr(op::Operation, attr, ::Type{Array})
     status = Status()
     @tfcall(:TF_OperationGetAttrTensor, Cvoid, (Ptr{Cvoid}, Cstring, Ptr{Ptr{Cvoid}}, Ptr{Cvoid}), op.ptr, attr, out, status.ptr)
     check_status(status)
-    Array(RawTensor(out[]))
+    convert(Array, RawTensor(out[]))
 end
 
 function get_attr(op::Operation, attr, ::Type{Bool})
@@ -1591,13 +1591,13 @@ end
             (Ptr{Cvoid}, Cstring, Cint, Port),
             options_ptr, input_name, input_port-1, Port(tensor))
     end
-    
+
     for (output_name, output_port) in options.return_output
         @tfcall(:TF_ImportGraphDefOptionsAddReturnOutput, Cvoid,
             (Ptr{Cvoid}, Cstring, Cint),
             options_ptr, output_name, output_port-1)
     end
-    
+
     for operation in options.control_dependencies
         @tfcall(:TF_ImportGraphDefOptionsAddControlDependency, Cvoid,
             (Ptr{Cvoid}, Ptr{Cvoid}),
@@ -1612,13 +1612,13 @@ end
     status = Status()
     buffer = Buffer(graph_def)
     output_ports = Vector{Port}(undef, length(options.return_output))
-    
+
     @tfcall(:TF_GraphImportGraphDefWithReturnOutputs, Cvoid,
         (Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Cint, Ptr{Cvoid}),
         graph.ptr, buffer.ptr, options_ptr, output_ports, length(output_ports), status.ptr)
-    
+
     check_status(status)
-    
+
     @tfcall(:TF_DeleteImportGraphDefOptions, Cvoid, (Ptr{Cvoid},), options_ptr)
     output_tensors = map(Tensor, output_ports)
     output_tensors

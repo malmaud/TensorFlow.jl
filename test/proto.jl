@@ -4,5 +4,5 @@ using TensorFlow: load_proto
 
 let
     t = get_def(constant("test")).attr["value"].tensor
-    @test Array(load_proto(t)) == Vector{UInt8}("test")
+    @test convert(Array, load_proto(t)) == Vector{UInt8}("test")
 end

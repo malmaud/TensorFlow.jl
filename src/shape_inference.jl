@@ -257,7 +257,7 @@ function load_const(op)
     if op.op_name == "Const"
         local value
         try
-            value = Array(tf.load_proto(get_def(op).attr["value"]))
+            value = convert(Array, tf.load_proto(get_def(op).attr["value"]))
         catch err
             if isa(err, tf.EmptyTensorError)
                 T = eltype(Tensor(op, 1))
@@ -705,7 +705,7 @@ register_shape("Pad") do op
     if paddings.op.op_name != "Const"
         return [TensorShape([Nullable{Int}() for dim in 1:length(tensor_shape.dims)])]
     end
-    padding_value = Array(tf.load_proto(padding.attrs["value"]))  # TODO: this might be transposed
+    padding_value = convert(Array, tf.load_proto(padding.attrs["value"]))  # TODO: this might be transposed
     for dim in 1:length(tensor_shape.dims)
         if isnull(tensor_shape.dims[dim])
             continue
