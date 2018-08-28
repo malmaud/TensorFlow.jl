@@ -30,9 +30,9 @@ end
 
 for f in [:zeros, :ones]
     @eval Base.$f(::Type{Tensor}, args::Integer...) = $f(Tensor{Float32}, args...)
-    @eval Base.$f(::Type{Tensor}, args::Tuple) = $f(Tensor, args...)
+    @eval Base.$f(::Type{Tensor}, args::NTuple{N, Integer}) where N = $f(Tensor, args...)
     @eval Base.$f(::Type{Tensor{T}}, args::Integer...) where {T} = constant($f(T, args...))
-    @eval Base.$f(::Type{Tensor{T}}, args::Tuple) where {T} = constant($f(T, args))
+    @eval Base.$f(::Type{Tensor{T}}, args::NTuple{N, Integer}) where {T, N} = constant($f(T, args))
 end
 
 @op function random_normal(shape; mean=0.0, stddev=1.0, dtype=Float32, name=nothing, kwargs...)

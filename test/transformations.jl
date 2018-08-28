@@ -1,6 +1,7 @@
 using TensorFlow
 using Test
-
+using Random
+import LinearAlgebra
 
 sess = TensorFlow.Session(TensorFlow.Graph())
 
@@ -8,7 +9,7 @@ one_tens = ones(Tensor, (5,5))
 
 @test [1, 2] == run(sess, cast(constant([1.8, 2.2]), Int))
 @test ones(25) == run(sess, reshape(one_tens, 25))
-@test 2 == run(sess, rank(one_tens))
+@test 2 == run(sess, LinearAlgebra.rank(one_tens))
 @test ones(10,5) == run(sess, tile(one_tens, [2; 1]))
 @test hcat(ones(Float32, 5,5), zeros(Float32, 5)) == run(sess, pad(one_tens, [0 0; 0 1]))
 @test Float32[1.; 0.; 0.; 0.; 0.] == run(sess, one_hot(1, 5))

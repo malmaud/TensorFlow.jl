@@ -23,6 +23,7 @@ https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#size
 @define_unary Base.length Ops.size
 @define_unary Base.lastindex length
 
+Base.lastindex(x::AbstractTensor, dim) = size(x, dim)
 
 struct TensorRange
     start::Tensor{Int32}
