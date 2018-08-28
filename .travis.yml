@@ -8,7 +8,6 @@ os:
 julia:
   - 0.7
   - 1.0
-  - nightly
 env:
     - CONDA_JL_VERSION="2" PYTHON=""
     - CONDA_JL_VERSION="3" PYTHON=""
@@ -22,8 +21,3 @@ after_success:
 - julia -e 'cd(Pkg.dir("TensorFlow")); Pkg.add("Coverage"); using Coverage; Codecov.submit(process_folder())'
 - julia -e 'Pkg.add("Documenter")'
 - julia -e 'cd(Pkg.dir("TensorFlow")); include(joinpath("docs", "make.jl"))'
-matrix:
-  fast_finish: true
-  allow_failures:
-    - julia: nightly
-    - os: osx
