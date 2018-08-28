@@ -66,6 +66,8 @@ const matmul = mat_mul
 @define_broadcast(/, Ops.div)
 @define_broadcast(^, pow)
 
+Broadcast.broadcasted(::typeof(Base.literal_pow), ::typeof(^), x::AbstractTensor, y::Val{T}) where T = x^Tensor(T)
+
 @op function batch_matmul(x::AbstractTensor,y::AbstractTensor; adj_x=false, adj_y=false, name=nothing)
     if tf_version() >= v"1.0.0-"
         Base.depwarn("""

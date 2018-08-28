@@ -51,6 +51,8 @@ macro define_broadcast(jl_op, tf_func)
         Base.Broadcast.broadcasted(::typeof($jl_op), t1::AbstractTensor, t2::AbstractTensor) = $tf_func(tf_promote(t1, t2)...)
         Base.Broadcast.broadcasted(::typeof($jl_op), t1::AbstractTensor, t2) = $tf_func(t1, Tensor(t2))
         Base.Broadcast.broadcasted(::typeof($jl_op), t1, t2::AbstractTensor) = $tf_func(Tensor(t1), t2)
+        Base.Broadcast.broadcasted(::typeof($jl_op), t1::AbstractTensor, t2::Base.Broadcast.Broadcasted) = $tf_func(t1, Tensor(collect(t2)))
+        Base.Broadcast.broadcasted(::typeof($jl_op), t1::Base.Broadcast.Broadcasted, t2::AbstractTensor) = $tf_func(Tensor(collect(t1)), t2)
     end |> esc
 end
 
