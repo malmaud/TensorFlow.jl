@@ -53,10 +53,6 @@ struct RecordIterator
     pyo::Distributed.Future
 end
 
-struct RecordIteratorState
-    val::Nullable{Vector{UInt8}}
-end
-
 """
     `RecordIterator(path)`
 
@@ -68,30 +64,33 @@ function RecordIterator(path::AbstractString)
     RecordIterator(pyo)
 end
 
-
-
 function _next(iter::RecordIterator)
     try
         @static if PyCall.pyversion >= v"3.0.0"
-            record = fetch(@tf.py_proc $(iter.pyo)[:__next__]())
+            fetch(@tf.py_proc $(iter.pyo)[:__next__]())
         else
             #Python 2
-            record = fetch(@tf.py_proc $(iter.pyo)[:next]())
+            fetch(@tf.py_proc $(iter.pyo)[:next]())
         end
-        RecordIteratorState(Nullable(record))
+        
     catch err
         if isa(err, Distributed.RemoteException) && isa(err.captured.ex, PyCall.PyError)
             # Only catch it, if it could be an  StopIteration exception thrown in python
             # which signifies the end of iteration being reached normally
-            RecordIteratorState(Nullable())
+            nothing # signal to stop julia iteration
         else
             rethrow(err)
         end
     end
 end
 
-function Base.iterate(iter::RecordIterator, state=_next(iter))
-    isnull(state.val) ? nothing : (get(state.val), _next(iter))
+function Base.iterate(iter::RecordIterator, state=iter)
+	record = _next(iter)
+	if isa(record, Nothing)
+		nothing # end iteration
+	else
+		(record, iter)
+	end
 end
 
 #function Base.start(iter::RecordIterator)
