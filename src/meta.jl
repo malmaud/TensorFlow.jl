@@ -26,7 +26,7 @@ macro op(f)
         end
     end
     opname === nothing && error("Invalid usage of @op")
-    
+
     already_registered = opname ∈ registered_ops
     push!(registered_ops, opname)
     @assert(@isdefined(tf)) # Need tf as name for module where this code is located
@@ -73,8 +73,8 @@ withname(f::F, name) where F<:Function = withname(is_registered_op(F), f, name) 
 
 withname(::NotRegisteredOp, f, name) = (args...; kws...) -> f(args...; kws...)
 withname(::RegisteredOp, f, name) = (args...; kws...) -> begin
-    if !any(first.(kws) .== :name) # name is not already there
-        push!(kws, (:name, name))
+    if !any(keys(kws) .== :name) # name is not already there
+        kws = (kws..., name=name)
     end
     f(args...; kws...)
 end
