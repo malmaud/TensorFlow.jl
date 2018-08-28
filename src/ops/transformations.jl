@@ -230,7 +230,7 @@ Raises:
 """
 @op function Base.dropdims(x::AbstractTensor; dims=nothing, kwargs...)
     if dims !== nothing
-        dims = dims - 1
+        dims = dims .- 1
     end
     Ops.squeeze(x; squeeze_dims=dims, kwargs...)
 end

@@ -804,7 +804,7 @@ end
 
 register_shape("Squeeze") do op
     input_shape = _get_shape(get_input(op, 1))
-    squeeze_dims = get_attr(op, "squeeze_dims", Vector{Int}) + 1
+    squeeze_dims = get_attr(op, "squeeze_dims", Vector{Int}) .+ 1
     if input_shape.rank_unknown
         [TensorShape(nothing)]
     elseif any(squeeze_dims .> length(input_shape.dims))
