@@ -15,7 +15,6 @@ const registered_ops = Set()
 
 macro op(f)
     # TODO: fix MacroTools to make this work again
-    # f = longdef(f) #convert to long form function
     opname = @match f begin
         function opname_(args__)
             body_

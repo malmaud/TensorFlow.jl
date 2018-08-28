@@ -151,6 +151,12 @@ for jl_func_name in [
     @eval @define_unary SpecialFunctions.$jl_func_name Ops.$jl_func_name
 end
 
+for jl_func_name in [
+    :polygamma,
+    :zeta]
+    @eval @define_binary SpecialFunctions.$jl_func_name Ops.$jl_func_name
+end
+
 function Base.round(::Type{T}, value::AbstractTensor) where T
     convert(Tensor{T}, round(value))
 end

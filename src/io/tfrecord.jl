@@ -66,13 +66,13 @@ end
 
 function _next(iter::RecordIterator)
     try
-        @static if PyCall.pyversion >= v"3.0.0"
+        ans=@static if PyCall.pyversion >= v"3.0.0"
             fetch(@tf.py_proc $(iter.pyo)[:__next__]())
         else
             #Python 2
             fetch(@tf.py_proc $(iter.pyo)[:next]())
         end
-        
+        Vector{UInt8}(ans)
     catch err
         if isa(err, Distributed.RemoteException) && isa(err.captured.ex, PyCall.PyError)
             # Only catch it, if it could be an  StopIteration exception thrown in python
@@ -86,7 +86,7 @@ end
 
 function Base.iterate(iter::RecordIterator, state=iter)
 	record = _next(iter)
-	if isa(record, Nothing)
+	if record isa Nothing
 		nothing # end iteration
 	else
 		(record, iter)
