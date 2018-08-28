@@ -1,6 +1,7 @@
 using TensorFlow
 using Test
 using StatsFuns
+using Random
 
 @testset "conv2d_transpose" begin
     let

@@ -154,7 +154,7 @@ end
 @testset "Squeeze" begin
     let
         x = placeholder(Float64, shape=[5, 1, 4, 1, 3])
-        y = squeeze(x, [2, 4])
+        y = dropdims(x, dims=[2, 4])
         @test get_shape(y) == TensorShape([5, 4, 3])
     end
 end

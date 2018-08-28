@@ -44,13 +44,12 @@ end
 end
 
 
-@testset "Squeeze" begin
-    # Test `squeeze()` works when given explicit dimensions, fails on incorrect explicit dimensions,
+@testset "Dropdims" begin
+    # Test `dropdims()` works when given explicit dimensions, fails on incorrect explicit dimensions,
     # and works when given no explicit dimension
     sq_ones = ones(Tensor, (10, 1, 5, 1))
-    @test size(run(sess, squeeze(sq_ones))) == (10,5)
-    @test size(run(sess, squeeze(sq_ones,[2,4]))) == (10,5)
-    @test size(run(sess, squeeze(sq_ones,[2]))) == (10,5,1)
+    @test size(run(sess, dropdims(sq_ones, dims=[2,4]))) == (10,5)
+    @test size(run(sess, dropdims(sq_ones, dims=[2]))) == (10,5,1)
     #@test_throws TensorFlow.TFException run(sess, squeeze(sq_ones,[1]))
 end
 

@@ -33,7 +33,7 @@ Base.last(tr::TensorRange)=tr.stop
 
 @define_binary Base.:(:) TensorRange
 
-    
+
 const Slice = Union{TensorRange, UnitRange, Colon}
 const Index = Union{<:Integer, AbstractArray{<:Integer}, AbstractTensor{<:Integer}}
 
@@ -105,7 +105,7 @@ function Base.getindex(params::AbstractTensor, ind1::Union{Slice, Index},  inds:
             sizes_tensor = stack(sizes)
             sliced = slice(params, begins_tensor, sizes_tensor)
             if length(singleton_dims)>0 # we are not slicing on all axies
-                squeeze(sliced, singleton_dims) # Squeeze singleton indexes
+                dropdims(sliced, dims=singleton_dims) # Drop singleton indexes
             else # we are slicing on all axies
                 sliced
             end

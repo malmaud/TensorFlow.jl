@@ -57,7 +57,7 @@ tf.shape(split0) ==> [5, 10]
 Note: If you are splitting along an axis by the length of that axis, consider using unpack, e.g.
 
 num_items = t.get_shape()[axis].value
-[tf.squeeze(s, [axis]) for s in tf.split(axis, num_items, t)]
+[tf.dropdims(s, dims=[axis]) for s in tf.split(axis, num_items, t)]
 can be rewritten as
 
 tf.unpack(t, axis=axis)
@@ -312,7 +312,7 @@ boolean_mask(tensor, mask) ==> [[1, 2], [5, 6]]
     local result
     with_op_name(name, "BooleanMask") do
         indices = find(mask)  # TODO generalize to more dimensions
-        squeezed = squeeze(indices, [2])
+        squeezed = dropdims(indices, dims=[2])
         result = tensor[squeezed]
     end
     result
