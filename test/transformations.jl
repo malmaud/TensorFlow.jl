@@ -111,7 +111,7 @@ end
 
 @testset "Slice" begin
     # to do make sure we slice the right indices
-    @test ones(Float32, 5).' == run(sess, TensorFlow.slice(one_tens, [1, 1], [1, -1]))
+    @test transpose(ones(Float32, 5)) == run(sess, TensorFlow.slice(one_tens, [1, 1], [1, -1]))
 
     @test y_jl[2:3] ==  run(sess, y[2:3])
     @test y_jl[2:end] ==  run(sess, y[Int32(2):end])

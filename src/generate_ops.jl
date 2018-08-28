@@ -44,11 +44,11 @@ function opname_to_jlname(name)
             next_char = name[idx+1]
             if idx < length(name)-1
                 next_next_char = name[idx+2]
-                if isupper(cur_char) && isupper(next_char) && islower(next_next_char)
+                if isuppercase(cur_char) && isuppercase(next_char) && islowercase(next_next_char)
                     word_end = true
                 end
             end
-            if islower(cur_char) && isupper(next_char)
+            if islowercase(cur_char) && isuppercase(next_char)
                 word_end = true
             end
         end
@@ -334,7 +334,7 @@ function import_op(name)
         ops = Dict(get_all_op_list())
         op = ops[name]
         op_desc = to_function(op)
-        eval(Ops, op_desc.expr)
+        Core.eval(Ops, op_desc.expr)
     else
         @warn("Import Skipped: tried to import op $name as $(mod).$(jl_name), but that already exists.")
     end

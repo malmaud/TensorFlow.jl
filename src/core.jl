@@ -161,7 +161,7 @@ end
 
 
 function TensorShape(dims::AbstractVector{<:Integer})
-    TensorShape([x<0 ? Nullable{Int}() : Nullable{Int}(x) for x in dims])
+    TensorShape([x<0 ? Nullable{Int64}() : Nullable{Int64}(Int64(x)) for x in dims])
 end
 
 function TensorShape(dims)

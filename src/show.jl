@@ -178,7 +178,7 @@ function get_tensorboard(logdir=nothing)
     if path === nothing
         error("The tensorboard binary was not found. Make sure `tensorboard` is in your system path.")
     end
-    _, proc = open(`$path --logdir=$logdir --port=$port`)
+    proc = open(`$path --logdir=$logdir --port=$port`)
     tensorboard[] = Tensorboard(proc, logdir, port)
     atexit() do
         close(tensorboard[])

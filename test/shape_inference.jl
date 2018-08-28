@@ -173,12 +173,12 @@ end
     e = placeholder(Float32; shape=[10, 20, 30])
     e2 = placeholder(Float32; shape=[10, 20, 31])
 
-    @testset "$r" for (a1, a2, r) in [
-        (m, e, [10, 20, 30])
-        (m, k, [10, 20, -1])
-        (m, e2, nothing)
-        (m, n, nothing)
-        (m, i, nothing)
+    @testset "$name" for (a1, a2, r, name) in [
+        (m, e, [10, 20, 30], "t1")
+        (m, k, [10, 20, -1], "t2")
+        (m, e2, nothing, "t3")
+        (m, n, nothing, "t4")
+        (m, i, nothing, "t5")
         ]
         # test commutativeness
         @test get_shape(TensorFlow.select(c, a1, a2)) == TensorShape(r)

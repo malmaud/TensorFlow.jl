@@ -8,7 +8,7 @@ import .Ops:
     scatter_nd,
     dynamic_partition,
     dynamic_stitch
-
+import LinearAlgebra
 const concat = Ops.concat_v2
 const stack = Ops.pack
 
@@ -311,7 +311,7 @@ boolean_mask(tensor, mask) ==> [[1, 2], [5, 6]]
 @op function boolean_mask(tensor, mask::AbstractTensor; name=nothing)
     local result
     with_op_name(name, "BooleanMask") do
-        indices = find(mask)  # TODO generalize to more dimensions
+        indices = findall(mask)  # TODO generalize to more dimensions
         squeezed = dropdims(indices, dims=[2])
         result = tensor[squeezed]
     end
@@ -321,7 +321,7 @@ end
 @op function boolean_mask(tensor, mask::AbstractArray; name=nothing)
     local result
     with_op_name(name, "BooleanMask") do
-        indices = find(mask)  # TODO generalize to more dimensions
+        indices = findall(mask)  # TODO generalize to more dimensions
         result = tensor[indices]
     end
     result
@@ -380,7 +380,7 @@ Returns:
     local result
     with_op_name(name, "Transpose") do
         if perm === nothing
-            r = range(constant(0), rank(n)-1)
+            r = range(constant(0), LinearAlgebra.rank(n)-1)
             perm = reverse(r, [true])
         end
         result = Ops.transpose(n, perm)
@@ -389,7 +389,7 @@ Returns:
 end
 
 @op function Base.permutedims(n::AbstractTensor, perm; name=nothing)
-    transpose(n, perm - 1; name=name)
+    transpose(n, perm .- 1; name=name)
 end
 
 @define_unary Base.adjoint transpose

@@ -234,7 +234,7 @@ register_shape("Transpose") do op
     if isnull(maybe_reorder)
         [TensorShape(nothing)]
     else
-        order::Vector{Int32} = get(maybe_reorder) + 1
+        order::Vector{Int32} = get(maybe_reorder) .+ 1
         if input_shape.rank_unknown
             # We know the rank,
             # it must be the same as the number of elements in the perm
@@ -687,7 +687,7 @@ register_shape("Slice") do op
                 end
             end
         end
-        out_shape = Vector{Int}(length(input_shape.dims))
+        out_shape = Vector{Int}(undef, length(input_shape.dims))
         for i in 1:length(out_shape)
             if size_value[i] == -1
                 out_shape[i] = -1
