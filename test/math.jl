@@ -58,7 +58,7 @@ end
 
     diag_raw = rand(5)
     diag_mat = TensorFlow.constant(diag_raw)
-    result = run(sess, LinearAlgebra.det(LinearAlgebra.diagm(diag_mat)))
+    result = run(sess, LinearAlgebra.det(LinearAlgebra.diagm(0=>diag_mat)))
     @test prod(diag_raw) ≈ result
 end
 
@@ -161,7 +161,7 @@ end
 end
 
 @testset "linear algebra" begin
-    M_raw = tril(rand(Float32, 10, 10))
+    M_raw = LinearAlgebra.tril(rand(Float32, 10, 10))
     x_raw = ones(Float32, 10, 2)
     x = TensorFlow.constant(x_raw)
     M = TensorFlow.constant(M_raw)
@@ -175,29 +175,29 @@ end
     M_raw = rand(Float32, 10, 10)
     M_raw += M_raw'
     result = run(sess, TensorFlow.self_adjoint_eig(constant(M_raw)))
-    @test eigvals(M_raw) ≈ result[1]
-    evs = eigvecs(M_raw)
+    @test LinearAlgebra.eigvals(M_raw) ≈ result[1]
+    evs = LinearAlgebra.eigvecs(M_raw)
     for vec_ind in 1:10
-        @test abs(dot(evs[:, vec_ind], result[2][:, vec_ind])) ≈ Float32(1.)
+        @test abs(LinearAlgebra.dot(evs[:, vec_ind], result[2][:, vec_ind])) ≈ Float32(1.)
     end
 
     M_raw = rand(Float32, 10, 10)
     M_raw *= M_raw'
     result = run(sess, TensorFlow.cholesky(constant(M_raw)))
-    @test cholfact(M_raw)[:L] ≈ result
+    @test LinearAlgebra.cholesky(M_raw).L ≈ result
 
-    for thin in [true, false]
+    for full in [true, false]
         M_raw = rand(Float32, 10, 10)
-        u, s, v = run(sess, svd(constant(M_raw), thin=thin))
-        uj, sj, vj = svd(M_raw, thin=thin)
+        u, s, v = run(sess, LinearAlgebra.svd(constant(M_raw), full=full))
+        uj, sj, vj = LinearAlgebra.svd(M_raw, full=full)
         # Can't directly check values between julia svd and tensorflow svd as SVD not unique
         # Check the shape of results match
         @test size(s) == size(sj)
         @test size(u) == size(uj)
         @test size(v) == size(uj)
         # Check the reconstruction is close
-        err = sum(abs2, M_raw-u*diagm(s)*v')
-        err_j = sum(abs2, M_raw-uj*diagm(sj)*vj')
+        err = sum(abs2, M_raw-u*LinearAlgebra.diagm(0=>s)*v')
+        err_j = sum(abs2, M_raw-uj*LinearAlgebra.diagm(0=>sj)*vj')
 
         @assert err_j ≤ 1e-10
         @test err ≤ 1000err_j # Julia has really accurate SVD, apparently, so give it a margin

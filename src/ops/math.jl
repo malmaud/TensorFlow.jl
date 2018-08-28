@@ -35,9 +35,9 @@ import .Ops:
 @op Base.min(x::AbstractTensor, y; kwargs...) = Ops.minimum(x, y; kwargs...)
 
 
-@op function LinearAlgebra.svd(a::AbstractTensor; thin=true, kwargs...)
+@op function LinearAlgebra.svd(a::AbstractTensor; full=false, kwargs...)
     # Match Base names and ordering of results
-    s,u,v = Ops.svd(a; compute_uv=true, full_matrices=!thin, kwargs...)
+    s,u,v = Ops.svd(a; compute_uv=true, full_matrices=full, kwargs...)
     u,s,v
 end
 
@@ -174,10 +174,16 @@ end
 
 for (jl_func_name, tf_func_name) in [
     (:det, :matrix_determinant),
-    (:diagm, :diag),
     (:diag, :matrix_diag_part)]
 
     @eval @define_unary LinearAlgebra.$jl_func_name Ops.$tf_func_name
+end
+
+function LinearAlgebra.diagm(kv::Pair{T, S}) where {T<:Integer, S<:AbstractTensor}
+    if kv.first == 0
+        return Ops.diag(kv.second)
+    end
+    error("diagm only supports the calling form diagm(0=>x) where 'x' is a tensor.")
 end
 
 # Reductions
