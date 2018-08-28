@@ -1,5 +1,6 @@
 using TensorFlow
 using Test
+using Nullables
 
 k = placeholder(Float32; shape=[10, 20, -1])
 m = placeholder(Float32; shape=[10, 20, 30])
@@ -180,8 +181,8 @@ end
         (m, i, nothing)
         ]
         # test commutativeness
-        @test get_shape(partialsort(c, a1, a2)) == TensorShape(r)
-        @test get_shape(partialsort(c, a2, a1)) == TensorShape(r)
+        @test get_shape(TensorFlow.select(c, a1, a2)) == TensorShape(r)
+        @test get_shape(TensorFlow.select(c, a2, a1)) == TensorShape(r)
     end
 end
 
