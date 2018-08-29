@@ -132,6 +132,34 @@ end
 
 cast_type(T, val) = val
 
+"""
+Perform a unification over the input tensor shapes.
+Replacing unknows with knowns.
+Throws a ``DimensionMismatch`` if the shapes are not compatible
+"""
+function unify(value_shapes::TensorShape...) ::TensorShape
+    union_dims = TensorShape(missing)
+    for value_dims in value_shapes
+        if union_dims.rank_unknown # Unify per unknown shape
+            union_dims = copy(value_dims)
+        else
+            value_dims.rank_unknown && continue
+            if length(value_dims.dims) != length(union_dims.dims)
+                throw(DimensionMismatch("Tensors have different ranks ($(union_dims) vs $(value_dims))"))
+            end
+            for ii in eachindex(value_dims.dims)
+                ismissing(value_dims.dims[ii]) && continue
+                if ismissing(union_dims.dims[ii]) # Unify per unknown dimention
+                    union_dims.dims[ii] = value_dims.dims[ii]
+                elseif !isequal(value_dims.dims[ii], union_dims.dims[ii])
+                    throw(DimensionMismatch("Tensors have incompatiable shapes ($(union_dims) vs $(value_dims))"))
+                end
+            end
+        end
+    end
+    union_dims
+end
+
 tf_shape(x::Union{Number,String}) = TensorShape(Int[])
 tf_shape(x::AbstractArray)        = TensorShape(collect(size(x)))
 
@@ -145,7 +173,7 @@ function check_shape(tensor, value)
     value_shape = tf_shape(value)
 
     try
-        unified_shape = ShapeInference.unify(tensor_shape, value_shape)
+        unified_shape = unify(tensor_shape, value_shape)
         @assert unified_shape==value_shape
     catch ex
         isa(ex, DimensionMismatch) || rethrow(ex)

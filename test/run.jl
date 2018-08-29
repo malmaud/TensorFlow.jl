@@ -1,5 +1,6 @@
 using Test
 using TensorFlow
+using Random
 
 @testset "Placeholder Size Matching" begin
     sess = Session(Graph())

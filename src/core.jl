@@ -162,6 +162,10 @@ end
 TensorShape(dims::Vector) = TensorShape(dims, false)
 TensorShape(::Missing) = TensorShape([], true)
 
+function Base.copy(shape::TensorShape)
+    TensorShape(copy(shape.dims), shape.rank_unknown)
+end
+
 """
 A TensorFlow computation graph
 """
@@ -1791,7 +1795,7 @@ function get_shape(tensor::AbstractTensor, dim)
         error("Rank is unknown")
     end
     if length(shape.dims) < dim
-        error("$dim is more than shape's rank of $(len(shape.dims))")
+        error("$dim is more than shape's rank of $(length(shape.dims))")
     end
     return shape.dims[dim]
 end
