@@ -210,9 +210,7 @@ function with_def_graph(ex)
     error("Improper use of with_def_graph")
     (kwargs === nothing) && (kwargs = [])
     new_args = args[2:end]
-    # Temporarily eliminate passing through keyword arguments since
-    # that breaks Revise at the moment. Should add back once Revise
-    # is patched.
+
     quote
         function $f($(new_args...); $(kwargs...))
             $f(TensorFlow.get_def_graph(), $(new_args...); $(kwargs...))
