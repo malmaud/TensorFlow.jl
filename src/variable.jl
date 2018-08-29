@@ -97,10 +97,10 @@ run(sess::tf.Session, var::Variable) = run(sess, tf.Tensor(var))
 run(sess::tf.Session, vars::AbstractVector{Variable}) = run(sess, map(tf.Tensor, vars))
 
 mutable struct Scope
-    name::Union{String, Missing}
+    name::Union{String, Nothing}
     initializer::Any
     reuse::Bool
-    Scope() = new(missing, missing, false)
+    Scope() = new(nothing, nothing, false)
 end
 
 const scope_stack = Scope[]
@@ -159,7 +159,7 @@ function tf.get_variable(var_name, shape, dtype; trainable=true, kwargs...)
             initializer = NormalInitializer()
             reuse = false
             for scope in scope_stack
-                if !ismissing(scope.initializer)
+                if scope.initializer !== nothing
                     initializer = scope.initializer
                 end
                 if scope.reuse

@@ -271,7 +271,7 @@ end
     import_options = GraphImportOptions()
     ph_names = Set{String}()
     for node_def in convert.(tensorflow.NodeDef, node_def_bytes)
-        if ismissing(get_node_by_name(graph, node_def.name))
+        if get_node_by_name(graph, node_def.name) === nothing
             # Hack to deal with imported nodes which have
             # colocation dependencies on existing nodes
             if has_field(node_def, :attr) && haskey(node_def.attr, "_class")
@@ -281,7 +281,7 @@ end
                     m = match(r"^loc:@(.*)", String(val))
                     if m !== nothing
                         loc_name = m[1]
-                        if !ismissing(get_node_by_name(graph, loc_name))
+                        if get_node_by_name(graph, loc_name) !== nothing
                             push!(inds, ind)
                         end
                     end
@@ -300,11 +300,11 @@ end
                     source_port = 1
                 end
                 existing_node = get_node_by_name(graph, name)
-                if !ismissing(existing_node)
+                if existing_node !== nothing
                     local new_name
                     for name_id in Iterators.countfrom()
                         new_name = "$(name)__placeholder__$(name_id)_$dest_port"
-                        ismissing(get_node_by_name(graph, new_name)) && break
+                        get_node_by_name(graph, new_name) === nothing && break
                     end
                     if is_control
                         input_name = string("^", new_name)
@@ -805,7 +805,7 @@ An operation in the computation graph.
 """
 mutable struct Operation <: AbstractOperation
     ptr::Ptr{Cvoid}
-    graph::Union{Graph, Missing}
+    graph::Union{Graph, Nothing}
     op_name::String
     name::String
     Operation() = new()
@@ -1012,7 +1012,7 @@ end
 function Operation(ptr::Ptr)
     self = Operation()
     self.ptr = ptr
-    self.graph = missing
+    self.graph = nothing
     fillin(self)
     return self
 end
@@ -1436,7 +1436,7 @@ Returns an operation by searching for its name in the given graph.
     name, port = parse_port_name(name)
     node_ptr = @tfcall(:TF_GraphOperationByName, Ptr{Cvoid}, (Ptr{Cvoid}, Cstring), graph.ptr, name)
     if node_ptr == C_NULL
-        return missing
+        return nothing
     else
         return Operation(node_ptr)
     end
@@ -1452,7 +1452,7 @@ Throws a `NodeNameNotFound` exception if there is no such tensor.
 @with_def_graph function get_tensor_by_name(graph::Graph, full_name)
     name, port = parse_port_name(full_name)
     maybe_node = get_node_by_name(graph, name)
-    ismissing(maybe_node) && throw(NodeNameNotFound(full_name))
+    maybe_node === nothing && throw(NodeNameNotFound(full_name))
     return Tensor(maybe_node, port)
 end
 
@@ -1460,7 +1460,7 @@ end
 Base.getindex(graph::Graph, name) = get_tensor_by_name(graph, name)
 Base.values(graph::Graph) = get_operations(graph)
 Base.keys(graph::Graph) = (node_name(op) for op in values(graph))
-Base.haskey(graph::Graph, name) = !ismissing(get_node_by_name(graph, name))
+Base.haskey(graph::Graph, name) = get_node_by_name(graph, name) !== nothing
 
 
 
@@ -1625,13 +1625,13 @@ struct OperationIterator
 end
 
 struct OperationIteratorState
-    next_op::Union{Operation, Missing}
+    next_op::Union{Operation, Nothing}
     pos::Int
 end
 
-function Base.iterate(iter::OperationIterator, state=_next(iter, OperationIteratorState(missing, 0))[2])
+function Base.iterate(iter::OperationIterator, state=_next(iter, OperationIteratorState(nothing, 0))[2])
     value, new_state = _next(iter, state)
-    ismissing(state.next_op) ? nothing : (value, new_state)
+    state.next_op === nothing ? nothing : (value, new_state)
 end
 
 function _next(iter::OperationIterator, state)
@@ -1640,7 +1640,7 @@ function _next(iter::OperationIterator, state)
         (Ptr{Cvoid}, Ref{Csize_t}),
         iter.graph.ptr, pos)
     if op_ptr == C_NULL
-        next_op = missing
+        next_op = nothing
     else
         op = Operation()
         op.ptr = op_ptr
