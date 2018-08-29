@@ -42,7 +42,7 @@ end
 function zero_mat(rows_like::AbstractTensor, n_cols::Integer, dtype)
     T = dtype===nothing ? eltype(rows_like) : dtype
     input_shape = get_shape(rows_like)
-    if input_shape.rank_unknown || isnull(input_shape.dims[1])
+    if input_shape.rank_unknown || ismissing(input_shape.dims[1])
         # dynamic path
         with_op_name("DynZeroMat") do
             n_rows = size(rows_like, 1)
@@ -50,7 +50,7 @@ function zero_mat(rows_like::AbstractTensor, n_cols::Integer, dtype)
         end
     else
         # static path
-        n_rows = get(input_shape.dims[1])
+        n_rows = input_shape.dims[1]
         zeros(Tensor{T}, n_rows, n_cols)
     end
 end

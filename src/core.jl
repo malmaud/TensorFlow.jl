@@ -1780,3 +1780,14 @@ function get_shape(tensor::AbstractTensor)
         return TensorShape(get_tensor_shape(tensor), false)
     end
 end
+
+function get_shape(tensor::AbstractTensor, dim)
+    shape = get_shape(tensor)
+    if shape.rank_unknown
+        error("Rank is unknown")
+    end
+    if length(shape.dims) < dim
+        error("$dim is more than shape's rank of $(len(shape.dims))")
+    end
+    return shape.dims[dim]
+end
