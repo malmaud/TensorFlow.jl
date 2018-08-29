@@ -1,7 +1,6 @@
 using Test
 using TensorFlow
 const tf = TensorFlow
-using Nullables
 
 
 #TODO: Export a new graph from python to test this with current versions

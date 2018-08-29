@@ -71,12 +71,7 @@ function GradientDescentOptimizer(; α=.01, kwargs...)
 end
 
 function Base.show(io::IO, optimizer::GradientDescentOptimizer)
-    maybe_rate = tf.ShapeInference.load_const(optimizer.learning_rate)
-    if isnull(maybe_rate)
-        rate = optimizer.learning_rate
-    else
-        rate = get(maybe_rate)[1]
-    end
+    rate = optimizer.learning_rate
     print(io, "GradientDescentOptimizer(α=$rate)")
 end
 
@@ -313,9 +308,9 @@ function import_meta_graph(
         if tf.Variables.is_variable(node)
             domain = split(node.name, "/")[1]
             if domain !== "save"
-                var_tensor = tf.Tensor(tf.get_node_by_name(graph, node.name)|>get, 1)
+                var_tensor = tf.Tensor(tf.get_node_by_name(graph, node.name), 1)
                 assign_name = "$(node.name)/Assign"
-                assign_tensor = tf.Tensor(tf.get_node_by_name(graph, assign_name)|>get, 1)
+                assign_tensor = tf.Tensor(tf.get_node_by_name(graph, assign_name), 1)
                 var = Variable(var_tensor, assign_tensor)
                 add_to_collection(graph, :Variables, var)
                 if isempty(trainable) || (node.name in trainable)

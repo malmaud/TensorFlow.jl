@@ -8,7 +8,6 @@ import TensorFlow
 import Distributed
 const tf = TensorFlow
 
-using Nullables
 using PyCall
 
 struct RecordWriter
