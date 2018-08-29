@@ -135,6 +135,26 @@ cast_type(T, val) = val
 tf_shape(x::Union{Number,String}) = TensorShape(Int[])
 tf_shape(x::AbstractArray)        = TensorShape(collect(size(x)))
 
+"""
+    check_shape(tensor, value)
+
+Throws an error if the size of the value is not a possile shape for the tensor
+"""
+function check_shape(tensor, value)
+    tensor_shape = get_shape(tensor)
+    value_shape = tf_shape(value)
+
+    try
+        unified_shape = ShapeInference.unify(tensor_shape, value_shape)
+        @assert unified_shape==value_shape
+    catch ex
+        isa(ex, DimensionMismatch) || rethrow(ex)
+        name = get_name(tensor)
+        throw(DimensionMismatch("Failed to set  input \"$name\",  as $(ex.msg)"))
+    end
+end
+
+
 function run(sess::Session, outputs::AbstractVector, input_dict)
     output_map = Dict{Tensor, Tuple{Symbol, Int}}()
     output_ports = Port[]
@@ -154,6 +174,7 @@ function run(sess::Session, outputs::AbstractVector, input_dict)
     input_tensors, uncast_input_values = build_input(input_dict)
     input_values = []
     for (input_tensor, input_value) in zip(input_tensors, uncast_input_values)
+        check_shape(input_tensor, input_value)
         push!(input_values, cast_type(eltype(input_tensor), input_value))
 
     end
