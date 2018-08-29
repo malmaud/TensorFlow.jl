@@ -69,7 +69,6 @@ function Variable(initial_value; name="", trainable=true, literal_name=false)
         name = tf.get_name(name)
     end
     self.var_node = tf.Ops.variable_v2(name=name, dtype=eltype(initial_value), shape=tf.TensorShape([size(initial_value)...]))
-
     self.assign_node = tf.Ops.assign(tf.Tensor(self.var_node), initial_value, name="$name/Assign")
     tf.add_to_collection(:Variables, self)
     if trainable
@@ -135,7 +134,7 @@ function variable_scope(f, name; kwargs...)
     end
 end
 
-get_dims(t::tf.TensorShape) = map(get, t.dims)
+get_dims(t::tf.TensorShape) = t.dims
 get_dims(x) = x
 
 struct NormalInitializer

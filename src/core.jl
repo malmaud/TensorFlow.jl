@@ -159,6 +159,9 @@ end
     rank_unknown::Bool
 end
 
+TensorShape(dims::Vector) = TensorShape(dims, false)
+TensorShape(::Missing) = TensorShape([], true)
+
 """
 A TensorFlow computation graph
 """
@@ -1263,7 +1266,7 @@ function setindex!(desc::NodeDescription, value::TensorShape, attr_name)
     if value.rank_unknown
         dims = Int[]
     else
-        dims = Int[(isnull(dim) ? -1 : get(dim)) for dim in value.dims]
+        dims = Int[ismissing(dim) ? -1 : dim for dim in value.dims]
     end
     @tfcall(:TF_SetAttrShape, Cvoid, (Ptr{Cvoid}, Cstring, Ptr{Int64}, Cint), desc.ptr, attr_name, dims, length(dims))
 end

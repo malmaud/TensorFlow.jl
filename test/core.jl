@@ -3,15 +3,6 @@ using TensorFlow
 const tf = TensorFlow
 using Nullables
 
-@testset "TensorShape" begin
-    @test TensorShape([]) == TensorShape(Nullable{Int}[],false)
-    @test TensorShape(collect(tuple())) == TensorShape([],false)
-
-    @test TensorShape([-1, 15]) == TensorShape([Nullable{Int}(), Nullable{Int}(15)], false)
-    @test TensorShape([10, 12]) == TensorShape([Nullable{Int}(10), Nullable{Int}(12)], false)
-
-    @test TensorShape(nothing).rank_unknown == true
-end
 
 #TODO: Export a new graph from python to test this with current versions
 @testset "Graph importing: from older versions" begin

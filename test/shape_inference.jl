@@ -10,7 +10,7 @@ i = placeholder(Int32; shape=[])
 @testset "placeholder" begin
     @test get_shape(k) == TensorShape([10, 20, -1])
     @test get_shape(m) == TensorShape([10, 20, 30])
-    @test get_shape(n) == TensorShape(nothing)
+    @test get_shape(n) == TensorShape(missing)
     @test get_shape(i) == TensorShape([])
 
     @test get_shape(k,2) == 20
@@ -24,7 +24,7 @@ end
     #@test_broken get_shape(k') == get_shape(transpose(k)) == TensorShape([-1, 20, 10])
     #@test_broken get_shape(m') == get_shape(transpose(m)) == TensorShape([30, 20, 10])
 
-    @test get_shape(n') == get_shape(transpose(n)) == TensorShape(nothing)
+    @test get_shape(n') == get_shape(transpose(n)) == TensorShape(missing)
 
     @test get_shape(permutedims(m, [3,1,2])) == TensorShape([30, 10, 20])
     @test get_shape(permutedims(n, [3,1,2,4])) == TensorShape([-1, -1, -1, -1])
@@ -59,7 +59,7 @@ end
 @testset "Find (i.e Where)" begin
     @test get_shape(findall(placeholder(Bool; shape=[10, 20, 30]))) == TensorShape([-1,3])
     @test get_shape(findall(placeholder(Bool; shape=[10, 20, -1]))) == TensorShape([-1,3])
-    @test get_shape(findall(placeholder(Bool))) == TensorShape(nothing)
+    @test get_shape(findall(placeholder(Bool))) == TensorShape(missing)
 end
 
 @testset "Stack/Unstack" begin
@@ -82,7 +82,7 @@ end
     end
 
     for ii in 1:3
-        @test get_shape(unstack(n, num=3)[ii]) == TensorShape(nothing)
+        @test get_shape(unstack(n, num=3)[ii]) == TensorShape(missing)
     end
 
 
@@ -100,9 +100,9 @@ end
         @test get_shape(f(m, 1)) == TensorShape([20, 30])
         @test get_shape(f(m, 2)) == TensorShape([10, 30])
         @test get_shape(f(m, 3)) == TensorShape([10, 20])
-        @test get_shape(f(n, 1)) == TensorShape(nothing)
-        @test get_shape(f(n, 2)) == TensorShape(nothing)
-        @test get_shape(f(n, 3)) == TensorShape(nothing)
+        @test get_shape(f(n, 1)) == TensorShape(missing)
+        @test get_shape(f(n, 2)) == TensorShape(missing)
+        @test get_shape(f(n, 3)) == TensorShape(missing)
     end
 end
 
@@ -149,7 +149,7 @@ end
     @test get_shape(expand_dims(m, 0)) == TensorShape([10, 20, 30, 1])
     @test get_shape(expand_dims(m, -1)) == TensorShape([10, 20, 1, 30])
     @test get_shape(expand_dims(m, i)) == TensorShape([-1, -1, -1, -1])
-    @test get_shape(expand_dims(n, 2)) == TensorShape(nothing)
+    @test get_shape(expand_dims(n, 2)) == TensorShape(missing)
 end
 
 @testset "Squeeze" begin
