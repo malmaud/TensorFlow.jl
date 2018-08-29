@@ -1,3 +1,8 @@
+TensorFlow v0.10.0 Release Notes
+==============================
+
+* Support for Julia 1.0 has been added. Support for all prior versions of Julia (except 0.7, which is functionally identical to 1.0) has been dropped.
+
 TensorFlow v0.7 Release Notes
 =============================
 
