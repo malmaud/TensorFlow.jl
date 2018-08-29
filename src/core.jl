@@ -214,8 +214,8 @@ function with_def_graph(ex)
     # that breaks Revise at the moment. Should add back once Revise
     # is patched.
     quote
-        function $f($(new_args...))
-            $f(TensorFlow.get_def_graph(), $(new_args...))
+        function $f($(new_args...); $(kwargs...))
+            $f(TensorFlow.get_def_graph(), $(new_args...); $(kwargs...))
         end
     end
 end
