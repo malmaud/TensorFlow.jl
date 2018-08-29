@@ -196,7 +196,6 @@ include("ops.jl")
 include("variable.jl")
 using .Variables
 
-include("shape_inference.jl")
 include("train.jl")
 include("io.jl")
 include("summary.jl")

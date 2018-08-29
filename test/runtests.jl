@@ -9,12 +9,12 @@ include(joinpath(dirname(@__FILE__), "..", "examples", "logistic.jl"))
 # Main tests
 
 tests = [
+"hello.jl",
 "clipping.jl",
 "comp.jl",
 "control.jl",
 "core.jl",
 "debug.jl",
-"hello.jl",
 "image.jl",
 "init_ops.jl",
 "io.jl",

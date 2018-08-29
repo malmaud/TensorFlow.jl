@@ -6,7 +6,7 @@ import Printf
 @render Juno.Inline t::Tensor begin
   s = get_shape(t)
   shape = s.rank_unknown ? [fade("unknown")] :
-    interleave(map(dim -> get(dim, fade("?")), s.dims), fade("×"))
+    interleave(map(dim -> ismissing(dim) ? "?" : dim , s.dims), fade("×"))
   Tree(Row(fade(try string(eltype(t)," ") catch e "" end),
            HTML("<span class='constant support type'>Tensor</span> "),
            shape...),
@@ -53,10 +53,10 @@ function Base.show(io::IO, t::Tensor{T}) where T
     else
         dims = String[]
         for dim in s.dims
-            if isnull(dim)
+            if ismissing(dim)
                 push!(dims, "?")
             else
-                push!(dims, string(get(dim)))
+                push!(dims, string(dim))
             end
         end
         shape = string("(", join(dims, ", "), ")")

@@ -155,30 +155,16 @@ struct OperationContext
 end
 
 @auto_hash_equals struct TensorShape
-    dims::Vector{Nullable{Int}}
+    dims::Vector{Union{Int, Missing}}
     rank_unknown::Bool
 end
 
+TensorShape(dims::Vector) = TensorShape(dims, false)
+TensorShape(::Missing) = TensorShape([], true)
 
-function TensorShape(dims::AbstractVector{<:Integer})
-    TensorShape([x<0 ? Nullable{Int64}() : Nullable{Int64}(Int64(x)) for x in dims])
+function Base.copy(shape::TensorShape)
+    TensorShape(copy(shape.dims), shape.rank_unknown)
 end
-
-function TensorShape(dims)
-    TensorShape(dims, false)
-end
-
-function TensorShape(::Cvoid)
-    TensorShape(Nullable{Int}[], true)
-end
-
-function TensorShape(::Vector{Union{}}) # NB: `Vector{Union{}} == typeof(collect(tuple())))`
-    TensorShape(Nullable{Int}[], false)
-end
-
-TensorShape(t::TensorShape) = copy(t)
-
-function get_shape end
 
 """
 A TensorFlow computation graph
@@ -186,7 +172,6 @@ A TensorFlow computation graph
 mutable struct Graph
     ptr::Ptr{Cvoid}
     collections::Dict{Symbol, Any}
-    shapes::Dict{String, TensorShape}
     name_idx::Dict{String, Int}
     op_context::OperationContext
 
@@ -198,7 +183,7 @@ mutable struct Graph
         collections[:Summaries] = []
         collections[:QueueRunners] = []
         collections[:while_context] = []
-        self = new(ptr, collections, Dict{String, TensorShape}(), Dict{String, Int}(), OperationContext(Vector{Operation}[], String[], tensorflow.WhileContextDef[], Device[], Ref(false)))
+        self = new(ptr, collections, Dict{String, Int}(), OperationContext(Vector{Operation}[], String[], tensorflow.WhileContextDef[], Device[], Ref(false)))
         finalizer(self) do self
             @tfcall(:TF_DeleteGraph, Cvoid, (Ptr{Cvoid},), self.ptr)
         end
@@ -226,9 +211,12 @@ function with_def_graph(ex)
     error("Improper use of with_def_graph")
     (kwargs === nothing) && (kwargs = [])
     new_args = args[2:end]
+    # Temporarily eliminate passing through keyword arguments since
+    # that breaks Revise at the moment. Should add back once Revise
+    # is patched.
     quote
-        function $f($(new_args...); $(kwargs...))
-            $f(TensorFlow.get_def_graph(), $(new_args...); $(kwargs...))
+        function $f($(new_args...))
+            $f(TensorFlow.get_def_graph(), $(new_args...))
         end
     end
 end
@@ -1187,6 +1175,8 @@ Represents the output of an operation in the computation graph
     value_index::Int
 end
 
+get_graph(t::AbstractTensor) = get(Tensor(t).op.graph)
+
 node_name(t::AbstractTensor) = (node_name(Tensor(t).op), Tensor(t).value_index)
 
 function Tensor(op::Operation, value_index::Int)
@@ -1237,6 +1227,7 @@ end
 Base.eltype(::Type{<:AbstractTensor{T}}) where {T} = T
 
 Port(t::Tensor) = Port(t.op.ptr, t.value_index-1)
+Port(t::AbstractTensor) = Port(Tensor(t))
 Port(op::Operation) = Port(Tensor(op))
 Port(port::Port) = port
 
@@ -1282,7 +1273,7 @@ function setindex!(desc::NodeDescription, value::TensorShape, attr_name)
     if value.rank_unknown
         dims = Int[]
     else
-        dims = Int[(isnull(dim) ? -1 : get(dim)) for dim in value.dims]
+        dims = Int[ismissing(dim) ? -1 : dim for dim in value.dims]
     end
     @tfcall(:TF_SetAttrShape, Cvoid, (Ptr{Cvoid}, Cstring, Ptr{Int64}, Cint), desc.ptr, attr_name, dims, length(dims))
 end
@@ -1701,6 +1692,7 @@ function get_all_op_list()
     op_list
 end
 
+
 get_op_def(x::AbstractString) = get_all_op_list()[x]
 
 function Operation(node_def::tensorflow.NodeDef)
@@ -1749,4 +1741,61 @@ function Operation(node_def::tensorflow.NodeDef)
     end
 
     Operation(desc)
+end
+
+function set_tensor_shape(tensor::AbstractTensor, dims)
+    output = Port(tensor)
+    g = get_graph(tensor)
+    status = Status()
+    dims = [ismissing(dim) ? -1 : dim for dim in dims]
+    @tfcall(:TF_GraphSetTensorShape, Cvoid, (Ptr{Cvoid}, Port, Ptr{Cvoid}, Cint, Ptr{Cvoid}), g.ptr, output, dims, length(dims), status.ptr)
+    check_status(status)
+end
+
+function get_tensor_num_dims(tensor::AbstractTensor)
+    output = Port(tensor)
+    g = get_graph(tensor)
+    status = Status()
+    num_dims = @tfcall(:TF_GraphGetTensorNumDims, Cint, (Ptr{Cvoid}, Port, Ptr{Cvoid}), g.ptr, output, status.ptr)
+    check_status(status)
+    num_dims = Int(num_dims)
+    if num_dims == -1
+        return missing
+    else
+        return num_dims
+    end
+end
+
+function get_tensor_shape(tensor::AbstractTensor)
+    output = Port(tensor)
+    g = get_graph(tensor)
+    status = Status()
+    num_dims = get_tensor_num_dims(tensor)
+    if num_dims == 0 || ismissing(num_dims)
+        return Int64[]
+    end
+    dims = Vector{Int64}(undef, num_dims)
+    @tfcall(:TF_GraphGetTensorShape, Cvoid, (Ptr{Cvoid}, Port, Ptr{Int64}, Cint, Ptr{Cvoid}), g.ptr, output, dims, length(dims), status.ptr)
+    check_status(status)
+    missing_dims = [dim==-1 ? missing : dim for dim in dims]
+    return missing_dims
+end
+
+function get_shape(tensor::AbstractTensor)
+    if ismissing(get_tensor_num_dims(tensor))
+        return TensorShape([], true)
+    else
+        return TensorShape(get_tensor_shape(tensor), false)
+    end
+end
+
+function get_shape(tensor::AbstractTensor, dim)
+    shape = get_shape(tensor)
+    if shape.rank_unknown
+        error("Rank is unknown")
+    end
+    if length(shape.dims) < dim
+        error("$dim is more than shape's rank of $(length(shape.dims))")
+    end
+    return shape.dims[dim]
 end
