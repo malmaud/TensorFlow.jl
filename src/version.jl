@@ -54,7 +54,7 @@ function py_version_check(;print_warning=true, force_warning=false)
             upgrade_msg = "Typically, executing `pip install --upgrade tensorflow` from the command line will upgrade Python TensorFlow. You may need administrator privileges."
         end
         full_msg = "$(base_msg)\n$(upgrade_msg)"
-        print_warning && warn(full_msg)
+        print_warning && @warn(full_msg)
         return false
     end
     return true
@@ -78,7 +78,7 @@ end
 function tf_versioninfo()
     println("Wording: Please copy-paste the entirely of the below output into any bug reports.")
     println("Note that this may display some errors, depending upon on your configuration. This is fine.")
-    
+
     println()
     println("----------------")
     println("Library Versions")
@@ -86,11 +86,11 @@ function tf_versioninfo()
     @tryshow ENV["TF_USE_GPU"]
     @tryshow ENV["LIBTENSORFLOW"]
     println()
-    @tryshow tf_version(kind=:backend) 
+    @tryshow tf_version(kind=:backend)
     @tryshow tf_version(kind=:python)
-    @tryshow tf_version(kind=:julia)  
-    
-    
+    @tryshow tf_version(kind=:julia)
+
+
     println()
     println("-------------")
     println("Python Status")
@@ -100,7 +100,7 @@ function tf_versioninfo()
     @tryshow PyCall.PYTHONHOME
     @tryshow readstring(`pip --version`)
     @tryshow readstring(`pip3 --version`)
-    
+
     println()
     println("------------")
     println("Julia Status")
