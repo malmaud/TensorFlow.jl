@@ -1,6 +1,7 @@
-using Base.Test
+using Test
 using TensorFlow
 const tf = TensorFlow
+using Nullables
 
 @testset "TensorShape" begin
     @test TensorShape([]) == TensorShape(Nullable{Int}[],false)
@@ -87,7 +88,7 @@ end
         as_default(Graph()) do
             unused = get_variable("unused", [], Float64)
             used = get_variable("used", [], Float64)
-            loss = used.^2
+            loss = used.*used
             grad = gradients(loss, unused)
             @test grad == nothing # The gradient between disconnected nodes is nothing
             # This would also have thrown an error if Disconnected gradients were causing issues

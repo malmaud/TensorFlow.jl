@@ -1,11 +1,12 @@
 using MNIST
+import Random
 
 mutable struct DataLoader
     cur_id::Int
     order::Vector{Int}
 end
 
-DataLoader() = DataLoader(1, shuffle(1:60000))
+DataLoader() = DataLoader(1, Random.shuffle(1:60000))
 
 function next_batch(loader::DataLoader, batch_size)
     x = zeros(Float32, batch_size, 784)

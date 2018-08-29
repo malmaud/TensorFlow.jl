@@ -5,11 +5,14 @@ RecordWriter,
 RecordIterator
 
 import TensorFlow
+import Distributed
 const tf = TensorFlow
+
+using Nullables
 using PyCall
 
 struct RecordWriter
-    pyo::Future
+    pyo::Distributed.Future
 end
 
 """
@@ -47,11 +50,7 @@ function Base.close(writer::RecordWriter)
 end
 
 struct RecordIterator
-    pyo::Future
-end
-
-struct RecordIteratorState
-    val::Nullable{Vector{UInt8}}
+    pyo::Distributed.Future
 end
 
 """
@@ -65,42 +64,52 @@ function RecordIterator(path::AbstractString)
     RecordIterator(pyo)
 end
 
-
-
 function _next(iter::RecordIterator)
     try
-        @static if PyCall.pyversion >= v"3.0.0"
-            record = fetch(@tf.py_proc $(iter.pyo)[:__next__]())
+        ans=@static if PyCall.pyversion >= v"3.0.0"
+            fetch(@tf.py_proc $(iter.pyo)[:__next__]())
         else
             #Python 2
-            record = fetch(@tf.py_proc $(iter.pyo)[:next]())
+            fetch(@tf.py_proc $(iter.pyo)[:next]())
         end
-        RecordIteratorState(Nullable(record))
+        Vector{UInt8}(ans)
     catch err
-        if isa(err, RemoteException) && isa(err.captured.ex, PyCall.PyError)
+        if isa(err, Distributed.RemoteException) && isa(err.captured.ex, PyCall.PyError)
             # Only catch it, if it could be an  StopIteration exception thrown in python
             # which signifies the end of iteration being reached normally
-            RecordIteratorState(Nullable())
+            nothing # signal to stop julia iteration
         else
             rethrow(err)
         end
     end
 end
 
-function Base.start(iter::RecordIterator)
-    return _next(iter)
+function Base.iterate(iter::RecordIterator, state=iter)
+	record = _next(iter)
+	if record isa Nothing
+		nothing # end iteration
+	else
+		(record, iter)
+	end
 end
 
-function Base.next(iter::RecordIterator, state)
-    val = get(state.val)
-    return val, _next(iter)
-end
+#function Base.start(iter::RecordIterator)
+#    return _next(iter)
+#end
 
-function Base.done(iter::RecordIterator, state)
-    isnull(state.val)
-end
+#function Base.next(iter::RecordIterator, state)
+#    val = get(state.val)
+#    return val, _next(iter)
+#end
 
-Base.iteratorsize(::Type{RecordIterator}) = Base.SizeUnknown()
-Base.eltype(::Type{RecordIterator}) = Vector{UInt8}
+#function Base.done(iter::RecordIterator, state)
+#    isnull(state.val)
+#end
+
+#Base.IteratorSize(::RecordIterator) = Base.SizeUnknown()
+#Base.IteratorEltype(::RecordIterator) = Vector{UInt8}
+
+Base.IteratorSize(::RecordIterator) = Base.SizeUnknown()
+Base.eltype(::RecordIterator) = Vector{UInt8}
 
 end

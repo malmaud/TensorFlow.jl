@@ -1,3 +1,7 @@
+import LinearAlgebra
+import SpecialFunctions
+import Statistics
+
 import .Ops:
     add_n,
     arg_min,
@@ -23,24 +27,22 @@ import .Ops:
     segment_prod
 
 
-@op Base.indmin(n::AbstractTensor, dim; name=nothing) = Ops.arg_min(n, dim; name=name)+1
+@op Base.argmin(n::AbstractTensor, dim; name=nothing) = Ops.arg_min(n, dim; name=name)+1
 
-@op Base.indmax(n::AbstractTensor, dim; name=nothing) = Ops.arg_max(n, dim; name=name)+1
+@op Base.argmax(n::AbstractTensor, dim; name=nothing) = Ops.arg_max(n, dim; name=name)+1
 
 @op Base.max(x::AbstractTensor, y; kwargs...) = Ops.maximum(x, y; kwargs...)
 @op Base.min(x::AbstractTensor, y; kwargs...) = Ops.minimum(x, y; kwargs...)
 
 
-@op function Base.svd(a::AbstractTensor; thin=true, kwargs...)
+@op function LinearAlgebra.svd(a::AbstractTensor; full=false, kwargs...)
     # Match Base names and ordering of results
-    s,u,v = Ops.svd(a; compute_uv=true, full_matrices=!thin, kwargs...)
+    s,u,v = Ops.svd(a; compute_uv=true, full_matrices=full, kwargs...)
     u,s,v
 end
 
 
 
-# const multiply = Ops.mul
-# const negative = Ops.neg
 @define_unary negative Ops.neg
 @define_binary multiply Ops.mul
 const self_adjoint_eig = Ops.self_adjoint_eig_v2
@@ -63,6 +65,8 @@ const matmul = mat_mul
 @define_broadcast(-, sub)
 @define_broadcast(/, Ops.div)
 @define_broadcast(^, pow)
+
+Broadcast.broadcasted(::typeof(Base.literal_pow), ::typeof(^), x::AbstractTensor, y::Val{T}) where T = x^Tensor(T)
 
 @op function batch_matmul(x::AbstractTensor,y::AbstractTensor; adj_x=false, adj_y=false, name=nothing)
     if tf_version() >= v"1.0.0-"
@@ -111,7 +115,7 @@ Returns:
     Tensor(Operation(desc), 1)
 end
 
-@op function Base.cross(n1::AbstractTensor, n2::AbstractTensor; kwargs...)
+@op function LinearAlgebra.cross(n1::AbstractTensor, n2::AbstractTensor; kwargs...)
     Ops.cross(n1, n2; kwargs...)
 end
 
@@ -133,9 +137,6 @@ for jl_func_name in [
     :asin,
     :acos,
     :tanh,
-    :lgamma,
-    :erf,
-    :erfc,
     :real,
     :imag,
     :sign,
@@ -144,15 +145,24 @@ for jl_func_name in [
     @eval @define_unary Base.$jl_func_name Ops.$jl_func_name
 end
 
-function Base.round(::Type{T}, value::AbstractTensor) where T
-    convert(Tensor{T}, round(value))
+
+for jl_func_name in [
+    :lgamma,
+    :erf,
+    :erfc]
+    @eval @define_unary SpecialFunctions.$jl_func_name Ops.$jl_func_name
 end
 
 for jl_func_name in [
     :polygamma,
     :zeta]
-    @eval @define_binary Base.$jl_func_name Ops.$jl_func_name
+    @eval @define_binary SpecialFunctions.$jl_func_name Ops.$jl_func_name
 end
+
+function Base.round(::Type{T}, value::AbstractTensor) where T
+    convert(Tensor{T}, round(value))
+end
+
 
 -(n::AbstractTensor) = negative(n)
 
@@ -162,13 +172,20 @@ end
 
 # Matrix math
 
+@define_unary Base.inv Ops.matrix_inverse
+
 for (jl_func_name, tf_func_name) in [
-    (:inv, :matrix_inverse),
     (:det, :matrix_determinant),
-    (:diagm, :diag),
     (:diag, :matrix_diag_part)]
 
-    @eval @define_unary Base.$jl_func_name Ops.$tf_func_name
+    @eval @define_unary LinearAlgebra.$jl_func_name Ops.$tf_func_name
+end
+
+function LinearAlgebra.diagm(kv::Pair{T, S}) where {T<:Integer, S<:AbstractTensor}
+    if kv.first == 0
+        return Ops.diag(kv.second)
+    end
+    error("diagm only supports the calling form diagm(0=>x) where 'x' is a tensor.")
 end
 
 # Reductions
@@ -211,15 +228,15 @@ end
 
 # TODO Match Julia reduction behavior when `axis` is passed
 for (jl_func, tf_func) in [
-    (:sum, :reduce_sum),
-    (:prod, :reduce_prod),
-    (:minimum, :reduce_min),
-    (:maximum, :reduce_max),
-    (:all, :reduce_all),
-    (:any, :reduce_any),
-    (:mean, :reduce_mean),
+    (:(Base.sum), :reduce_sum),
+    (:(Base.prod), :reduce_prod),
+    (:(Base.minimum), :reduce_min),
+    (:(Base.maximum), :reduce_max),
+    (:(Base.all), :reduce_all),
+    (:(Base.any), :reduce_any),
+    (:(Statistics.mean), :reduce_mean),
     ]
-    @eval function Base.$jl_func(n::AbstractTensor, axis=nothing; kwargs...)
+    @eval function $jl_func(n::AbstractTensor, axis=nothing; kwargs...)
         $tf_func(n; axis=axis, kwargs...)
     end
 end

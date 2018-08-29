@@ -1,7 +1,6 @@
-__precompile__(true)
 module TensorFlow
 
-warn("Loading a new version of TensorFlow.jl for the first time. This initial load can take around 5 minutes as code is precompiled; subsequent usage will only take a few seconds.")
+@warn("Loading a new version of TensorFlow.jl for the first time. This initial load can take around 5 minutes as code is precompiled; subsequent usage will only take a few seconds.")
 
 export
 Graph,
@@ -127,10 +126,17 @@ import_op,
 @tfimport,
 tf_versioninfo
 
+
+using Distributed
+
 const pyproc = Ref(0)
 
+function deallocator(data, len, arg)
+
+end
+
 function __init__()
-    c_deallocator[] = cfunction(deallocator, Void, (Ptr{Void}, Csize_t, Ptr{Void}))
+    c_deallocator[] = @cfunction(deallocator, Cvoid, (Ptr{Cvoid}, Csize_t, Ptr{Cvoid}))
 end
 
 function load_python_process(;force_reload=false)
@@ -139,8 +145,9 @@ function load_python_process(;force_reload=false)
         addprocs(1)
         pyproc[] = nprocs()
         py_file = joinpath(dirname(@__FILE__), "py.jl")
-        eval(Main, quote
+        Base.eval(Main, quote
             # These have to be split for unclear reasons on .6
+            using Distributed
             remotecall_wait($(pyproc[]), $py_file) do py_file
                 include(py_file)
             end
@@ -151,7 +158,7 @@ function load_python_process(;force_reload=false)
         py_version_check()
         return pyproc[]
     else
-        remotecall_fetch(1) do
+        Distributed.remotecall_fetch(1) do
             load_python_process()
         end
     end
@@ -169,7 +176,7 @@ Returns a future to the result.
 """
 macro py_proc(expr)
     quote
-        eval(Main, quote
+        Base.eval(Main, quote
             remotecall_wait($(TensorFlow.load_python_process())) do
                 $($(Expr(:quote, expr)))
             end

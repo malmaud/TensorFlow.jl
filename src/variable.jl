@@ -27,6 +27,9 @@ import .tf.Ops:
     scatter_mul,
     scatter_div
 
+import Distributions
+using Nullables
+
 mutable struct Variable{T} <: tf.AbstractTensor{T}
     var_node::tf.Tensor{T}
     assign_node::tf.Tensor{T}
@@ -40,7 +43,6 @@ function Variable(var_node::tf.Tensor{T}, assign_node::tf.Tensor{T}) where T
     v.assign_node = assign_node
     v
 end
-
 
 """
 A variable maintains state in the graph across calls to `run()`.
@@ -142,7 +144,7 @@ end
 
 NormalInitializer() = NormalInitializer(.01)
 
-Base.rand(rng::NormalInitializer, shape...) = rng.sd * randn(shape)
+Base.rand(rng::NormalInitializer, shape::Integer...) = rng.sd * randn(shape)
 
 """
 Gets an existing variable with these parameters (`shape`, `dtype`, `trainable`)
@@ -191,7 +193,7 @@ end
 tf.get_tensors(v::Variable) = [v.var_node]
 
 function is_variable(name::AbstractString)
-    return ismatch(r"^(Variable|VariableV\d+)$", name)
+    return occursin(r"^(Variable|VariableV\d+)$", name)
 end
 
 is_variable(name::Union{tf.Operation, tf.AbstractTensor}) = is_variable(tf.get_op(name).op_name)

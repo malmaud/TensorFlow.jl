@@ -2,6 +2,7 @@
 
 module Ops
 import TensorFlow
+import SpecialFunctions
 const tf = TensorFlow
 """
      equal(x, y)

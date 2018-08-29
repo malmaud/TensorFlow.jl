@@ -233,11 +233,11 @@ Creates tasks that run the enqueue operations in `runner` in parallel.
 function create_threads(runner::QueueRunner, sess)
     tasks = Task[]
     for op in runner.enqueue_ops
-        task = @schedule begin
+        task = @async begin
             status = tf.Status()
             while true
                 try
-                    @threadcall((:TF_SessionRun, tf.LIBTF), Void, (Ptr{Void}, Ptr{Void}, Ptr{Void}, Ptr{Void}, Cint, Ptr{Void}, Ptr{Ptr{Void}}, Cint, Ptr{Void}, Cint, Ptr{Void}, Ptr{Void}),
+                    @threadcall((:TF_SessionRun, tf.LIBTF), Cvoid, (Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}, Cint, Ptr{Cvoid}, Ptr{Ptr{Cvoid}}, Cint, Ptr{Cvoid}, Cint, Ptr{Cvoid}, Ptr{Cvoid}),
                         sess.ptr,
                         C_NULL,
                         C_NULL,
@@ -252,7 +252,7 @@ function create_threads(runner::QueueRunner, sess)
                         status.ptr)
                     tf.check_status(status)
                 catch err
-                    info("got $err on queue")
+                    @info("got $err on queue")
                     break
                 end
             end

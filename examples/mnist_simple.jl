@@ -18,7 +18,7 @@ y = nn.softmax(x*W + b)
 cross_entropy = reduce_mean(-reduce_sum(y_ .* log(y), axis=[2]))
 train_step = train.minimize(train.GradientDescentOptimizer(.00001), cross_entropy)
 
-correct_prediction = indmax(y, 2) .== indmax(y_, 2)
+correct_prediction = argmax(y, 2) .== argmax(y_, 2)
 accuracy=reduce_mean(cast(correct_prediction, Float32))
 
 for i in 1:1000

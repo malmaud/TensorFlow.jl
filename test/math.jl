@@ -1,5 +1,9 @@
 using TensorFlow
-using Base.Test
+using Test
+import SpecialFunctions
+import LinearAlgebra
+import Random
+import Statistics
 
 sess = TensorFlow.Session(TensorFlow.Graph())
 
@@ -21,16 +25,16 @@ sess = TensorFlow.Session(TensorFlow.Graph())
 end
 
 @testset "SpecialFuns" begin
-    d_raw = 1. + rand(10)
+    d_raw = 1. .+ rand(10)
     d = TensorFlow.constant(d_raw)
-    for unary_func in [erf, erfc, lgamma, tanh, tan, sin, cos, abs, exp, log]
+    for unary_func in [SpecialFunctions.erf, SpecialFunctions.erfc, SpecialFunctions.lgamma, tanh, tan, sin, cos, abs, exp, log]
        result = run(sess, unary_func(d))
        @test unary_func.(d_raw) ≈ result
     end
     result = run(sess, -d)
     @test -d_raw == result
 
-    for func in [polygamma, zeta]
+    for func in [SpecialFunctions.polygamma, SpecialFunctions.zeta]
         @test func(2, 3.0) ≈ run(sess, func(constant(2.0), constant(3.0)))
     end
 
@@ -47,14 +51,14 @@ end
     mat = TensorFlow.constant(mat_raw)
     result = run(sess, inv(mat))
     @test inv(mat_raw) ≈ result
-    result = run(sess, det(mat))
-    @test det(mat_raw) ≈ result
-    result = run(sess, diag(mat))
-    @test diag(mat_raw) ≈ result
+    result = run(sess, LinearAlgebra.det(mat))
+    @test LinearAlgebra.det(mat_raw) ≈ result
+    result = run(sess, LinearAlgebra.diag(mat))
+    @test LinearAlgebra.diag(mat_raw) ≈ result
 
     diag_raw = rand(5)
     diag_mat = TensorFlow.constant(diag_raw)
-    result = run(sess, det(diagm(diag_mat)))
+    result = run(sess, LinearAlgebra.det(LinearAlgebra.diagm(0=>diag_mat)))
     @test prod(diag_raw) ≈ result
 end
 
@@ -69,8 +73,8 @@ end
     @test a_raw - b_raw ≈ result
     result = run(sess, a.*b)
     @test a_raw.*b_raw ≈ result
-    result = run(sess, a × b)
-    @test a_raw × b_raw ≈ result
+    result = run(sess, LinearAlgebra.cross(a, b))
+    @test LinearAlgebra.cross(a_raw, b_raw) ≈ result
     result = run(sess, TensorFlow.add_n([a,b]))
     @test a_raw .+ b_raw ≈ result
     result = run(sess, 5 * a)
@@ -89,20 +93,20 @@ end
 
     a_raw = rand(10)
     a = TensorFlow.constant(a_raw)
-    result = run(sess, indmin(a, 1))
-    @test indmin(a_raw) == result
-    result = run(sess, indmax(a, 1))
-    @test indmax(a_raw) == result
+    result = run(sess, argmin(a, 1))
+    @test argmin(a_raw) == result
+    result = run(sess, argmax(a, 1))
+    @test argmax(a_raw) == result
 
     #check it find the first instance of lowest/highers number as the result for indmin/indmax
     x=constant([1 2 3; 0 2 3; 0 0 3; 0 0 0]')
-    @test [2, 3, 4] == run(sess, indmin(x, 2))
-    @test [1, 1, 1] == run(sess, indmax(x, 2))
+    @test [2, 3, 4] == run(sess, argmin(x, 2))
+    @test [1, 1, 1] == run(sess, argmax(x, 2))
 end
 
 @testset "logic" begin
-    a_raw = Vector{Bool}(bitrand(10))
-    b_raw = Vector{Bool}(bitrand(10))
+    a_raw = Vector{Bool}(Random.bitrand(10))
+    b_raw = Vector{Bool}(Random.bitrand(10))
     a = TensorFlow.constant(a_raw)
     b = TensorFlow.constant(b_raw)
     for (op, func) in [(&, logical_and), (|, logical_or)]
@@ -117,18 +121,18 @@ end
 @testset "reduce" begin
     a_raw = rand(10)
     a = TensorFlow.constant(a_raw)
-    for (jl_func, red_func) in [(sum, reduce_sum), (prod, reduce_prod), (minimum, reduce_min), (maximum, reduce_max), (mean, reduce_mean)]
+    for (jl_func, red_func) in [(sum, reduce_sum), (prod, reduce_prod), (minimum, reduce_min), (maximum, reduce_max), (Statistics.mean, reduce_mean)]
         result = run(sess, red_func(a))
         @test jl_func(a_raw) ≈ result
         result = run(sess, red_func(a, axis=0))
-        @test jl_func(a_raw, 1)[1] ≈ result
+        @test jl_func(a_raw; dims=1)[1] ≈ result
         @test run(sess, jl_func(a)) ≈ jl_func(a_raw)
     end
 
     a_raw = rand(10)
     a = TensorFlow.constant(a_raw)
     inds = vcat(ones(Int32,5), fill(Int32(2), 5))
-    for (jl_func, seg_func) in [(sum, segment_sum), (prod, segment_prod), (minimum, segment_min), (maximum, segment_max), (mean, segment_mean)]
+    for (jl_func, seg_func) in [(sum, segment_sum), (prod, segment_prod), (minimum, segment_min), (maximum, segment_max), (Statistics.mean, segment_mean)]
         result = run(sess, seg_func(a, inds))
         @test jl_func(a_raw[1:5]) ≈ result[1]
         @test jl_func(a_raw[6:10]) ≈ result[2]
@@ -136,7 +140,7 @@ end
 
     a_raw = Vector{Bool}(trues(10))
     a = TensorFlow.constant(a_raw)
-    b_raw = Vector{Bool}(bitrand(10))
+    b_raw = Vector{Bool}(Random.bitrand(10))
     b = TensorFlow.constant(b_raw)
     for (jl_func, red_func) in [(any, reduce_any), (all, reduce_all)]
         result = run(sess, red_func(a))
@@ -146,7 +150,7 @@ end
     end
 
     # Unsorted segment sum
-    a = TensorFlow.constant(eye(5))
+    a = TensorFlow.constant(LinearAlgebra.Diagonal(ones(5,5)))
     idxs = TensorFlow.constant(map(Int64, [1,1,2,3,1]))
     n = TensorFlow.constant(Int32(3))
     d = unsorted_segment_sum(a, idxs, n)
@@ -157,7 +161,7 @@ end
 end
 
 @testset "linear algebra" begin
-    M_raw = tril(rand(Float32, 10, 10))
+    M_raw = LinearAlgebra.tril(rand(Float32, 10, 10))
     x_raw = ones(Float32, 10, 2)
     x = TensorFlow.constant(x_raw)
     M = TensorFlow.constant(M_raw)
@@ -171,29 +175,29 @@ end
     M_raw = rand(Float32, 10, 10)
     M_raw += M_raw'
     result = run(sess, TensorFlow.self_adjoint_eig(constant(M_raw)))
-    @test eigvals(M_raw) ≈ result[1]
-    evs = eigvecs(M_raw)
+    @test LinearAlgebra.eigvals(M_raw) ≈ result[1]
+    evs = LinearAlgebra.eigvecs(M_raw)
     for vec_ind in 1:10
-        @test abs(dot(evs[:, vec_ind], result[2][:, vec_ind])) ≈ Float32(1.)
+        @test abs(LinearAlgebra.dot(evs[:, vec_ind], result[2][:, vec_ind])) ≈ Float32(1.)
     end
 
     M_raw = rand(Float32, 10, 10)
     M_raw *= M_raw'
     result = run(sess, TensorFlow.cholesky(constant(M_raw)))
-    @test cholfact(M_raw)[:L] ≈ result
+    @test LinearAlgebra.cholesky(M_raw).L ≈ result
 
-    for thin in [true, false]
+    for full in [true, false]
         M_raw = rand(Float32, 10, 10)
-        u, s, v = run(sess, svd(constant(M_raw), thin=thin))
-        uj, sj, vj = svd(M_raw, thin=thin)
+        u, s, v = run(sess, LinearAlgebra.svd(constant(M_raw), full=full))
+        uj, sj, vj = LinearAlgebra.svd(M_raw, full=full)
         # Can't directly check values between julia svd and tensorflow svd as SVD not unique
         # Check the shape of results match
         @test size(s) == size(sj)
         @test size(u) == size(uj)
         @test size(v) == size(uj)
         # Check the reconstruction is close
-        err = sum(abs2, M_raw-u*diagm(s)*v')
-        err_j = sum(abs2, M_raw-uj*diagm(sj)*vj')
+        err = sum(abs2, M_raw-u*LinearAlgebra.diagm(0=>s)*v')
+        err_j = sum(abs2, M_raw-uj*LinearAlgebra.diagm(0=>sj)*vj')
 
         @assert err_j ≤ 1e-10
         @test err ≤ 1000err_j # Julia has really accurate SVD, apparently, so give it a margin

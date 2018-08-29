@@ -1,6 +1,7 @@
 using Juno
 using PyCall
 import Juno: Tree, Row, fade, interleave
+import Printf
 
 @render Juno.Inline t::Tensor begin
   s = get_shape(t)
@@ -14,12 +15,12 @@ import Juno: Tree, Row, fade, interleave
 end
 
 function Base.show(io::IO, s::Status)
-    msg = @tfcall(:TF_Message, Cstring, (Ptr{Void},), s.ptr) |> unsafe_string
-    print(io, @sprintf("Status: %s", msg))
+    msg = @tfcall(:TF_Message, Cstring, (Ptr{Cvoid},), s.ptr) |> unsafe_string
+    print(io, Printf.@sprintf("Status: %s", msg))
 end
 
 function Base.show(io::IO, err::TFException)
-    println(io, @sprintf("Tensorflow error: %s", string(err.status)))
+    println(io, Printf.@sprintf("Tensorflow error: %s", string(err.status)))
 end
 
 function Base.show(io::IO, s::Session)
@@ -30,12 +31,12 @@ function Base.show(io::IO, t::RawTensor)
     print(io, "RawTensor: ")
     if ndims(t) == 0
         if eltype(t) == String
-            show(io, String(t))
+            show(io, convert(String, t))
         else
-            show(io, Number(t))
+            show(io, convert(Number, t))
         end
     else
-        show(io, Array(t))
+        show(io, convert(Array, t))
     end
 end
 
@@ -44,7 +45,7 @@ function Base.show(io::IO, n::Operation)
 end
 
 function Base.show(io::IO, t::Tensor{T}) where T
-    @assert T==eltype(t)
+    @assert(T==eltype(t), "eltype = $(eltype(t)), but Tensor{$(T)})")
 
     s = get_shape(t)
     if s.rank_unknown
@@ -177,7 +178,7 @@ function get_tensorboard(logdir=nothing)
     if path === nothing
         error("The tensorboard binary was not found. Make sure `tensorboard` is in your system path.")
     end
-    _, proc = open(`$path --logdir=$logdir --port=$port`)
+    proc = open(`$path --logdir=$logdir --port=$port`)
     tensorboard[] = Tensorboard(proc, logdir, port)
     atexit() do
         close(tensorboard[])
@@ -188,9 +189,9 @@ end
 
 function open_url(url)
     cmd = nothing
-    if is_apple()
+    if Sys.isapple()
         cmd = `open $url`
-    elseif is_unix()
+    elseif Sys.isunix()
         cmd = `xdg-open $url`
     end
     cmd === nothing || run(cmd)

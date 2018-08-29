@@ -21,8 +21,9 @@ This matchs python TensorFlow `size` operation
 https://www.tensorflow.org/versions/r0.10/api_docs/python/array_ops.html#size
 """
 @define_unary Base.length Ops.size
-@define_unary Base.endof length
+@define_unary Base.lastindex length
 
+Base.lastindex(x::AbstractTensor, dim) = size(x, dim)
 
 struct TensorRange
     start::Tensor{Int32}
@@ -31,9 +32,9 @@ end
 Base.first(tr::TensorRange)=tr.start
 Base.last(tr::TensorRange)=tr.stop
 
-@define_binary Base.colon TensorRange
+@define_binary Base.:(:) TensorRange
 
-    
+
 const Slice = Union{TensorRange, UnitRange, Colon}
 const Index = Union{<:Integer, AbstractArray{<:Integer}, AbstractTensor{<:Integer}}
 
@@ -71,7 +72,7 @@ function Base.getindex(params::AbstractTensor, ind1::Union{Slice, Index},  inds:
     end
 
     function proc_ind!(ind::Union{UnitRange, TensorRange})
-        #NOTE: end has (during code lowering) been replace with `endof(X)` or `size(X,d)` giving the actual size
+        #NOTE: end has (during code lowering) been replace with `lastindex(X)` or `size(X,d)` giving the actual size
         begin_ =  first(ind)
         push!(begins, begin_)
         end_ = last(ind)
@@ -105,7 +106,7 @@ function Base.getindex(params::AbstractTensor, ind1::Union{Slice, Index},  inds:
             sizes_tensor = stack(sizes)
             sliced = slice(params, begins_tensor, sizes_tensor)
             if length(singleton_dims)>0 # we are not slicing on all axies
-                squeeze(sliced, singleton_dims) # Squeeze singleton indexes
+                dropdims(sliced, dims=singleton_dims) # Drop singleton indexes
             else # we are slicing on all axies
                 sliced
             end

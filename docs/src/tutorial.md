@@ -64,7 +64,7 @@ end
 ### Evaluate the model
 
 ```julia
-correct_prediction = indmax(y, 2) .== indmax(y_, 2)
+correct_prediction = argmax(y, 2) .== argmax(y_, 2)
 accuracy=reduce_mean(cast(correct_prediction, Float32))
 testx, testy = load_test_set()
 
@@ -137,7 +137,7 @@ cross_entropy = reduce_mean(-reduce_sum(y_.*log(y_conv), axis=[2]))
 
 train_step = train.minimize(train.AdamOptimizer(1e-4), cross_entropy)
 
-correct_prediction = indmax(y_conv, 2) .== indmax(y_, 2)
+correct_prediction = argmax(y_conv, 2) .== argmax(y_, 2)
 
 accuracy = reduce_mean(cast(correct_prediction, Float32))
 
@@ -147,12 +147,12 @@ for i in 1:1000
     batch = next_batch(loader, 50)
     if i%100 == 1
         train_accuracy = run(session, accuracy, Dict(x=>batch[1], y_=>batch[2], keep_prob=>1.0))
-        info("step $i, training accuracy $train_accuracy")
+        @info("step $i, training accuracy $train_accuracy")
     end
     run(session, train_step, Dict(x=>batch[1], y_=>batch[2], keep_prob=>.5))
 end
 
 testx, testy = load_test_set()
 test_accuracy = run(session, accuracy, Dict(x=>testx, y_=>testy, keep_prob=>1.0))
-info("test accuracy $test_accuracy")
+@info("test accuracy $test_accuracy")
 ```

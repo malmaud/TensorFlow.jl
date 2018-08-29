@@ -1,6 +1,8 @@
 using TensorFlow
-using Base.Test
+using Test
 using StatsFuns
+using Random
+import LinearAlgebra
 
 @testset "conv2d_transpose" begin
     let
@@ -17,11 +19,12 @@ end
 
 
 @testset "Cross Entropy Loss" begin
-    srand(1)
+    Random.seed!(1)
     let
         sess = Session(Graph())
         targets = constant(collect(1:10))
-        targets_hot = constant(Float64.(eye(10)))
+        #targets_hot = constant(Float64.(LinearAlgebra.eye(10)))
+        targets_hot = constant(Matrix{Float64}(LinearAlgebra.I, 10, 10))
         logits_unscaled = constant(rand(10,10))
 
 
@@ -186,8 +189,8 @@ for (rnn_fun, post_proc_outputs) in ((nn.rnn, last),)
                 # the output from the first sequence is repeated 3 times since the length is 1
                 # the second output from the second and fourth sequence is repeated twice
                 # the third sequence has some new output from each of the 3 time steps
-                @test all(outs_jl[1] .== outs_jl[2], 2) == [true false false false]'
-                @test all(outs_jl[2] .== outs_jl[3], 2) == [true true false true]'
+                @test all(outs_jl[1] .== outs_jl[2], dims=2) == [true false false false]'
+                @test all(outs_jl[2] .== outs_jl[3], dims=2) == [true true false true]'
 
                 # since xdata is the same for all sequences the hidden state will be the same
                 # if the sequences have equal length. Sequence number 2 and 4 are both of length 2.

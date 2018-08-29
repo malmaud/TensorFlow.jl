@@ -1,5 +1,6 @@
 module ShapeInference
 
+using Nullables
 using Compat
 using ..TensorFlow
 import TensorFlow: get_input, get_attr, TensorShape, get_shape
@@ -26,10 +27,10 @@ Base.copy(shape::TensorShape) = TensorShape(copy(shape.dims), shape.rank_unknown
 
 function Base.broadcast!(s1::TensorShape, s2::TensorShape)
     while length(s1.dims) < length(s2.dims)
-        unshift!(s1.dims, Nullable(1))
+        pushfirst!(s1.dims, Nullable(1))
     end
     while length(s2.dims) < length(s1.dims)
-        unshift!(s2.dims, Nullable(1))
+        pushfirst!(s2.dims, Nullable(1))
     end
     s1, s2
 end
@@ -233,7 +234,7 @@ register_shape("Transpose") do op
     if isnull(maybe_reorder)
         [TensorShape(nothing)]
     else
-        order::Vector{Int32} = get(maybe_reorder) + 1
+        order::Vector{Int32} = get(maybe_reorder) .+ 1
         if input_shape.rank_unknown
             # We know the rank,
             # it must be the same as the number of elements in the perm
@@ -256,11 +257,11 @@ function load_const(op)
     if op.op_name == "Const"
         local value
         try
-            value = Array(tf.load_proto(get_def(op).attr["value"]))
+            value = convert(Array, tf.load_proto(get_def(op).attr["value"]))
         catch err
             if isa(err, tf.EmptyTensorError)
                 T = eltype(Tensor(op, 1))
-                value = Array{T}(0)
+                value = Array{T}(undef, 0)
             else
                 rethrow(err)
             end
@@ -550,7 +551,7 @@ register_shape("ExpandDims") do op
 end
 
 function conv_sizer(widths, strides, filter_shape)
-    pos = ones(length(widths))
+    pos = ones(Int64, length(widths))
     while true
         while true
             if pos[1] + filter_shape[1] > widths[1]
@@ -565,7 +566,7 @@ function conv_sizer(widths, strides, filter_shape)
         end
         pos[2] += strides[2]
     end
-    return div.(pos-1, strides)+1
+    return div.(pos.-1, strides).+1
 end
 
 register_shape("Conv2D") do op
@@ -632,7 +633,7 @@ register_shape("MaxPool") do op
                 push!(dims, Nullable{Int}())
             end
         else
-            new_dims = 1+conv_sizer([get(input_shape.dims[2]), get(input_shape.dims[3])], [strides[2], strides[3]], [ksize[2], ksize[3]])
+            new_dims = 1 .+ conv_sizer([get(input_shape.dims[2]), get(input_shape.dims[3])], [strides[2], strides[3]], [ksize[2], ksize[3]])
             for i in 1:2
                 push!(dims, Nullable(new_dims[i]))
             end
@@ -686,7 +687,7 @@ register_shape("Slice") do op
                 end
             end
         end
-        out_shape = Vector{Int}(length(input_shape.dims))
+        out_shape = Vector{Int}(undef, length(input_shape.dims))
         for i in 1:length(out_shape)
             if size_value[i] == -1
                 out_shape[i] = -1
@@ -704,7 +705,7 @@ register_shape("Pad") do op
     if paddings.op.op_name != "Const"
         return [TensorShape([Nullable{Int}() for dim in 1:length(tensor_shape.dims)])]
     end
-    padding_value = Array(tf.load_proto(padding.attrs["value"]))  # TODO: this might be transposed
+    padding_value = convert(Array, tf.load_proto(padding.attrs["value"]))  # TODO: this might be transposed
     for dim in 1:length(tensor_shape.dims)
         if isnull(tensor_shape.dims[dim])
             continue
@@ -803,7 +804,7 @@ end
 
 register_shape("Squeeze") do op
     input_shape = _get_shape(get_input(op, 1))
-    squeeze_dims = get_attr(op, "squeeze_dims", Vector{Int}) + 1
+    squeeze_dims = get_attr(op, "squeeze_dims", Vector{Int}) .+ 1
     if input_shape.rank_unknown
         [TensorShape(nothing)]
     elseif any(squeeze_dims .> length(input_shape.dims))

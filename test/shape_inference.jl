@@ -1,5 +1,6 @@
 using TensorFlow
-using Base.Test
+using Test
+using Nullables
 
 k = placeholder(Float32; shape=[10, 20, -1])
 m = placeholder(Float32; shape=[10, 20, 30])
@@ -48,7 +49,7 @@ end
 
 @testset "$f" for f in [max,min]
     @testset "$xs against scalar" for xs in [:k, :m, :n, :i]
-        x = eval(xs)
+        x = Core.eval(Main, xs)
         @test get_shape(f(x,i)) == get_shape(x)
         @test get_shape(f(x,x)) == get_shape(x)
     end
@@ -56,9 +57,9 @@ end
 end
 
 @testset "Find (i.e Where)" begin
-    @test get_shape(find(placeholder(Bool; shape=[10, 20, 30]))) == TensorShape([-1,3])
-    @test get_shape(find(placeholder(Bool; shape=[10, 20, -1]))) == TensorShape([-1,3])
-    @test get_shape(find(placeholder(Bool))) == TensorShape(nothing)
+    @test get_shape(findall(placeholder(Bool; shape=[10, 20, 30]))) == TensorShape([-1,3])
+    @test get_shape(findall(placeholder(Bool; shape=[10, 20, -1]))) == TensorShape([-1,3])
+    @test get_shape(findall(placeholder(Bool))) == TensorShape(nothing)
 end
 
 @testset "Stack/Unstack" begin
@@ -92,7 +93,7 @@ end
 
 
 @testset "ArgMinMax" begin
-    @testset "$f" for f in (indmin, indmax, Ops.arg_min, Ops.arg_max)
+    @testset "$f" for f in (argmin, argmax, Ops.arg_min, Ops.arg_max)
         @test get_shape(f(k, 1)) == TensorShape([20, -1])
         @test get_shape(f(k, 2)) == TensorShape([10, -1])
         @test get_shape(f(k, 3)) == TensorShape([10, 20])
@@ -154,7 +155,7 @@ end
 @testset "Squeeze" begin
     let
         x = placeholder(Float64, shape=[5, 1, 4, 1, 3])
-        y = squeeze(x, [2, 4])
+        y = dropdims(x, dims=[2, 4])
         @test get_shape(y) == TensorShape([5, 4, 3])
     end
 end
@@ -172,16 +173,16 @@ end
     e = placeholder(Float32; shape=[10, 20, 30])
     e2 = placeholder(Float32; shape=[10, 20, 31])
 
-    @testset "$r" for (a1, a2, r) in [
-        (m, e, [10, 20, 30])
-        (m, k, [10, 20, -1])
-        (m, e2, nothing)
-        (m, n, nothing)
-        (m, i, nothing)
+    @testset "$name" for (a1, a2, r, name) in [
+        (m, e, [10, 20, 30], "t1")
+        (m, k, [10, 20, -1], "t2")
+        (m, e2, nothing, "t3")
+        (m, n, nothing, "t4")
+        (m, i, nothing, "t5")
         ]
         # test commutativeness
-        @test get_shape(select(c, a1, a2)) == TensorShape(r)
-        @test get_shape(select(c, a2, a1)) == TensorShape(r)
+        @test get_shape(TensorFlow.select(c, a1, a2)) == TensorShape(r)
+        @test get_shape(TensorFlow.select(c, a2, a1)) == TensorShape(r)
     end
 end
 

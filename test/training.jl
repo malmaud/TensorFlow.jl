@@ -1,4 +1,4 @@
-using Base.Test
+using Test
 using TensorFlow
 
 @testset "Training with 'gather' nodes" begin

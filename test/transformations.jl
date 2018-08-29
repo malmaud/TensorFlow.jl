@@ -1,6 +1,7 @@
 using TensorFlow
-using Base.Test
-
+using Test
+using Random
+import LinearAlgebra
 
 sess = TensorFlow.Session(TensorFlow.Graph())
 
@@ -8,7 +9,7 @@ one_tens = ones(Tensor, (5,5))
 
 @test [1, 2] == run(sess, cast(constant([1.8, 2.2]), Int))
 @test ones(25) == run(sess, reshape(one_tens, 25))
-@test 2 == run(sess, rank(one_tens))
+@test 2 == run(sess, LinearAlgebra.rank(one_tens))
 @test ones(10,5) == run(sess, tile(one_tens, [2; 1]))
 @test hcat(ones(Float32, 5,5), zeros(Float32, 5)) == run(sess, pad(one_tens, [0 0; 0 1]))
 @test Float32[1.; 0.; 0.; 0.; 0.] == run(sess, one_hot(1, 5))
@@ -44,13 +45,12 @@ end
 end
 
 
-@testset "Squeeze" begin
-    # Test `squeeze()` works when given explicit dimensions, fails on incorrect explicit dimensions,
+@testset "Dropdims" begin
+    # Test `dropdims()` works when given explicit dimensions, fails on incorrect explicit dimensions,
     # and works when given no explicit dimension
     sq_ones = ones(Tensor, (10, 1, 5, 1))
-    @test size(run(sess, squeeze(sq_ones))) == (10,5)
-    @test size(run(sess, squeeze(sq_ones,[2,4]))) == (10,5)
-    @test size(run(sess, squeeze(sq_ones,[2]))) == (10,5,1)
+    @test size(run(sess, dropdims(sq_ones, dims=[2,4]))) == (10,5)
+    @test size(run(sess, dropdims(sq_ones, dims=[2]))) == (10,5,1)
     #@test_throws TensorFlow.TFException run(sess, squeeze(sq_ones,[1]))
 end
 
@@ -111,7 +111,7 @@ end
 
 @testset "Slice" begin
     # to do make sure we slice the right indices
-    @test ones(Float32, 5).' == run(sess, TensorFlow.slice(one_tens, [1, 1], [1, -1]))
+    @test transpose(ones(Float32, 5)) == run(sess, TensorFlow.slice(one_tens, [1, 1], [1, -1]))
 
     @test y_jl[2:3] ==  run(sess, y[2:3])
     @test y_jl[2:end] ==  run(sess, y[Int32(2):end])
@@ -149,7 +149,7 @@ end
 # Tests after this point must provide their own sessions and graphs
 
 @testset "Concatenation Syntax" begin
-    srand(37)
+    Random.seed!(37)
     sess4 = Session(Graph())
 
     a_jl = rand(10,5); a = constant(a_jl);

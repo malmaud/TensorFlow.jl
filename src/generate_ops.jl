@@ -44,11 +44,11 @@ function opname_to_jlname(name)
             next_char = name[idx+1]
             if idx < length(name)-1
                 next_next_char = name[idx+2]
-                if isupper(cur_char) && isupper(next_char) && islower(next_next_char)
+                if isuppercase(cur_char) && isuppercase(next_char) && islowercase(next_next_char)
                     word_end = true
                 end
             end
-            if islower(cur_char) && isupper(next_char)
+            if islowercase(cur_char) && isuppercase(next_char)
                 word_end = true
             end
         end
@@ -69,7 +69,7 @@ Returns `true` if the given operation attribute is not meant to be supplied
 by the user and `false` otherwise.
 """
 function is_internal_arg(arg)
-    arg._type == "type" && ismatch(r"^T", arg.name)
+    arg._type == "type" && occursin(r"^T", arg.name)
 end
 
 function to_function(op::tensorflow.OpDef)
@@ -174,7 +174,7 @@ function to_function(op::tensorflow.OpDef)
             end
         end)
     end
-    unshift!(inputs, kwargs)
+    pushfirst!(inputs, kwargs)
     scalar_output = true
     if length(op.output_arg) > 1
         scalar_output = false
@@ -259,7 +259,7 @@ stringify_func(op::tensorflow.OpDef) = stringify_func(to_function(op))
 function load_default_imports()
     path = joinpath(@__DIR__, "../deps/default_imports.txt")
     names = readlines(path)
-    filtered = [name for name in names if !ismatch(r"^#", name)]
+    filtered = [name for name in names if !occursin(r"^#", name)]
     return filtered
 end
 
@@ -289,7 +289,7 @@ function import_ops(op_names)
                 print(ops_file, "\n\n")
             catch err
                 err_msg = sprint(showerror, err)
-                warn("Could not import operation $name: $err_msg")
+                @warn("Could not import operation $name: $err_msg")
             end
         end
         write(ops_file, """
@@ -330,13 +330,13 @@ Returns a reference to a Julia function corresponding to the operation.
 function import_op(name)
     jl_name = opname_to_jlname(name)
     mod = TensorFlow.Ops
-    if jl_name ∉ names(mod, true)
+    if jl_name ∉ names(mod, all=true)
         ops = Dict(get_all_op_list())
         op = ops[name]
         op_desc = to_function(op)
-        eval(Ops, op_desc.expr)
+        Core.eval(Ops, op_desc.expr)
     else
-        warn("Import Skipped: tried to import op $name as $(mod).$(jl_name), but that already exists.")
+        @warn("Import Skipped: tried to import op $name as $(mod).$(jl_name), but that already exists.")
     end
 
     return getfield(Ops, jl_name)

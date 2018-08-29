@@ -1,3 +1,6 @@
+import Pkg
+import InteractiveUtils
+
 """
     tf_version(kind=:backend)
 
@@ -16,12 +19,12 @@ function tf_version(; kind=:backend)
     elseif kind == :python
         res = fetch(@py_proc py_tf[][:VERSION])
     elseif kind == :julia
-        return Pkg.installed("TensorFlow")
+        return Pkg.installed()["TensorFlow"]
     else
         error("Kind '$kind' not recognized")
     end
     # Deal with version strings like "0.12.head"
-    res = replace(res, r"\.head$", "")
+    res = replace(res, r"\.head$"=>"")
     VersionNumber(res)
 end
 
@@ -102,5 +105,5 @@ function tf_versioninfo()
     println("------------")
     println("Julia Status")
     println("------------")
-    versioninfo()
+    InteractiveUtils.versioninfo()
 end

@@ -25,6 +25,7 @@ using Compat
 using JLD2
 using FileIO
 using ProtoBuf
+import Printf
 
 import ..TensorFlow: Graph, Operation, get_def_graph, extend_graph, gradients, variable_scope, ConstantInitializer, node_name, get_variable, get_shape, get_collection, Session, placeholder, Tensor, Variable, cast, group, @not_implemented, AbstractQueue, tensorflow, add_to_collection, get_proto, get_def, @op
 
@@ -178,7 +179,7 @@ function apply_gradients(optimizer::AdamOptimizer, grads_and_vars; global_step=n
             push!(ops, tf.scatter_update(v.var_node, grad.indices, v_new))
         else
             m_new = β1 .* m + (1-β1).*grad
-            v_new = β2 .* v + (1-β2).*(grad.^2)
+            v_new = β2 .* v + (1-β2).*(grad.*grad)
             push!(ops, tf.assign_sub(var, lr/(sqrt(v_new)+ϵ) .* m_new))
             push!(ops, tf.assign(m, m_new))
             push!(ops, tf.assign(v, v_new))
@@ -216,7 +217,7 @@ end
 function FileIO.save(saver::Saver, session::Session, path; global_step=nothing)
     base_path = basename(path)
     if global_step !== nothing
-        path = @sprintf("%s-%d", path, global_step)
+        path = Printf.@sprintf("%s-%d", path, global_step)
     end
     jldopen(path, "w") do file
         for var_node in saver.var_list

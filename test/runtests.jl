@@ -1,7 +1,8 @@
 using TensorFlow
-using Base.Test
+using Test
+import Random
 
-srand(0)  # Make tests deterministic
+Random.seed!(0)  # Make tests deterministic
 
 include(joinpath(dirname(@__FILE__), "..", "examples", "logistic.jl"))
 
@@ -31,14 +32,6 @@ tests = [
 "training.jl",
 "transformations.jl",
 ]
-
-# @test_nowarn was added in Julia 0.6.
-# We make it a no-op on earlier versions.
-if !isdefined(Base.Test, Symbol("@test_nowarn"))
-    macro test_nowarn(ex)
-        esc(ex)
-    end
-end
 
 
 tf_versioninfo() # Dump out all the info at start of the test, for easy debugging from logs. (also check `tf_versioninfo()` itself works)

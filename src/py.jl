@@ -21,11 +21,11 @@ function py_with(f, ctx_mngr)
     ctx_mngr[:__exit__](nothing, nothing, nothing)
 end
 
-function py_bytes(b::Vector{UInt8})
+function py_bytes(b::DenseVector{UInt8})
     PyCall.PyObject(ccall(@PyCall.pysym(PyCall.PyString_FromStringAndSize), PyCall.PyPtr, (Ptr{UInt8}, Int), b, sizeof(b)))
 end
 
-py_bytes(s::AbstractString) = py_bytes(Vector{UInt8}(s))
+py_bytes(s::AbstractString) = py_bytes(codeunits(s))
 
 macro py_catch(ex)
     target = @match ex begin
@@ -65,7 +65,7 @@ function to_protos(py_graph)
     protos = []
     for node_idx in 1:n_nodes
         node_py = nodes[node_idx]
-        proto = Vector{UInt8}(node_py[:SerializeToString]())
+        proto = codeunits(node_py[:SerializeToString]())
         push!(protos, proto)
     end
     return protos
@@ -76,7 +76,7 @@ function py_gradients(jl_graph_proto, x_names, y_names, grad_y_names)
 
     to_py_node(node_name) = py_graph[:get_tensor_by_name](string(node_name[1], ":", node_name[2]-1))
     to_py_node(node_names::AbstractVector) = tuple(to_py_node.(node_names)...) #Need tuple as Vector will not be accepted
-    to_py_node(::Void) = nothing
+    to_py_node(::Cvoid) = nothing
 
     py_x = to_py_node(x_names)
     py_y = to_py_node(y_names)

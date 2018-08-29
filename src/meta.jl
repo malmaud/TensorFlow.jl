@@ -15,7 +15,6 @@ const registered_ops = Set()
 
 macro op(f)
     # TODO: fix MacroTools to make this work again
-    # f = longdef(f) #convert to long form function
     opname = @match f begin
         function opname_(args__)
             body_
@@ -27,10 +26,10 @@ macro op(f)
         end
     end
     opname === nothing && error("Invalid usage of @op")
-    
+
     already_registered = opname ∈ registered_ops
     push!(registered_ops, opname)
-    @assert(isdefined(:tf)) # Need tf as name for module where this code is located
+    @assert(@isdefined(tf)) # Need tf as name for module where this code is located
     if already_registered
         register_block = nothing
     else
@@ -41,7 +40,7 @@ macro op(f)
             elseif isa($(opname), DataType)
                 tf.is_registered_op(::Type{$(opname)}) = tf.RegisteredOp()
             else
-                warn("@op used on " * string($(opname)) * " which does not seem to be a suitable type for an operation.")
+                @warn("@op used on " * string($(opname)) * " which does not seem to be a suitable type for an operation.")
             end
         end
     end
@@ -74,8 +73,8 @@ withname(f::F, name) where F<:Function = withname(is_registered_op(F), f, name) 
 
 withname(::NotRegisteredOp, f, name) = (args...; kws...) -> f(args...; kws...)
 withname(::RegisteredOp, f, name) = (args...; kws...) -> begin
-    if !any(first.(kws) .== :name) # name is not already there
-        push!(kws, (:name, name))
+    if !any(keys(kws) .== :name) # name is not already there
+        kws = (kws..., name=name)
     end
     f(args...; kws...)
 end

@@ -2,7 +2,6 @@ using MacroTools
 import Base: log, exp, +, -, *, /, ^, sin, cos, tan, asin, acos, atan, div, tanh, sqrt, abs, floor, ceil, floor, sign
 import TensorFlow
 const tf = TensorFlow # so know where op_funcs is defined
-import TakingBroadcastSeriously: @unfuse, broadcast_
 
 """
     tf_promote(args...)
@@ -27,7 +26,7 @@ function tf_promote(args...)
             push!(new_args, convert(Tensor{big_type}, arg))
         end
     end
-    (new_args...)
+    (new_args...,)
 end
 
 macro define_binary(jl_func, tf_func)
@@ -46,28 +45,26 @@ macro define_unary(jl_func, tf_func)
     end |> esc
 end
 
-@unfuse AbstractTensor
 
 macro define_broadcast(jl_op, tf_func)
     quote
-        broadcast_(::typeof($jl_op), t1::AbstractTensor, t2::AbstractTensor) = $tf_func(tf_promote(t1, t2)...)
-        broadcast_(::typeof($jl_op), t1::AbstractTensor, t2) = $tf_func(t1, Tensor(t2))
-        broadcast_(::typeof($jl_op), t1, t2::AbstractTensor) = $tf_func(Tensor(t1), t2)
+        Base.Broadcast.broadcasted(::typeof($jl_op), t1::AbstractTensor, t2::AbstractTensor) = $tf_func(tf_promote(t1, t2)...)
+        Base.Broadcast.broadcasted(::typeof($jl_op), t1::AbstractTensor, t2) = $tf_func(t1, Tensor(t2))
+        Base.Broadcast.broadcasted(::typeof($jl_op), t1, t2::AbstractTensor) = $tf_func(Tensor(t1), t2)
+        Base.Broadcast.broadcasted(::typeof($jl_op), t1::AbstractTensor, t2::Base.Broadcast.Broadcasted) = $tf_func(t1, Tensor(collect(t2)))
+        Base.Broadcast.broadcasted(::typeof($jl_op), t1::Base.Broadcast.Broadcasted, t2::AbstractTensor) = $tf_func(Tensor(collect(t1)), t2)
     end |> esc
 end
 
-macro not_implemented(f)
-    res = @match f begin
-        function name_(args__)
-            body__
-        end => name, args
-    end
-    res === nothing && error("Invalid use of not_implemented")
-    func_name, args = res
-    quote
-        function $(esc(func_name))(args...)
-            error("Not implemented yet")
+macro not_implemented(ff)
+    if @capture(ff, function name_(args__) body__ end)
+        quote
+            function $(esc(name))(args...)
+                error("Not implemented yet")
+            end
         end
+    else
+        error("Invalid use of not_implemented")
     end
 end
 
