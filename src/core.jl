@@ -4,7 +4,6 @@ using Compat
 using Compat.Iterators
 using MacroTools
 using AutoHashEquals
-using Nullables
 using Libdl
 
 import Base: setindex!, getindex, run, ==
@@ -211,12 +210,10 @@ function with_def_graph(ex)
     error("Improper use of with_def_graph")
     (kwargs === nothing) && (kwargs = [])
     new_args = args[2:end]
-    # Temporarily eliminate passing through keyword arguments since
-    # that breaks Revise at the moment. Should add back once Revise
-    # is patched.
+
     quote
-        function $f($(new_args...))
-            $f(TensorFlow.get_def_graph(), $(new_args...))
+        function $f($(new_args...); $(kwargs...))
+            $f(TensorFlow.get_def_graph(), $(new_args...); $(kwargs...))
         end
     end
 end
@@ -272,7 +269,7 @@ end
     import_options = GraphImportOptions()
     ph_names = Set{String}()
     for node_def in convert.(tensorflow.NodeDef, node_def_bytes)
-        if isnull(get_node_by_name(graph, node_def.name))
+        if get_node_by_name(graph, node_def.name) === nothing
             # Hack to deal with imported nodes which have
             # colocation dependencies on existing nodes
             if has_field(node_def, :attr) && haskey(node_def.attr, "_class")
@@ -282,7 +279,7 @@ end
                     m = match(r"^loc:@(.*)", String(val))
                     if m !== nothing
                         loc_name = m[1]
-                        if !isnull(get_node_by_name(graph, loc_name))
+                        if get_node_by_name(graph, loc_name) !== nothing
                             push!(inds, ind)
                         end
                     end
@@ -301,11 +298,11 @@ end
                     source_port = 1
                 end
                 existing_node = get_node_by_name(graph, name)
-                if !isnull(existing_node)
+                if existing_node !== nothing
                     local new_name
                     for name_id in Iterators.countfrom()
                         new_name = "$(name)__placeholder__$(name_id)_$dest_port"
-                        isnull(get_node_by_name(graph, new_name)) && break
+                        get_node_by_name(graph, new_name) === nothing && break
                     end
                     if is_control
                         input_name = string("^", new_name)
@@ -314,7 +311,7 @@ end
                     end
                     node_def.input[i] = input_name
 
-                    import_options.input_mapping[(new_name, source_port)] = Tensor(get(existing_node), dest_port)
+                    import_options.input_mapping[(new_name, source_port)] = Tensor(existing_node, dest_port)
                     new_ph = tensorflow.NodeDef()
                     set_field!(new_ph, :name, new_name)
                     if is_control
@@ -797,7 +794,7 @@ function NodeDescription(op_type)
     NodeDescription(op_type, name)
 end
 
-get_graph(desc::NodeDescription) = Nullable(desc.graph)
+get_graph(desc::NodeDescription) = desc.graph
 
 abstract type AbstractOperation end
 
@@ -806,7 +803,7 @@ An operation in the computation graph.
 """
 mutable struct Operation <: AbstractOperation
     ptr::Ptr{Cvoid}
-    graph::Nullable{Graph}
+    graph::Union{Graph, Nothing}
     op_name::String
     name::String
     Operation() = new()
@@ -1000,7 +997,7 @@ function Operation(desc::NodeDescription)
     check_status(status)
     self.ptr = ptr
     graph = desc.graph
-    self.graph = Nullable(graph)
+    self.graph = graph
     fillin(self)
 
     if graph.op_context.is_top_level[]
@@ -1013,7 +1010,7 @@ end
 function Operation(ptr::Ptr)
     self = Operation()
     self.ptr = ptr
-    self.graph = Nullable{Graph}()
+    self.graph = nothing
     fillin(self)
     return self
 end
@@ -1175,7 +1172,7 @@ Represents the output of an operation in the computation graph
     value_index::Int
 end
 
-get_graph(t::AbstractTensor) = get(Tensor(t).op.graph)
+get_graph(t::AbstractTensor) = Tensor(t).op.graph
 
 node_name(t::AbstractTensor) = (node_name(Tensor(t).op), Tensor(t).value_index)
 
@@ -1437,9 +1434,9 @@ Returns an operation by searching for its name in the given graph.
     name, port = parse_port_name(name)
     node_ptr = @tfcall(:TF_GraphOperationByName, Ptr{Cvoid}, (Ptr{Cvoid}, Cstring), graph.ptr, name)
     if node_ptr == C_NULL
-        return Nullable{Operation}()
+        return nothing
     else
-        return Nullable(Operation(node_ptr))
+        return Operation(node_ptr)
     end
 end
 
@@ -1453,16 +1450,15 @@ Throws a `NodeNameNotFound` exception if there is no such tensor.
 @with_def_graph function get_tensor_by_name(graph::Graph, full_name)
     name, port = parse_port_name(full_name)
     maybe_node = get_node_by_name(graph, name)
-    isnull(maybe_node) && throw(NodeNameNotFound(full_name))
-    node = get(maybe_node)
-    return Tensor(node, port)
+    maybe_node === nothing && throw(NodeNameNotFound(full_name))
+    return Tensor(maybe_node, port)
 end
 
 # Indexing based name Access
 Base.getindex(graph::Graph, name) = get_tensor_by_name(graph, name)
 Base.values(graph::Graph) = get_operations(graph)
 Base.keys(graph::Graph) = (node_name(op) for op in values(graph))
-Base.haskey(graph::Graph, name) = !isnull(get_node_by_name(graph, name))
+Base.haskey(graph::Graph, name) = get_node_by_name(graph, name) !== nothing
 
 
 
@@ -1627,18 +1623,13 @@ struct OperationIterator
 end
 
 struct OperationIteratorState
-    next_op::Nullable{Operation}
+    next_op::Union{Operation, Nothing}
     pos::Int
 end
 
-#function Base.start(iter::OperationIterator)
-#    state = OperationIteratorState(Nullable{Operation}(), 0)
-#    _next(iter, state)[2]
-#end
-
-function Base.iterate(iter::OperationIterator, state=_next(iter, OperationIteratorState(Nullable{Operation}(), 0))[2])
+function Base.iterate(iter::OperationIterator, state=_next(iter, OperationIteratorState(nothing, 0))[2])
     value, new_state = _next(iter, state)
-    isnull(state.next_op) ? nothing : (get(value), new_state)
+    state.next_op === nothing ? nothing : (value, new_state)
 end
 
 function _next(iter::OperationIterator, state)
@@ -1647,12 +1638,12 @@ function _next(iter::OperationIterator, state)
         (Ptr{Cvoid}, Ref{Csize_t}),
         iter.graph.ptr, pos)
     if op_ptr == C_NULL
-        next_op = Nullable{Operation}()
+        next_op = nothing
     else
         op = Operation()
         op.ptr = op_ptr
         op.graph = iter.graph
-        next_op = Nullable(op)
+        next_op = op
     end
     next_state = OperationIteratorState(next_op, pos[])
     (state.next_op, next_state)
@@ -1709,7 +1700,7 @@ function Operation(node_def::tensorflow.NodeDef)
     for input in node_def.input
         if input[1:1] == "^"
             name = input[2:end]
-            control_op = get(get_node_by_name(name))
+            control_op = get_node_by_name(name)
             add_control_input(desc, control_op)
         else
             push!(inputs, input)

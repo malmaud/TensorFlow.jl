@@ -28,7 +28,6 @@ import .tf.Ops:
     scatter_div
 
 import Distributions
-using Nullables
 
 mutable struct Variable{T} <: tf.AbstractTensor{T}
     var_node::tf.Tensor{T}
@@ -78,8 +77,8 @@ function Variable(initial_value; name="", trainable=true, literal_name=false)
 end
 
 @tf.with_def_graph function Variable(graph::tf.Graph, s::AbstractString)
-    var_node = tf.Tensor(get(tf.get_node_by_name(graph, s)))
-    assign_node = tf.Tensor(get(tf.get_node_by_name(graph, "$s/Assign")))
+    var_node = tf.Tensor(tf.get_node_by_name(graph, s))
+    assign_node = tf.Tensor(tf.get_node_by_name(graph, "$s/Assign"))
     Variable(var_node, assign_node)
 end
 
@@ -98,19 +97,19 @@ run(sess::tf.Session, var::Variable) = run(sess, tf.Tensor(var))
 run(sess::tf.Session, vars::AbstractVector{Variable}) = run(sess, map(tf.Tensor, vars))
 
 mutable struct Scope
-    name::Nullable{String}
-    initializer::Nullable{Any}
+    name::Union{String, Nothing}
+    initializer::Any
     reuse::Bool
-    Scope() = new(Nullable{String}(), Nullable{Any}(), false)
+    Scope() = new(nothing, nothing, false)
 end
 
 const scope_stack = Scope[]
 
 function make_scope(name; initializer=nothing, reuse=false)
     scope = Scope()
-    scope.name = Nullable(name)
+    scope.name = name
     if initializer != nothing
-        scope.initializer = Nullable(initializer)
+        scope.initializer = initializer
     end
     scope.reuse = reuse
     return scope
@@ -155,13 +154,13 @@ function tf.get_variable(var_name, shape, dtype; trainable=true, kwargs...)
         shape = get_dims(shape)
         scope = make_scope(var_name; kwargs...)
         push!(scope_stack, scope)
-        name = join([get(x.name) for x in scope_stack], "/")
+        name = join([x.name for x in scope_stack], "/")
         try
             initializer = NormalInitializer()
             reuse = false
             for scope in scope_stack
-                if !isnull(scope.initializer)
-                    initializer = get(scope.initializer)
+                if scope.initializer !== nothing
+                    initializer = scope.initializer
                 end
                 if scope.reuse
                     reuse = true

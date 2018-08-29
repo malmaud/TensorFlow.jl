@@ -39,7 +39,7 @@ end
     tf.with_op_name(name, "SequenceLoss") do
         score = tf.reduce_sum(sequence_loss_by_example(logits, tagets, weight, average_across_timesteps=average_across_timesteps, softmax_loss_function=softmass_loss_function))
         if average_across_batch
-            batch_size = get(get_shape(logits[1]).dims[1])
+            batch_size = get_shape(logits[1]).dims[1]
             score = score/(eltype(score)(batch_size))
         end
     end

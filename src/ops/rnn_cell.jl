@@ -11,7 +11,6 @@ RNNCell,
 IdentityRNNCell
 
 using Compat
-using Nullables
 import ..nn
 import .nn: TensorFlow
 import .TensorFlow: Operation, get_shape, get_variable, select, tanh, Tensor, nn, concat, expand_dims, with_op_name, AbstractTensor
