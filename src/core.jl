@@ -57,6 +57,7 @@ mutable struct Status
         this
     end
 end
+Base.unsafe_convert(::Type{Ptr{Cvoid}}, s::Status) = s.ptr
 
 function get_code(s::Status)
     code = @tfcall(:TF_GetCode, Cint, (Ptr{Cvoid},), s.ptr)
@@ -64,12 +65,12 @@ function get_code(s::Status)
 end
 
 struct DevicePart{IndexType}
-    name::String
+    kind::Vector{String}
     index::IndexType
 end
 
-device_index_from_zero(part::DevicePart{Int}) = "$(part.name):$(part.index-1)"
-device_index_from_zero(part::DevicePart) = "$(part.name):$(part.index)"
+device_index_from_zero(part::DevicePart{Int}) = "$(join(part.kind, ":")):$(part.index-1)"
+device_index_from_zero(part::DevicePart) = "$(join(part.kind, ":")):$(part.index)"
 
 struct Device
     parts::Vector{DevicePart}
@@ -79,12 +80,12 @@ Device() = Device(DevicePart[])
 
 function DevicePart(s::AbstractString)
     parts = split(s, ":")
-    length(parts) == 2 || error("Invalid device: $s")
-    name = String(parts[1])
-    index_part = String(parts[2])
+    length(parts) >= 2 || error("Invalid device: $s")
+    kind = String.(parts[1:end-1])
+    index_part = String(parts[end])
     maybe_index = tryparse(Int, index_part)
-    index=something(maybe_index, index_part)
-    DevicePart(name, index)
+    index = something(maybe_index, index_part)
+    DevicePart(kind, index)
 end
 
 function device_index_from_zero(device::Device)
@@ -96,7 +97,7 @@ function device_index_from_zero(device::Device)
     String(take!(b))
 end
 
-Base.show(io::IO, part::DevicePart) = print(io, "$(part.name):$(part.index)")
+Base.show(io::IO, part::DevicePart) = print(io, "$(join(part.kind, ":")):$(part.index)")
 
 function Device(s::AbstractString)
     device = Device()
@@ -355,6 +356,7 @@ mutable struct SessionOptions
         self
     end
 end
+Base.unsafe_convert(::Type{Ptr{Cvoid}}, o::SessionOptions) = o.ptr
 
 function set_tf_finalizer(options::SessionOptions)
     finalizer(options) do options
@@ -450,7 +452,7 @@ mutable struct Session
     ptr::Ptr{Cvoid}
     graph::Graph
 
-    function Session(graph, config=nothing)
+    function Session(graph, config=nothing; target=nothing)
         set_def_graph(graph)
         options = SessionOptions()
         if config !== nothing
@@ -462,6 +464,9 @@ mutable struct Session
             @tfcall(:TF_SetConfig, Cvoid, (Ptr{Cvoid}, Ptr{Cvoid}, Csize_t, Ptr{Cvoid}), options.ptr, proto, sizeof(proto), config_status.ptr)
             check_status(config_status)
         end
+        if target !== nothing
+            @tfcall(:TF_SetTarget, Cvoid, (Ptr{Cvoid}, Cstring), options, target)
+        end
         status = Status()
         ptr = @tfcall(:TF_NewSession, Ptr{Cvoid}, (Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}), graph.ptr, options.ptr, status.ptr)
         this = new(ptr, graph)
@@ -472,16 +477,17 @@ mutable struct Session
         return this
     end
 
-    function Session(;config=nothing, allow_growth=false, graph=get_def_graph())
+    function Session(;config=nothing, allow_growth=false, graph=get_def_graph(), target=nothing)
         if config === nothing
             config = tensorflow.ConfigProto()
             gpu_config = tensorflow.GPUOptions()
             set_field!(gpu_config, :allow_growth, allow_growth)
             set_field!(config, :gpu_options, gpu_config)
         end
-        Session(graph, config)
+        Session(graph, config, target=target)
     end
 end
+Base.unsafe_convert(::Type{Ptr{Cvoid}}, s::Session) = s.ptr
 
 """
     close(sess::Session)
@@ -498,6 +504,46 @@ function Base.close(sess::Session)
     return nothing
 end
 
+mutable struct DeviceList
+    ptr::Ptr{Cvoid}
+    count::Int
+
+    function DeviceList(s::Session)
+        status = Status()
+        ptr = @tfcall(:TF_SessionListDevices, Ptr{Cvoid},
+            (Ptr{Cvoid}, Ptr{Cvoid}), s, status)
+        check_status(status)
+        count = @tfcall(:TF_DeviceListCount, Cint, (Ptr{Cvoid},),
+            ptr)
+        this = new(ptr, count)
+        finalizer(this) do self
+            close(self)
+        end
+        this
+    end
+end
+
+struct DeviceInfo
+    name::String
+    device_type::String
+    membytes::Int64
+end
+
+Base.unsafe_convert(::Type{Ptr{Cvoid}}, devices::DeviceList) = devices.ptr
+Base.close(devices::DeviceList) = @tfcall(:TF_DeleteDeviceList, Cvoid, (Ptr{Cvoid},), devices)
+
+Base.length(devices::DeviceList) = devices.count
+function Base.iterate(devices::DeviceList, idx::UInt=UInt(0))
+    idx >= length(devices) && return nothing
+    status = Status()
+    name = @tfcall(:TF_DeviceListName, Ptr{UInt8}, (Ptr{Cvoid}, Cint, Ptr{Cvoid}), devices, idx, status)
+    check_status(status)
+    device_type = @tfcall(:TF_DeviceListType, Ptr{UInt8}, (Ptr{Cvoid}, Cint, Ptr{Cvoid}), devices, idx, status)
+    check_status(status)
+    membytes = @tfcall(:TF_DeviceListMemoryBytes, Int64, (Ptr{Cvoid}, Cint, Ptr{Cvoid}), devices, idx, status)
+    check_status(status)
+    DeviceInfo(unsafe_string(name), unsafe_string(device_type), membytes), idx + 1
+end
 
 mutable struct Buffer
     ptr::Ptr{Cvoid}

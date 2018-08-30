@@ -131,3 +131,13 @@ end
         @test_throws tf.InputOutOfRangeError tf.get_input(w_op, 3)
     end
 end
+
+@testset "Devices" begin
+    device = device"/a:b/c:d/e:f:3"
+    name = TensorFlow.device_index_from_zero(device)
+    @test name == "/a:b/c:d/e:f:2"
+
+    device = device"/a:b/c:d/e:f:g"
+    name = TensorFlow.device_index_from_zero(device)
+    @test name == "/a:b/c:d/e:f:g"
+end
