@@ -1536,7 +1536,14 @@ A user can provide their own initial `grad_ys` to compute the derivatives using 
 
 see: [Python Docs](https://www.tensorflow.org/versions/master/api_docs/python/tf/gradients)
 """
-gradients(y, x::AbstractArray, dx=nothing) = add_gradients_py(y, x, dx)
+function gradients(y, x::AbstractArray, dx=nothing)
+    try
+        add_gradients_c([y], x, dx)
+    catch err
+        @warn(err)
+        add_gradients_py(y, x, dx)
+    end
+end
 gradients(y, x, grad_y=nothing) = gradients(y, [x], grad_y)[1]
 
 function add_gradients_py(y, x::AbstractArray, grad_y=nothing)
@@ -1563,11 +1570,10 @@ function add_gradients_py(y, x::AbstractArray, grad_y=nothing)
     return out
 end
 
-add_gradients_c(y, x, dx=nothing) = add_gradients_c([y], x, dx)
 function add_gradients_c(y::AbstractArray, x::AbstractArray, dx=nothing)
     status = Status()
     graph = get_def_graph()
-    grads = Array{Port}(length(x))
+    grads = Array{Port}(undef, length(x))
     if dx isa AbstractArray{Cvoid} || dx isa Cvoid
         c_dx = C_NULL
     else
@@ -1578,7 +1584,12 @@ function add_gradients_c(y::AbstractArray, x::AbstractArray, dx=nothing)
         graph.ptr, Port.(y), length(y), Port.(x), length(x), c_dx, status.ptr, grads
     )
     check_status(status)
-    return Tensor.(grads)
+    tensors = Tensor.(grads)
+    graph = get_def_graph()
+    for tensor in tensors
+        tensor.op.graph = graph
+    end
+    return tensors
 end
 
 
