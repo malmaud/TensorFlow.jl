@@ -65,8 +65,6 @@ function get_code(s::Status)
     return TF_Code(code)
 end
 
-abstract type AbstractDevice end
-
 struct DevicePart{IndexType}
     kind::Vector{String}
     index::IndexType
@@ -75,7 +73,7 @@ end
 device_index_from_zero(part::DevicePart{Int}) = "$(join(part.kind, ":")):$(part.index-1)"
 device_index_from_zero(part::DevicePart) = "$(join(part.kind, ":")):$(part.index)"
 
-struct Device <: AbstractDevice
+struct Device
     parts::Vector{DevicePart}
 end
 
@@ -137,7 +135,7 @@ with_device("gpu:2") do  # Use the second GPU
 end
 ```
 """
-function with_device(f, device::AbstractDevice)
+function with_device(f, device::Device)
     g = get_def_graph()
     push!(g.op_context.devices, device)
     try
@@ -153,7 +151,7 @@ struct OperationContext
     control_ops::Vector{Vector{Any}}  # Can't make Operation to break type cycle
     names::Vector{String}
     while_context::Vector{tensorflow.WhileContextDef}
-    devices::Vector{AbstractDevice}
+    devices::Vector{Device}
     is_top_level::Ref{Bool}
 end
 
@@ -534,18 +532,18 @@ struct DeviceInfo
     membytes::Int64
 end
 
-Base.unsafe_convert(::Type{Ptr{Cvoid}}, l::DeviceList) = l.ptr
-Base.close(l::DeviceList) = @tfcall(:TF_DeleteDeviceList, Cvoid, (Ptr{Cvoid},), l)
+Base.unsafe_convert(::Type{Ptr{Cvoid}}, devices::DeviceList) = devices.ptr
+Base.close(devices::DeviceList) = @tfcall(:TF_DeleteDeviceList, Cvoid, (Ptr{Cvoid},), devices)
 
-Base.length(l::DeviceList) = l.count
-function Base.iterate(l::DeviceList, idx::UInt=UInt(0))
-    idx >= length(l) && return nothing
+Base.length(devices::DeviceList) = devices.count
+function Base.iterate(devices::DeviceList, idx::UInt=UInt(0))
+    idx >= length(devices) && return nothing
     status = Status()
-    name = @tfcall(:TF_DeviceListName, Ptr{UInt8}, (Ptr{Cvoid}, Cint, Ptr{Cvoid}), l, idx, status)
+    name = @tfcall(:TF_DeviceListName, Ptr{UInt8}, (Ptr{Cvoid}, Cint, Ptr{Cvoid}), devices, idx, status)
     check_status(status)
-    device_type = @tfcall(:TF_DeviceListType, Ptr{UInt8}, (Ptr{Cvoid}, Cint, Ptr{Cvoid}), l, idx, status)
+    device_type = @tfcall(:TF_DeviceListType, Ptr{UInt8}, (Ptr{Cvoid}, Cint, Ptr{Cvoid}), devices, idx, status)
     check_status(status)
-    membytes = @tfcall(:TF_DeviceListMemoryBytes, Int64, (Ptr{Cvoid}, Cint, Ptr{Cvoid}), l, idx, status)
+    membytes = @tfcall(:TF_DeviceListMemoryBytes, Int64, (Ptr{Cvoid}, Cint, Ptr{Cvoid}), devices, idx, status)
     check_status(status)
     DeviceInfo(unsafe_string(name), unsafe_string(device_type), membytes), idx + 1
 end
