@@ -92,7 +92,7 @@ end
         sess = Session(Graph())
         A = get_variable("A", (1,), Float32)
         B = get_variable("B", (1,), Float32)
-
+        run(sess, global_variables_initializer())
         @test [[2.0f0]] == run(sess, gradients(2A, [A]))
         @test [2.0f0] == run(sess, gradients(2A, A))
 
