@@ -68,16 +68,12 @@ end
 abstract type AbstractDevice end
 
 struct DevicePart{IndexType}
-    name::String
+    kind::Vector{String}
     index::IndexType
 end
 
-device_index_from_zero(part::DevicePart{Int}) = "$(part.name):$(part.index-1)"
-device_index_from_zero(part::DevicePart) = "$(part.name):$(part.index)"
-
-struct NamedDevice <: AbstractDevice
-    name::String
-end
+device_index_from_zero(part::DevicePart{Int}) = "$(join(part.kind, ":")):$(part.index-1)"
+device_index_from_zero(part::DevicePart) = "$(join(part.kind, ":")):$(part.index)"
 
 struct Device <: AbstractDevice
     parts::Vector{DevicePart}
@@ -87,12 +83,12 @@ Device() = Device(DevicePart[])
 
 function DevicePart(s::AbstractString)
     parts = split(s, ":")
-    length(parts) == 2 || error("Invalid device: $s")
-    name = String(parts[1])
-    index_part = String(parts[2])
+    length(parts) >= 2 || error("Invalid device: $s")
+    kind = String.(parts[1:end-1])
+    index_part = String(parts[end])
     maybe_index = tryparse(Int, index_part)
     index = something(maybe_index, index_part)
-    DevicePart(name, index)
+    DevicePart(kind, index)
 end
 
 function device_index_from_zero(device::Device)
@@ -104,7 +100,7 @@ function device_index_from_zero(device::Device)
     String(take!(b))
 end
 
-Base.show(io::IO, part::DevicePart) = print(io, "$(part.name):$(part.index)")
+Base.show(io::IO, part::DevicePart) = print(io, "$(join(part.kind, ":")):$(part.index)")
 
 function Device(s::AbstractString)
     device = Device()
@@ -493,7 +489,7 @@ mutable struct Session
             set_field!(gpu_config, :allow_growth, allow_growth)
             set_field!(config, :gpu_options, gpu_config)
         end
-        Session(graph, config, target=nothing)
+        Session(graph, config, target=target)
     end
 end
 Base.unsafe_convert(::Type{Ptr{Cvoid}}, s::Session) = s.ptr
@@ -531,6 +527,7 @@ mutable struct DeviceList
         this
     end
 end
+
 struct DeviceInfo
     name::String
     device_type::String
@@ -818,7 +815,6 @@ function set_device(node_desc, device::String)
 end
 
 set_device(node_desc, device::Device) = set_device(node_desc, device_index_from_zero(device))
-set_device(node_desc, device::NamedDevice) = set_device(node_desc, device.name)
 
 mutable struct NodeDescription
     ptr::Ptr{Cvoid}
