@@ -93,7 +93,7 @@ function (cell::BasicRNNCell)(input, state, input_dim=-1)
 
     local activity
     tf.with_op_name(nothing, "BasicRNNCell") do
-        X = cat(2, input, state)
+        X = cat(input, state, dims=2)
         activity = tanh(X*W + B)
     end
 
