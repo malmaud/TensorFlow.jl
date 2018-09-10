@@ -13,7 +13,7 @@ one_tens = ones(Tensor, (5,5))
 @test ones(10,5) == run(sess, tile(one_tens, [2; 1]))
 @test hcat(ones(Float32, 5,5), zeros(Float32, 5)) == run(sess, pad(one_tens, [0 0; 0 1]))
 @test Float32[1.; 0.; 0.; 0.; 0.] == run(sess, one_hot(1, 5))
-
+@test cat([1,2], [3,4], dims=1) == run(sess, cat(constant([1,2]), constant([3,4]), dims=1))
 
 @testset "Stack/Unstack" begin
     @test Int32[5,5,1] == run(sess, TensorFlow.shape(stack(split(2, 5, one_tens), axis=1)))

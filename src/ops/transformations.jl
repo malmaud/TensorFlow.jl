@@ -112,18 +112,18 @@ Unlike `concat` this automatically expands dimensions as required,
 such that the resulting concatenated Tensor has rank equal to the
 higher of the highest input rank, or the concatentation dimension (`dim`).
 """
-function Base.cat(dim, xs::AbstractTensor...)
+function Base.cat(xs::AbstractTensor...; dims)
     with_op_name("Cat") do
-        compat_xs = tf_promote(expand_to_same_ranks(dim, xs)...)
+        compat_xs = tf_promote(expand_to_same_ranks(dims, xs)...)
         if length(xs)>1
-             concat(compat_xs, dim)
+             concat(compat_xs, dims)
         else
              compat_xs[1] # If only one input then, no actual concatentation to be done
         end
     end
 end
 
-Base.cat(::Type{Tensor}, dim, values...) = cat(dim, Tensor.(values)...)
+Base.cat(::Type{Tensor}, values...; dims) = cat(Tensor.(values)...; dims=dims)
 
 
 """
@@ -131,7 +131,7 @@ Concatentate along dimension 1
 
 `vcat(a, b)` can also be written `[a; b]` etc.
 """
-Base.vcat(xs::AbstractTensor...) = cat(1, xs...)
+Base.vcat(xs::AbstractTensor...) = cat(xs..., dims=1)
 # Catch common cases where not all args are Tensors, and convert them
 Base.vcat(x1::AbstractTensor, xs...) = vcat(x1, Tensor.(xs)...)
 Base.vcat(x1, x2::AbstractTensor, xs...) = vcat(Tensor(x1), x2, Tensor.(xs)...)
@@ -143,7 +143,7 @@ Concatentate along dimension 2
 
 `hcat(a, b)` can also be written `[a b]` etc.
 """
-Base.hcat(xs::AbstractTensor...) = cat(2, xs...)
+Base.hcat(xs::AbstractTensor...) = cat(xs..., dims=2)
 # Catch common cases where not all args are Tensors, and convert them
 Base.hcat(x1::AbstractTensor, xs...) = hcat(x1, Tensor.(xs)...)
 Base.hcat(x1, x2::AbstractTensor, xs...) = hcat(Tensor(x1), x2, Tensor.(xs)...)
