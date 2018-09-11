@@ -59,7 +59,7 @@ function Base.getindex(params::AbstractTensor, ind1::Union{Slice, Index},  inds:
     singleton_dims = Int[]
 
     ### Begin  Subfunctions
-    function proc_singleton!(ind) #JULIA BUG?? in 0.5 & 0.6. This function needs to be declared here (not mixed with the proc_ind!) or is just doesn't actually get declared. I haven't MWEd it yet
+    function proc_singleton!(ind)
         # Better be 0D
         push!(begins, ind)
         push!(sizes, 1)
