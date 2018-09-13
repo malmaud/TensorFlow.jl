@@ -77,13 +77,15 @@ already have it.
 Realistic demonstration of using variable scopes and advanced optimizers
 
 ```julia
+using TensorFlow
 using Distributions
+using Printf
 
 # Generate some synthetic data
 x = randn(100, 50)
 w = randn(50, 10)
-y_prob = exp(x*w)
-y_prob ./= sum(y_prob,2)
+y_prob = exp.(x*w)
+y_prob ./= sum(y_prob,dims=2)
 
 function draw(probs)
     y = zeros(size(probs))
@@ -98,19 +100,22 @@ y = draw(y_prob)
 
 # Build the model
 sess = Session(Graph())
-X = placeholder(Float64)
-Y_obs = placeholder(Float64)
 
-variable_scope("logistic_model", initializer=Normal(0, .001)) do
-    global W = get_variable("weights", [50, 10], Float64)
-    global B = get_variable("bias", [10], Float64)
+X = placeholder(Float64, shape=[-1, 50])
+Y_obs = placeholder(Float64, shape=[-1, 10])
+
+variable_scope("logisitic_model"; initializer=Normal(0, .001)) do
+    global W = get_variable("W", [50, 10], Float64)
+    global B = get_variable("B", [10], Float64)
 end
 
 Y=nn.softmax(X*W + B)
+
 Loss = -reduce_sum(log(Y).*Y_obs)
 optimizer = train.AdamOptimizer()
 minimize_op = train.minimize(optimizer, Loss)
 saver = train.Saver()
+
 # Run training
 run(sess, global_variables_initializer())
 checkpoint_path = mktempdir()
@@ -120,7 +125,6 @@ for epoch in 1:100
     println(@sprintf("Current loss is %.2f.", cur_loss))
     train.save(saver, sess, joinpath(checkpoint_path, "logistic"), global_step=epoch)
 end
-
 ```
 
 ## Troubleshooting
