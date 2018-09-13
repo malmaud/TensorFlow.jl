@@ -45,7 +45,21 @@ macro define_unary(jl_func, tf_func)
     end |> esc
 end
 
+macro define_broadcast_unary(jl_op)
+    quote
+        Broadcast.broadcasted(::typeof($jl_op), t::AbstractTensor) = $jl_op(t)
+    end
+end
 
+macro define_broadcast_binary(jl_op)
+    quote
+        Broadcast.broadcasted(::typeof($jl_op), t1::AbstractTensor, t2::AbstractTensor) = $jl_op(t1, t2)
+        Broadcast.broadcasted(::typeof($jl_op), t1::AbstractTensor, t2) = $jl_op(t1, t2)
+        Broadcast.broadcasted(::typeof($jl_op), t1, t2::AbstractTensor) = $jl_op(t1, t2)
+    end
+end
+
+# TODO can this be subsumed by 'define_broadcast_binary'?
 macro define_broadcast(jl_op, tf_func)
     quote
         Base.Broadcast.broadcasted(::typeof($jl_op), t1::AbstractTensor, t2::AbstractTensor) = $tf_func(tf_promote(t1, t2)...)

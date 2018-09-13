@@ -143,6 +143,7 @@ for jl_func_name in [
     :conj,
     :round]
     @eval @define_unary Base.$jl_func_name Ops.$jl_func_name
+    @eval @define_broadcast_unary Base.$jl_func_name
 end
 
 
@@ -151,12 +152,14 @@ for jl_func_name in [
     :erf,
     :erfc]
     @eval @define_unary SpecialFunctions.$jl_func_name Ops.$jl_func_name
+    @eval @define_broadcast_unary SpecialFunctions.$jl_func_name
 end
 
 for jl_func_name in [
     :polygamma,
     :zeta]
     @eval @define_binary SpecialFunctions.$jl_func_name Ops.$jl_func_name
+    @eval @define_broadcast_binary SpecialFunctions.$jl_func_name
 end
 
 function Base.round(::Type{T}, value::AbstractTensor) where T

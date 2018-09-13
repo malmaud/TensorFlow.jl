@@ -28,14 +28,14 @@ end
     d_raw = 1. .+ rand(10)
     d = TensorFlow.constant(d_raw)
     for unary_func in [SpecialFunctions.erf, SpecialFunctions.erfc, SpecialFunctions.lgamma, tanh, tan, sin, cos, abs, exp, log]
-       result = run(sess, unary_func(d))
+       result = run(sess, unary_func.(d))
        @test unary_func.(d_raw) ≈ result
     end
     result = run(sess, -d)
     @test -d_raw == result
 
     for func in [SpecialFunctions.polygamma, SpecialFunctions.zeta]
-        @test func(2, 3.0) ≈ run(sess, func(constant(2.0), constant(3.0)))
+        @test func(2, 3.0) ≈ run(sess, func.(constant(2.0), constant(3.0)))
     end
 
     f_raw = rand(10)./2
