@@ -2,13 +2,13 @@
 
 
 ```julia
-using Distributions
+using Distributions, TensorFlow, Printf
 
 # Generate some synthetic data
 x = randn(100, 50)
 w = randn(50, 10)
-y_prob = exp(x*w)
-y_prob ./= sum(y_prob,2)
+y_prob = exp.(x*w)
+y_prob ./= sum(y_prob, dims=2)
 
 function draw(probs)
     y = zeros(size(probs))
@@ -42,7 +42,7 @@ checkpoint_path = mktempdir()
 @info("Checkpoint files saved in $checkpoint_path")
 for epoch in 1:100
     cur_loss, _ = run(sess, (Loss, minimize_op), Dict(X=>x, Y_obs=>y))
-    println(@sprintf("Current loss is %.2f.", cur_loss))
+    println(Printf.@sprintf("Current loss is %.2f.", cur_loss))
     train.save(saver, sess, joinpath(checkpoint_path, "logistic"), global_step=epoch)
 end
 
