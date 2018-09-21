@@ -6,7 +6,6 @@ os:
   - osx
   - linux
 julia:
-  - 0.7
   - 1.0
 env:
     - CONDA_JL_VERSION="2" PYTHON=""

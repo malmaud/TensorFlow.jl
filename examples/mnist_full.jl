@@ -70,7 +70,7 @@ run(session, global_variables_initializer())
 
 for i in 1:200
     batch = next_batch(loader, 50)
-    if i%100 == 1
+    if i%10 == 1
         train_accuracy = run(session, accuracy, Dict(x=>batch[1], y_=>batch[2], keep_prob=>1.0))
         @info("step $i, training accuracy $train_accuracy")
     end
