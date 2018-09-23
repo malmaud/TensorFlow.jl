@@ -14,12 +14,12 @@ authors:
    affiliation: 2
 
 affiliations:
- - name: Massachusetts Institute of Technology 
+ - name: Massachusetts Institute of Technology
    index: 1
  - name: The University of Western Australia
    index: 2
 
-date: 29 Aug 2018
+date: 23 Sep 2018
 bibliography: paper.bib
 ---
 
@@ -65,7 +65,7 @@ it allows us to significantly reduce this impedance of working with an embedded 
 One example of our ability to leverage the increased expressiveness of Julia is using `@tf` macro blocks to automatically name nodes.
 Nodes in a TensorFlow graph have names; these correspond to variable names in a traditional programming language.
 Thus every operation, variable and placeholder takes a `name` parameter.
-In most TensorFlow bindings, these must be specified manually resulting in a lot of code that includes duplicate information such as 
+In most TensorFlow bindings, these must be specified manually resulting in a lot of code that includes duplicate information such as
 `x = tf.placeholder(tf.float32, name="x")` or they are defaulted to an uninformative value such as `Placeholder_1`.
 In TensorFlow.jl, prefixing a lexical block (such as a `function` or a `begin` block) with the `@tf` macro,
 will cause the `name` parameter on all operations occurring on the right-hand side of an assignment to be filled in using the left-hand side.
@@ -114,11 +114,11 @@ As well as bindings to other frameworks such as MxNet ([@mxnet2015]).
 While not having the full-capacity to directly leverage some of the benefits of the language and its ecosystem present in the pure julia frameworks such as Flux,
 TensorFlow.jl provides an interface to one of the most mature and widely deployed deep learning environments.
 It thus trivially intrinsically supports technologies such as TPUs, and systems such as TensorBoard.
-It gains benefits from the any optimisations made in the graph execution engine. 
+It gains benefits from the any optimisations made in the graph execution engine.
 
 
 ## Acknowledgements
- 
+
 
 
 # References
