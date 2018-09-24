@@ -103,6 +103,6 @@ It thus trivially  supports technologies such as TPUs  and visualization librari
 
 * We gratefully acknowledge the 30 contributors to the TensorFlow.jl Github repository.
 * We especially thank Katie Hyatt for contributing tests and documentation.
-* We thank members of Julia Computing, and the broaded Julia Community, especially Mike Innes and Keno Fischer, for various discussions.
+* We thank members of Julia Computing and the broader Julia Community for various discussions, especially Mike Innes and Keno Fischer.
 
 # References
