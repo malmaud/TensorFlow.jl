@@ -1819,7 +1819,8 @@ function get_tensor_shape(tensor::AbstractTensor)
 end
 
 function get_shape(tensor::AbstractTensor)
-    if ismissing(get_tensor_num_dims(tensor))
+    # TODO understand/fix why gradient tensors have 'nothing' for their graph
+    if get_graph(tensor) === nothing || ismissing(get_tensor_num_dims(tensor))
         return TensorShape([], true)
     else
         return TensorShape(get_tensor_shape(tensor), false)
