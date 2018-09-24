@@ -142,7 +142,9 @@ end
 function load_python_process(;force_reload=false)
     if myid() == 1
         (pyproc[] > 0 && !force_reload) && return pyproc[] # Python process already loaded
-        addprocs(1)
+        withenv("JULIA_PROJECT"=>Base.active_project()) do
+            addprocs(1)
+        end
         pyproc[] = nprocs()
         py_file = joinpath(dirname(@__FILE__), "py.jl")
         Base.eval(Main, quote
