@@ -65,7 +65,7 @@ macro tryshow(ex)
         try
             println($Meta.quot(ex),
                     " = ",
-                    esc(ex)
+                    $esc(ex)
                     )
         catch err
             println("Trying to evaluate ",
