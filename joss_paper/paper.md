@@ -8,6 +8,7 @@ tags:
   - deep learning
 authors:
  - name: Jonathan Malmaud
+   orcid: 0000-0002-5352-2086
    affiliation: 1
  - name: Lyndon White
    orcid: 0000-0003-1386-1646
