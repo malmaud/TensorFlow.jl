@@ -63,7 +63,10 @@ end
 macro tryshow(ex)
     quote
         try
-            @show $(esc(ex))
+            println($Meta.quot(ex),
+                    " = ",
+                    $esc(ex)
+                    )
         catch err
             println("Trying to evaluate ",
                     $(Meta.quot(ex)),
@@ -98,8 +101,8 @@ function tf_versioninfo()
     @tryshow PyCall.conda
 	@tryshow ENV["PYTHON"]
     @tryshow PyCall.PYTHONHOME
-    @tryshow readstring(`pip --version`)
-    @tryshow readstring(`pip3 --version`)
+    @tryshow String(read(`pip --version`))
+    @tryshow String(read(`pip3 --version`))
 
     println()
     println("------------")
