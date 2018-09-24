@@ -63,9 +63,9 @@ end
 macro tryshow(ex)
     quote
         try
-            println($Meta.quot(ex),
+            println($(Meta.quot(ex)),
                     " = ",
-                    $esc(ex)
+                    $(esc(ex))
                     )
         catch err
             println("Trying to evaluate ",
