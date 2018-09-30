@@ -2,66 +2,40 @@
 using Compat
 using ProtoBuf
 import ProtoBuf.meta
-import Base: hash, isequal, ==
 
-mutable struct FunctionDef_Node_AttrEntry
+mutable struct FunctionDef_AttrEntry <: ProtoType
     key::AbstractString
     value::AttrValue
-    FunctionDef_Node_AttrEntry(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
-end #type FunctionDef_Node_AttrEntry (mapentry)
-hash(v::FunctionDef_Node_AttrEntry) = ProtoBuf.protohash(v)
-isequal(v1::FunctionDef_Node_AttrEntry, v2::FunctionDef_Node_AttrEntry) = ProtoBuf.protoisequal(v1, v2)
-==(v1::FunctionDef_Node_AttrEntry, v2::FunctionDef_Node_AttrEntry) = ProtoBuf.protoeq(v1, v2)
+    FunctionDef_AttrEntry(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
+end #mutable struct FunctionDef_AttrEntry (mapentry)
 
-mutable struct FunctionDef_Node
-    ret::Array{AbstractString,1}
-    op::AbstractString
-    arg::Array{AbstractString,1}
-    dep::Array{AbstractString,1}
-    attr::Dict{AbstractString,AttrValue} # map entry
-    FunctionDef_Node(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
-end #type FunctionDef_Node
-hash(v::FunctionDef_Node) = ProtoBuf.protohash(v)
-isequal(v1::FunctionDef_Node, v2::FunctionDef_Node) = ProtoBuf.protoisequal(v1, v2)
-==(v1::FunctionDef_Node, v2::FunctionDef_Node) = ProtoBuf.protoeq(v1, v2)
-
-mutable struct FunctionDef_RetEntry
+mutable struct FunctionDef_RetEntry <: ProtoType
     key::AbstractString
     value::AbstractString
     FunctionDef_RetEntry(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
-end #type FunctionDef_RetEntry (mapentry)
-hash(v::FunctionDef_RetEntry) = ProtoBuf.protohash(v)
-isequal(v1::FunctionDef_RetEntry, v2::FunctionDef_RetEntry) = ProtoBuf.protoisequal(v1, v2)
-==(v1::FunctionDef_RetEntry, v2::FunctionDef_RetEntry) = ProtoBuf.protoeq(v1, v2)
+end #mutable struct FunctionDef_RetEntry (mapentry)
 
-mutable struct FunctionDef
+mutable struct FunctionDef <: ProtoType
     signature::OpDef
-    node::Array{FunctionDef_Node,1}
-    node_def::Array{NodeDef,1}
-    ret::Dict{AbstractString,AbstractString} # map entry
+    attr::Base.Dict{AbstractString,AttrValue} # map entry
+    node_def::Base.Vector{NodeDef}
+    ret::Base.Dict{AbstractString,AbstractString} # map entry
     FunctionDef(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
-end #type FunctionDef
-hash(v::FunctionDef) = ProtoBuf.protohash(v)
-isequal(v1::FunctionDef, v2::FunctionDef) = ProtoBuf.protoisequal(v1, v2)
-==(v1::FunctionDef, v2::FunctionDef) = ProtoBuf.protoeq(v1, v2)
+end #mutable struct FunctionDef
+const __fnum_FunctionDef = Int[1,5,3,4]
+meta(t::Type{FunctionDef}) = meta(t, ProtoBuf.DEF_REQ, __fnum_FunctionDef, ProtoBuf.DEF_VAL, true, ProtoBuf.DEF_PACK, ProtoBuf.DEF_WTYPES, ProtoBuf.DEF_ONEOFS, ProtoBuf.DEF_ONEOF_NAMES, ProtoBuf.DEF_FIELD_TYPES)
 
-mutable struct GradientDef
+mutable struct GradientDef <: ProtoType
     function_name::AbstractString
     gradient_func::AbstractString
     GradientDef(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
-end #type GradientDef
-hash(v::GradientDef) = ProtoBuf.protohash(v)
-isequal(v1::GradientDef, v2::GradientDef) = ProtoBuf.protoisequal(v1, v2)
-==(v1::GradientDef, v2::GradientDef) = ProtoBuf.protoeq(v1, v2)
+end #mutable struct GradientDef
 
-mutable struct FunctionDefLibrary
-    _function::Array{FunctionDef,1}
-    gradient::Array{GradientDef,1}
+mutable struct FunctionDefLibrary <: ProtoType
+    _function::Base.Vector{FunctionDef}
+    gradient::Base.Vector{GradientDef}
     FunctionDefLibrary(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
-end #type FunctionDefLibrary
-hash(v::FunctionDefLibrary) = ProtoBuf.protohash(v)
-isequal(v1::FunctionDefLibrary, v2::FunctionDefLibrary) = ProtoBuf.protoisequal(v1, v2)
-==(v1::FunctionDefLibrary, v2::FunctionDefLibrary) = ProtoBuf.protoeq(v1, v2)
+end #mutable struct FunctionDefLibrary
 
-export FunctionDefLibrary, FunctionDef_Node_AttrEntry, FunctionDef_Node, FunctionDef_RetEntry, FunctionDef, GradientDef
-# mapentries: Pair{AbstractString,Tuple{AbstractString,AbstractString}}("FunctionDef_RetEntry",("AbstractString","AbstractString")), Pair{AbstractString,Tuple{AbstractString,AbstractString}}("FunctionDef_Node_AttrEntry",("AbstractString","AttrValue"))
+export FunctionDefLibrary, FunctionDef_AttrEntry, FunctionDef_RetEntry, FunctionDef, GradientDef
+# mapentries: "FunctionDef_AttrEntry" => ("AbstractString", "AttrValue"), "FunctionDef_RetEntry" => ("AbstractString", "AbstractString")

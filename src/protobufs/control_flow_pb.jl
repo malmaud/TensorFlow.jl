@@ -2,39 +2,40 @@
 using Compat
 using ProtoBuf
 import ProtoBuf.meta
-import Base: hash, isequal, ==
 
-mutable struct ValuesDef_ExternalValuesEntry
+mutable struct ValuesDef_ExternalValuesEntry <: ProtoType
     key::AbstractString
     value::AbstractString
     ValuesDef_ExternalValuesEntry(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
-end #type ValuesDef_ExternalValuesEntry (mapentry)
-hash(v::ValuesDef_ExternalValuesEntry) = ProtoBuf.protohash(v)
-isequal(v1::ValuesDef_ExternalValuesEntry, v2::ValuesDef_ExternalValuesEntry) = ProtoBuf.protoisequal(v1, v2)
-==(v1::ValuesDef_ExternalValuesEntry, v2::ValuesDef_ExternalValuesEntry) = ProtoBuf.protoeq(v1, v2)
+end #mutable struct ValuesDef_ExternalValuesEntry (mapentry)
 
-mutable struct ValuesDef
-    values::Array{AbstractString,1}
-    external_values::Dict{AbstractString,AbstractString} # map entry
+mutable struct ValuesDef <: ProtoType
+    values::Base.Vector{AbstractString}
+    external_values::Base.Dict{AbstractString,AbstractString} # map entry
     ValuesDef(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
-end #type ValuesDef
-hash(v::ValuesDef) = ProtoBuf.protohash(v)
-isequal(v1::ValuesDef, v2::ValuesDef) = ProtoBuf.protoisequal(v1, v2)
-==(v1::ValuesDef, v2::ValuesDef) = ProtoBuf.protoeq(v1, v2)
+end #mutable struct ValuesDef
 
-mutable struct CondContextDef
+mutable struct ControlFlowContextDef <: ProtoType
+    cond_ctxt::Base.Any
+    while_ctxt::Base.Any
+    ControlFlowContextDef(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
+end #mutable struct ControlFlowContextDef (has cyclic type dependency)
+const __ftype_ControlFlowContextDef = Dict(:cond_ctxt => "CondContextDef", :while_ctxt => "WhileContextDef")
+const __oneofs_ControlFlowContextDef = Int[1,1]
+const __oneof_names_ControlFlowContextDef = [Symbol("ctxt")]
+meta(t::Type{ControlFlowContextDef}) = meta(t, ProtoBuf.DEF_REQ, ProtoBuf.DEF_FNUM, ProtoBuf.DEF_VAL, true, ProtoBuf.DEF_PACK, ProtoBuf.DEF_WTYPES, __oneofs_ControlFlowContextDef, __oneof_names_ControlFlowContextDef, __ftype_ControlFlowContextDef)
+
+mutable struct CondContextDef <: ProtoType
     context_name::AbstractString
     pred_name::AbstractString
     pivot_name::AbstractString
     branch::Int32
     values_def::ValuesDef
+    nested_contexts::Base.Vector{ControlFlowContextDef}
     CondContextDef(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
-end #type CondContextDef
-hash(v::CondContextDef) = ProtoBuf.protohash(v)
-isequal(v1::CondContextDef, v2::CondContextDef) = ProtoBuf.protoisequal(v1, v2)
-==(v1::CondContextDef, v2::CondContextDef) = ProtoBuf.protoeq(v1, v2)
+end #mutable struct CondContextDef (has cyclic type dependency)
 
-mutable struct WhileContextDef
+mutable struct WhileContextDef <: ProtoType
     context_name::AbstractString
     parallel_iterations::Int32
     back_prop::Bool
@@ -42,13 +43,15 @@ mutable struct WhileContextDef
     pivot_name::AbstractString
     pivot_for_pred_name::AbstractString
     pivot_for_body_name::AbstractString
-    loop_exit_names::Array{AbstractString,1}
+    loop_exit_names::Base.Vector{AbstractString}
+    loop_enter_names::Base.Vector{AbstractString}
     values_def::ValuesDef
+    maximum_iterations_name::AbstractString
+    nested_contexts::Base.Vector{ControlFlowContextDef}
     WhileContextDef(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
-end #type WhileContextDef
-hash(v::WhileContextDef) = ProtoBuf.protohash(v)
-isequal(v1::WhileContextDef, v2::WhileContextDef) = ProtoBuf.protoisequal(v1, v2)
-==(v1::WhileContextDef, v2::WhileContextDef) = ProtoBuf.protoeq(v1, v2)
+end #mutable struct WhileContextDef (has cyclic type dependency)
+const __fnum_WhileContextDef = Int[1,2,3,4,5,6,7,8,10,9,11,12]
+meta(t::Type{WhileContextDef}) = meta(t, ProtoBuf.DEF_REQ, __fnum_WhileContextDef, ProtoBuf.DEF_VAL, true, ProtoBuf.DEF_PACK, ProtoBuf.DEF_WTYPES, ProtoBuf.DEF_ONEOFS, ProtoBuf.DEF_ONEOF_NAMES, ProtoBuf.DEF_FIELD_TYPES)
 
-export ValuesDef_ExternalValuesEntry, ValuesDef, CondContextDef, WhileContextDef
-# mapentries: Pair{AbstractString,Tuple{AbstractString,AbstractString}}("ValuesDef_ExternalValuesEntry",("AbstractString","AbstractString"))
+export ValuesDef_ExternalValuesEntry, ValuesDef, ControlFlowContextDef, CondContextDef, WhileContextDef, ControlFlowContextDef, CondContextDef, WhileContextDef
+# mapentries: "ValuesDef_ExternalValuesEntry" => ("AbstractString", "AbstractString")

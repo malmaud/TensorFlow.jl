@@ -2,9 +2,8 @@
 using Compat
 using ProtoBuf
 import ProtoBuf.meta
-import Base: hash, isequal, ==
 
-mutable struct AllocationDescription
+mutable struct AllocationDescription <: ProtoType
     requested_bytes::Int64
     allocated_bytes::Int64
     allocator_name::AbstractString
@@ -12,9 +11,6 @@ mutable struct AllocationDescription
     has_single_reference::Bool
     ptr::UInt64
     AllocationDescription(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
-end #type AllocationDescription
-hash(v::AllocationDescription) = ProtoBuf.protohash(v)
-isequal(v1::AllocationDescription, v2::AllocationDescription) = ProtoBuf.protoisequal(v1, v2)
-==(v1::AllocationDescription, v2::AllocationDescription) = ProtoBuf.protoeq(v1, v2)
+end #mutable struct AllocationDescription
 
 export AllocationDescription

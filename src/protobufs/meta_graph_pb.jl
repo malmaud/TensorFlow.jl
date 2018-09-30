@@ -2,158 +2,125 @@
 using Compat
 using ProtoBuf
 import ProtoBuf.meta
-import Base: hash, isequal, ==
-using ProtoBuf.google.protobuf
+import ProtoBuf.google.protobuf
 
-mutable struct CollectionDef_NodeList
-    value::Array{AbstractString,1}
+mutable struct CollectionDef_NodeList <: ProtoType
+    value::Base.Vector{AbstractString}
     CollectionDef_NodeList(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
-end #type CollectionDef_NodeList
-hash(v::CollectionDef_NodeList) = ProtoBuf.protohash(v)
-isequal(v1::CollectionDef_NodeList, v2::CollectionDef_NodeList) = ProtoBuf.protoisequal(v1, v2)
-==(v1::CollectionDef_NodeList, v2::CollectionDef_NodeList) = ProtoBuf.protoeq(v1, v2)
+end #mutable struct CollectionDef_NodeList
 
-mutable struct CollectionDef_BytesList
-    value::Array{Array{UInt8,1},1}
+mutable struct CollectionDef_BytesList <: ProtoType
+    value::Base.Vector{Array{UInt8,1}}
     CollectionDef_BytesList(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
-end #type CollectionDef_BytesList
-hash(v::CollectionDef_BytesList) = ProtoBuf.protohash(v)
-isequal(v1::CollectionDef_BytesList, v2::CollectionDef_BytesList) = ProtoBuf.protoisequal(v1, v2)
-==(v1::CollectionDef_BytesList, v2::CollectionDef_BytesList) = ProtoBuf.protoeq(v1, v2)
+end #mutable struct CollectionDef_BytesList
 
-mutable struct CollectionDef_Int64List
-    value::Array{Int64,1}
+mutable struct CollectionDef_Int64List <: ProtoType
+    value::Base.Vector{Int64}
     CollectionDef_Int64List(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
-end #type CollectionDef_Int64List
+end #mutable struct CollectionDef_Int64List
 const __pack_CollectionDef_Int64List = Symbol[:value]
-meta(t::Type{CollectionDef_Int64List}) = meta(t, ProtoBuf.DEF_REQ, ProtoBuf.DEF_FNUM, ProtoBuf.DEF_VAL, true, __pack_CollectionDef_Int64List, ProtoBuf.DEF_WTYPES, ProtoBuf.DEF_ONEOFS, ProtoBuf.DEF_ONEOF_NAMES)
-hash(v::CollectionDef_Int64List) = ProtoBuf.protohash(v)
-isequal(v1::CollectionDef_Int64List, v2::CollectionDef_Int64List) = ProtoBuf.protoisequal(v1, v2)
-==(v1::CollectionDef_Int64List, v2::CollectionDef_Int64List) = ProtoBuf.protoeq(v1, v2)
+meta(t::Type{CollectionDef_Int64List}) = meta(t, ProtoBuf.DEF_REQ, ProtoBuf.DEF_FNUM, ProtoBuf.DEF_VAL, true, __pack_CollectionDef_Int64List, ProtoBuf.DEF_WTYPES, ProtoBuf.DEF_ONEOFS, ProtoBuf.DEF_ONEOF_NAMES, ProtoBuf.DEF_FIELD_TYPES)
 
-mutable struct CollectionDef_FloatList
-    value::Array{Float32,1}
+mutable struct CollectionDef_FloatList <: ProtoType
+    value::Base.Vector{Float32}
     CollectionDef_FloatList(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
-end #type CollectionDef_FloatList
+end #mutable struct CollectionDef_FloatList
 const __pack_CollectionDef_FloatList = Symbol[:value]
-meta(t::Type{CollectionDef_FloatList}) = meta(t, ProtoBuf.DEF_REQ, ProtoBuf.DEF_FNUM, ProtoBuf.DEF_VAL, true, __pack_CollectionDef_FloatList, ProtoBuf.DEF_WTYPES, ProtoBuf.DEF_ONEOFS, ProtoBuf.DEF_ONEOF_NAMES)
-hash(v::CollectionDef_FloatList) = ProtoBuf.protohash(v)
-isequal(v1::CollectionDef_FloatList, v2::CollectionDef_FloatList) = ProtoBuf.protoisequal(v1, v2)
-==(v1::CollectionDef_FloatList, v2::CollectionDef_FloatList) = ProtoBuf.protoeq(v1, v2)
+meta(t::Type{CollectionDef_FloatList}) = meta(t, ProtoBuf.DEF_REQ, ProtoBuf.DEF_FNUM, ProtoBuf.DEF_VAL, true, __pack_CollectionDef_FloatList, ProtoBuf.DEF_WTYPES, ProtoBuf.DEF_ONEOFS, ProtoBuf.DEF_ONEOF_NAMES, ProtoBuf.DEF_FIELD_TYPES)
 
-mutable struct CollectionDef_AnyList
-    value::Array{_Any,1}
+mutable struct CollectionDef_AnyList <: ProtoType
+    value::Base.Vector{ProtoBuf.google.protobuf._Any}
     CollectionDef_AnyList(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
-end #type CollectionDef_AnyList
-hash(v::CollectionDef_AnyList) = ProtoBuf.protohash(v)
-isequal(v1::CollectionDef_AnyList, v2::CollectionDef_AnyList) = ProtoBuf.protoisequal(v1, v2)
-==(v1::CollectionDef_AnyList, v2::CollectionDef_AnyList) = ProtoBuf.protoeq(v1, v2)
+end #mutable struct CollectionDef_AnyList
 
-mutable struct CollectionDef
+mutable struct CollectionDef <: ProtoType
     node_list::CollectionDef_NodeList
     bytes_list::CollectionDef_BytesList
     int64_list::CollectionDef_Int64List
     float_list::CollectionDef_FloatList
     any_list::CollectionDef_AnyList
     CollectionDef(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
-end #type CollectionDef
+end #mutable struct CollectionDef
 const __oneofs_CollectionDef = Int[1,1,1,1,1]
 const __oneof_names_CollectionDef = [Symbol("kind")]
-meta(t::Type{CollectionDef}) = meta(t, ProtoBuf.DEF_REQ, ProtoBuf.DEF_FNUM, ProtoBuf.DEF_VAL, true, ProtoBuf.DEF_PACK, ProtoBuf.DEF_WTYPES, __oneofs_CollectionDef, __oneof_names_CollectionDef)
-hash(v::CollectionDef) = ProtoBuf.protohash(v)
-isequal(v1::CollectionDef, v2::CollectionDef) = ProtoBuf.protoisequal(v1, v2)
-==(v1::CollectionDef, v2::CollectionDef) = ProtoBuf.protoeq(v1, v2)
+meta(t::Type{CollectionDef}) = meta(t, ProtoBuf.DEF_REQ, ProtoBuf.DEF_FNUM, ProtoBuf.DEF_VAL, true, ProtoBuf.DEF_PACK, ProtoBuf.DEF_WTYPES, __oneofs_CollectionDef, __oneof_names_CollectionDef, ProtoBuf.DEF_FIELD_TYPES)
 
-mutable struct MetaGraphDef_CollectionDefEntry
+mutable struct MetaGraphDef_CollectionDefEntry <: ProtoType
     key::AbstractString
     value::CollectionDef
     MetaGraphDef_CollectionDefEntry(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
-end #type MetaGraphDef_CollectionDefEntry (mapentry)
-hash(v::MetaGraphDef_CollectionDefEntry) = ProtoBuf.protohash(v)
-isequal(v1::MetaGraphDef_CollectionDefEntry, v2::MetaGraphDef_CollectionDefEntry) = ProtoBuf.protoisequal(v1, v2)
-==(v1::MetaGraphDef_CollectionDefEntry, v2::MetaGraphDef_CollectionDefEntry) = ProtoBuf.protoeq(v1, v2)
+end #mutable struct MetaGraphDef_CollectionDefEntry (mapentry)
 
-mutable struct TensorInfo
+mutable struct TensorInfo_CooSparse <: ProtoType
+    values_tensor_name::AbstractString
+    indices_tensor_name::AbstractString
+    dense_shape_tensor_name::AbstractString
+    TensorInfo_CooSparse(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
+end #mutable struct TensorInfo_CooSparse
+
+mutable struct TensorInfo <: ProtoType
     name::AbstractString
+    coo_sparse::TensorInfo_CooSparse
     dtype::Int32
     tensor_shape::TensorShapeProto
     TensorInfo(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
-end #type TensorInfo
-hash(v::TensorInfo) = ProtoBuf.protohash(v)
-isequal(v1::TensorInfo, v2::TensorInfo) = ProtoBuf.protoisequal(v1, v2)
-==(v1::TensorInfo, v2::TensorInfo) = ProtoBuf.protoeq(v1, v2)
+end #mutable struct TensorInfo
+const __fnum_TensorInfo = Int[1,4,2,3]
+const __oneofs_TensorInfo = Int[1,1,0,0]
+const __oneof_names_TensorInfo = [Symbol("encoding")]
+meta(t::Type{TensorInfo}) = meta(t, ProtoBuf.DEF_REQ, __fnum_TensorInfo, ProtoBuf.DEF_VAL, true, ProtoBuf.DEF_PACK, ProtoBuf.DEF_WTYPES, __oneofs_TensorInfo, __oneof_names_TensorInfo, ProtoBuf.DEF_FIELD_TYPES)
 
-mutable struct SignatureDef_InputsEntry
+mutable struct SignatureDef_InputsEntry <: ProtoType
     key::AbstractString
     value::TensorInfo
     SignatureDef_InputsEntry(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
-end #type SignatureDef_InputsEntry (mapentry)
-hash(v::SignatureDef_InputsEntry) = ProtoBuf.protohash(v)
-isequal(v1::SignatureDef_InputsEntry, v2::SignatureDef_InputsEntry) = ProtoBuf.protoisequal(v1, v2)
-==(v1::SignatureDef_InputsEntry, v2::SignatureDef_InputsEntry) = ProtoBuf.protoeq(v1, v2)
+end #mutable struct SignatureDef_InputsEntry (mapentry)
 
-mutable struct SignatureDef_OutputsEntry
+mutable struct SignatureDef_OutputsEntry <: ProtoType
     key::AbstractString
     value::TensorInfo
     SignatureDef_OutputsEntry(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
-end #type SignatureDef_OutputsEntry (mapentry)
-hash(v::SignatureDef_OutputsEntry) = ProtoBuf.protohash(v)
-isequal(v1::SignatureDef_OutputsEntry, v2::SignatureDef_OutputsEntry) = ProtoBuf.protoisequal(v1, v2)
-==(v1::SignatureDef_OutputsEntry, v2::SignatureDef_OutputsEntry) = ProtoBuf.protoeq(v1, v2)
+end #mutable struct SignatureDef_OutputsEntry (mapentry)
 
-mutable struct SignatureDef
-    inputs::Dict{AbstractString,TensorInfo} # map entry
-    outputs::Dict{AbstractString,TensorInfo} # map entry
+mutable struct SignatureDef <: ProtoType
+    inputs::Base.Dict{AbstractString,TensorInfo} # map entry
+    outputs::Base.Dict{AbstractString,TensorInfo} # map entry
     method_name::AbstractString
     SignatureDef(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
-end #type SignatureDef
-hash(v::SignatureDef) = ProtoBuf.protohash(v)
-isequal(v1::SignatureDef, v2::SignatureDef) = ProtoBuf.protoisequal(v1, v2)
-==(v1::SignatureDef, v2::SignatureDef) = ProtoBuf.protoeq(v1, v2)
+end #mutable struct SignatureDef
 
-mutable struct MetaGraphDef_SignatureDefEntry
+mutable struct MetaGraphDef_SignatureDefEntry <: ProtoType
     key::AbstractString
     value::SignatureDef
     MetaGraphDef_SignatureDefEntry(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
-end #type MetaGraphDef_SignatureDefEntry (mapentry)
-hash(v::MetaGraphDef_SignatureDefEntry) = ProtoBuf.protohash(v)
-isequal(v1::MetaGraphDef_SignatureDefEntry, v2::MetaGraphDef_SignatureDefEntry) = ProtoBuf.protoisequal(v1, v2)
-==(v1::MetaGraphDef_SignatureDefEntry, v2::MetaGraphDef_SignatureDefEntry) = ProtoBuf.protoeq(v1, v2)
+end #mutable struct MetaGraphDef_SignatureDefEntry (mapentry)
 
-mutable struct AssetFileDef
+mutable struct AssetFileDef <: ProtoType
     tensor_info::TensorInfo
     filename::AbstractString
     AssetFileDef(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
-end #type AssetFileDef
-hash(v::AssetFileDef) = ProtoBuf.protohash(v)
-isequal(v1::AssetFileDef, v2::AssetFileDef) = ProtoBuf.protoisequal(v1, v2)
-==(v1::AssetFileDef, v2::AssetFileDef) = ProtoBuf.protoeq(v1, v2)
+end #mutable struct AssetFileDef
 
-mutable struct MetaGraphDef_MetaInfoDef
+mutable struct MetaGraphDef_MetaInfoDef <: ProtoType
     meta_graph_version::AbstractString
     stripped_op_list::OpList
-    any_info::_Any
-    tags::Array{AbstractString,1}
+    any_info::ProtoBuf.google.protobuf._Any
+    tags::Base.Vector{AbstractString}
     tensorflow_version::AbstractString
     tensorflow_git_version::AbstractString
+    stripped_default_attrs::Bool
     MetaGraphDef_MetaInfoDef(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
-end #type MetaGraphDef_MetaInfoDef
-hash(v::MetaGraphDef_MetaInfoDef) = ProtoBuf.protohash(v)
-isequal(v1::MetaGraphDef_MetaInfoDef, v2::MetaGraphDef_MetaInfoDef) = ProtoBuf.protoisequal(v1, v2)
-==(v1::MetaGraphDef_MetaInfoDef, v2::MetaGraphDef_MetaInfoDef) = ProtoBuf.protoeq(v1, v2)
+end #mutable struct MetaGraphDef_MetaInfoDef
 
-mutable struct MetaGraphDef
+mutable struct MetaGraphDef <: ProtoType
     meta_info_def::MetaGraphDef_MetaInfoDef
     graph_def::GraphDef
     saver_def::SaverDef
-    collection_def::Dict{AbstractString,CollectionDef} # map entry
-    signature_def::Dict{AbstractString,SignatureDef} # map entry
-    asset_file_def::Array{AssetFileDef,1}
+    collection_def::Base.Dict{AbstractString,CollectionDef} # map entry
+    signature_def::Base.Dict{AbstractString,SignatureDef} # map entry
+    asset_file_def::Base.Vector{AssetFileDef}
     MetaGraphDef(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
-end #type MetaGraphDef
-hash(v::MetaGraphDef) = ProtoBuf.protohash(v)
-isequal(v1::MetaGraphDef, v2::MetaGraphDef) = ProtoBuf.protoisequal(v1, v2)
-==(v1::MetaGraphDef, v2::MetaGraphDef) = ProtoBuf.protoeq(v1, v2)
+end #mutable struct MetaGraphDef
 
-export MetaGraphDef_MetaInfoDef, MetaGraphDef_CollectionDefEntry, MetaGraphDef_SignatureDefEntry, MetaGraphDef, CollectionDef_NodeList, CollectionDef_BytesList, CollectionDef_Int64List, CollectionDef_FloatList, CollectionDef_AnyList, CollectionDef, TensorInfo, SignatureDef_InputsEntry, SignatureDef_OutputsEntry, SignatureDef, AssetFileDef
-# mapentries: Pair{AbstractString,Tuple{AbstractString,AbstractString}}("MetaGraphDef_SignatureDefEntry",("AbstractString","SignatureDef")), Pair{AbstractString,Tuple{AbstractString,AbstractString}}("MetaGraphDef_CollectionDefEntry",("AbstractString","CollectionDef")), Pair{AbstractString,Tuple{AbstractString,AbstractString}}("SignatureDef_InputsEntry",("AbstractString","TensorInfo")), Pair{AbstractString,Tuple{AbstractString,AbstractString}}("SignatureDef_OutputsEntry",("AbstractString","TensorInfo"))
+export MetaGraphDef_MetaInfoDef, MetaGraphDef_CollectionDefEntry, MetaGraphDef_SignatureDefEntry, MetaGraphDef, CollectionDef_NodeList, CollectionDef_BytesList, CollectionDef_Int64List, CollectionDef_FloatList, CollectionDef_AnyList, CollectionDef, TensorInfo_CooSparse, TensorInfo, SignatureDef_InputsEntry, SignatureDef_OutputsEntry, SignatureDef, AssetFileDef
+# mapentries: "MetaGraphDef_SignatureDefEntry" => ("AbstractString", "SignatureDef"), "MetaGraphDef_CollectionDefEntry" => ("AbstractString", "CollectionDef"), "SignatureDef_InputsEntry" => ("AbstractString", "TensorInfo"), "SignatureDef_OutputsEntry" => ("AbstractString", "TensorInfo")
