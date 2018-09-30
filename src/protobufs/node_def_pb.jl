@@ -2,28 +2,21 @@
 using Compat
 using ProtoBuf
 import ProtoBuf.meta
-import Base: hash, isequal, ==
 
-mutable struct NodeDef_AttrEntry
+mutable struct NodeDef_AttrEntry <: ProtoType
     key::AbstractString
     value::AttrValue
     NodeDef_AttrEntry(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
-end #type NodeDef_AttrEntry (mapentry)
-hash(v::NodeDef_AttrEntry) = ProtoBuf.protohash(v)
-isequal(v1::NodeDef_AttrEntry, v2::NodeDef_AttrEntry) = ProtoBuf.protoisequal(v1, v2)
-==(v1::NodeDef_AttrEntry, v2::NodeDef_AttrEntry) = ProtoBuf.protoeq(v1, v2)
+end #mutable struct NodeDef_AttrEntry (mapentry)
 
-mutable struct NodeDef
+mutable struct NodeDef <: ProtoType
     name::AbstractString
     op::AbstractString
-    input::Array{AbstractString,1}
+    input::Base.Vector{AbstractString}
     device::AbstractString
-    attr::Dict{AbstractString,AttrValue} # map entry
+    attr::Base.Dict{AbstractString,AttrValue} # map entry
     NodeDef(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
-end #type NodeDef
-hash(v::NodeDef) = ProtoBuf.protohash(v)
-isequal(v1::NodeDef, v2::NodeDef) = ProtoBuf.protoisequal(v1, v2)
-==(v1::NodeDef, v2::NodeDef) = ProtoBuf.protoeq(v1, v2)
+end #mutable struct NodeDef
 
 export NodeDef_AttrEntry, NodeDef
-# mapentries: Pair{AbstractString,Tuple{AbstractString,AbstractString}}("NodeDef_AttrEntry",("AbstractString","AttrValue"))
+# mapentries: "NodeDef_AttrEntry" => ("AbstractString", "AttrValue")

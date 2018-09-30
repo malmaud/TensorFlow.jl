@@ -2,26 +2,19 @@
 using Compat
 using ProtoBuf
 import ProtoBuf.meta
-import Base: hash, isequal, ==
 
-mutable struct TensorShapeProto_Dim
+mutable struct TensorShapeProto_Dim <: ProtoType
     size::Int64
     name::AbstractString
     TensorShapeProto_Dim(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
-end #type TensorShapeProto_Dim
-hash(v::TensorShapeProto_Dim) = ProtoBuf.protohash(v)
-isequal(v1::TensorShapeProto_Dim, v2::TensorShapeProto_Dim) = ProtoBuf.protoisequal(v1, v2)
-==(v1::TensorShapeProto_Dim, v2::TensorShapeProto_Dim) = ProtoBuf.protoeq(v1, v2)
+end #mutable struct TensorShapeProto_Dim
 
-mutable struct TensorShapeProto
-    dim::Array{TensorShapeProto_Dim,1}
+mutable struct TensorShapeProto <: ProtoType
+    dim::Base.Vector{TensorShapeProto_Dim}
     unknown_rank::Bool
     TensorShapeProto(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
-end #type TensorShapeProto
+end #mutable struct TensorShapeProto
 const __fnum_TensorShapeProto = Int[2,3]
-meta(t::Type{TensorShapeProto}) = meta(t, ProtoBuf.DEF_REQ, __fnum_TensorShapeProto, ProtoBuf.DEF_VAL, true, ProtoBuf.DEF_PACK, ProtoBuf.DEF_WTYPES, ProtoBuf.DEF_ONEOFS, ProtoBuf.DEF_ONEOF_NAMES)
-hash(v::TensorShapeProto) = ProtoBuf.protohash(v)
-isequal(v1::TensorShapeProto, v2::TensorShapeProto) = ProtoBuf.protoisequal(v1, v2)
-==(v1::TensorShapeProto, v2::TensorShapeProto) = ProtoBuf.protoeq(v1, v2)
+meta(t::Type{TensorShapeProto}) = meta(t, ProtoBuf.DEF_REQ, __fnum_TensorShapeProto, ProtoBuf.DEF_VAL, true, ProtoBuf.DEF_PACK, ProtoBuf.DEF_WTYPES, ProtoBuf.DEF_ONEOFS, ProtoBuf.DEF_ONEOF_NAMES, ProtoBuf.DEF_FIELD_TYPES)
 
 export TensorShapeProto_Dim, TensorShapeProto

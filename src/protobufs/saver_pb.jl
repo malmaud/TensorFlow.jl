@@ -2,17 +2,16 @@
 using Compat
 using ProtoBuf
 import ProtoBuf.meta
-import Base: hash, isequal, ==
 
-mutable struct __enum_SaverDef_CheckpointFormatVersion <: ProtoEnum
+struct __enum_SaverDef_CheckpointFormatVersion <: ProtoEnum
     LEGACY::Int32
     V1::Int32
     V2::Int32
     __enum_SaverDef_CheckpointFormatVersion() = new(0,1,2)
-end #type __enum_SaverDef_CheckpointFormatVersion
+end #struct __enum_SaverDef_CheckpointFormatVersion
 const SaverDef_CheckpointFormatVersion = __enum_SaverDef_CheckpointFormatVersion()
 
-mutable struct SaverDef
+mutable struct SaverDef <: ProtoType
     filename_tensor_name::AbstractString
     save_tensor_name::AbstractString
     restore_op_name::AbstractString
@@ -21,9 +20,6 @@ mutable struct SaverDef
     keep_checkpoint_every_n_hours::Float32
     version::Int32
     SaverDef(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
-end #type SaverDef
-hash(v::SaverDef) = ProtoBuf.protohash(v)
-isequal(v1::SaverDef, v2::SaverDef) = ProtoBuf.protoisequal(v1, v2)
-==(v1::SaverDef, v2::SaverDef) = ProtoBuf.protoeq(v1, v2)
+end #mutable struct SaverDef
 
 export SaverDef_CheckpointFormatVersion, SaverDef
