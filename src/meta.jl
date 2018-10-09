@@ -160,8 +160,10 @@ macro tf(ex)
         # If they are found replace them with `withname` wrapped calls
         # and then search with in them
         MacroTools.prewalk(ex) do x
-            if @capture(x, X_ = f_(args__))
-                :($X = TensorFlow.withname($f, $(string(X)),$(args...)))
+            if @capture(x, X_ = f_(args__; kwargs__)) # semicolon breaks it
+                :($X = TensorFlow.withname($f, $(string(X)), $(args...); $(kwargs...)))
+            elseif @capture(x, X_ = f_(args__))
+                :($X = TensorFlow.withname($f, $(string(X)), $(args...)))
             else
                 x
             end

@@ -3,16 +3,34 @@ using TensorFlow
 
 @testset "Registering Ops" begin
 
-    @test TensorFlow.is_registered_op(TensorFlow.FIFOQueue) == TensorFlow.RegisteredOp()
-    @test TensorFlow.is_registered_op(nn.rnn_cell.GRUCell) == TensorFlow.NotRegisteredOp()
+    @testset "Registered types" begin
+        # Only the 2 arg version should be registered
+        @test TensorFlow.is_registered_op(TensorFlow.FIFOQueue, 32, [Int,Float32]) == TensorFlow.RegisteredOp()
+        @test TensorFlow.is_registered_op(TensorFlow.FIFOQueue, 32) == TensorFlow.NotRegisteredOp()
+        @test TensorFlow.is_registered_op(TensorFlow.FIFOQueue) == TensorFlow.NotRegisteredOp()
+    end
 
-    @test TensorFlow.is_registered_op(typeof(add_n)) == TensorFlow.RegisteredOp()
-    @test TensorFlow.is_registered_op(typeof(nn.softmax)) == TensorFlow.RegisteredOp()
+    @testset "Unregistered types" begin
+        @test TensorFlow.is_registered_op(nn.rnn_cell.GRUCell) == TensorFlow.NotRegisteredOp()
+        @test TensorFlow.is_registered_op(nn.rnn_cell.GRUCell, 32) == TensorFlow.NotRegisteredOp()
+    end
+
+    @testset "Registered Functions" begin
+        @test TensorFlow.is_registered_op(typeof(nn.softmax), [1,0]) == TensorFlow.RegisteredOp()
+        @test TensorFlow.is_registered_op(typeof(nn.softmax)) == TensorFlow.NotRegisteredOp()
+        @test TensorFlow.is_registered_op(typeof(nn.softmax), [1,0], 2) == TensorFlow.NotRegisteredOp()
 
 
-    @tesetset "args matter" begin
         @test TensorFlow.is_registered_op(typeof(placeholder), Int) == TensorFlow.RegisteredOp()
         @test TensorFlow.is_registered_op(typeof(placeholder)) == TensorFlow.NotRegisteredOp()
+
+        @test TensorFlow.is_registered_op(typeof(placeholder), Int) == TensorFlow.RegisteredOp()
+        @test TensorFlow.is_registered_op(typeof(placeholder)) == TensorFlow.NotRegisteredOp()
+    end
+
+    @testset "Unregistered Functions" begin
+        @test TensorFlow.is_registered_op(typeof(string)) == TensorFlow.NotRegisteredOp()
+        @test TensorFlow.is_registered_op(typeof(string),3 ) == TensorFlow.NotRegisteredOp()
     end
 end
 
