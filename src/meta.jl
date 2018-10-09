@@ -9,41 +9,32 @@ struct RegisteredOp <: OpRegistration end
 struct NotRegisteredOp <: OpRegistration end
 
 # By default nothing is registered
-is_registered_op(::Type{T}) where T =  TensorFlow.NotRegisteredOp()
+is_registered_op(args...) =  TensorFlow.NotRegisteredOp()
 
-const registered_ops = Set()
 
 macro op(f)
-    # TODO: fix MacroTools to make this work again
-    opname = @match f begin
-        function opname_(args__)
-            body_
-        end => opname
-    end
-    if opname === nothing
-        opname = @match f begin
-            (opname_(args__) = body_) => opname
-        end
-    end
-    opname === nothing && error("Invalid usage of @op")
+    @capture(f,
+        function opname_(args__; kwargs__) body_ end |
+        (opname_(args__; kwargs__) = body_) |
+        function opname_(args__) body_ end  |
+        (opname_(args__) = body_)
+    ) || error("Invalid usage of @op")
+    
 
-    already_registered = opname ∈ registered_ops
-    push!(registered_ops, opname)
     @assert(@isdefined(tf)) # Need tf as name for module where this code is located
-    if already_registered
-        register_block = nothing
-    else
-        register_block = quote
-            # Mark it as registered by giving its type the trait
-            if isa($(opname), Function)
-                tf.is_registered_op(::Type{typeof($(opname))}) = tf.RegisteredOp()
-            elseif isa($(opname), DataType)
-                tf.is_registered_op(::Type{$(opname)}) = tf.RegisteredOp()
-            else
-                @warn("@op used on " * string($(opname)) * " which does not seem to be a suitable type for an operation.")
-            end
+
+    # TODO Refactor this a bit
+    register_block = quote
+        # Mark it as registered by giving its type, and sig the trait
+        if isa($(opname), Function)
+            tf.is_registered_op(::Type{typeof($(opname))}, $(args...)) = tf.RegisteredOp()
+        elseif isa($(opname), DataType)
+            tf.is_registered_op(::Type{$(opname)}, $(args...)) = tf.RegisteredOp()
+        else
+            @warn("@op used on " * string($(opname)) * " which does not seem to be a suitable type for an operation.")
         end
     end
+
     res = quote
         @Base.__doc__ $f
         $register_block
@@ -60,7 +51,7 @@ end
 
 function get_variable end # pre-declare.
 
-withname(::typeof(get_variable), name) = (args...; kwargs...) -> begin
+function withname(::typeof(get_variable), name, args...; kwargs...)
     if length(args) ≥ 1 && isa(args[1], AbstractString)
         get_variable(args...; kwargs...)
     else # No name provided
@@ -68,11 +59,15 @@ withname(::typeof(get_variable), name) = (args...; kwargs...) -> begin
     end
 end
 
-withname(d::Type{T}, name) where T = withname(is_registered_op(d), d, name) # will do a static(?) dispatch to one of the two traited methods
-withname(f::F, name) where F<:Function = withname(is_registered_op(F), f, name) # will do a static dispatch to one of the two traited methods
+function withname(d::Type{T}, name, args...; kwargs...) where T
+    withname(is_registered_op(d, args...), d, name, args...; kwargs...)
+end
+function withname(f::F, name, args...; kwargs...) where F<:Function
+    withname(is_registered_op(F, args...), f, name, args...; kwargs...)
+end
 
-withname(::NotRegisteredOp, f, name) = (args...; kws...) -> f(args...; kws...)
-withname(::RegisteredOp, f, name) = (args...; kws...) -> begin
+withname(::NotRegisteredOp, f, name, args...; kws...) = f(args...; kws...)
+function withname(::RegisteredOp, f, name, args...; kws...)
     if !any(keys(kws) .== :name) # name is not already there
         kws = (kws..., name=name)
     end
@@ -166,7 +161,7 @@ macro tf(ex)
         # and then search with in them
         MacroTools.prewalk(ex) do x
             if @capture(x, X_ = f_(args__))
-                :($X = TensorFlow.withname($f, $(string(X)))($(args...)))
+                :($X = TensorFlow.withname($f, $(string(X)),$(args...)))
             else
                 x
             end

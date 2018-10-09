@@ -9,12 +9,42 @@ using TensorFlow
     @test TensorFlow.is_registered_op(typeof(add_n)) == TensorFlow.RegisteredOp()
     @test TensorFlow.is_registered_op(typeof(nn.softmax)) == TensorFlow.RegisteredOp()
 
-    @test_throws MethodError TensorFlow.is_registered_op(add_n)
-    @test_throws MethodError TensorFlow.is_registered_op(nn.softmax)
+
+    @tesetset "args matter" begin
+        @test TensorFlow.is_registered_op(typeof(placeholder), Int) == TensorFlow.RegisteredOp()
+        @test TensorFlow.is_registered_op(typeof(placeholder)) == TensorFlow.NotRegisteredOp()
+    end
+end
+
+@testset "Types with typeparams" begin
+    @tf begin
+        fooo = nn.rnn_cell.DropoutWrapper(nn.rnn_cell.GRUCell(3), Tensor(0.2))
+        @test true # Above line would have errored if @tf macro was broken
+    end
+end
+
+@testset "colon #448" begin
+    @tf for ii in 1:10
+    end
+    @test true # would have errored if this was broken
+end
+
+@testset "While" begin
+    @test_broken let
+        sess = Session(Graph())
+        i = constant(1)
+        loop_sum = constant(0)
+        res = @tf while i ≤ 10
+            sq = i.^2
+            [i=>i+1, loop_sum=>loop_sum+sq]
+        end
+        @test run(sess, res) == [11, 385]
+    end
 end
 
 
-@testset "Naming" begin
+
+@testset "Naming Big Demo" begin
     let
         g = Graph()
         local i, j_jl, j, k, ijk, ij, ij2, fq, m, W, Y, Ysum1, Ysum2, Ysum3, Ysum4
@@ -70,22 +100,4 @@ end
     end
 end
 
-@testset "Types with typeparams" begin
-    @tf begin
-        fooo = nn.rnn_cell.DropoutWrapper(nn.rnn_cell.GRUCell(3), Tensor(0.2))
-            @test true # Above line would have errored if @tf macro was broken
-    end
-end
 
-@testset "While" begin
-    @test_broken let
-        sess = Session(Graph())
-        i = constant(1)
-        loop_sum = constant(0)
-        res = @tf while i ≤ 10
-            sq = i.^2
-            [i=>i+1, loop_sum=>loop_sum+sq]
-        end
-        @test run(sess, res) == [11, 385]
-    end
-end
