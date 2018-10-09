@@ -32,7 +32,9 @@ end
 Base.first(tr::TensorRange)=tr.start
 Base.last(tr::TensorRange)=tr.stop
 
-@define_binary Base.:(:) TensorRange
+Base.:(:)(start::AbstractTensor, stop::AbstractTensor) =  TensorRange(start, stop)
+Base.:(:)(start, stop::AbstractTensor) =  TensorRange(start, stop)
+Base.:(:)(start::AbstractTensor, stop) =  TensorRange(start, stop)
 
 
 const Slice = Union{TensorRange, UnitRange, Colon}
