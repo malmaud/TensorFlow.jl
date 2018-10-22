@@ -30,11 +30,11 @@ It allows users to define TensorFlow graphs using Julia syntax, which are interc
 
 Graphs are primarily defined by overloading native Julia functions to operate on a TensorFlow.jl `Tensor` type, which represents a node in a TensorFlow computational graph. This overloading is powered by Julia's powerful multiple-dispatch system, which in turn allows allows the vast majority of Julia's existing array-processing functionality to work as well on the new `Tensor` type as they do on native Julia arrays. User code is often unaware and thereby reusable with respect to whtether its inputs are TensorFlow tensors or native Julia arrays by utilizing _duck-typing_.
 
-TensorFlow.jl has an elegant, idiomatic Julia syntax. It allows all the usual infix operators such as `+`, `-`, `*` etc. It works seamlessly with Julia's broadcast syntax as well, such as the `.*` operator. This `*` can correspond to matrix multiplication while `.*` corresponds to element-wise multiplication, while Python clients needs distinct `@` (or `matmul`) and `*` (or `multiply`) functions.
+TensorFlow.jl has an elegant, idiomatic Julia syntax. It allows all the usual infix operators such as `+`, `-`, `*` etc. It works seamlessly with Julia's broadcast syntax as well, such as the `.*` operator. Thus `*` can correspond to matrix multiplication while `.*` corresponds to element-wise multiplication, while Python clients needs distinct `@` (or `matmul`) and `*` (or `multiply`) functions.
 It also allows Julia-style indexing (e.g. `x[:, ii + end÷2]`), and concatenation (e.g. `[A B]`, `[x; y; 1]`). Its goal is to be idiomatic for Julia users while still preserving all the power and maturity of the TensorFlow computational engine.
 
 
-TensorFlow.jl to carefully balance between matching the Python TensorFlow API and Julia conventions.
+TensorFlow.jl aims to carefully balance between matching the Python TensorFlow API and Julia conventions.
 In turn, the Python TensorFlow client is itself designed to closely mirror numpy.
 Some examples are shown in the table below.
 
@@ -64,23 +64,19 @@ Since all nodes in the computational graph can automatically be assigned the sam
 Another example of the use of Julia's metaprogramming is in the automatic generation of Julia code for each operation defined by the official TensorFlow C implementation (for example, convolutions of two TensorFlow tensors).
 The C API can be queried to return  definitions of all operations as protobuffer descriptions, which includes the expected TensorFlow type and arity of its inputs and outputs, as well as documentation.
 This described the operations at a sufficient level to generate the Julia code to bind to the functions in the C API and automatically generate a useful docstring for the function,.
-One challenge in this is that such generated code must correct the indices to be 1-based instead of 0-based to accord with Julia convention. Various heuristics are employed by TensorFlow.jl to guess which input arguments represent indicies and so should be converted.
+One challenge in this is that such generated code must correct the indices to be 1-based instead of 0-based to accord with Julia convention. Various heuristics are employed by TensorFlow.jl to guess which input arguments represent indices and so should be converted.
 
 TensorFlow.jl ships by default with bindings for most operations, but any operation can be dynamically imported at runtime using `@tfimport OperationName`, which will generate the binding and load it immediately. Additionally, for operations that correspond to native Julia operations (for example, `sin`), we overload the native Julia operation to call the proper binding.
 
 
-We also use Julia's advanced parametric type system to enable elegant implementations of array operations not easily possible in other client libraries. TensorFlow.jl represents all nodes in the computational graph as parametric `Tensor` types which are parametrised by their element type, e.g. `Tensor{Int}`, `Tensor{Float64}` or `Tensor{Bool}`.
+We also use Julia's advanced parametric type system to enable elegant implementations of array operations not easily possible in other client libraries. TensorFlow.jl represents all nodes in the computational graph as parametric `Tensor` types which are parameterized by their element type, e.g. `Tensor{Int}`, `Tensor{Float64}` or `Tensor{Bool}`.
 This allows Julia's dispatch system to be used to simplify defining some bindings. For example, indexing a `Tensor` with an `Int`-like Tensor will ultimately create a node corresponding to a TensorFlow "gather" operation,  and indexing with a `Bool`-like Tensor will correspond to a "boolean_mask" operation. It is also used to cast inputs in various functions to compatible shapes.
 
 
 
 ## Challenges
 
-A significant difficulty in implementing the TensorFlow.jl package for Julia
-is that in the upstream TensorFlow version 0 and 1 distributions, the C API is primarily designed for the execution of pretrained models and does not include many conveients for the definition of training of graphs.
-
-The C API primarily exposes low-level array operations such as matrix multiplication or reductions.
-Graidnet descent ptimizers, RNNs functionality, and (until recently) shape-inference all required reimplementation on the Julia side.
+The TensorFlow 1.0 C API primarily exposes low-level functionality for manually managing nodes in the computation graph. Gradient descent optimizers, RNNs functionality, and (until recently) shape-inference all required reimplementation on the Julia side.
 Most challengingly, the symbolic differentiation implemented in the `gradients` function is not available from the C API for all operations.
 To work around this, we currently use Julia's [Python interop](https://github.com/JuliaPy/PyCall.jl) library to generate the gradient nodes using the Python client for those operations not supported by the C API. This requires serializing and deserializing TensorFlow graphs on both the Julia and Python side.
 
@@ -96,7 +92,7 @@ Julia also has bespoke neural network packages such as Mocha ([@mocha2014]),  Kn
 as well as bindings to other frameworks such as MxNet ([@mxnet2015]).
 While not having the full-capacity to directly leverage some of the benefits of the language and its ecosystem present in the pure julia frameworks such as Flux,
 TensorFlow.jl provides an interface to one of the most mature and widely deployed deep learning environments.
-It thus trivially  supports technologies such as TPUs  and visualization libraries like TensorBoard. It also gains the benefits from the any optimisations made in the graph execution engine of the underlying TensorFlow C library, which includes extensive support for automatically distributing computations over multiple host machines which each have multiple GPUs.
+It naturally therefore supports TensorFlow visualization libraries like TensorBoard. It also gains the benefits from the any optimisations made in the graph execution engine of the underlying TensorFlow C library, which includes extensive support for automatically distributing computations over multiple host machines which each have multiple GPUs.
 
 
 ## Acknowledgements
