@@ -11,19 +11,18 @@ To build libtensorflow for TensorFlow.jl, follow the [official instructions for 
   * In the step "Build the pip package", since we are building the binary file and not the pip package, instead run `bazel build --config=opt //tensorflow:libtensorflow.so`, adding `--config=cuda` if GPU support is desired.
 
 Running `bazel build` will produce the `libtensorflow.so` binary needed by TensorFlow.jl - there is no need to build the Python package or run anything else. You may place the binary wherever is convenient.
-
+If on Mac OS X, you may need to rename the `libtensorflow.so` to `libtensorflow.dylib`.
 
 ## Step 2: Install the TensorFlow binary
 
-We must now tell TensorFlow.jl to load the custom binary. There are a number of ways to do so.
+We must now tell TensorFlow.jl to where to load the custom binary from. There are a number of ways to do so.
 
-  * The simplest way is to copy `libtensorflow.so` to `~/.julia/v0.?/TensorFlow/deps/usr/bin/`, overwriting the included binary. If on Mac OS X, you may need to rename the file to `libtensorflow.dylib`.
-
-  * Alternatively, for users who wish to keep their `libtensorflow.so` file elsewhere, or those who do not wish to modify their `TensorFlow.jl` installation, we can set the environment variable `LIBTENSORFLOW` to `/path/to/tensorflow.so`. This may be done system-wide by editing `.profile` or any other method supported by your OS.
+  * We can set the environment variable `LIBTENSORFLOW` to `/path/to/tensorflow.so`. This may be done system-wide by editing `.profile` or any other method supported by your OS.
 
   * For users of the Atom/Juno IDE who do not wish to modify their system-wide environment, environment variables may be set by adding the line `process.env.LIBTENSORFLOW = "/path/to/libtensorflow.so"` to the `init.coffee` script (easily accessible by clicking `File -> Init Script`). Note that Atom may not always inherit environment variables set by the OS.
 
-
+  * Or you can copy `libtensorflow.so` to `<TensorFlowDIR>/deps/usr/bin/`, overwriting the included binary. Where `<TensorFlowDIR>` is the path to the directory TensorFlow.jl is being loaded from.
+  
 
 ## Step 3: Check that the custom binary is loaded
 
