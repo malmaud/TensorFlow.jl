@@ -72,11 +72,14 @@ end
 device_index_from_zero(part::DevicePart{Int}) = "$(join(part.kind, ":")):$(part.index-1)"
 device_index_from_zero(part::DevicePart) = "$(join(part.kind, ":")):$(part.index)"
 
+==(a::DevicePart, b::DevicePart) = a.kind == b.kind && a.index == b.index
+
 struct Device
     parts::Vector{DevicePart}
 end
 
 Device() = Device(DevicePart[])
+==(a::Device, b::Device) = a.parts == b.parts
 
 function DevicePart(s::AbstractString)
     parts = split(s, ":")
