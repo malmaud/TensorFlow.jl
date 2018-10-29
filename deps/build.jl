@@ -75,8 +75,12 @@ mkpath(bin_dir)
 
 function download_and_unpack(url)
     tensorflow_zip_path = joinpath(base, "downloads/tensorflow.tar.gz")
-    download(url, tensorflow_zip_path)
-    run(`tar -xzf $tensorflow_zip_path -C downloads`)
+    try
+        run(`tar -xzf $tensorflow_zip_path -C downloads`)
+    catch
+        download(url, tensorflow_zip_path)
+        run(`tar -xzf $tensorflow_zip_path -C downloads`)
+    end
 end
 
 @static if Sys.isapple()
