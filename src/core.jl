@@ -64,7 +64,7 @@ function get_code(s::Status)
     return TF_Code(code)
 end
 
-struct DevicePart{IndexType}
+@auto_hash_equals struct DevicePart{IndexType}
     kind::Vector{String}
     index::IndexType
 end
@@ -72,7 +72,7 @@ end
 device_index_from_zero(part::DevicePart{Int}) = "$(join(part.kind, ":")):$(part.index-1)"
 device_index_from_zero(part::DevicePart) = "$(join(part.kind, ":")):$(part.index)"
 
-struct Device
+@auto_hash_equals struct Device
     parts::Vector{DevicePart}
 end
 
