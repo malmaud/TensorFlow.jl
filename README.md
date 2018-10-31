@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/malmaud/TensorFlow.jl.svg?branch=master)](https://travis-ci.org/malmaud/TensorFlow.jl)
 [![codecov.io](http://codecov.io/github/malmaud/TensorFlow.jl/coverage.svg?branch=master)](http://codecov.io/github/malmaud/TensorFlow.jl?branch=master)
-
+[![DOI](https://zenodo.org/badge/46368063.svg)](https://zenodo.org/badge/latestdoi/46368063)
 
 A wrapper around [TensorFlow](https://www.tensorflow.org/), a popular open source machine learning framework from Google.
 
