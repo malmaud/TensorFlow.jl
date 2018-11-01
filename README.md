@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/malmaud/TensorFlow.jl.svg?branch=master)](https://travis-ci.org/malmaud/TensorFlow.jl)
 [![codecov.io](http://codecov.io/github/malmaud/TensorFlow.jl/coverage.svg?branch=master)](http://codecov.io/github/malmaud/TensorFlow.jl?branch=master)
-[![DOI](https://zenodo.org/badge/46368063.svg)](https://zenodo.org/badge/latestdoi/46368063)
+[![DOI](http://joss.theoj.org/papers/10.21105/joss.01002/status.svg)](https://doi.org/10.21105/joss.01002)
 
 A wrapper around [TensorFlow](https://www.tensorflow.org/), a popular open source machine learning framework from Google.
 
@@ -137,6 +137,14 @@ julia> Pkg.build("TensorFlow")
 
 ```bash
 $ pip install --upgrade tensorflow
+```
+
+## Citing
+
+If you use this software in your research, we would really appreciate if you cite us.
+
+```
+Malmaud, J. & White, L. (2018). TensorFlow.jl: An Idiomatic Julia Front End for TensorFlow. Journal of Open Source Software, 3(31), 1002, https://doi.org/10.21105/joss.01002
 ```
 
 ## Optional: Using a custom TensorFlow binary
