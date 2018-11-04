@@ -1355,15 +1355,15 @@ function set_attr_list(desc::NodeDescription, attr_name, list::Vector{<:DataType
 end
 
 function set_attr_shape_list(desc::NodeDescription, attr_name, list::Vector)
-    dims = Vector{Int}[]
+    dims = Vector{Int64}[]
     for shape in list
-        push!(dims, [shape...])
+        push!(dims, Int64[shape...])
     end
     @tfcall(:TF_SetAttrShapeList, Cvoid, (Ptr{Cvoid}, Cstring, Ptr{Ptr{Int64}}, Ptr{Cint}, Cint),
         desc.ptr,
         attr_name,
         dims,
-        [length(x) for x in dims],
+        Cint[length(x) for x in dims],
         length(dims))
 end
 
