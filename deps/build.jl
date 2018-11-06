@@ -92,7 +92,7 @@ function download_and_unpack(url, checksum)
 end
 
 @static if Sys.isapple()
-    @assert use_gpu
+    @assert use_gpu==false
     url = "https://storage.googleapis.com/tensorflow/libtensorflow/libtensorflow-cpu-darwin-x86_64-$cur_version.tar.gz"
     checksum = "a9d895ca6a974d8a946e26477339a80fb635419707562200bbcc7352cf71e086" # sha256sum
     download_and_unpack(url, checksum)
