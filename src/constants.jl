@@ -17,8 +17,11 @@
   TF_QUINT16 = 16,
   TF_UINT16 = 17,
   TF_COMPLEX128 = 18,
-  TF_HALF = 19)
-
+  TF_HALF = 19,
+  TF_RESOURCE = 20,
+  TF_VARIANT = 21,
+  TF_UINT32 = 22,
+  TF_UINT64 = 23)
 
   @enum(TF_Code,
     TF_OK = 0,
