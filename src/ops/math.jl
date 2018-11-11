@@ -167,7 +167,7 @@ function Base.round(::Type{T}, value::AbstractTensor) where T
 end
 
 
--(n::AbstractTensor) = negative(n)
+-(n::AbstractTensor; kwargs...) = negative(n; kwargs...)
 
 @op function Base.complex(x_r::AbstractTensor, x_i::AbstractTensor; kwargs...)
     Ops.complex(x_r, x_i; kwargs...)
