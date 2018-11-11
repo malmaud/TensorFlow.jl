@@ -167,7 +167,7 @@ function Base.round(::Type{T}, value::AbstractTensor) where T
 end
 
 
-function -(n::AbstractTensor; kwargs...)
+@op function -(n::AbstractTensor; kwargs...)
     negative(n; kwargs...)
 end
 
