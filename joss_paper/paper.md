@@ -90,7 +90,7 @@ There nevertheless remains a large number of components from the upstream `contr
 
 Julia also has bespoke neural network packages such as Mocha [@mocha2014],  Knet [@knet2016] and Flux [@flux2018],
 as well as bindings to other frameworks such as MxNet [@mxnet2015].
-While not having the full-capacity to directly leverage some of the benefits of the language and its ecosystem present in the pure julia frameworks such as Flux,
+While not having the full-capacity to directly leverage some of the benefits of the language and its ecosystem present in the pure Julia frameworks such as Flux,
 TensorFlow.jl provides an interface to one of the most mature and widely deployed deep learning environments.
 It naturally therefore supports TensorFlow visualization libraries like TensorBoard. It also gains the benefits from any optimisations made in the graph execution engine of the underlying TensorFlow C library, which includes extensive support for automatically distributing computations over multiple host machines which each have multiple GPUs.
 
