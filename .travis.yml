@@ -22,4 +22,4 @@ after_success:
 - julia -e 'using Pkg; cd(Pkg.dir("TensorFlow")); include(joinpath("docs", "make.jl"))'
 matrix:
   allow_failures:
-    - env: CONDA_JL_VERSION="3" PYTHON=""
+    - env: CONDA_JL_VERSION="2" PYTHON=""
