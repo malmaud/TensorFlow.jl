@@ -60,7 +60,11 @@ end
     end
 end
 
-
+@testset "Negating and @tf" begin
+    a = constant(1)    
+    @tf b = -a
+    @test true # Above line would have errored if unary - didn't work with @tf
+end
 
 @testset "Naming Big Demo" begin
     let
