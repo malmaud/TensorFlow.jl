@@ -25,7 +25,7 @@ bibliography: paper.bib
 ---
 
 # Summary
-TensorFlow.jl is a Julia ([@Julia]) client library for the TensorFlow deep-learning framework ([@tensorflow2015],[@tensorflow2016]).
+TensorFlow.jl is a Julia [@Julia] client library for the TensorFlow deep-learning framework [@tensorflow2015],[@tensorflow2016].
 It allows users to define TensorFlow graphs using Julia syntax, which are interchangeable with the graphs produced by Google's first-party Python TensorFlow client and can be used to perform training or inference on machine-learning models.
 
 Graphs are primarily defined by overloading native Julia functions to operate on a TensorFlow.jl `Tensor` type, which represents a node in a TensorFlow computational graph. This overloading is powered by Julia's powerful multiple-dispatch system, which in turn allows allows the vast majority of Julia's existing array-processing functionality to work as well on the new `Tensor` type as they do on native Julia arrays. User code is often unaware and thereby reusable with respect to whether its inputs are TensorFlow tensors or native Julia arrays by utilizing _duck-typing_.
@@ -47,7 +47,7 @@ Some examples are shown in the table below.
 | Container types are parametrized by number of dimensions and element type                                           |  N/A: does not have a parametric type system                                                                                            | Tensors are parametrized by element type, enabling easy specialization of algorithms for different types.                                                                                                                                                                                                 |
 
 
-Defining TensorFlow graphs in the Python TensorFlow client can be viewed as metaprogramming, in the sense that a host language (Python) is being used to generate code in a different embedded language (the TensorFlow computational graph) ([@MLandPL]).
+Defining TensorFlow graphs in the Python TensorFlow client can be viewed as metaprogramming, in the sense that a host language (Python) is being used to generate code in a different embedded language (the TensorFlow computational graph) [@MLandPL].
 This often comes with some awkwardness, as the syntax and the semantics of the embedded language by definition do not match the host language or there would be no need for two languages to begin with.
 Using TensorFlow.jl is similarly a form of meta-programming for the same reason.
 However, the flexibility and meta-programming facilities offered by Julia's macro system makes Julia especially well-suited as a host language, as macros implemented in TensorFlow.jl can syntactically transform idiomatic Julia code into Julia code that constructs TensorFlow graphs. This permits users to reuse their knowledge of Julia, while users of the Python TensorFlow client essentially need to learn both Python and TensorFlow.
@@ -88,11 +88,11 @@ There nevertheless remains a large number of components from the upstream `contr
 
 ## Other deep learning frameworks in Julia
 
-Julia also has bespoke neural network packages such as Mocha ([@mocha2014]),  Knet ([@knet2016) and Flux ([@flux2018]),
-as well as bindings to other frameworks such as MxNet ([@mxnet2015]).
+Julia also has bespoke neural network packages such as Mocha [@mocha2014],  Knet [@knet2016] and Flux [@flux2018],
+as well as bindings to other frameworks such as MxNet [@mxnet2015].
 While not having the full-capacity to directly leverage some of the benefits of the language and its ecosystem present in the pure julia frameworks such as Flux,
 TensorFlow.jl provides an interface to one of the most mature and widely deployed deep learning environments.
-It naturally therefore supports TensorFlow visualization libraries like TensorBoard. It also gains the benefits from the any optimisations made in the graph execution engine of the underlying TensorFlow C library, which includes extensive support for automatically distributing computations over multiple host machines which each have multiple GPUs.
+It naturally therefore supports TensorFlow visualization libraries like TensorBoard. It also gains the benefits from any optimisations made in the graph execution engine of the underlying TensorFlow C library, which includes extensive support for automatically distributing computations over multiple host machines which each have multiple GPUs.
 
 
 ## Acknowledgments
