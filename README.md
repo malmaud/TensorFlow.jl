@@ -24,6 +24,7 @@ See [NEWS](https://github.com/malmaud/TensorFlow.jl/blob/master/NEWS.md).
 ```julia
 
 using TensorFlow
+using Test
 
 sess = TensorFlow.Session()
 
@@ -35,7 +36,7 @@ w = exp(x + z + -y)
 
 run(sess, TensorFlow.global_variables_initializer())
 res = run(sess, w, Dict(z=>Float64[1,2]))
-Base.Test.@test res[1] ≈ exp(-1)
+@test res[1] ≈ exp(-1)
 ```
 
 ## Installation
@@ -54,7 +55,7 @@ Pkg.build("TensorFlow")
 ```
 
 CUDA 8.0 and cudnn are required for GPU usage.
-If you need to use a different version of CUDA, or if you want GPU support on Mac OS X, you can [compile libtensorflow from source](#optional-building-the-tensorflow-library).
+If you need to use a different version of CUDA, or if you want GPU support on Mac OS X, you can [compile libtensorflow from source](#optional-using-a-custom-tensorflow-binary).
 
 Initial precompilation (eg, the first time you type `using TensorFlow`) can take around five minutes, so please be patient. Subsequent load times will only be a few seconds.
 
