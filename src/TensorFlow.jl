@@ -128,6 +128,7 @@ tf_versioninfo
 
 
 using Distributed
+using Optim
 
 const pyproc = Ref(0)
 
