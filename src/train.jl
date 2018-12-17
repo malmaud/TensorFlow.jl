@@ -186,17 +186,7 @@ function apply_gradients(optimizer::AdamOptimizer, grads_and_vars; global_step=n
     return group(ops...)
 end
 
-mutable struct NadamOptimizer <: Optimizer
-    η::Float64
-    β1::Float64
-    β2::Float64
-    ϵ::Float64
-    name::String
-end
-
-abstract type OptimOptimizer end
-
-mutable struct LBFGSOptimizer <: OptimOptimizer
+mutable struct OptimOptimizer
     indices::Array{Array{Int64}}
     segments::Array{Array{Int64}}
     sess::Session
@@ -205,7 +195,7 @@ mutable struct LBFGSOptimizer <: OptimOptimizer
     feed_dict::Dict
 end
 
-function LBFGSOptimizer(dtype::Type, loss::Tensor, sess::Session, feed_dict::Dict=Dict())
+function OptimOptimizer(dtype::Type, loss::Tensor, sess::Session, feed_dict::Dict=Dict())
     var_list = get_def_graph().collections[:TrainableVariables]
     vars = zip(gradients(loss, var_list), var_list) |> collect
     filter!(x->x[1]!==nothing, vars) 
@@ -219,17 +209,17 @@ function LBFGSOptimizer(dtype::Type, loss::Tensor, sess::Session, feed_dict::Dic
         push!(segments, [idx; idx+length(W)-1])
         idx += length(W)
     end
-    LBFGSOptimizer(indices, segments, sess, vars, dtype, feed_dict)
+    OptimOptimizer(indices, segments, sess, vars, dtype, feed_dict)
 end
 
-function update_values(opt::LBFGSOptimizer, x)
+function update_values(opt::OptimOptimizer, x)
     for i = 1:length(opt.indices)
         x0 = reshape(x[opt.segments[i][1]:opt.segments[i][2]], opt.indices[i]...) 
         run(opt.sess, tf.assign(opt.vars[i][2], x0))
     end
 end
 
-function compute_grads(opt::LBFGSOptimizer)
+function compute_grads(opt::OptimOptimizer)
     grads = zeros(opt.dtype, opt.segments[end][2])
     for i = 1:length(opt.indices)
         grads[opt.segments[i][1]:opt.segments[i][2]] = run(opt.sess, opt.vars[i][1], opt.feed_dict)
@@ -237,7 +227,7 @@ function compute_grads(opt::LBFGSOptimizer)
     return grads
 end
 
-function compute_init(opt::LBFGSOptimizer)
+function compute_init(opt::OptimOptimizer)
     x0 = zeros(opt.dtype, opt.segments[end][2])
     for i = 1:length(opt.indices)
         x0[opt.segments[i][1]:opt.segments[i][2]] = run(opt.sess, opt.vars[i][2], opt.feed_dict)
@@ -280,7 +270,7 @@ robustness and ffine granite parameter control options.
 """
 function OptimMinimize(sess::Session, loss::Tensor; 
     dtype::Type = Float64, feed_dict::Dict = Dict(), method::String = "LBFGS", options=nothing)
-    opt = LBFGSOptimizer(dtype, loss, sess, feed_dict)
+    opt = OptimOptimizer(dtype, loss, sess, feed_dict)
     function f(x)
         update_values(opt, x)
         res = run(sess, loss, feed_dict)
