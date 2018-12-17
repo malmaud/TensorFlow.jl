@@ -380,16 +380,16 @@ Returns:
     local result
     with_op_name(name, "Transpose") do
         if perm === nothing
-            r = range(constant(1), LinearAlgebra.rank(n))
+            r = range(constant(0), LinearAlgebra.rank(n)-1)
             perm = reverse(r, [true])
         end
-        result = Ops.transpose(n, perm .- 1)
+        result = Ops.transpose(n, perm)
     end
     result
 end
 
 @op function Base.permutedims(n::AbstractTensor, perm; name=nothing)
-    transpose(n, perm; name=name)
+    transpose(n, perm .- 1; name=name)
 end
 
 @define_unary Base.adjoint transpose
