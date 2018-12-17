@@ -7,7 +7,7 @@ apply_gradients,
 GradientDescentOptimizer,
 MomentumOptimizer,
 AdamOptimizer,
-OptimMinimize,
+optim_minimize,
 Saver,
 save,
 restore,
@@ -236,10 +236,10 @@ function compute_init(opt::OptimOptimizer)
 end
 
 """
-OptimMinimize(sess::Session, loss::AbstractTensor; 
+optim_minimize(sess::Session, loss::AbstractTensor; 
 dtype::Type = Float64, feed_dict::Dict = Dict(), method::String = "LBFGS", options=nothing)
 
-`OptimMinimize` calls first order optimization solvers from Optim.jl package (https://github.com/JuliaNLSolvers/Optim.jl).
+`optim_minimize` calls first order optimization solvers from Optim.jl package (https://github.com/JuliaNLSolvers/Optim.jl).
 `sess`: current session
 `loss`: the loss function to minimize
 `dtype`: the computation value type (default Float64) 
@@ -257,7 +257,7 @@ function mycallback(handle)
 end
 
 options = Optim.Options(show_trace = false, iterations=1000, callback = mycallback, allow_f_increases=true)
-OptimMinimize(sess, Loss, feed_dict = Dict(X=>x, Y_obs=>y), options=options, method="AGD")
+optim_minimize(sess, Loss, feed_dict = Dict(X=>x, Y_obs=>y), options=options, method="AGD")
 ```
 
 Note
@@ -268,8 +268,8 @@ Note that this optimizer is not built as part of the graph. Rather, it contructs
 implement; (2) there is some overhead. However, it would be nice to call the solvers from Optim.jl directly and leverage the 
 robustness and ffine granite parameter control options. 
 """
-function OptimMinimize(sess::Session, loss::Tensor; 
-    dtype::Type = Float64, feed_dict::Dict = Dict(), method::String = "LBFGS", options=nothing)
+function optim_minimize(sess::Session, loss::Tensor; 
+    dtype::Type = Float64, feed_dict::Dict = Dict(), method::String = "LBFGS", options::Union{Nothing, Optim.Options}=nothing)
     opt = OptimOptimizer(dtype, loss, sess, feed_dict)
     function f(x)
         update_values(opt, x)
@@ -298,7 +298,8 @@ function OptimMinimize(sess::Session, loss::Tensor;
 Available Optimier:
 * LBFGS
 * BFGS
-* AGD
+* AGD (AcceleratedGradientDescent)
+* GC (ConjugateGradient)
 """
     
     end

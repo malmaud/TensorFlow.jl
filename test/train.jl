@@ -126,8 +126,8 @@ end
 
     for m in ["AGD", "CG", "BFGS", "LBFGS"]
         run(sess, global_variables_initializer())
-        options = Optim.Options(show_trace = false, iterations=50, callback = mycallback, allow_f_increases=true)
-        train.OptimMinimize(sess, Loss, feed_dict = Dict(X=>x, Y_obs=>y), options=options, method=m)
+        options = Optim.Options(show_trace = false, iterations=10, callback = mycallback, allow_f_increases=true)
+        train.optim_minimize(sess, Loss, feed_dict = Dict(X=>x, Y_obs=>y), options=options, method=m)
     end
 
 end
