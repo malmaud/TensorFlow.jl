@@ -33,6 +33,14 @@ end
 @testset "Permute Dims" begin
     @test ones(Float32, 4,3) == run(sess, transpose(ones(Tensor, (3, 4))))
     @test ones(Float32, 4,3,2) == run(sess, permutedims(ones(Tensor, (4, 2, 3)), [1, 3, 2]))
+
+    A = rand(Float32, 5, 5, 5)
+    B = permutedims(A, [3,2,1])
+    c = TensorFlow.constant(A)
+    d = transpose(c, [3,2,1])
+    result = run(sess, d)
+    @test maximum(abs.(result-B))≈0.0
+
 end
 
 
