@@ -7,8 +7,6 @@ apply_gradients,
 GradientDescentOptimizer,
 MomentumOptimizer,
 AdamOptimizer,
-NadamOptimizer,
-AMSGradOptimizer,
 Saver,
 save,
 restore,
@@ -195,115 +193,6 @@ mutable struct NadamOptimizer <: Optimizer
     name::String
 end
 
-NadamOptimizer(learning_rate; β1=.9, β2=.999, ϵ=1e-8, name="nadam") = NadamOptimizer(learning_rate, β1, β2, ϵ, name)
-
-function NadamOptimizer(; η=.001, kwargs...)
-    NadamOptimizer(η; kwargs...)
-end
-
-function Base.show(io::IO, optim::NadamOptimizer)
-    print(io, "NadamOptimizer(η=$(optim.η), β1=$(optim.β1), β2=$(optim.β2), ϵ=$(optim.ϵ))")
-end
-
-function apply_gradients(optimizer::NadamOptimizer, grads_and_vars; global_step=nothing, name="nadam")
-    ops = Tensor[]
-    @advance_step
-    for (grad, var) in grads_and_vars
-        local m, v, T
-        variable_scope(name) do
-            variable_scope(node_name(var)[1]) do
-                m = get_variable("m", get_shape(var), eltype(var), initializer=ConstantInitializer(0.0), trainable=false)
-                v = get_variable("v", get_shape(var), eltype(var), initializer=ConstantInitializer(0.0), trainable=false)
-                T = get_variable("t", [], Float32, initializer=ConstantInitializer(1.0), trainable=false)
-            end
-        end
-        β1 = eltype(var)(optimizer.β1)
-        β2 = eltype(var)(optimizer.β2)
-        ϵ = eltype(var)(optimizer.ϵ)
-        η = eltype(var)(optimizer.η)
-        t = convert(Tensor{eltype(var)}, T)
-        push!(ops, tf.assign(T, T+1))
-        lr = η*sqrt(1-β2^t)/(1-β1^t)
-        if isa(grad, tf.IndexedSlices)
-            m_slice = tf.gather(m, grad.indices)
-            v_slice = tf.gather(v, grad.indices)
-            m_new = β1 .* m_slice + (1-β1) .* grad.values
-            v_new = (1-β2) .* (grad.values .^ 2)
-            push!(ops, tf.scatter_sub(var.var_node, grad.indices, lr/(sqrt(v_new)+ϵ) .* (β1 .* m_new + (1-β1) .* grad.values)))
-            push!(ops, tf.scatter_update(m.var_node, grad.indices, m_new))
-            push!(ops, tf.scatter_update(v.var_node, grad.indices, v_new))
-        else
-            m_new = β1 .* m + (1-β1).*grad
-            v_new = β2 .* v + (1-β2).*(grad.*grad)
-            push!(ops, tf.assign_sub(var, lr/(sqrt(v_new)+ϵ) .* (β1 .* m_new + (1-β1) .* grad.values)))
-            push!(ops, tf.assign(m, m_new))
-            push!(ops, tf.assign(v, v_new))
-        end
-    end
-    return group(ops...)
-end
-
-mutable struct AMSGradOptimizer <: Optimizer
-    η::Float64
-    β1::Float64
-    β2::Float64
-    ϵ::Float64
-    name::String
-end
-
-AMSGradOptimizer(learning_rate; β1=.9, β2=.999, ϵ=1e-8, name="AMSGrad") = AMSGradOptimizer(learning_rate, β1, β2, ϵ, name)
-
-function AMSGradOptimizer(; η=.001, kwargs...)
-    AMSGradOptimizer(η; kwargs...)
-end
-
-function Base.show(io::IO, optim::AMSGradOptimizer)
-    print(io, "AMSGradOptimizer(η=$(optim.η), β1=$(optim.β1), β2=$(optim.β2), ϵ=$(optim.ϵ))")
-end
-
-function apply_gradients(optimizer::AMSGradOptimizer, grads_and_vars; global_step=nothing, name="AMSGrad")
-    ops = Tensor[]
-    @advance_step
-    for (grad, var) in grads_and_vars
-        local m, v, T
-        variable_scope(name) do
-            variable_scope(node_name(var)[1]) do
-                m = get_variable("m", get_shape(var), eltype(var), initializer=ConstantInitializer(0.0), trainable=false)
-                v = get_variable("v", get_shape(var), eltype(var), initializer=ConstantInitializer(0.0), trainable=false)
-                v_hat = get_variable("v_hat", get_shape(var), eltype(var), initializer=ConstantInitializer(0.0), trainable=false)
-                T = get_variable("t", [], Float32, initializer=ConstantInitializer(1.0), trainable=false)
-            end
-        end
-        β1 = eltype(var)(optimizer.β1)
-        β2 = eltype(var)(optimizer.β2)
-        ϵ = eltype(var)(optimizer.ϵ)
-        η = eltype(var)(optimizer.η)
-        t = convert(Tensor{eltype(var)}, T)
-        push!(ops, tf.assign(T, T+1))
-        if isa(grad, tf.IndexedSlices)
-            m_slice = tf.gather(m, grad.indices)
-            v_slice = tf.gather(v, grad.indices)
-            m_new = β1 .* m_slice + (1-β1) .* grad.values
-            v_new = β2 .* v_slice + (1-β2) .* (grad.values .^ 2)
-            v_hat = max(v_hat, v_new)
-            push!(ops, tf.scatter_sub(var.var_node, grad.indices, η/(sqrt(v_hat)+ϵ) .* m_new))
-            push!(ops, tf.scatter_update(m.var_node, grad.indices, m_new))
-            push!(ops, tf.scatter_update(v.var_node, grad.indices, v_new))
-            push!(ops, tf.scatter_update(v_hat.var_node, grad.indices, v_hat))
-        else
-            m_new = β1 .* m + (1-β1).*grad
-            v_new = β2 .* v + (1-β2).*(grad.*grad)
-            v_hat = max(v_hat, v_new)
-            push!(ops, tf.assign_sub(var, η/(sqrt(v_hat)+ϵ) .* m_new))
-            push!(ops, tf.assign(m, m_new))
-            push!(ops, tf.assign(v, v_new))
-            push!(ops, tf.assign(v_hat, v_hat))
-        end
-    end
-    return group(ops...)
-end
-
-
 abstract type OptimOptimizer end
 
 mutable struct LBFGSOptimizer <: OptimOptimizer
@@ -315,9 +204,9 @@ mutable struct LBFGSOptimizer <: OptimOptimizer
     feed_dict::Dict
 end
 
-function LBFGSOptimizer(dtype::Type, sess::Session, feed_dict::Dict=Dict())
+function LBFGSOptimizer(dtype::Type, loss::Tensor, sess::Session, feed_dict::Dict=Dict())
     var_list = get_def_graph().collections[:TrainableVariables]
-    vars = zip(gradients(Loss, var_list), var_list) |> collect
+    vars = zip(gradients(loss, var_list), var_list) |> collect
     filter!(x->x[1]!==nothing, vars) 
     
     indices = Array{Int64}[]
@@ -335,7 +224,7 @@ end
 function update_values(opt::LBFGSOptimizer, x)
     for i = 1:length(opt.indices)
         x0 = reshape(x[opt.segments[i][1]:opt.segments[i][2]], opt.indices[i]...) 
-        run(opt.sess, assign(opt.vars[i][2], x0))
+        run(opt.sess, tf.assign(opt.vars[i][2], x0))
     end
 end
 
@@ -390,7 +279,7 @@ robustness and ffine granite parameter control options.
 """
 function OptimMinimize(sess::Session, loss::Tensor; 
     dtype::Type = Float64, feed_dict::Dict = Dict(), method::String = "LBFGS", options=nothing)
-    opt = LBFGSOptimizer(dtype, sess, feed_dict)
+    opt = LBFGSOptimizer(dtype, loss, sess, feed_dict)
     function f(x)
         update_values(opt, x)
         res = run(sess, loss, feed_dict)

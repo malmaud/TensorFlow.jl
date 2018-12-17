@@ -1,5 +1,6 @@
 using TensorFlow
 using Test
+using Optim
 
 @testset "save and resore" begin
     try
@@ -80,7 +81,7 @@ end
 end
 
 
-@test "optimizers" begin
+@testset "optimizers" begin
     using Distributions
     # Generate some synthetic data
     x = randn(100, 50)
@@ -111,42 +112,22 @@ end
     end
 
     Y=nn.softmax(X*W + B)
-
-    
-
-
     Loss = -reduce_sum(log(Y).*Y_obs)
-    
-    ### NadamOptimizer
-    optimizer = train.NadamOptimizer()
-    minimize_op = train.minimize(optimizer, Loss)
-    # Run training
-    run(sess, global_variables_initializer())
-    for epoch in 1:100
-        cur_loss, _ = run(sess, [Loss, minimize_op], Dict(X=>x, Y_obs=>y))
-        println(@sprintf("[NadamOptimizer]Current loss is %.2f.", cur_loss))
-    end
-
-    ### AMSGradOptimizer
-    optimizer = train.AMSGradOptimizer()
-    minimize_op = train.minimize(optimizer, Loss)
-    # Run training
-    run(sess, global_variables_initializer())
-    for epoch in 1:100
-        cur_loss, _ = run(sess, [Loss, minimize_op], Dict(X=>x, Y_obs=>y))
-        println(@sprintf("[AMSGradOptimizer]Current loss is %.2f.", cur_loss))
-    end
 
     function mycallback(handle)
         res = run(sess, Loss, Dict(X=>x, Y_obs=>y))
-        println("[$m]iter \$(handle.iteration): \$(res)")
-        return false # so it do not stop 
+        println("iter $(handle.iteration): $(res)")
+        if isnan(res) || isinf(res)
+            return true
+        else
+            return false # so it do not stop 
+        end
     end
 
     for m in ["AGD", "CG", "BFGS", "LBFGS"]
         run(sess, global_variables_initializer())
-        options = Optim.Options(show_trace = false, iterations=1000, callback = mycallback, allow_f_increases=true)
-        OptimMinimize(sess, Loss, feed_dict = Dict(X=>x, Y_obs=>y), options=options, method=m)
+        options = Optim.Options(show_trace = false, iterations=50, callback = mycallback, allow_f_increases=true)
+        train.OptimMinimize(sess, Loss, feed_dict = Dict(X=>x, Y_obs=>y), options=options, method=m)
     end
 
 end
