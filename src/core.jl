@@ -266,7 +266,7 @@ end
 
 @with_def_graph function extend_graph(graph::Graph, node_def_bytes)
     new_graph = tensorflow.GraphDef()
-    set_field!(new_graph, :node, tensorflow.NodeDef[])
+    setproperty!(new_graph, :node, tensorflow.NodeDef[])
     import_options = GraphImportOptions()
     ph_names = Set{String}()
     for node_def in convert.(tensorflow.NodeDef, node_def_bytes)
@@ -314,12 +314,12 @@ end
 
                     import_options.input_mapping[(new_name, source_port)] = Tensor(existing_node, dest_port)
                     new_ph = tensorflow.NodeDef()
-                    set_field!(new_ph, :name, new_name)
+                    setproperty!(new_ph, :name, new_name)
                     if is_control
-                        set_field!(new_ph, :op, "NoOp")
+                        setproperty!(new_ph, :op, "NoOp")
                     else
-                        set_field!(new_ph, :op, "Placeholder")
-                        set_field!(new_ph, :attr, Dict{AbstractString, tensorflow.AttrValue}())
+                        setproperty!(new_ph, :op, "Placeholder")
+                        setproperty!(new_ph, :attr, Dict{AbstractString, tensorflow.AttrValue}())
                         new_ph.attr["dtype"] = tensorflow.AttrValue()
                         source_type = tensorflow._DataType.DT_FLOAT
                         for key in ["T", "SrcT"]
@@ -328,7 +328,7 @@ end
                                 break
                             end
                         end
-                        set_field!(new_ph.attr["dtype"], :_type, source_type)
+                        setproperty!(new_ph.attr["dtype"], :_type, source_type)
                     end
                     if new_name ∉ ph_names
                         push!(new_graph.node, new_ph)
@@ -481,8 +481,8 @@ mutable struct Session
         if config === nothing
             config = tensorflow.ConfigProto()
             gpu_config = tensorflow.GPUOptions()
-            set_field!(gpu_config, :allow_growth, allow_growth)
-            set_field!(config, :gpu_options, gpu_config)
+            setproperty!(gpu_config, :allow_growth, allow_growth)
+            setproperty!(config, :gpu_options, gpu_config)
         end
         Session(graph, config, target=target)
     end
