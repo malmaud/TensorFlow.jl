@@ -1,5 +1,4 @@
 # syntax: proto3
-using Compat
 using ProtoBuf
 import ProtoBuf.meta
 
@@ -73,13 +72,15 @@ mutable struct RewriterConfig <: ProtoType
     min_graph_nodes::Int32
     memory_optimization::Int32
     memory_optimizer_target_node_name_scope::AbstractString
+    meta_optimizer_timeout_ms::Int64
     auto_parallel::AutoParallelOptions
+    fail_on_optimizer_errors::Bool
     scoped_allocator_opts::ScopedAllocatorOptions
     optimizers::Base.Vector{AbstractString}
     custom_optimizers::Base.Vector{RewriterConfig_CustomGraphOptimizer}
     RewriterConfig(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
 end #mutable struct RewriterConfig
-const __fnum_RewriterConfig = Int[1,3,13,14,7,8,9,10,11,2,15,18,19,12,17,4,6,5,16,100,200]
+const __fnum_RewriterConfig = Int[1,3,13,14,7,8,9,10,11,2,15,18,19,12,17,4,6,20,5,21,16,100,200]
 meta(t::Type{RewriterConfig}) = meta(t, ProtoBuf.DEF_REQ, __fnum_RewriterConfig, ProtoBuf.DEF_VAL, true, ProtoBuf.DEF_PACK, ProtoBuf.DEF_WTYPES, ProtoBuf.DEF_ONEOFS, ProtoBuf.DEF_ONEOF_NAMES, ProtoBuf.DEF_FIELD_TYPES)
 
 export AutoParallelOptions, ScopedAllocatorOptions, RewriterConfig_Toggle, RewriterConfig_NumIterationsType, RewriterConfig_MemOptType, RewriterConfig_CustomGraphOptimizer_ParameterMapEntry, RewriterConfig_CustomGraphOptimizer, RewriterConfig
