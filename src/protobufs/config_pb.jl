@@ -1,5 +1,4 @@
 # syntax: proto3
-using Compat
 using ProtoBuf
 import ProtoBuf.meta
 
@@ -14,6 +13,7 @@ mutable struct GPUOptions_Experimental <: ProtoType
     virtual_devices::Base.Vector{GPUOptions_Experimental_VirtualDevices}
     use_unified_memory::Bool
     num_dev_to_dev_copy_streams::Int32
+    collective_ring_order::AbstractString
     GPUOptions_Experimental(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
 end #mutable struct GPUOptions_Experimental
 
@@ -83,6 +83,8 @@ end #mutable struct ThreadPoolOptionProto
 
 mutable struct RPCOptions <: ProtoType
     use_rpc_for_inprocess_master::Bool
+    compression_algorithm::AbstractString
+    compression_level::Int32
     RPCOptions(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
 end #mutable struct RPCOptions
 
@@ -95,9 +97,12 @@ end #mutable struct ConfigProto_DeviceCountEntry (mapentry)
 mutable struct ConfigProto_Experimental <: ProtoType
     collective_group_leader::AbstractString
     executor_type::AbstractString
+    recv_buf_max_chunk::Int32
+    use_numa_affinity::Bool
+    collective_deterministic_sequential_execution::Bool
     ConfigProto_Experimental(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
 end #mutable struct ConfigProto_Experimental
-const __fnum_ConfigProto_Experimental = Int[1,3]
+const __fnum_ConfigProto_Experimental = Int[1,3,4,5,6]
 meta(t::Type{ConfigProto_Experimental}) = meta(t, ProtoBuf.DEF_REQ, __fnum_ConfigProto_Experimental, ProtoBuf.DEF_VAL, true, ProtoBuf.DEF_PACK, ProtoBuf.DEF_WTYPES, ProtoBuf.DEF_ONEOFS, ProtoBuf.DEF_ONEOF_NAMES, ProtoBuf.DEF_FIELD_TYPES)
 
 mutable struct ConfigProto <: ProtoType

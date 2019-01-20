@@ -1,5 +1,4 @@
 # syntax: proto3
-using Compat
 using ProtoBuf
 import ProtoBuf.meta
 import ProtoBuf.google.protobuf
@@ -244,6 +243,7 @@ meta(t::Type{CompleteInstanceRequest}) = meta(t, ProtoBuf.DEF_REQ, ProtoBuf.DEF_
 mutable struct CompleteInstanceResponse <: ProtoType
     instance_key::Int32
     source_rank::Int32
+    communicator_key::Array{UInt8,1}
     CompleteInstanceResponse(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
 end #mutable struct CompleteInstanceResponse
 

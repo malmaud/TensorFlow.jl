@@ -1,5 +1,4 @@
 module tensorflow
-  using Compat
   const _ProtoBuf_Top_ = @static isdefined(parentmodule(@__MODULE__), :_ProtoBuf_Top_) ? (parentmodule(@__MODULE__))._ProtoBuf_Top_ : parentmodule(@__MODULE__)
   include("checkpointable_object_graph_pb.jl")
   include("cluster_pb.jl")
@@ -27,7 +26,6 @@ module tensorflow
   include("tensorflow_server_pb.jl")
   include("named_tensor_pb.jl")
   module error
-    using Compat
     const _ProtoBuf_Top_ = @static isdefined(parentmodule(@__MODULE__), :_ProtoBuf_Top_) ? (parentmodule(@__MODULE__))._ProtoBuf_Top_ : parentmodule(@__MODULE__)
     include("error_codes_pb.jl")
   end
@@ -42,12 +40,10 @@ module tensorflow
   include("transport_options_pb.jl")
   include("worker_pb.jl")
   module eager
-    using Compat
     const _ProtoBuf_Top_ = @static isdefined(parentmodule(@__MODULE__), :_ProtoBuf_Top_) ? (parentmodule(@__MODULE__))._ProtoBuf_Top_ : parentmodule(@__MODULE__)
     include("eager_service_pb.jl")
   end
   module grpc
-    using Compat
     const _ProtoBuf_Top_ = @static isdefined(parentmodule(@__MODULE__), :_ProtoBuf_Top_) ? (parentmodule(@__MODULE__))._ProtoBuf_Top_ : parentmodule(@__MODULE__)
     include("master_service_pb.jl")
     include("worker_service_pb.jl")

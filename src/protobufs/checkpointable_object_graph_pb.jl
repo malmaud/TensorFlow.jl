@@ -1,5 +1,4 @@
 # syntax: proto3
-using Compat
 using ProtoBuf
 import ProtoBuf.meta
 
@@ -13,6 +12,7 @@ mutable struct CheckpointableObjectGraph_CheckpointableObject_SerializedTensor <
     name::AbstractString
     full_name::AbstractString
     checkpoint_key::AbstractString
+    optional_restore::Bool
     CheckpointableObjectGraph_CheckpointableObject_SerializedTensor(; kwargs...) = (o=new(); fillunset(o); isempty(kwargs) || ProtoBuf._protobuild(o, kwargs); o)
 end #mutable struct CheckpointableObjectGraph_CheckpointableObject_SerializedTensor
 
