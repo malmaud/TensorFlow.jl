@@ -126,11 +126,11 @@ function with_frame(f, parallel_iterations, back_prop, swap_memory)
         frame_name = string(op_context.while_context[end].context_name, "/", "while")
     end
     while_context = tensorflow.WhileContextDef(parallel_iterations=parallel_iterations, back_prop=back_prop, swap_memory=swap_memory)
-    set_field!(while_context, :context_name, frame_name)
+    setproperty!(while_context, :context_name, frame_name)
     add_to_collection(get_def_graph(), :while_context, while_context)
-    set_field!(while_context, :loop_exit_names, AbstractString[])
-    set_field!(while_context, :values_def, tensorflow.ValuesDef())
-    set_field!(while_context.values_def, :values, AbstractString[])
+    setproperty!(while_context, :loop_exit_names, AbstractString[])
+    setproperty!(while_context, :values_def, tensorflow.ValuesDef())
+    setproperty!(while_context.values_def, :values, AbstractString[])
     push!(op_context.while_context, while_context)
     f()
     pop!(op_context.while_context)
@@ -284,7 +284,7 @@ Example using shape_invariants:
                     push!(merge_nodes, merge_op)
                     fillin(merge_op.op)
                 end
-                set_field!(context, :pivot_for_pred_name, get_name(merge_nodes[1]))
+                setproperty!(context, :pivot_for_pred_name, get_name(merge_nodes[1]))
 
                 # (Define the graph to)
                 # evaluate the condition at each loop
@@ -293,7 +293,7 @@ Example using shape_invariants:
                     condition(merge_node_structs...)
                 end
                 pred = Ops.loop_cond(condition_out)
-                set_field!(context, :pivot_name, get_name(pred))
+                setproperty!(context, :pivot_name, get_name(pred))
 
                 # Body stuff
                 # Define the output structure for the result of the body
@@ -310,7 +310,7 @@ Example using shape_invariants:
                     body_pivot = identity(switch_true)
                     push!(body_input, body_pivot)
                 end
-                set_field!(context, :pivot_for_body_name, get_name(body_input[1]))
+                setproperty!(context, :pivot_for_body_name, get_name(body_input[1]))
 
                 # (define the graph to)
                 # actually execute the body
@@ -372,7 +372,7 @@ Example using shape_invariants:
                         push!(context.values_def.values, get_name(Tensor(op, output_idx)))
                     end
                 end
-                set_field!(context.values_def, :external_values, Dict{AbstractString, AbstractString}())
+                setproperty!(context.values_def, :external_values, Dict{AbstractString, AbstractString}())
                 for node in g_def.node
                     for (input_idx, input) in enumerate(node.input)
                         name, port = parse_port_name(input)
