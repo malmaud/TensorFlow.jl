@@ -129,6 +129,12 @@ tf_versioninfo
 
 using Distributed
 
+# Load these packages here so they are available to the additional
+# process spawned in 'load_python_process. Arslan thinks that will
+# work for now.
+using MacroTools  
+using PyCall
+
 const pyproc = Ref(0)
 
 function deallocator(data, len, arg)
