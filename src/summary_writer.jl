@@ -55,9 +55,9 @@ end
 
 function Base.write(writer::FileWriter, summary::tensorflow.Summary, global_step=0)
     event = tensorflow.Event()
-    set_field!(event, :step, Int(global_step))
-    set_field!(event, :wall_time, time())
-    set_field!(event, :summary, summary)
+    setproperty!(event, :step, Int(global_step))
+    setproperty!(event, :wall_time, time())
+    setproperty!(event, :summary, summary)
     write(writer, event)
 end
 
@@ -72,7 +72,7 @@ end
 
 function Base.write(writer::FileWriter, graph::Graph)
     event = tensorflow.Event()
-    set_field!(event, :graph_def, tf.get_proto(graph))
+    setproperty!(event, :graph_def, tf.get_proto(graph))
     write(writer, event)
 end
 
