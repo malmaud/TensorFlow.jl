@@ -7,6 +7,7 @@ version = "0.12.0"
 AutoHashEquals = "15f4f7f2-30c1-5605-9d31-71845cf9641f"
 Compat = "34da2185-b29b-5c13-b0c7-acf172513d20"
 Conda = "8f4d0f93-b110-5947-807f-2305c1781a2d"
+Distributed = "8ba89e20-285c-5b6f-9357-94700520ee1b"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 FileIO = "5789e2e9-d7fb-5bc7-8068-2c6fae9b9549"
 JLD2 = "033835bb-8acc-5ee8-8aae-3f567f8a3819"
@@ -17,5 +18,3 @@ ProtoBuf = "3349acd9-ac6a-5e09-bcdb-63829b23a429"
 PyCall = "438e738f-606a-5dbb-bf0a-cddfbfd45ab0"
 SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
 StatsFuns = "4c63d2b9-4356-54db-8cca-17b64c39e42c"
-
-
