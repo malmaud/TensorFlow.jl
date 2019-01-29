@@ -60,16 +60,19 @@ function py_version_check(;print_warning=true, force_warning=false)
     return true
 end
 
-macro tryshow(ex)
+macro tryshow(ex, msg="")
+    if msg==""
+        msg = Meta.quot(ex)
+    end
     quote
         try
-            println($(Meta.quot(ex)),
+            println($(msg),
                     " = ",
                     $(esc(ex))
                     )
         catch err
             println("Trying to evaluate ",
-                    $(Meta.quot(ex)),
+                    $(msg),
                     " but got error: ",
                     err
                     )
@@ -101,8 +104,8 @@ function tf_versioninfo()
     @tryshow PyCall.conda
 	@tryshow ENV["PYTHON"]
     @tryshow PyCall.PYTHONHOME
-    @tryshow String(read(`pip --version`))
-    @tryshow String(read(`pip3 --version`))
+    @tryshow String(read(`pip --version`)) "pip --version"
+    @tryshow String(read(`pip3 --version`)) "pip3 --version"
 
     println()
     println("------------")
