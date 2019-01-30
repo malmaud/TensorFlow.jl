@@ -148,7 +148,8 @@ end
 function load_python_process(;force_reload=false)
     if myid() == 1
         (pyproc[] > 0 && !force_reload) && return pyproc[] # Python process already loaded
-        withenv("JULIA_PROJECT"=>Base.active_project()) do
+        # Use the TensorFlow.jl Project enviroment
+        withenv("JULIA_PROJECT"=>dirname(@__DIR__)) do
             addprocs(1)
         end
         pyproc[] = nprocs()

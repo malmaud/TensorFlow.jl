@@ -11,3 +11,4 @@ docs/build
 *.jld
 scratch
 .vscode
+Manifest.toml
