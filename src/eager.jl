@@ -75,17 +75,18 @@ end
 
 mutable struct EagerOp
     ptr::Ptr{Cvoid}
+    op_name::String
+end
 
-    function EagerOp(ctx::EagerContext, op_name)
-        status = Status()
-        ptr = @tfcall(:TFE_NewOp, Ptr{Cvoid}, (Ptr{Cvoid}, Cstring, Ptr{Cvoid}), ctx, op_name, status)
-        check_status(status)
-        this = new(ptr)
-        finalizer(this) do self
-            @tfcall(:TFE_DeleteOp, Cvoid, (Ptr{Cvoid},), self)
-        end
-        return this
+function EagerOp(ctx::EagerContext, op_name)
+    status = Status()
+    ptr = @tfcall(:TFE_NewOp, Ptr{Cvoid}, (Ptr{Cvoid}, Cstring, Ptr{Cvoid}), ctx, op_name, status)
+    check_status(status)
+    this = EagerOp(ptr, String(op_name))
+    finalizer(this) do self
+        @tfcall(:TFE_DeleteOp, Cvoid, (Ptr{Cvoid},), self)
     end
+    return this
 end
 
 Base.unsafe_convert(::Type{Ptr{Cvoid}}, op::EagerOp) = op.ptr
@@ -98,14 +99,18 @@ function add_input(op::EagerOp, h::TensorHandle)
 end
 
 function execute(op::EagerOp)
-    handle = TensorHandle()
-    ptrs = [Ptr{Cvoid}(0)]
-    num_ret = Cint(1)
+    op_desc = get_op_def(op.op_name)
+    n_outputs = length(op_desc.output_arg)
+    handles = [TensorHandle() for _ in 1:n_outputs]
+    ptrs = [Ptr{Cvoid}(0) for _ in 1:n_outputs]
+    num_ret = Cint(n_outputs)
     status = Status()
     @tfcall(:TFE_Execute, Cvoid, (Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cint}, Ptr{Cvoid}), op, ptrs, Ref(num_ret), status)
-    handle.ptr = ptrs[1]
     check_status(status)
-    return handle
+    for i in 1:n_outputs
+        handles[i].ptr = ptrs[i]
+    end
+    return handles
 end
 
 function test_eager()
@@ -118,7 +123,7 @@ function test_eager()
     dtype = data_type(h1)
     op["T"] = dtype
     res = execute(op)
-    return resolve(res)
+    return resolve(res[1])
 end
 
 function setindex!(op::EagerOp, tensor::RawTensor, attr_name)
