@@ -1793,6 +1793,11 @@ function set_tensor_shape(tensor::AbstractTensor, dims)
 end
 
 function get_tensor_num_dims(tensor::AbstractTensor)
+    if tensor.op.op_name == "NoOp"
+        # Work  around https://github.com/malmaud/TensorFlow.jl/issues/466
+        return 0
+    end
+    
     output = Port(tensor)
     g = get_graph(tensor)
     status = Status()
