@@ -18,5 +18,5 @@ i = placeholder(Int32; shape=[])
 
 
 # https://github.com/malmaud/TensorFlow.jl/issues/466
-@test get_shape(TensorFlow.Ops.no_op()) == TensorShape()
-@test get_shape(TensorFlow.group(Tensor(1))) ==  TensorShape()
+@test get_shape(TensorFlow.Ops.no_op()) == TensorShape([])
+@test get_shape(TensorFlow.group(Tensor(1))) ==  TensorShape([])
