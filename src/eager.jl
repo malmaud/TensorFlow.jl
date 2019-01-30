@@ -94,14 +94,17 @@ end
 
 function execute(op::EagerOp)
     handle = TensorHandle()
+    ptrs = [Ptr{Cvoid}(0)]
     num_ret = Cint(1)
     status = Status()
-    @tfcall(:TFE_Execute, Cvoid, (Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cint}, Ptr{Cvoid}), op, Ref(handle.ptr), Ref(num_ret), status)
+    @tfcall(:TFE_Execute, Cvoid, (Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cint}, Ptr{Cvoid}), op, ptrs, Ref(num_ret), status)
+    handle.ptr = ptrs[1]
     check_status(status)
     return handle
 end
 
-function test_eager(ctx)
+function test_eager()
+    ctx = EagerContext()
     h1 = TensorHandle(RawTensor([1,2]))
     h2 = TensorHandle(RawTensor([3,4]))
     op = EagerOp(ctx, "Add")
@@ -110,5 +113,5 @@ function test_eager(ctx)
     dtype = data_type(h1)
     set_attr_type(op, "T", dtype)
     res = execute(op)
-    return res
+    return resolve(res)
 end
