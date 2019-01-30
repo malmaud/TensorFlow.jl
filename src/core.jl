@@ -521,6 +521,10 @@ mutable struct DeviceList
         end
         this
     end
+
+    function DeviceList(ptr, count)
+        new(ptr, count)
+    end
 end
 
 struct DeviceInfo
@@ -662,6 +666,8 @@ end
 RawTensor(data::AbstractArray) = RawTensor(collect(data))
 
 RawTensor(t::RawTensor) = t
+
+Base.unsafe_convert(::Type{Ptr{Cvoid}}, t::RawTensor) = t.ptr
 
 function varint_encode(b::IO, n::Integer)
     while n ≥ 2^7
