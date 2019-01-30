@@ -15,3 +15,8 @@ i = placeholder(Int32; shape=[])
 @test get_shape(k,2) == 20
 @test_throws ErrorException get_shape(k, 4)
 @test_throws ErrorException get_shape(n, 1)
+
+
+# https://github.com/malmaud/TensorFlow.jl/issues/466
+@test get_shape(TensorFlow.Ops.no_op()) = TensorShape()
+@test get_shape(TensorFlow.group(Tensor(1))) = TensorShape()
