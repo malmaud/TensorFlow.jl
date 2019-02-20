@@ -36,8 +36,8 @@ end
 macro define_binary(jl_func, tf_func)
     quote
         @op $jl_func(t1::AbstractTensor, t2::AbstractTensor; kwargs...) = $tf_func(tf_promote(t1, t2)...; kwargs...)
-        @op $jl_func(t1::AbstractTensor, t2; kwargs...) = $tf_func(t1, Tensor(t2); kwargs...)
-        @op $jl_func(t1, t2::AbstractTensor; kwargs...) = $tf_func(Tensor(t1), t2; kwargs...)
+        @op $jl_func(t1::AbstractTensor, t2; kwargs...) = $jl_func(t1, Tensor(t2); kwargs...)
+        @op $jl_func(t1, t2::AbstractTensor; kwargs...) = $jl_func(Tensor(t1), t2; kwargs...)
     end |> esc
 end
 
@@ -67,10 +67,10 @@ end
 macro define_broadcast(jl_op, tf_func)
     quote
         Base.Broadcast.broadcasted(::typeof($jl_op), t1::AbstractTensor, t2::AbstractTensor) = $tf_func(tf_promote(t1, t2)...)
-        Base.Broadcast.broadcasted(::typeof($jl_op), t1::AbstractTensor, t2) = $tf_func(t1, Tensor(t2))
-        Base.Broadcast.broadcasted(::typeof($jl_op), t1, t2::AbstractTensor) = $tf_func(Tensor(t1), t2)
-        Base.Broadcast.broadcasted(::typeof($jl_op), t1::AbstractTensor, t2::Base.Broadcast.Broadcasted) = $tf_func(t1, Tensor(collect(t2)))
-        Base.Broadcast.broadcasted(::typeof($jl_op), t1::Base.Broadcast.Broadcasted, t2::AbstractTensor) = $tf_func(Tensor(collect(t1)), t2)
+        Base.Broadcast.broadcasted(::typeof($jl_op), t1::AbstractTensor, t2) = $tf_func(tf_promote(t1, Tensor(t2))...)  # TODO don't replicate the tf_promote calls
+        Base.Broadcast.broadcasted(::typeof($jl_op), t1, t2::AbstractTensor) = $tf_func(tf_promote(Tensor(t1), t2)...)
+        Base.Broadcast.broadcasted(::typeof($jl_op), t1::AbstractTensor, t2::Base.Broadcast.Broadcasted) = $tf_func(tf_promote(t1, Tensor(collect(t2)))...)
+        Base.Broadcast.broadcasted(::typeof($jl_op), t1::Base.Broadcast.Broadcasted, t2::AbstractTensor) = $tf_func(tf_promote(Tensor(collect(t1)), t2)...)
     end |> esc
 end
 
