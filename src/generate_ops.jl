@@ -9,6 +9,7 @@ using Dates
 struct OpFunc
     expr::Expr
     eager_expr::Expr
+    dispatch_expr::Expr
     docstring::String
     name::Symbol
 end
@@ -223,8 +224,10 @@ function to_function(op::tensorflow.OpDef)
             tf.execute(desc)
         end
     end
+    graph_name = Symbol("$(jl_name)_graph")
+    eager_name = Symbol("$(jl_name)_eager")
     expr = quote
-        @tf.op function $(jl_name)($(inputs...))
+        @tf.op function $graph_name($(inputs...))
             local desc
             tf.with_op_name(name, $(op.name)) do
                 desc = tf.NodeDescription($(op.name))
@@ -235,14 +238,10 @@ function to_function(op::tensorflow.OpDef)
             $output_block
         end
     end
-    eager_inputs = []
-    push!(eager_inputs, inputs[1])
-    for i in 2:length(inputs)
-        push!(eager_inputs, :($(inputs[i])::tf.TensorHandle))
-    end
+
 
     eager_expr = quote
-        function $(jl_name)($(eager_inputs...))
+        function $eager_name($(inputs...))
             desc = tf.EagerOp($(op.name))
             # $convert_block
             $eager_input_block
@@ -251,6 +250,23 @@ function to_function(op::tensorflow.OpDef)
             $eager_output_block
         end
 
+    end
+    call_kw_params = Expr(:parameters)
+    for arg in inputs[1].args
+        push!(call_kw_params.args, Expr(:kw, arg.args[1], arg.args[1]))
+    end
+    call_args = Any[call_kw_params]
+    for input in inputs[2:end]
+        push!(call_args, input)
+    end
+    dispatch_expr = quote
+        function $jl_name($(inputs...))
+            if tf.eager_mode
+                $(eager_name)($(call_args...))
+            else
+                $(graph_name)($(call_args...))
+            end
+        end
     end
     posargs_str = join((arg.name for arg in op.input_arg), ", ")
     kwargs_str = []
@@ -279,7 +295,7 @@ function to_function(op::tensorflow.OpDef)
                      escape_string(op.summary)) #TODO Workout how to get descriptions for docstrings
     expr = unblock(MacroTools.flatten(MacroTools.striplines(expr)))
     eager_expr = unblock(MacroTools.flatten(MacroTools.striplines(eager_expr)))
-    OpFunc(expr, eager_expr, doc_str, jl_name)
+    OpFunc(expr, eager_expr, dispatch_expr, doc_str, jl_name)
 end
 
 """
@@ -294,6 +310,7 @@ function stringify_func(opfunc::OpFunc)
     expr = quote
         $(opfunc.expr)
         $(opfunc.eager_expr)
+        $(opfunc.dispatch_expr)
     end
     expr = unblock(MacroTools.flatten(MacroTools.striplines(expr)))
 
@@ -333,15 +350,15 @@ function import_ops(op_names)
         """)
         for name in op_names
             op = ops[name]
-            try
+            # try
                 f = to_function(op)
                 s = stringify_func(f)
                 write(ops_file, s)
                 print(ops_file, "\n\n")
-            catch err
-                err_msg = sprint(showerror, err)
-                @warn("Could not import operation $name: $err_msg")
-            end
+            # catch err
+                # err_msg = sprint(showerror, err)
+                # @warn("Could not import operation $name: $err_msg")
+            # end
         end
         write(ops_file, """
         end
