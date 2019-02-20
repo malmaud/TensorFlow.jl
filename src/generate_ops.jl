@@ -7,6 +7,7 @@ using MacroTools
 
 struct OpFunc
     expr::Expr
+    eager_expr::Expr
     docstring::String
     name::Symbol
 end
@@ -77,6 +78,7 @@ function to_function(op::tensorflow.OpDef)
     jl_name = opname_to_jlname(op.name)
     inputs = []
     input_block = quote end
+    eager_input_block = quote end
     convert_block = quote end
     type_sets = Dict{String, Vector{Symbol}}()
     for (i, input) in enumerate(op.input_arg)
@@ -135,6 +137,11 @@ function to_function(op::tensorflow.OpDef)
     for (input_idx, input) in enumerate(op.input_arg)
         push!(input_block.args, quote
             tf.add_input(desc, $(inputs[input_idx]))
+        end)
+    end
+    for (input_idx, input) in enumerate(op.input_arg)
+        push!(eager_input_block.args, quote
+            tf.add_input(op, $(inputs[input_idx]))
         end)
     end
     kwargs = Expr(:parameters)
@@ -198,6 +205,12 @@ function to_function(op::tensorflow.OpDef)
             out
         end
     end
+    eager_output_block = if scalar_output
+        quote
+            execute(op)
+        end
+        # else
+    end
     expr = quote
         @tf.op function $(jl_name)($(inputs...))
             local desc
@@ -209,6 +222,22 @@ function to_function(op::tensorflow.OpDef)
             end
             $output_block
         end
+    end
+    eager_inputs = []
+    push!(eager_inputs, inputs[1])
+    for i in 2:length(inputs)
+        push!(eager_inputs, :($(inputs[i])::TensorHandle)
+        )
+    end
+    eager_expr = quote
+        function $(jl_name)($(eager_inputs...))
+            op = EagerOp(ctx, $(op.name))
+            #$convert_block
+            $eager_input_block
+            $attr_block
+        end
+        op["T"] = data_type($(inputs[2]))
+        $eager_output_block
     end
     posargs_str = join((arg.name for arg in op.input_arg), ", ")
     kwargs_str = []
@@ -234,7 +263,7 @@ function to_function(op::tensorflow.OpDef)
                      escape_string(op.summary)
                     ) #TODO Workout how to get descriptions for docstrings
     expr = unblock(MacroTools.flatten(MacroTools.striplines(expr)))
-    OpFunc(expr, doc_str, jl_name)
+    OpFunc(expr, eager_expr, doc_str, jl_name)
 end
 
 """
@@ -247,10 +276,9 @@ The function is returned with a triple-quoted docstring.
 """
 function stringify_func(opfunc::OpFunc)
     s = string(opfunc.expr)
-    docstring = replace(opfunc.docstring, "\$", "")
+    docstring = replace(opfunc.docstring, "\$"=>"")
     doc_line = "\"\"\"\n$(docstring)\n\"\"\""
-    lines = []
-    "$doc_line\n$s"
+    "$doc_line\n$s\n$doc_line\n$(string(opfunc.eager_expr))\n"
 end
 
 stringify_func(op::tensorflow.OpDef) = stringify_func(to_function(op))
