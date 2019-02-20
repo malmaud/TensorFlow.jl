@@ -4,6 +4,7 @@
 ######
 
 using MacroTools
+using Dates
 
 struct OpFunc
     expr::Expr
@@ -19,7 +20,7 @@ If `string` is not allowed as a Julia variable identifier, suffix it with a `_`.
 Otherwise, return it unchanged.
 """
 function keyword_escape(s)
-    keywords = ["const", "type"]
+    keywords = ["const", "type", "while", "for", "if"]
     if (s ∈ keywords) || Base.isoperator(Symbol(s))
         s = string(s, "_")
     end
@@ -42,9 +43,9 @@ function opname_to_jlname(name)
         if idx == length(name)
             word_end = true
         else
-            next_char = name[idx+1]
-            if idx < length(name)-1
-                next_next_char = name[idx+2]
+            next_char = name[idx + 1]
+            if idx < length(name) - 1
+                next_next_char = name[idx + 2]
                 if isuppercase(cur_char) && isuppercase(next_char) && islowercase(next_next_char)
                     word_end = true
                 end
@@ -78,9 +79,8 @@ function to_function(op::tensorflow.OpDef)
     jl_name = opname_to_jlname(op.name)
     inputs = []
     input_block = quote end
-    eager_input_block = quote end
     convert_block = quote end
-    type_sets = Dict{String, Vector{Symbol}}()
+    type_sets = Dict{String,Vector{Symbol}}()
     for (i, input) in enumerate(op.input_arg)
         sym = Symbol("$(input.name)_")
         push!(inputs, sym)
@@ -91,7 +91,7 @@ function to_function(op::tensorflow.OpDef)
     end
     for (input_idx, input) in enumerate(op.input_arg)
         sym = inputs[input_idx]
-        convert_target = tf.Tensor{Any}
+        convert_target = (tf.Tensor{Any})
 
         # Heuristic for when 1-based conversion is necessary
         # Generally, you can tell by the name of the type attribute.
@@ -116,14 +116,14 @@ function to_function(op::tensorflow.OpDef)
             end
         end
         if input._type > 0 && haskey(proto_type_map, input._type)
-            convert_target = tf.Tensor{proto_type_map[input._type]}
+            convert_target = (tf.Tensor{(proto_type_map[input._type])})
         end
         convert_expr = if isempty(input.number_attr) && isempty(input.type_list_attr)  # Scalar input
-                :($sym=convert($(convert_target), $sym))
-            else  # Array argument
+            :($sym = convert($(convert_target), $sym))
+        else  # Array argument
                 # :($sym=convert.($(convert_target), $sym))
-                :($sym=[convert($(convert_target), x) for x in $sym])
-            end
+            :($sym = [convert($(convert_target), x) for x in $sym])
+        end
         push!(convert_block.args, quote
             $convert_expr
             $diff_expr
@@ -139,11 +139,8 @@ function to_function(op::tensorflow.OpDef)
             tf.add_input(desc, $(inputs[input_idx]))
         end)
     end
-    for (input_idx, input) in enumerate(op.input_arg)
-        push!(eager_input_block.args, quote
-            tf.add_input(op, $(inputs[input_idx]))
-        end)
-    end
+    eager_input_block = input_block
+
     kwargs = Expr(:parameters)
     push!(kwargs.args, Expr(:kw, :name, nothing))
     attr_block = quote end
@@ -156,10 +153,10 @@ function to_function(op::tensorflow.OpDef)
         m = match(r"list(\(.*\))|(.*)", attr._type)
         t = m[1] !== nothing ? m[1] : m[2]
 
-        t_map = Dict("int"=>:(Base.Int),
-                     "bool"=>:(Base.Bool),
-                     "tensor"=>:(TensorFlow.RawTensor),
-                     "string"=>:(Base.String))
+        t_map = Dict("int" => :(Base.Int),
+                     "bool" => :(Base.Bool),
+                     "tensor" => :(TensorFlow.RawTensor),
+                     "string" => :(Base.String))
         t_target = get(t_map, t, :(Base.identity))
         if m[1] === nothing
             source = :($(t_target)($name))
@@ -180,6 +177,18 @@ function to_function(op::tensorflow.OpDef)
                 desc[$(attr.name)] = $source
             end
         end)
+    end
+    t_block = []
+    for (i, input_arg) in enumerate(op.input_arg)
+        if has_field(input_arg, :type_attr)
+            type_attr = input_arg.type_attr
+            if length(type_attr) > 0
+                code = quote
+                    desc[$type_attr]  = tf.data_type($(inputs[i]))
+                end
+                push!(t_block, code)
+            end
+        end
     end
     pushfirst!(inputs, kwargs)
     scalar_output = true
@@ -207,9 +216,12 @@ function to_function(op::tensorflow.OpDef)
     end
     eager_output_block = if scalar_output
         quote
-            execute(op)
+            tf.execute(desc)[1]
         end
-        # else
+    else
+        quote
+            tf.execute(desc)
+        end
     end
     expr = quote
         @tf.op function $(jl_name)($(inputs...))
@@ -226,18 +238,19 @@ function to_function(op::tensorflow.OpDef)
     eager_inputs = []
     push!(eager_inputs, inputs[1])
     for i in 2:length(inputs)
-        push!(eager_inputs, :($(inputs[i])::TensorHandle)
-        )
+        push!(eager_inputs, :($(inputs[i])::tf.TensorHandle))
     end
+
     eager_expr = quote
         function $(jl_name)($(eager_inputs...))
-            op = EagerOp(ctx, $(op.name))
-            #$convert_block
+            desc = tf.EagerOp($(op.name))
+            # $convert_block
             $eager_input_block
             $attr_block
+            $(t_block...)
+            $eager_output_block
         end
-        op["T"] = data_type($(inputs[2]))
-        $eager_output_block
+
     end
     posargs_str = join((arg.name for arg in op.input_arg), ", ")
     kwargs_str = []
@@ -250,6 +263,9 @@ function to_function(op::tensorflow.OpDef)
         catch err
             default = "?"
         end
+        if default === nothing # Not sure why this is happening. It's happening for dropout
+            default = "?"
+        end
         push!(kwargs_str, "$(arg.name)=$default")
     end
     if isempty(kwargs_str)
@@ -260,9 +276,9 @@ function to_function(op::tensorflow.OpDef)
 
     sig = "$jl_name($(posargs_str)$(kwargs_str))"
     doc_str = string("     ", sig, "\n\n",
-                     escape_string(op.summary)
-                    ) #TODO Workout how to get descriptions for docstrings
+                     escape_string(op.summary)) #TODO Workout how to get descriptions for docstrings
     expr = unblock(MacroTools.flatten(MacroTools.striplines(expr)))
+    eager_expr = unblock(MacroTools.flatten(MacroTools.striplines(eager_expr)))
     OpFunc(expr, eager_expr, doc_str, jl_name)
 end
 
@@ -275,10 +291,17 @@ parsed by Julia's parser.
 The function is returned with a triple-quoted docstring.
 """
 function stringify_func(opfunc::OpFunc)
-    s = string(opfunc.expr)
-    docstring = replace(opfunc.docstring, "\$"=>"")
+    expr = quote
+        $(opfunc.expr)
+        $(opfunc.eager_expr)
+    end
+    expr = unblock(MacroTools.flatten(MacroTools.striplines(expr)))
+
+    s = string(expr)
+    docstring = replace(opfunc.docstring, "\$" => "")
     doc_line = "\"\"\"\n$(docstring)\n\"\"\""
-    "$doc_line\n$s\n$doc_line\n$(string(opfunc.eager_expr))\n"
+    # "$doc_line\n$s\n$doc_line\n$(string(opfunc.eager_expr))\n"
+    "$doc_line\n$s\n"
 end
 
 stringify_func(op::tensorflow.OpDef) = stringify_func(to_function(op))
@@ -358,7 +381,7 @@ Returns a reference to a Julia function corresponding to the operation.
 function import_op(name)
     jl_name = opname_to_jlname(name)
     mod = TensorFlow.Ops
-    if jl_name ∉ names(mod, all=true)
+    if jl_name ∉ names(mod, all = true)
         ops = Dict(get_all_op_list())
         op = ops[name]
         op_desc = to_function(op)

@@ -23,7 +23,11 @@ function tf_promote(args...)
         if isa(arg, AbstractArray)
             push!(new_args, arg)
         else
-            push!(new_args, convert(Tensor{big_type}, arg))
+            if eager_mode
+                push!(new_args, Ops.cast(arg, DstT = big_type))  # TODO implement promotion
+            else
+                push!(new_args, convert(Tensor{big_type}, arg))
+            end
         end
     end
     (new_args...,)
@@ -115,7 +119,7 @@ end
 
 capitalize(s::Symbol) = capitalize(string(s))
 
-function get_name(name="node")
+function get_name(name = "node")
     graph = get_def_graph()
     name_idx = graph.name_idx
     if name == ""
@@ -158,7 +162,7 @@ Returns:
   A `Tensor` that may be used as a handle for feeding a value, but not
   evaluated directly.
 """
-@op function placeholder(dtype; name=nothing, shape=nothing)
+@op function placeholder(dtype; name = nothing, shape = nothing)
     local node
     with_op_name(name, "placeholder") do
         graph = get_def_graph()

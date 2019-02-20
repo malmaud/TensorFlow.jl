@@ -1174,7 +1174,7 @@ function load_proto(value::tensorflow.AttrValue)
         load_proto(value.list)
     elseif has_field(value, :_type)
         type_ = value._type
-        proto_type_map[type_]
+        get(proto_type_map, type_, Float32)  # wrong
     end
 end
 
@@ -1233,6 +1233,8 @@ function Tensor(op::Operation, value_index::Int)
     Tensor{get_output_type(base_tensor)}(op, value_index)
 end
 
+# Tensor constructors
+
 Tensor(op::Operation) = Tensor(op, 1)
 
 Tensor(value) = convert(Tensor, value)
@@ -1247,6 +1249,7 @@ Base.convert(::Type{Tensor{T}}, value::Tensor{T}) where {T} = value
 Base.convert(::Type{Tensor{Any}}, value::Tensor{R}) where {R} = value
 
 Base.convert(::Type{Tensor{T}}, value) where {T} =  convert(Tensor{T}, constant(value))
+
 
 function operation_output_type(port::Port)
     @tfcall(:TF_OperationOutputType, TF_DataType, (Port,), port)

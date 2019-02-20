@@ -21,6 +21,9 @@ mutable struct EagerContext
     end
 end
 
+eager_ctx = nothing #EagerContext()
+eager_mode = true
+
 Base.unsafe_convert(::Type{Ptr{Cvoid}}, c::EagerContext) = c.ptr
 
 function DeviceList(ctx::EagerContext)
@@ -32,10 +35,10 @@ function DeviceList(ctx::EagerContext)
     return this
 end
 
-mutable struct TensorHandle
+mutable struct TensorHandle <: AbstractTensor{Any}
     ptr::Ptr{Cvoid}
 
-    function TensorHandle(tensor)
+    function TensorHandle(tensor::RawTensor)
         status = Status()
         ptr = @tfcall(:TFE_NewTensorHandle, Ptr{Cvoid}, (Ptr{Cvoid}, Ptr{Cvoid}), tensor.ptr, status)
         check_status(status)
@@ -51,6 +54,7 @@ mutable struct TensorHandle
     end
 end
 
+EagerTensor(value) = TensorHandle(RawTensor(value))
 Base.unsafe_convert(::Type{Ptr{Cvoid}}, h::TensorHandle) = h.ptr
 
 function async_wait(ctx::EagerContext)
@@ -70,6 +74,8 @@ function data_type(h::TensorHandle)
     return @tfcall(:TFE_TensorHandleDataType, TF_DataType, (Ptr{Cvoid},), h) |> tf_to_jl_type
 end
 
+Base.eltype(h::TensorHandle)  = data_type(h)
+
 function resolve(h::TensorHandle)
     status = Status()
     ptr = @tfcall(:TFE_TensorHandleResolve, Ptr{Cvoid}, (Ptr{Cvoid}, Ptr{Cvoid}), h, status)
@@ -78,12 +84,32 @@ function resolve(h::TensorHandle)
     return tensor
 end
 
+function Base.Array(h::TensorHandle)
+    convert(Array, resolve(h))
+end
+
 mutable struct EagerOp
     ptr::Ptr{Cvoid}
     op_name::String
 end
 
 function EagerOp(ctx::EagerContext, op_name)
+    status = Status()
+    ptr = @tfcall(:TFE_NewOp, Ptr{Cvoid}, (Ptr{Cvoid}, Cstring, Ptr{Cvoid}), ctx, op_name, status)
+    check_status(status)
+    this = EagerOp(ptr, String(op_name))
+    finalizer(this) do self
+        @tfcall(:TFE_DeleteOp, Cvoid, (Ptr{Cvoid},), self)
+    end
+    return this
+end
+
+function EagerOp(op_name)
+    global eager_ctx
+    if eager_ctx === nothing
+        eager_ctx = EagerContext()
+    end
+    ctx = eager_ctx
     status = Status()
     ptr = @tfcall(:TFE_NewOp, Ptr{Cvoid}, (Ptr{Cvoid}, Cstring, Ptr{Cvoid}), ctx, op_name, status)
     check_status(status)
@@ -128,7 +154,8 @@ function test_eager()
     dtype = data_type(h1)
     op["T"] = dtype
     res = execute(op)
-    return resolve(res[1])
+    return res[1]
+    # return resolve(res[1])
 end
 
 function setindex!(op::EagerOp, tensor::RawTensor, attr_name)
@@ -138,7 +165,7 @@ function setindex!(op::EagerOp, tensor::RawTensor, attr_name)
 end
 
 function setindex!(op::EagerOp, dtype::DataType, attr_name)
-    @tfcall(:TFE_OpSetAttrType, Cvoid, (Ptr{Cvoid}, Cstring, TF_DataType), op, attr_name, dtype|>jl_to_df_type)
+    @tfcall(:TFE_OpSetAttrType, Cvoid, (Ptr{Cvoid}, Cstring, TF_DataType), op, attr_name, dtype |> jl_to_df_type)
 end
 
 function setindex!(op::EagerOp, value::Integer, attr_name)
