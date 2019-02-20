@@ -2,6 +2,11 @@ mutable struct EagerContext
     ptr::Ptr{Cvoid}
 
     function EagerContext()
+        # For some reason, this has to be called before :TFE_Execute or else tf
+        # crashes. Maybe something about TF_GetAllOpList is causing the tf 
+        # library to enter a bad state.
+        get_all_op_list() 
+
         options = @tfcall(:TFE_NewContextOptions, Ptr{Cvoid}, ())
         @tfcall(:TFE_ContextOptionsSetAsync, Cvoid, (Ptr{Cvoid}, Cuchar), options, 0)
         status = Status()
@@ -103,9 +108,9 @@ function execute(op::EagerOp)
     n_outputs = length(op_desc.output_arg)
     handles = [TensorHandle() for _ in 1:n_outputs]
     ptrs = [Ptr{Cvoid}(0) for _ in 1:n_outputs]
-    num_ret = Cint(n_outputs)
+    num_ret = Ref{Cint}(n_outputs)
     status = Status()
-    @tfcall(:TFE_Execute, Cvoid, (Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cint}, Ptr{Cvoid}), op, ptrs, Ref(num_ret), status)
+    @tfcall(:TFE_Execute, Cvoid, (Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cint}, Ptr{Cvoid}), op, ptrs, num_ret, status)
     check_status(status)
     for i in 1:n_outputs
         handles[i].ptr = ptrs[i]
