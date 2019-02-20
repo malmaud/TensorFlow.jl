@@ -87,7 +87,7 @@ function grad(tape::Tape, tensor, out_grad, grads)
 
     
     for (i, arg) in enumerate(node.args)
-        grads[arg] = arg_grads[i]
+        grads[arg] = arg_grads[i]*out_grad
         grad(tape, arg, grads[arg].x, grads)
     end
 
