@@ -1,24 +1,34 @@
 mutable struct EagerContext
     ptr::Ptr{Cvoid}
+end
 
-    function EagerContext()
-        # For some reason, this has to be called before :TFE_Execute or else tf
-        # crashes. Maybe something about TF_GetAllOpList is causing the tf 
-        # library to enter a bad state.
-        get_all_op_list() 
+@enum PlacementPolicy begin
+    PLACEMENT_EXPLICIT=0
+    PLACEMENT_WARN=1
+    PLACEMENT_SILENT=2
+    PLACEMENT_SILENT_FOR_INT32=3
+end
 
-        options = @tfcall(:TFE_NewContextOptions, Ptr{Cvoid}, ())
-        @tfcall(:TFE_ContextOptionsSetAsync, Cvoid, (Ptr{Cvoid}, Cuchar), options, 0)
-        status = Status()
-        context = @tfcall(:TFE_NewContext, Ptr{Cvoid}, (Ptr{Cvoid}, Ptr{Cvoid}), options, status)
-        check_status(status)
-        this = new(context)
-        finalizer(this) do self
-            @tfcall(:TFE_DeleteContext, Cvoid, (Ptr{Cvoid},), self.ptr)
-        end
-        @tfcall(:TFE_DeleteContextOptions, Cvoid, (Ptr{Cvoid},), options)
-        return this
+function EagerContext(;async=false, placement_policy=nothing)
+    # For some reason, this has to be called before :TFE_Execute or else tf
+    # crashes. Maybe something about TF_GetAllOpList is causing the tf 
+    # library to enter a bad state.
+    get_all_op_list() 
+
+    options = @tfcall(:TFE_NewContextOptions, Ptr{Cvoid}, ())
+    @tfcall(:TFE_ContextOptionsSetAsync, Cvoid, (Ptr{Cvoid}, Cuchar), options, async)
+    if placement_policy !== nothing
+        @tfcall(:TFE_ContextOptionsSetDevicePlacementPolicy, Cvoid, (Ptr{Cvoid}, Int), options, placement_policy)
     end
+    status = Status()
+    context = @tfcall(:TFE_NewContext, Ptr{Cvoid}, (Ptr{Cvoid}, Ptr{Cvoid}), options, status)
+    check_status(status)
+    this = EagerContext(context)
+    finalizer(this) do self
+        @tfcall(:TFE_DeleteContext, Cvoid, (Ptr{Cvoid},), self.ptr)
+    end
+    @tfcall(:TFE_DeleteContextOptions, Cvoid, (Ptr{Cvoid},), options)
+    return this
 end
 
 eager_ctx = nothing #EagerContext()
@@ -31,7 +41,7 @@ function DeviceList(ctx::EagerContext)
     ptr = @tfcall(:TFE_ContextListDevices, Ptr{Cvoid}, (Ptr{Cvoid}, Ptr{Cvoid}), ctx, status)
     check_status(status)
     count = @tfcall(:TF_DeviceListCount, Cint, (Ptr{Cvoid},), ptr)
-    this = new(ptr, count)
+    this = DeviceList(ptr, count)
     return this
 end
 
@@ -69,6 +79,14 @@ function device_name(h::TensorHandle)
     check_status(status)
     return unsafe_string(c_name)
 end
+
+function backing_device_name(h::TensorHandle)
+    status = Status()
+    c_name = @tfcall(:TFE_TensorHandleBackingDeviceName, Cstring, (Ptr{Cvoid}, Ptr{Cvoid}), h, status)
+    check_status(status)
+    return unsafe_string(c_name)
+end
+
 
 function data_type(h::TensorHandle)
     return @tfcall(:TFE_TensorHandleDataType, TF_DataType, (Ptr{Cvoid},), h) |> tf_to_jl_type
@@ -192,12 +210,14 @@ function setindex!(op::EagerOp, value::Vector, attr_name)
 end
 
 function set_attr_list(op::EagerOp, attr_name, list::Vector{<:Integer})
-    list = Int64[Int64(x) for x in list]
+    # list = Int64[Int64(x) for x in list]
+    list = Int64.(list)
     @tfcall(:TFE_OpSetAttrIntList, Cvoid, (Ptr{Cvoid}, Cstring, Ptr{Int64}, Cint), op, attr_name, list, length(list))
 end
 
 function set_attr_list(op::EagerOp, attr_name, list::Vector{<:AbstractFloat})
-    list = Float32[Float32(x) for x in list]
+    # list = Float32[Float32(x) for x in list]
+    list = Float32.(list)
     @tfcall(:TFE_OpSetAttrFloatList, Cvoid, (Ptr{Cvoid}, Cstring, Ptr{Float32}, Cint), op, attr_name, list, length(list))
 end
 
@@ -218,3 +238,66 @@ function set_attr_shape_list(op::EagerOp, attr_name, list::Vector)
         Cint[length(x) for x in dims],
         length(dims))
 end
+
+function clear_caches(ctx::EagerContext)
+    @tfcall(:TFE_ContextClearCaches, Cvoid, (Ptr{Cvoid},), ctx)
+end
+
+
+function num_dims(h::TensorHandle)
+    status = Status()
+    res = @tfcall(:TFE_TensorHandleNumDims, Cint, (Ptr{Cvoid}, Ptr{Cvoid}), h, status)
+    check_status(status)
+    Int(res)
+end
+
+function num_elements(h::TensorHandle)
+    status = Status()
+    res = @tfcall(:TFE_TensorHandleNumElements, Int64, (Ptr{Cvoid}, Ptr{Cvoid}), h, status)
+    check_status(status)
+    Int(res)
+end
+
+
+function dim(h::TensorHandle, dim_index)
+    status = Status()
+    res = @tfcall(:TFE_TensorHandleDim, Int64, (Ptr{Cvoid}, Cint, Ptr{Cvoid}), h, dim_index-1, status)
+    check_status(status)
+    Int(res)
+end
+
+function copy_sharing_tensor(h::TensorHandle)
+    status = Status()
+    res = TensorHandle()
+    res.ptr = @tfcall(:TFE_TensorHandleCopySharingTensor, Ptr{Cvoid}, (Ptr{Cvoid}, Ptr{Cvoid}), h, status)
+    check_status(status)
+    return res
+end
+
+function copy_to_device(ctx::EagerContext, h::TensorHandle, device_name)
+    status = Status()
+    res = TensorHandle()
+    res.ptr = @tfcall(:TFE_TensorHandleCopyToDevice, Ptr{Cvoid}, (Ptr{Cvoid}, Ptr{Cvoid}, Cstring, Ptr{Cvoid}), h, ctx, device_name, status)
+    check_status(status)
+    return res
+end
+
+copy_to_device(h, device_name) = copy_to_device(eager_ctx, h, device_name)
+
+function set_device(op::EagerOp, device_name)
+    status = Status()
+    @tfcall(:TFE_OpSetDevice, Ptr{Cvoid}, (Ptr{Cvoid}, Cstring, Ptr{Cvoid}), op, device_name, status)
+    check_status(status)
+end
+
+function get_device(op::EagerOp)
+    status = Status()
+    str = @tfcall(:TFE_OpGetDevice, Cstring, (Ptr{Cvoid}, Ptr{Cvoid}), op, status)
+    return String(str)
+end
+
+function set_xla_compilation(op::EagerOp, enable)
+    @tfcall(:TFE_OpSetXLACompilation, Ptr{Cvoid}, (Ptr{Cvoid}, Cuchar), op, enable)
+    return enable
+end
+

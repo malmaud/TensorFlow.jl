@@ -809,7 +809,7 @@ function Base.sizeof(t::RawTensor)
     @tfcall(:TF_TensorByteSize, Csize_t, (Ptr{Cvoid},), t.ptr) |> Int
 end
 
-function set_device(node_desc, device::String)
+function set_device(node_desc, device)
     @tfcall(:TF_SetDevice, Cvoid,
         (Ptr{Cvoid}, Cstring),
         node_desc.ptr, device)
