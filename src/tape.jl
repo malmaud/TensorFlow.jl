@@ -44,16 +44,16 @@ macro back_for(target, fn)
     end
 end
 
-@back_for(Ops.add, function f(x, y; kwargs...)
-    return [constant(1.0), constant(1.0)]
+@back_for(Ops.add, function f(grad, x, y; kwargs...)
+    return [constant(1.0), constant(1.0)] .*grad
 end)
 
-@back_for(Ops.sub, function f(x, y; kwargs...)
-    return [constant(1.0), constant(-1.0)]
+@back_for(Ops.sub, function f(grad, x, y; kwargs...)
+    return [constant(1.0), constant(-1.0)] .*grad
 end)
 
-@back_for(Ops.neg, function f(x; kwargs...)
-    return constant(-1.0)
+@back_for(Ops.neg, function f(grad, x; kwargs...)
+    return constant(-1.0) .* grad
 end)
 
 function with_no_grad(f)
@@ -64,45 +64,59 @@ function with_no_grad(f)
     return res
 end
 
-@back_for(Ops.exp, function f(x; kwargs...)
-    Ops.exp(x)
+@back_for(Ops.exp, function f(grad, x; kwargs...)
+    Ops.exp(x) .* grad
 end)
 
-@back_for(Ops.mean, function f(x, reduction_indices; keep_dims=nothing, kwargs...)
+@back_for(Ops.mean, function f(grad, x, reduction_indices; keep_dims=nothing, kwargs...)
     # assume reduction_indices is everything for now
     n_elem = float(num_elements(x))
-    [Ops.fill(size(x), 1/constant(n_elem)), nothing]
+    [grad .* Ops.fill(size(x), 1/constant(n_elem)), nothing]
 end)
 
-@back_for(Ops.sum, function f(x, reduction_indices; keep_dims=nothing, kwargs...)
+@back_for(Ops.sum, function f(grad, x, reduction_indices; keep_dims=nothing, kwargs...)
     # assume reduction_indices is everything for now
-    [Ops.fill(size(x), constant(1.0)), nothing]
+    [grad .* Ops.fill(size(x), constant(1.0)), nothing]
 end)
 
-
-@back_for(Ops.mul, function f(x, y; kwargs...)
-    return [y, x]
+@back_for(Ops.mul, function f(grad, x, y; kwargs...)
+    return [grad.*y, grad.*x]
 end)
 
-@back_for(Ops.cast, function f(x;  kwargs...)
-    return constant(1.0)
+@back_for(Ops.cast, function f(grad, x;  kwargs...)
+    return grad
 end)
 
-
-@back_for(Ops.log, function f(x; kwargs...)
-    return 1/x
+@back_for(Ops.log, function f(grad, x; kwargs...)
+    return 1/x .* grad
 end)
 
-@back_for(Ops.sin, function f(x; kwargs...)
-    return cos(x)
+@back_for(Ops.sin, function f(grad, x; kwargs...)
+    return cos(x) .* grad
 end)
 
-@back_for(Ops.cos, function f(x; kwargs...)
-    return sin(x)
+@back_for(Ops.cos, function f(grad, x; kwargs...)
+    return sin(x) .* grad
 end)
 
-@back_for(Ops.relu, function f(x; kwarg...)
-    (x > 0) .* x
+@back_for(Ops.relu, function f(grad, x; kwarg...)
+    # todo use relu grad
+    ((x > 0) .* x) .* grad
+end)
+
+@back_for(Ops.mat_mul, function f(grad, x, y; transpose_a=nothing, transpose_b=nothing, kwargs...)
+    # todo pay attension to transpose arguments
+    grad_x = Ops.mat_mul(grad, y, transpose_b=true)
+    grad_y = Ops.mat_mul(x, grad, transpose_a=true)
+    return [grad_x, grad_y]
+end)
+
+@back_for(Ops.tanh, function f(grad, x; kwargs...)
+    Ops.tanh_grad(x, grad)
+end)
+
+@back_for(Ops.sigmoid, function f(grad, x; kwargs...)
+    Ops.sigmoid_grad(x, grad)
 end)
 
 
@@ -117,24 +131,24 @@ function _grad(tape::Tape, tensor, out_grad, grads)
     node = tape.nodes[tensor]
     back_op = grad_fns[node.op]
     arg_grads = with_no_grad() do
-        back_op(node.args...; node.kwargs...)
+        back_op(out_grad, node.args...; node.kwargs...)
     end
     arg_grads = ensure_vector(arg_grads)
     for (i, arg) in enumerate(node.args)
         arg_grads[i] === nothing && continue
-        grads[arg] = arg_grads[i].*out_grad
+        grads[arg] = arg_grads[i]
         _grad(tape, arg, grads[arg], grads)
     end
 
     return
 end
 
-function grad(tape, tensor, in_tensors::AbstractArray, out_grad=1.0)
+function grad(tape, tensor, in_tensors::AbstractArray, out_grad=constant(1.0))
     grads = Dict()
     _grad(tape, tensor, out_grad, grads)
     return [grads[tensor] for tensor in in_tensors]
 end
 
-function grad(tape, tensor, in_tensor, out_grad=1.0)
+function grad(tape, tensor, in_tensor, out_grad=constant(1.0))
     grad(tape, tensor, [in_tensor], out_grad)[1]
 end

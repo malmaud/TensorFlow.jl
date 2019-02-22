@@ -301,3 +301,5 @@ function set_xla_compilation(op::EagerOp, enable)
     return enable
 end
 
+Base.convert(::Type{TensorHandle}, h::TensorHandle) = h
+Base.convert(::Type{TensorHandle}, h) = constant(h)

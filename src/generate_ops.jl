@@ -240,11 +240,17 @@ function to_function(op::tensorflow.OpDef)
         end
     end
 
+    eager_convert_block = []
+    for input in inputs[2:end]
+        c = :($input = convert(tf.TensorHandle, $input))
+        push!(eager_convert_block, c)
+    end
 
     eager_expr = quote
         function $eager_name($(inputs...))
             desc = tf.EagerOp($(op.name))
             # $convert_block
+            $(eager_convert_block...)
             $eager_input_block
             $attr_block
             $(t_block...)
