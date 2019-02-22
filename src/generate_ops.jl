@@ -217,11 +217,12 @@ function to_function(op::tensorflow.OpDef)
     end
     eager_output_block = if scalar_output
         quote
-            tf.execute(desc)[1]
+            return res[1]
         end
     else
         quote
-            tf.execute(desc)
+            #tf.execute(desc)
+            return res
         end
     end
     graph_name = Symbol("$(jl_name)_graph")
@@ -247,6 +248,9 @@ function to_function(op::tensorflow.OpDef)
             $eager_input_block
             $attr_block
             $(t_block...)
+            res = tf.execute(desc)
+            node = tf.TapeNode($jl_name, [$(inputs[2:end]...)], $(inputs[1].args...))
+            tf.add_node(res[1], node)
             $eager_output_block
         end
 

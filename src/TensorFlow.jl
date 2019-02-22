@@ -212,5 +212,6 @@ include("summary.jl")
 include("deprecated.jl")
 include("show.jl")
 include("generate_ops.jl")
+include("tape.jl")
 
 end
