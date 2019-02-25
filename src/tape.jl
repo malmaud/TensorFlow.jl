@@ -111,12 +111,18 @@ end)
     return [grad_x, grad_y]
 end)
 
+# These are all wrong. the _grad methods expect the OUTPUT, not the input.
+# need to cache the output for them
 @back_for(Ops.tanh, function f(grad, x; kwargs...)
     Ops.tanh_grad(x, grad)
 end)
 
 @back_for(Ops.sigmoid, function f(grad, x; kwargs...)
     Ops.sigmoid_grad(x, grad)
+end)
+
+@back_for(Ops.sqrt, function f(grad, x; kwargs...)
+    Ops.sqrt_grad(x, grad)
 end)
 
 

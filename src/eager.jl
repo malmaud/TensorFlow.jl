@@ -303,3 +303,26 @@ end
 
 Base.convert(::Type{TensorHandle}, h::TensorHandle) = h
 Base.convert(::Type{TensorHandle}, h) = constant(h)
+
+function item(t::TensorHandle)
+    x = Array(t)
+    if length(x) != 1
+        throw(ErrorException("item can only be called on scalar tensors"))
+    end
+    return x[1]
+end
+
+Base.length(t::TensorHandle) = item(Ops.size(t))
+
+Base.eltype(::Type{TensorHandle}) = Float64 # temp hack
+Base.collect(t::TensorHandle) = Array(t)
+Base.iterate(t::TensorHandle, args...) = iterate(Array(t), args...)
+Base.zero(t::AbstractTensor) = Ops.zeros_like(t)
+Base.ones(t::AbstractTensor) = Ops.ones_like(t)
+function Base.:*(t1::TensorHandle, t2::Number)
+    return t1 .* t2
+end
+
+function Base.:*(t1::Number, t2::TensorHandle)
+    return t1 .* t2
+end
