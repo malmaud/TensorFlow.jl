@@ -67,14 +67,12 @@ CRC_TABLE = [
     0xbe2da0a5, 0x4c4623a6, 0x5f16d052, 0xad7d5351,
 ]
     
-
 function crc32(data)    
     MASK = 0xFFFFFFFF
-
     crc = MASK
     for byte in data
         table_index = (xor(crc, byte) & 0xff) + 1
-        crc = xor(CRC_TABLE[table_index], (crc>>8))# & MASK
+        crc = xor(CRC_TABLE[table_index], crc >> 8)
     end
     return xor(crc, MASK)
 end
