@@ -1,3 +1,5 @@
+module CRC
+
 CRC_TABLE = [
     0x00000000, 0xf26b8303, 0xe13b70f7, 0x1350f3f4,
     0xc79a971f, 0x35f1141c, 0x26a1e7e8, 0xd4ca64eb,
@@ -65,9 +67,10 @@ CRC_TABLE = [
     0xbe2da0a5, 0x4c4623a6, 0x5f16d052, 0xad7d5351,
 ]
     
-MASK = 0xFFFFFFFF
 
 function crc32(data)    
+    MASK = 0xFFFFFFFF
+
     crc = MASK
     for byte in data
         table_index = (xor(crc, byte) & 0xff) + 1
@@ -76,3 +79,9 @@ function crc32(data)
     return xor(crc, MASK)
 end
 
+function masked_crc(data)
+    x = crc32(data)
+    ((x>>15) | (x<<17)) + 0xa282ead8
+end
+
+end

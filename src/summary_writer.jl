@@ -34,9 +34,12 @@ function FileWriter(log_dir::AbstractString; graph=nothing)
         graph = get_def_graph()
     end
     mkpath(log_dir)
-    path = joinpath(log_dir, "events.out.tfevents.1")
+    local path
+    for i in Iterators.countfrom(1)
+        path = joinpath(log_dir, "events.out.tfevents.$i")
+        isfile(path) || break
+    end
     rm(path, force=true)
-    # pyo = @py_proc pywrap_tensorflow[][:EventsWriter](py_bytes($path))
     writer = FileWriter(open(path, "w"), String(log_dir))
     if graph !== nothing
         write(writer, graph)
@@ -45,22 +48,11 @@ function FileWriter(log_dir::AbstractString; graph=nothing)
 end
 
 
-function masked_crc(data)
-    x = crc32(data)
-    ((x>>15) | (x<<17)) + 0xa282ead8
-end
-
 function Base.write(writer::FileWriter, event::tensorflow.Event)
     b = IOBuffer()
     writeproto(b, event)
     seekstart(b)
     proto = read(b)
-    # @py_proc begin
-    #     py_event = py_tf[][:Event]()
-    #     py_event[:ParseFromString](py_bytes($(proto)))
-    #     $(writer.pyo)[:WriteEvent](py_event)
-    #     $(writer.pyo)[:Flush]()
-    # end
     file = writer.file_handle
     proto_length = UInt64(length(proto))
     buffer = IOBuffer()
@@ -69,9 +61,9 @@ function Base.write(writer::FileWriter, event::tensorflow.Event)
     proto_length_bytes = read(buffer)
     proto_length_bytes_rev = reverse(proto_length_bytes)
     write(file, proto_length_bytes)
-    write(file, masked_crc(proto_length_bytes))
+    write(file, CRC.masked_crc(proto_length_bytes))
     write(file, proto)
-    write(file, masked_crc(proto))
+    write(file, CRC.masked_crc(proto))
     flush(file)
     nothing
 end
