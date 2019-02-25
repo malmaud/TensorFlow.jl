@@ -128,6 +128,9 @@ end)
     Ops.sqrt_grad(output[1], grad)
 end)
 
+@back_for(Ops.bias_add, function f(grad, x, y; kwargs...)
+    [grad, Ops.bias_add_grad(grad)]
+end)
 
 ensure_vector(x::AbstractArray) = x
 ensure_vector(x) = [x]
