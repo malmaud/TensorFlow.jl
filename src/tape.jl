@@ -2,13 +2,14 @@ using MacroTools
 import MacroTools: splitdef, combinedef
 
 mutable struct TapeNode
-    op
-    args
-    kwargs
+    op::Function
+    args::Vector{TensorHandle}
+    results::Vector{TensorHandle}
+    kwargs::Dict
 end
 
 
-TapeNode(op, args; kwargs...) =  TapeNode(op, args, kwargs)
+TapeNode(op, args, results; kwargs...) =  TapeNode(op, args, results, kwargs)
 
 mutable struct Tape
     nodes::Dict{TensorHandle, TapeNode}
@@ -105,8 +106,7 @@ end)
 end)
 
 @back_for(Ops.relu, function f(grad, x; kwarg...)
-    # todo use relu grad
-    ((x > 0) .* x) .* grad
+    Ops.relu_grad(grad, x)
 end)
 
 @back_for(Ops.mat_mul, function f(grad, x, y; transpose_a=nothing, transpose_b=nothing, kwargs...)
@@ -116,18 +116,16 @@ end)
     return [grad_x, grad_y]
 end)
 
-# These are all wrong. the _grad methods expect the OUTPUT, not the input.
-# need to cache the output for them
-@back_for(Ops.tanh, function f(grad, x; kwargs...)
-    Ops.tanh_grad(x, grad)
+@back_for(Ops.tanh, function f(grad, x; output=nothing, kwargs...)
+    Ops.tanh_grad(output[1], grad)
 end)
 
-@back_for(Ops.sigmoid, function f(grad, x; kwargs...)
-    Ops.sigmoid_grad(x, grad)
+@back_for(Ops.sigmoid, function f(grad, x; output=nothing, kwargs...)
+    Ops.sigmoid_grad(output[1], grad)
 end)
 
-@back_for(Ops.sqrt, function f(grad, x; kwargs...)
-    Ops.sqrt_grad(x, grad)
+@back_for(Ops.sqrt, function f(grad, x; output=nothing, kwargs...)
+    Ops.sqrt_grad(output[1], grad)
 end)
 
 
@@ -142,7 +140,7 @@ function _grad(tape::Tape, tensor, out_grad, grads)
     node = tape.nodes[tensor]
     back_op = grad_fns[node.op]
     arg_grads = with_no_grad() do
-        back_op(out_grad, node.args...; node.kwargs...)
+        back_op(out_grad, node.args...; output=node.results, node.kwargs...)
     end
     arg_grads = ensure_vector(arg_grads)
     for (i, arg) in enumerate(node.args)
