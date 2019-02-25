@@ -1,8 +1,9 @@
+using TensorFlow
 tf=TensorFlow
 m = tf.Sequential()
 
 tf.add(m, tf.Dense(3,10))
-tf.add(m, tf.ReluLayer())
+tf.add(m, tf.Relu())
 tf.add(m, tf.Dense(10, 3))
 
 x=constant(randn(5,3))

@@ -1,13 +1,38 @@
 using Statistics
 
-abstract type Model
+
+abstract type KerasCallable
 end
 
-mutable struct Sequential <: Model
+abstract type Model <: KerasCallable
+end
+
+abstract type Layer <: KerasCallable
+end
+
+function struct_name(f)
+    @capture(f, struct name_ <: _
+        __
+    end) && return name
+    @capture(f, mutable struct name_ <: _
+        __
+    end) && return name
+    return nothing
+end
+
+# Get around https://github.com/JuliaLang/julia/issues/14919
+macro callable(f)
+    name = struct_name(f)
+    quote
+        (m::$name)(args...; kwargs...) = forward(m, args...; kwargs...)
+    end
+end
+
+@callable mutable struct Sequential <: Model
     attrs::Dict
 end
 
-mutable struct Dense
+@callable mutable struct Dense <: Layer
     weights::TensorHandle
     bias::TensorHandle
 end
@@ -17,10 +42,10 @@ function Dense(in_size::Integer, out_size::Integer)
     return layer
 end
 
-struct ReluLayer
+@callable struct Relu <: Layer
 end
 
-function forward(r::ReluLayer, x)
+function forward(r::Relu, x)
     nn.relu(x)
 end
 
@@ -50,6 +75,13 @@ end
 
 function forward(d::Dense, x)
     Ops.bias_add(x*d.weights, d.bias)
+end
+
+function forward(m::Sequential, x)
+    for layer in m.attrs["layers"]
+        x = forward(layer, x)
+    end
+    return x
 end
 
 function mse(y, y_target)
@@ -86,7 +118,6 @@ function fit(m::Sequential, x, y; n_epochs=1, batch_size=nothing)
                 continue
             end
             optimizier_step(optimizer, value, g)
-            # inplace_sub(value, lr.*g)
         end
     end
 end
