@@ -45,15 +45,20 @@ macro back_for(target, fn)
 end
 
 @back_for(Ops.add, function f(grad, x, y; kwargs...)
-    return [constant(1.0), constant(1.0)] .*grad
+    println("Add got $grad, $x, $y")
+    return [constant(1.0).*grad, constant(1.0).*grad]
 end)
 
 @back_for(Ops.sub, function f(grad, x, y; kwargs...)
-    return [constant(1.0), constant(-1.0)] .*grad
+    return [constant(1.0).*grad, constant(-1.0).*grad]
 end)
 
 @back_for(Ops.neg, function f(grad, x; kwargs...)
     return constant(-1.0) .* grad
+end)
+
+@back_for(Ops.pow, function f(grad, x, y; kwargs...)
+    [y.* (x.^(y.-1)), nothing]
 end)
 
 function with_no_grad(f)
@@ -152,7 +157,7 @@ end
 function grad(tape, tensor, in_tensors::AbstractArray, out_grad=constant(1.0))
     grads = Dict()
     _grad(tape, tensor, out_grad, grads)
-    return [grads[tensor] for tensor in in_tensors]
+    return [get(grads, tensor, nothing) for tensor in in_tensors]
 end
 
 function grad(tape, tensor, in_tensor, out_grad=constant(1.0))

@@ -213,5 +213,6 @@ include("deprecated.jl")
 include("show.jl")
 include("generate_ops.jl")
 include("tape.jl")
+include("keras.jl")
 
 end
