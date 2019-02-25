@@ -24,6 +24,7 @@ end
 macro callable(f)
     name = struct_name(f)
     quote
+        $(esc(f))
         (m::$name)(args...; kwargs...) = forward(m, args...; kwargs...)
     end
 end

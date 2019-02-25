@@ -16,9 +16,13 @@ for (jl_func, op) in [
     (:histogram, :histogram_summary),
     (:image, :image_summary)
     ]
-    @eval @tf.op function $jl_func(args...; collections=[:Summaries], kwargs...)
+    @eval @tf.op function $jl_func(args...; collections=[:Summaries], step=0, kwargs...)
         res = tf.Ops.$op(args...; kwargs...)
-        foreach(c->tf.add_to_collection(c, res), collections)
+        if tf.eager_mode
+          tf.summary.record_summary(tf.item(res), step=step)
+        else
+          foreach(c->tf.add_to_collection(c, res), collections)
+        end
         res
     end
 
