@@ -141,8 +141,23 @@ function deallocator(data, len, arg)
 
 end
 
+struct Context
+    attrs::Dict
+end
+
+Context() = Context(Dict())
+
+struct ContextStack
+    contexts::Vector{Context}
+end
+
+ContextStack() = ContextStack(Context[])
+
+global_context = ContextStack()
+
 function __init__()
     c_deallocator[] = @cfunction(deallocator, Cvoid, (Ptr{Cvoid}, Csize_t, Ptr{Cvoid}))
+    push!(global_context, default_context())
 end
 
 function load_python_process(;force_reload=false)

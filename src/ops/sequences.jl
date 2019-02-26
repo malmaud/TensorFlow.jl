@@ -25,7 +25,7 @@ convert_eltype(x, dtype) = x
     else
         value = convert_eltype(value, dtype)
     end
-    if eager_mode
+    if in_eager_mode()
         EagerTensor(value)
     else
         Ops.const_(; value = value, dtype = dtype, kwargs...)

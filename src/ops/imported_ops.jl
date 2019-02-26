@@ -44,7 +44,7 @@ begin
         return res[1]
     end
     function reduce_join(inputs_, reduction_indices_; name=nothing, keep_dims=nothing, separator=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             reduce_join_eager(inputs_, reduction_indices_; name=name, keep_dims=keep_dims, separator=separator)
         else
             reduce_join_graph(inputs_, reduction_indices_; name=name, keep_dims=keep_dims, separator=separator)
@@ -122,7 +122,7 @@ begin
         return res[1]
     end
     function reduce_dataset(input_dataset_, initial_state_, other_arguments_; name=nothing, f=nothing, Tstate=nothing, Targuments=nothing, output_types=nothing, output_shapes=nothing, use_inter_op_parallelism=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             reduce_dataset_eager(input_dataset_, initial_state_, other_arguments_; name=name, f=f, Tstate=Tstate, Targuments=Targuments, output_types=output_types, output_shapes=output_shapes, use_inter_op_parallelism=use_inter_op_parallelism)
         else
             reduce_dataset_graph(input_dataset_, initial_state_, other_arguments_; name=name, f=f, Tstate=Tstate, Targuments=Targuments, output_types=output_types, output_shapes=output_shapes, use_inter_op_parallelism=use_inter_op_parallelism)
@@ -176,7 +176,7 @@ begin
         return res[1]
     end
     function tensor_list_from_tensor(tensor_, element_shape_; name=nothing, element_dtype=nothing, shape_type=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_list_from_tensor_eager(tensor_, element_shape_; name=name, element_dtype=element_dtype, shape_type=shape_type)
         else
             tensor_list_from_tensor_graph(tensor_, element_shape_; name=name, element_dtype=element_dtype, shape_type=shape_type)
@@ -216,7 +216,7 @@ begin
         return res[1]
     end
     function extract_jpeg_shape(contents_; name=nothing, output_type=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             extract_jpeg_shape_eager(contents_; name=name, output_type=output_type)
         else
             extract_jpeg_shape_graph(contents_; name=name, output_type=output_type)
@@ -269,7 +269,7 @@ begin
         return res
     end
     function svd(input_; name=nothing, compute_uv=nothing, full_matrices=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             svd_eager(input_; name=name, compute_uv=compute_uv, full_matrices=full_matrices)
         else
             svd_graph(input_; name=name, compute_uv=compute_uv, full_matrices=full_matrices)
@@ -315,7 +315,7 @@ begin
         return res[1]
     end
     function iterator_get_next_sync(iterator_; name=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             iterator_get_next_sync_eager(iterator_; name=name, output_types=output_types, output_shapes=output_shapes)
         else
             iterator_get_next_sync_graph(iterator_; name=name, output_types=output_types, output_shapes=output_shapes)
@@ -369,7 +369,7 @@ begin
         return res[1]
     end
     function ref_enter(data_; name=nothing, frame_name=nothing, is_constant=nothing, parallel_iterations=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             ref_enter_eager(data_; name=name, frame_name=frame_name, is_constant=is_constant, parallel_iterations=parallel_iterations)
         else
             ref_enter_graph(data_; name=name, frame_name=frame_name, is_constant=is_constant, parallel_iterations=parallel_iterations)
@@ -405,7 +405,7 @@ begin
         return res[1]
     end
     function erf(x_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             erf_eager(x_; name=name)
         else
             erf_graph(x_; name=name)
@@ -444,7 +444,7 @@ begin
         return res
     end
     function lookup_table_export_v2(table_handle_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             lookup_table_export_v2_eager(table_handle_; name=name)
         else
             lookup_table_export_v2_graph(table_handle_; name=name)
@@ -480,7 +480,7 @@ begin
         return res[1]
     end
     function round(x_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             round_eager(x_; name=name)
         else
             round_graph(x_; name=name)
@@ -528,7 +528,7 @@ begin
         return res[1]
     end
     function outfeed_dequeue(; name=nothing, dtype=nothing, shape=nothing, device_ordinal=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             outfeed_dequeue_eager(; name=name, dtype=dtype, shape=shape, device_ordinal=device_ordinal)
         else
             outfeed_dequeue_graph(; name=name, dtype=dtype, shape=shape, device_ordinal=device_ordinal)
@@ -562,7 +562,7 @@ begin
         return res[1]
     end
     function tensor_forest_tree_is_initialized_op(tree_handle_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_forest_tree_is_initialized_op_eager(tree_handle_; name=name)
         else
             tensor_forest_tree_is_initialized_op_graph(tree_handle_; name=name)
@@ -609,7 +609,7 @@ begin
         return res
     end
     function merge(inputs_; name=nothing, N=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             merge_eager(inputs_; name=name, N=N)
         else
             merge_graph(inputs_; name=name, N=N)
@@ -660,7 +660,7 @@ begin
         return res[1]
     end
     function histogram_fixed_width(values_, value_range_, nbins_; name=nothing, dtype=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             histogram_fixed_width_eager(values_, value_range_, nbins_; name=name, dtype=dtype)
         else
             histogram_fixed_width_graph(values_, value_range_, nbins_; name=name, dtype=dtype)
@@ -696,7 +696,7 @@ begin
         return res[1]
     end
     function asin(x_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             asin_eager(x_; name=name)
         else
             asin_graph(x_; name=name)
@@ -743,7 +743,7 @@ begin
         return res[1]
     end
     function any(input_, reduction_indices_; name=nothing, keep_dims=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             any_eager(input_, reduction_indices_; name=name, keep_dims=keep_dims)
         else
             any_graph(input_, reduction_indices_; name=name, keep_dims=keep_dims)
@@ -784,7 +784,7 @@ begin
         return res[1]
     end
     function rsqrt_grad(y_, dy_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             rsqrt_grad_eager(y_, dy_; name=name)
         else
             rsqrt_grad_graph(y_, dy_; name=name)
@@ -832,7 +832,7 @@ begin
         return res[1]
     end
     function tensor_array_scatter(handle_, indices_, value_, flow_in_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_array_scatter_eager(handle_, indices_, value_, flow_in_; name=name)
         else
             tensor_array_scatter_graph(handle_, indices_, value_, flow_in_; name=name)
@@ -883,7 +883,7 @@ begin
         return res
     end
     function dynamic_partition(data_, partitions_; name=nothing, num_partitions=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             dynamic_partition_eager(data_, partitions_; name=name, num_partitions=num_partitions)
         else
             dynamic_partition_graph(data_, partitions_; name=name, num_partitions=num_partitions)
@@ -933,7 +933,7 @@ begin
         return res[1]
     end
     function experimental_private_thread_pool_dataset(input_dataset_, num_threads_; name=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             experimental_private_thread_pool_dataset_eager(input_dataset_, num_threads_; name=name, output_types=output_types, output_shapes=output_shapes)
         else
             experimental_private_thread_pool_dataset_graph(input_dataset_, num_threads_; name=name, output_types=output_types, output_shapes=output_shapes)
@@ -967,7 +967,7 @@ begin
         return res[1]
     end
     function reader_serialize_state(reader_handle_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             reader_serialize_state_eager(reader_handle_; name=name)
         else
             reader_serialize_state_graph(reader_handle_; name=name)
@@ -1008,7 +1008,7 @@ begin
         return res[1]
     end
     function right_shift(x_, y_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             right_shift_eager(x_, y_; name=name)
         else
             right_shift_graph(x_, y_; name=name)
@@ -1068,7 +1068,7 @@ begin
         return res[1]
     end
     function avg_pool3d(input_; name=nothing, ksize=nothing, strides=nothing, padding=nothing, data_format=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             avg_pool3d_eager(input_; name=name, ksize=ksize, strides=strides, padding=padding, data_format=data_format)
         else
             avg_pool3d_graph(input_; name=name, ksize=ksize, strides=strides, padding=padding, data_format=data_format)
@@ -1110,7 +1110,7 @@ begin
         return res[1]
     end
     function encode_png(image_; name=nothing, compression=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             encode_png_eager(image_; name=name, compression=compression)
         else
             encode_png_graph(image_; name=name, compression=compression)
@@ -1170,7 +1170,7 @@ begin
         return res[1]
     end
     function debug_identity(input_; name=nothing, device_name=nothing, tensor_name=nothing, debug_urls=nothing, gated_grpc=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             debug_identity_eager(input_; name=name, device_name=device_name, tensor_name=tensor_name, debug_urls=debug_urls, gated_grpc=gated_grpc)
         else
             debug_identity_graph(input_; name=name, device_name=device_name, tensor_name=tensor_name, debug_urls=debug_urls, gated_grpc=gated_grpc)
@@ -1206,7 +1206,7 @@ begin
         return res[1]
     end
     function imag(input_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             imag_eager(input_; name=name)
         else
             imag_graph(input_; name=name)
@@ -1292,7 +1292,7 @@ begin
         return res[1]
     end
     function resource_sparse_apply_ftrl_v2(var_, accum_, linear_, grad_, indices_, lr_, l1_, l2_, l2_shrinkage_, lr_power_; name=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             resource_sparse_apply_ftrl_v2_eager(var_, accum_, linear_, grad_, indices_, lr_, l1_, l2_, l2_shrinkage_, lr_power_; name=name, use_locking=use_locking)
         else
             resource_sparse_apply_ftrl_v2_graph(var_, accum_, linear_, grad_, indices_, lr_, l1_, l2_, l2_shrinkage_, lr_power_; name=name, use_locking=use_locking)
@@ -1352,7 +1352,7 @@ begin
         return res[1]
     end
     function stage_clear(; name=nothing, capacity=nothing, memory_limit=nothing, dtypes=nothing, container=nothing, shared_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             stage_clear_eager(; name=name, capacity=capacity, memory_limit=memory_limit, dtypes=dtypes, container=container, shared_name=shared_name)
         else
             stage_clear_graph(; name=name, capacity=capacity, memory_limit=memory_limit, dtypes=dtypes, container=container, shared_name=shared_name)
@@ -1388,7 +1388,7 @@ begin
         return res[1]
     end
     function sign(x_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sign_eager(x_; name=name)
         else
             sign_graph(x_; name=name)
@@ -1424,7 +1424,7 @@ begin
         return res[1]
     end
     function population_count(x_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             population_count_eager(x_; name=name)
         else
             population_count_graph(x_; name=name)
@@ -1460,7 +1460,7 @@ begin
         return res[1]
     end
     function neg(x_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             neg_eager(x_; name=name)
         else
             neg_graph(x_; name=name)
@@ -1502,7 +1502,7 @@ begin
         return res[1]
     end
     function anonymous_iterator(; name=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             anonymous_iterator_eager(; name=name, output_types=output_types, output_shapes=output_shapes)
         else
             anonymous_iterator_graph(; name=name, output_types=output_types, output_shapes=output_shapes)
@@ -1556,7 +1556,7 @@ begin
         return res[1]
     end
     function sparse_reduce_sum(input_indices_, input_values_, input_shape_, reduction_axes_; name=nothing, keep_dims=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sparse_reduce_sum_eager(input_indices_, input_values_, input_shape_, reduction_axes_; name=name, keep_dims=keep_dims)
         else
             sparse_reduce_sum_graph(input_indices_, input_values_, input_shape_, reduction_axes_; name=name, keep_dims=keep_dims)
@@ -1618,7 +1618,7 @@ begin
         return res[1]
     end
     function filter_dataset(input_dataset_, other_arguments_; name=nothing, predicate=nothing, Targuments=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             filter_dataset_eager(input_dataset_, other_arguments_; name=name, predicate=predicate, Targuments=Targuments, output_types=output_types, output_shapes=output_shapes)
         else
             filter_dataset_graph(input_dataset_, other_arguments_; name=name, predicate=predicate, Targuments=Targuments, output_types=output_types, output_shapes=output_shapes)
@@ -1658,7 +1658,7 @@ begin
         return res[1]
     end
     function string_length(input_; name=nothing, unit=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             string_length_eager(input_; name=name, unit=unit)
         else
             string_length_graph(input_; name=name, unit=unit)
@@ -1723,7 +1723,7 @@ begin
         return res[1]
     end
     function conv3d(input_, filter_; name=nothing, strides=nothing, padding=nothing, data_format=nothing, dilations=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             conv3d_eager(input_, filter_; name=name, strides=strides, padding=padding, data_format=data_format, dilations=dilations)
         else
             conv3d_graph(input_, filter_; name=name, strides=strides, padding=padding, data_format=data_format, dilations=dilations)
@@ -1782,7 +1782,7 @@ begin
         return res
     end
     function retrieve_tpu_embedding_adagrad_parameters(; name=nothing, table_id=nothing, table_name=nothing, num_shards=nothing, shard_id=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             retrieve_tpu_embedding_adagrad_parameters_eager(; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
         else
             retrieve_tpu_embedding_adagrad_parameters_graph(; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
@@ -1816,7 +1816,7 @@ begin
         return res[1]
     end
     function optional_has_value(optional_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             optional_has_value_eager(optional_; name=name)
         else
             optional_has_value_graph(optional_; name=name)
@@ -1909,7 +1909,7 @@ begin
         return res[1]
     end
     function apply_adam(var_, m_, v_, beta1_power_, beta2_power_, lr_, beta1_, beta2_, epsilon_, grad_; name=nothing, use_locking=nothing, use_nesterov=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             apply_adam_eager(var_, m_, v_, beta1_power_, beta2_power_, lr_, beta1_, beta2_, epsilon_, grad_; name=name, use_locking=use_locking, use_nesterov=use_nesterov)
         else
             apply_adam_graph(var_, m_, v_, beta1_power_, beta2_power_, lr_, beta1_, beta2_, epsilon_, grad_; name=name, use_locking=use_locking, use_nesterov=use_nesterov)
@@ -2004,7 +2004,7 @@ begin
         return res
     end
     function cudnn_rnn_params_to_canonical(num_layers_, num_units_, input_size_, params_; name=nothing, num_params=nothing, rnn_mode=nothing, input_mode=nothing, direction=nothing, dropout=nothing, seed=nothing, seed2=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             cudnn_rnn_params_to_canonical_eager(num_layers_, num_units_, input_size_, params_; name=name, num_params=num_params, rnn_mode=rnn_mode, input_mode=input_mode, direction=direction, dropout=dropout, seed=seed, seed2=seed2)
         else
             cudnn_rnn_params_to_canonical_graph(num_layers_, num_units_, input_size_, params_; name=name, num_params=num_params, rnn_mode=rnn_mode, input_mode=input_mode, direction=direction, dropout=dropout, seed=seed, seed2=seed2)
@@ -2042,7 +2042,7 @@ begin
         return res[1]
     end
     function irfft3d(input_, fft_length_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             irfft3d_eager(input_, fft_length_; name=name)
         else
             irfft3d_graph(input_, fft_length_; name=name)
@@ -2078,7 +2078,7 @@ begin
         return res[1]
     end
     function angle(input_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             angle_eager(input_; name=name)
         else
             angle_graph(input_; name=name)
@@ -2120,7 +2120,7 @@ begin
         return res[1]
     end
     function tensor_forest_tree_resource_handle_op(; name=nothing, container=nothing, shared_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_forest_tree_resource_handle_op_eager(; name=name, container=container, shared_name=shared_name)
         else
             tensor_forest_tree_resource_handle_op_graph(; name=name, container=container, shared_name=shared_name)
@@ -2195,7 +2195,7 @@ begin
         return res
     end
     function learned_unigram_candidate_sampler(true_classes_; name=nothing, num_true=nothing, num_sampled=nothing, unique=nothing, range_max=nothing, seed=nothing, seed2=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             learned_unigram_candidate_sampler_eager(true_classes_; name=name, num_true=num_true, num_sampled=num_sampled, unique=unique, range_max=range_max, seed=seed, seed2=seed2)
         else
             learned_unigram_candidate_sampler_graph(true_classes_; name=name, num_true=num_true, num_sampled=num_sampled, unique=unique, range_max=range_max, seed=seed, seed2=seed2)
@@ -2231,7 +2231,7 @@ begin
         return res[1]
     end
     function _arg(; name=nothing, index=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             _arg_eager(; name=name, index=index)
         else
             _arg_graph(; name=name, index=index)
@@ -2267,7 +2267,7 @@ begin
         return res[1]
     end
     function matrix_square_root(input_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             matrix_square_root_eager(input_; name=name)
         else
             matrix_square_root_graph(input_; name=name)
@@ -2316,7 +2316,7 @@ begin
         return res[1]
     end
     function sparse_dense_cwise_mul(sp_indices_, sp_values_, sp_shape_, dense_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sparse_dense_cwise_mul_eager(sp_indices_, sp_values_, sp_shape_, dense_; name=name)
         else
             sparse_dense_cwise_mul_graph(sp_indices_, sp_values_, sp_shape_, dense_; name=name)
@@ -2371,7 +2371,7 @@ begin
         return res
     end
     function tensor_array_concat_v3(handle_, flow_in_; name=nothing, dtype=nothing, element_shape_except0=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_array_concat_v3_eager(handle_, flow_in_; name=name, dtype=dtype, element_shape_except0=element_shape_except0)
         else
             tensor_array_concat_v3_graph(handle_, flow_in_; name=name, dtype=dtype, element_shape_except0=element_shape_except0)
@@ -2405,7 +2405,7 @@ begin
         return res[1]
     end
     function unicode_script(input_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             unicode_script_eager(input_; name=name)
         else
             unicode_script_graph(input_; name=name)
@@ -2446,7 +2446,7 @@ begin
         return res[1]
     end
     function batch_cholesky_grad(l_, grad_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             batch_cholesky_grad_eager(l_, grad_; name=name)
         else
             batch_cholesky_grad_graph(l_, grad_; name=name)
@@ -2495,7 +2495,7 @@ begin
         return res[1]
     end
     function mean(input_, reduction_indices_; name=nothing, keep_dims=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             mean_eager(input_, reduction_indices_; name=name, keep_dims=keep_dims)
         else
             mean_graph(input_, reduction_indices_; name=name, keep_dims=keep_dims)
@@ -2529,7 +2529,7 @@ begin
         return res[1]
     end
     function batch_fft(input_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             batch_fft_eager(input_; name=name)
         else
             batch_fft_graph(input_; name=name)
@@ -2565,7 +2565,7 @@ begin
         return res[1]
     end
     function sin(x_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sin_eager(x_; name=name)
         else
             sin_graph(x_; name=name)
@@ -2607,7 +2607,7 @@ begin
         return res[1]
     end
     function boosted_trees_ensemble_resource_handle_op(; name=nothing, container=nothing, shared_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             boosted_trees_ensemble_resource_handle_op_eager(; name=name, container=container, shared_name=shared_name)
         else
             boosted_trees_ensemble_resource_handle_op_graph(; name=name, container=container, shared_name=shared_name)
@@ -2674,7 +2674,7 @@ begin
         return res
     end
     function quantized_max_pool(input_, min_input_, max_input_; name=nothing, ksize=nothing, strides=nothing, padding=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             quantized_max_pool_eager(input_, min_input_, max_input_; name=name, ksize=ksize, strides=strides, padding=padding)
         else
             quantized_max_pool_graph(input_, min_input_, max_input_; name=name, ksize=ksize, strides=strides, padding=padding)
@@ -2752,7 +2752,7 @@ begin
         return res[1]
     end
     function ordered_map_stage(key_, indices_, values_; name=nothing, capacity=nothing, memory_limit=nothing, dtypes=nothing, fake_dtypes=nothing, container=nothing, shared_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             ordered_map_stage_eager(key_, indices_, values_; name=name, capacity=capacity, memory_limit=memory_limit, dtypes=dtypes, fake_dtypes=fake_dtypes, container=container, shared_name=shared_name)
         else
             ordered_map_stage_graph(key_, indices_, values_; name=name, capacity=capacity, memory_limit=memory_limit, dtypes=dtypes, fake_dtypes=fake_dtypes, container=container, shared_name=shared_name)
@@ -2822,7 +2822,7 @@ begin
         return res[1]
     end
     function partitioned_call(args_; name=nothing, Tin=nothing, Tout=nothing, f=nothing, config=nothing, config_proto=nothing, executor_type=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             partitioned_call_eager(args_; name=name, Tin=Tin, Tout=Tout, f=f, config=config, config_proto=config_proto, executor_type=executor_type)
         else
             partitioned_call_graph(args_; name=name, Tin=Tin, Tout=Tout, f=f, config=config, config_proto=config_proto, executor_type=executor_type)
@@ -2892,7 +2892,7 @@ begin
         return res[1]
     end
     function sparse_apply_adagrad(var_, accum_, lr_, grad_, indices_; name=nothing, use_locking=nothing, update_slots=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sparse_apply_adagrad_eager(var_, accum_, lr_, grad_, indices_; name=name, use_locking=use_locking, update_slots=update_slots)
         else
             sparse_apply_adagrad_graph(var_, accum_, lr_, grad_, indices_; name=name, use_locking=use_locking, update_slots=update_slots)
@@ -2967,7 +2967,7 @@ begin
         return res
     end
     function decode_proto_v2(bytes_; name=nothing, message_type=nothing, field_names=nothing, output_types=nothing, descriptor_source=nothing, message_format=nothing, sanitize=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             decode_proto_v2_eager(bytes_; name=name, message_type=message_type, field_names=field_names, output_types=output_types, descriptor_source=descriptor_source, message_format=message_format, sanitize=sanitize)
         else
             decode_proto_v2_graph(bytes_; name=name, message_type=message_type, field_names=field_names, output_types=output_types, descriptor_source=descriptor_source, message_format=message_format, sanitize=sanitize)
@@ -3013,7 +3013,7 @@ begin
         return res[1]
     end
     function betainc(a_, b_, x_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             betainc_eager(a_, b_, x_; name=name)
         else
             betainc_graph(a_, b_, x_; name=name)
@@ -3049,7 +3049,7 @@ begin
         return res[1]
     end
     function guarantee_const(input_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             guarantee_const_eager(input_; name=name)
         else
             guarantee_const_graph(input_; name=name)
@@ -3089,7 +3089,7 @@ begin
         return res[1]
     end
     function decode_bmp(contents_; name=nothing, channels=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             decode_bmp_eager(contents_; name=name, channels=channels)
         else
             decode_bmp_graph(contents_; name=name, channels=channels)
@@ -3138,7 +3138,7 @@ begin
         return res
     end
     function boosted_trees_bucketize(float_values_, bucket_boundaries_; name=nothing, num_features=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             boosted_trees_bucketize_eager(float_values_, bucket_boundaries_; name=name, num_features=num_features)
         else
             boosted_trees_bucketize_graph(float_values_, bucket_boundaries_; name=name, num_features=num_features)
@@ -3169,7 +3169,7 @@ begin
         return res[1]
     end
     function shutdown_distributed_tpu(; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             shutdown_distributed_tpu_eager(; name=name)
         else
             shutdown_distributed_tpu_graph(; name=name)
@@ -3203,7 +3203,7 @@ begin
         return res[1]
     end
     function experimental_stats_aggregator_summary(iterator_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             experimental_stats_aggregator_summary_eager(iterator_; name=name)
         else
             experimental_stats_aggregator_summary_graph(iterator_; name=name)
@@ -3234,7 +3234,7 @@ begin
         return res[1]
     end
     function timestamp(; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             timestamp_eager(; name=name)
         else
             timestamp_graph(; name=name)
@@ -3270,7 +3270,7 @@ begin
         return res[1]
     end
     function matrix_exponential(input_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             matrix_exponential_eager(input_; name=name)
         else
             matrix_exponential_graph(input_; name=name)
@@ -3312,7 +3312,7 @@ begin
         return res[1]
     end
     function size(input_; name=nothing, out_type=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             size_eager(input_; name=name, out_type=out_type)
         else
             size_graph(input_; name=name, out_type=out_type)
@@ -3354,7 +3354,7 @@ begin
         return res[1]
     end
     function add_n(inputs_; name=nothing, N=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             add_n_eager(inputs_; name=name, N=N)
         else
             add_n_graph(inputs_; name=name, N=N)
@@ -3401,7 +3401,7 @@ begin
         return res[1]
     end
     function sparse_segment_sum(data_, indices_, segment_ids_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sparse_segment_sum_eager(data_, indices_, segment_ids_; name=name)
         else
             sparse_segment_sum_graph(data_, indices_, segment_ids_; name=name)
@@ -3451,7 +3451,7 @@ begin
         return res[1]
     end
     function batch_dataset(input_dataset_, batch_size_; name=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             batch_dataset_eager(input_dataset_, batch_size_; name=name, output_types=output_types, output_shapes=output_shapes)
         else
             batch_dataset_graph(input_dataset_, batch_size_; name=name, output_types=output_types, output_shapes=output_shapes)
@@ -3523,7 +3523,7 @@ begin
         return res[1]
     end
     function record_input(; name=nothing, file_pattern=nothing, file_random_seed=nothing, file_shuffle_shift_ratio=nothing, file_buffer_size=nothing, file_parallelism=nothing, batch_size=nothing, compression_type=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             record_input_eager(; name=name, file_pattern=file_pattern, file_random_seed=file_random_seed, file_shuffle_shift_ratio=file_shuffle_shift_ratio, file_buffer_size=file_buffer_size, file_parallelism=file_parallelism, batch_size=batch_size, compression_type=compression_type)
         else
             record_input_graph(; name=name, file_pattern=file_pattern, file_random_seed=file_random_seed, file_shuffle_shift_ratio=file_shuffle_shift_ratio, file_buffer_size=file_buffer_size, file_parallelism=file_parallelism, batch_size=batch_size, compression_type=compression_type)
@@ -3573,7 +3573,7 @@ begin
         return res[1]
     end
     function queue_dequeue_up_to_v2(handle_, n_; name=nothing, component_types=nothing, timeout_ms=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             queue_dequeue_up_to_v2_eager(handle_, n_; name=name, component_types=component_types, timeout_ms=timeout_ms)
         else
             queue_dequeue_up_to_v2_graph(handle_, n_; name=name, component_types=component_types, timeout_ms=timeout_ms)
@@ -3632,7 +3632,7 @@ begin
         return res
     end
     function retrieve_tpu_embedding_proximal_adagrad_parameters_grad_accum_debug(; name=nothing, table_id=nothing, table_name=nothing, num_shards=nothing, shard_id=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             retrieve_tpu_embedding_proximal_adagrad_parameters_grad_accum_debug_eager(; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
         else
             retrieve_tpu_embedding_proximal_adagrad_parameters_grad_accum_debug_graph(; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
@@ -3702,7 +3702,7 @@ begin
         return res[1]
     end
     function load_tpu_embedding_rms_prop_parameters_grad_accum_debug(parameters_, ms_, mom_, gradient_accumulators_; name=nothing, table_id=nothing, table_name=nothing, num_shards=nothing, shard_id=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             load_tpu_embedding_rms_prop_parameters_grad_accum_debug_eager(parameters_, ms_, mom_, gradient_accumulators_; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
         else
             load_tpu_embedding_rms_prop_parameters_grad_accum_debug_graph(parameters_, ms_, mom_, gradient_accumulators_; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
@@ -3738,7 +3738,7 @@ begin
         return res[1]
     end
     function serialize_tensor(tensor_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             serialize_tensor_eager(tensor_; name=name)
         else
             serialize_tensor_graph(tensor_; name=name)
@@ -3779,7 +3779,7 @@ begin
         return res[1]
     end
     function mul(x_, y_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             mul_eager(x_, y_; name=name)
         else
             mul_graph(x_, y_; name=name)
@@ -3825,7 +3825,7 @@ begin
         return res
     end
     function softmax_cross_entropy_with_logits(features_, labels_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             softmax_cross_entropy_with_logits_eager(features_, labels_; name=name)
         else
             softmax_cross_entropy_with_logits_graph(features_, labels_; name=name)
@@ -3878,7 +3878,7 @@ begin
         return res[1]
     end
     function resource_scatter_div(resource_, indices_, updates_; name=nothing, dtype=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             resource_scatter_div_eager(resource_, indices_, updates_; name=name, dtype=dtype)
         else
             resource_scatter_div_graph(resource_, indices_, updates_; name=name, dtype=dtype)
@@ -3932,7 +3932,7 @@ begin
         return res[1]
     end
     function fixed_length_record_dataset_v2(filenames_, header_bytes_, record_bytes_, footer_bytes_, buffer_size_, compression_type_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             fixed_length_record_dataset_v2_eager(filenames_, header_bytes_, record_bytes_, footer_bytes_, buffer_size_, compression_type_; name=name)
         else
             fixed_length_record_dataset_v2_graph(filenames_, header_bytes_, record_bytes_, footer_bytes_, buffer_size_, compression_type_; name=name)
@@ -3982,7 +3982,7 @@ begin
         return res[1]
     end
     function skip_dataset(input_dataset_, count_; name=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             skip_dataset_eager(input_dataset_, count_; name=name, output_types=output_types, output_shapes=output_shapes)
         else
             skip_dataset_graph(input_dataset_, count_; name=name, output_types=output_types, output_shapes=output_shapes)
@@ -4018,7 +4018,7 @@ begin
         return res[1]
     end
     function cosh(x_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             cosh_eager(x_; name=name)
         else
             cosh_graph(x_; name=name)
@@ -4104,7 +4104,7 @@ begin
         return res
     end
     function fused_batch_norm_v2(x_, scale_, offset_, mean_, variance_; name=nothing, U=nothing, epsilon=nothing, data_format=nothing, is_training=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             fused_batch_norm_v2_eager(x_, scale_, offset_, mean_, variance_; name=name, U=U, epsilon=epsilon, data_format=data_format, is_training=is_training)
         else
             fused_batch_norm_v2_graph(x_, scale_, offset_, mean_, variance_; name=name, U=U, epsilon=epsilon, data_format=data_format, is_training=is_training)
@@ -4152,7 +4152,7 @@ begin
         return res[1]
     end
     function tensor_array_split(handle_, value_, lengths_, flow_in_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_array_split_eager(handle_, value_, lengths_, flow_in_; name=name)
         else
             tensor_array_split_graph(handle_, value_, lengths_, flow_in_; name=name)
@@ -4221,7 +4221,7 @@ begin
         return res
     end
     function ctc_loss(inputs_, labels_indices_, labels_values_, sequence_length_; name=nothing, preprocess_collapse_repeated=nothing, ctc_merge_repeated=nothing, ignore_longer_outputs_than_inputs=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             ctc_loss_eager(inputs_, labels_indices_, labels_values_, sequence_length_; name=name, preprocess_collapse_repeated=preprocess_collapse_repeated, ctc_merge_repeated=ctc_merge_repeated, ignore_longer_outputs_than_inputs=ignore_longer_outputs_than_inputs)
         else
             ctc_loss_graph(inputs_, labels_indices_, labels_values_, sequence_length_; name=name, preprocess_collapse_repeated=preprocess_collapse_repeated, ctc_merge_repeated=ctc_merge_repeated, ignore_longer_outputs_than_inputs=ignore_longer_outputs_than_inputs)
@@ -4276,7 +4276,7 @@ begin
         return res
     end
     function quantized_reshape(tensor_, shape_, input_min_, input_max_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             quantized_reshape_eager(tensor_, shape_, input_min_, input_max_; name=name)
         else
             quantized_reshape_graph(tensor_, shape_, input_min_, input_max_; name=name)
@@ -4317,7 +4317,7 @@ begin
         return res[1]
     end
     function floor_div(x_, y_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             floor_div_eager(x_, y_; name=name)
         else
             floor_div_graph(x_, y_; name=name)
@@ -4381,7 +4381,7 @@ begin
         return res[1]
     end
     function tensor_array_v2(size_; name=nothing, dtype=nothing, element_shape=nothing, dynamic_size=nothing, clear_after_read=nothing, tensor_array_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_array_v2_eager(size_; name=name, dtype=dtype, element_shape=element_shape, dynamic_size=dynamic_size, clear_after_read=clear_after_read, tensor_array_name=tensor_array_name)
         else
             tensor_array_v2_graph(size_; name=name, dtype=dtype, element_shape=element_shape, dynamic_size=dynamic_size, clear_after_read=clear_after_read, tensor_array_name=tensor_array_name)
@@ -4421,7 +4421,7 @@ begin
         return res[1]
     end
     function barrier_close(handle_; name=nothing, cancel_pending_enqueues=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             barrier_close_eager(handle_; name=name, cancel_pending_enqueues=cancel_pending_enqueues)
         else
             barrier_close_graph(handle_; name=name, cancel_pending_enqueues=cancel_pending_enqueues)
@@ -4461,7 +4461,7 @@ begin
         return res[1]
     end
     function read_variable_op(resource_; name=nothing, dtype=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             read_variable_op_eager(resource_; name=name, dtype=dtype)
         else
             read_variable_op_graph(resource_; name=name, dtype=dtype)
@@ -4524,7 +4524,7 @@ begin
         return res
     end
     function quantized_mul(x_, y_, min_x_, max_x_, min_y_, max_y_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             quantized_mul_eager(x_, y_, min_x_, max_x_, min_y_, max_y_; name=name)
         else
             quantized_mul_graph(x_, y_, min_x_, max_x_, min_y_, max_y_; name=name)
@@ -4560,7 +4560,7 @@ begin
         return res[1]
     end
     function selu(features_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             selu_eager(features_; name=name)
         else
             selu_graph(features_; name=name)
@@ -4695,7 +4695,7 @@ begin
         return res
     end
     function cudnn_rnn_backprop_v3(input_, input_h_, input_c_, params_, sequence_lengths_, output_, output_h_, output_c_, output_backprop_, output_h_backprop_, output_c_backprop_, reserve_space_, host_reserved_; name=nothing, rnn_mode=nothing, input_mode=nothing, direction=nothing, dropout=nothing, seed=nothing, seed2=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             cudnn_rnn_backprop_v3_eager(input_, input_h_, input_c_, params_, sequence_lengths_, output_, output_h_, output_c_, output_backprop_, output_h_backprop_, output_c_backprop_, reserve_space_, host_reserved_; name=name, rnn_mode=rnn_mode, input_mode=input_mode, direction=direction, dropout=dropout, seed=seed, seed2=seed2)
         else
             cudnn_rnn_backprop_v3_graph(input_, input_h_, input_c_, params_, sequence_lengths_, output_, output_h_, output_c_, output_backprop_, output_h_backprop_, output_c_backprop_, reserve_space_, host_reserved_; name=name, rnn_mode=rnn_mode, input_mode=input_mode, direction=direction, dropout=dropout, seed=seed, seed2=seed2)
@@ -4741,7 +4741,7 @@ begin
         return res[1]
     end
     function lookup_table_insert(table_handle_, keys_, values_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             lookup_table_insert_eager(table_handle_, keys_, values_; name=name)
         else
             lookup_table_insert_graph(table_handle_, keys_, values_; name=name)
@@ -4777,7 +4777,7 @@ begin
         return res[1]
     end
     function complex_abs(x_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             complex_abs_eager(x_; name=name)
         else
             complex_abs_graph(x_; name=name)
@@ -4818,7 +4818,7 @@ begin
         return res[1]
     end
     function tridiagonal_solve(diagonals_, rhs_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tridiagonal_solve_eager(diagonals_, rhs_; name=name)
         else
             tridiagonal_solve_graph(diagonals_, rhs_; name=name)
@@ -4864,7 +4864,7 @@ begin
         return res[1]
     end
     function lookup_table_import(table_handle_, keys_, values_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             lookup_table_import_eager(table_handle_, keys_, values_; name=name)
         else
             lookup_table_import_graph(table_handle_, keys_, values_; name=name)
@@ -4900,7 +4900,7 @@ begin
         return res[1]
     end
     function abs(x_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             abs_eager(x_; name=name)
         else
             abs_graph(x_; name=name)
@@ -4990,7 +4990,7 @@ begin
         return res[1]
     end
     function resource_apply_adam(var_, m_, v_, beta1_power_, beta2_power_, lr_, beta1_, beta2_, epsilon_, grad_; name=nothing, use_locking=nothing, use_nesterov=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             resource_apply_adam_eager(var_, m_, v_, beta1_power_, beta2_power_, lr_, beta1_, beta2_, epsilon_, grad_; name=name, use_locking=use_locking, use_nesterov=use_nesterov)
         else
             resource_apply_adam_graph(var_, m_, v_, beta1_power_, beta2_power_, lr_, beta1_, beta2_, epsilon_, grad_; name=name, use_locking=use_locking, use_nesterov=use_nesterov)
@@ -5038,7 +5038,7 @@ begin
         return res[1]
     end
     function write_histogram_summary(writer_, step_, tag_, values_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             write_histogram_summary_eager(writer_, step_, tag_, values_; name=name)
         else
             write_histogram_summary_graph(writer_, step_, tag_, values_; name=name)
@@ -5076,7 +5076,7 @@ begin
         return res[1]
     end
     function experimental_indexed_dataset_materialize(dataset_, materialized_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             experimental_indexed_dataset_materialize_eager(dataset_, materialized_; name=name)
         else
             experimental_indexed_dataset_materialize_graph(dataset_, materialized_; name=name)
@@ -5142,7 +5142,7 @@ begin
         return res[1]
     end
     function _host_send(tensor_; name=nothing, tensor_name=nothing, send_device=nothing, send_device_incarnation=nothing, recv_device=nothing, client_terminated=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             _host_send_eager(tensor_; name=name, tensor_name=tensor_name, send_device=send_device, send_device_incarnation=send_device_incarnation, recv_device=recv_device, client_terminated=client_terminated)
         else
             _host_send_graph(tensor_; name=name, tensor_name=tensor_name, send_device=send_device, send_device_incarnation=send_device_incarnation, recv_device=recv_device, client_terminated=client_terminated)
@@ -5183,7 +5183,7 @@ begin
         return res[1]
     end
     function greater(x_, y_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             greater_eager(x_, y_; name=name)
         else
             greater_graph(x_, y_; name=name)
@@ -5225,7 +5225,7 @@ begin
         return res[1]
     end
     function nccl_broadcast(input_; name=nothing, shape=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             nccl_broadcast_eager(input_; name=name, shape=shape)
         else
             nccl_broadcast_graph(input_; name=name, shape=shape)
@@ -5271,7 +5271,7 @@ begin
         return res[1]
     end
     function tensor_list_push_back_batch(input_handles_, tensor_; name=nothing, element_dtype=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_list_push_back_batch_eager(input_handles_, tensor_; name=name, element_dtype=element_dtype)
         else
             tensor_list_push_back_batch_graph(input_handles_, tensor_; name=name, element_dtype=element_dtype)
@@ -5324,7 +5324,7 @@ begin
         return res[1]
     end
     function resource_scatter_min(resource_, indices_, updates_; name=nothing, dtype=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             resource_scatter_min_eager(resource_, indices_, updates_; name=name, dtype=dtype)
         else
             resource_scatter_min_graph(resource_, indices_, updates_; name=name, dtype=dtype)
@@ -5378,7 +5378,7 @@ begin
         return res[1]
     end
     function slice(input_, begin_, size_; name=nothing, Index=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             slice_eager(input_, begin_, size_; name=name, Index=Index)
         else
             slice_graph(input_, begin_, size_; name=name, Index=Index)
@@ -5441,7 +5441,7 @@ begin
         return res
     end
     function unicode_decode(input_; name=nothing, input_encoding=nothing, errors=nothing, replacement_char=nothing, replace_control_characters=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             unicode_decode_eager(input_; name=name, input_encoding=input_encoding, errors=errors, replacement_char=replacement_char, replace_control_characters=replace_control_characters)
         else
             unicode_decode_graph(input_; name=name, input_encoding=input_encoding, errors=errors, replacement_char=replacement_char, replace_control_characters=replace_control_characters)
@@ -5491,7 +5491,7 @@ begin
         return res[1]
     end
     function take_dataset(input_dataset_, count_; name=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             take_dataset_eager(input_dataset_, count_; name=name, output_types=output_types, output_shapes=output_shapes)
         else
             take_dataset_graph(input_dataset_, count_; name=name, output_types=output_types, output_shapes=output_shapes)
@@ -5555,7 +5555,7 @@ begin
         return res[1]
     end
     function boosted_trees_make_stats_summary(node_ids_, gradients_, hessians_, bucketized_features_list_; name=nothing, max_splits=nothing, num_buckets=nothing, num_features=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             boosted_trees_make_stats_summary_eager(node_ids_, gradients_, hessians_, bucketized_features_list_; name=name, max_splits=max_splits, num_buckets=num_buckets, num_features=num_features)
         else
             boosted_trees_make_stats_summary_graph(node_ids_, gradients_, hessians_, bucketized_features_list_; name=name, max_splits=max_splits, num_buckets=num_buckets, num_features=num_features)
@@ -5624,7 +5624,7 @@ begin
         return res
     end
     function all_candidate_sampler(true_classes_; name=nothing, num_true=nothing, num_sampled=nothing, unique=nothing, seed=nothing, seed2=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             all_candidate_sampler_eager(true_classes_; name=name, num_true=num_true, num_sampled=num_sampled, unique=unique, seed=seed, seed2=seed2)
         else
             all_candidate_sampler_graph(true_classes_; name=name, num_true=num_true, num_sampled=num_sampled, unique=unique, seed=seed, seed2=seed2)
@@ -5705,7 +5705,7 @@ begin
         return res[1]
     end
     function conv2d_backprop_input(input_sizes_, filter_, out_backprop_; name=nothing, strides=nothing, use_cudnn_on_gpu=nothing, padding=nothing, explicit_paddings=nothing, data_format=nothing, dilations=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             conv2d_backprop_input_eager(input_sizes_, filter_, out_backprop_; name=name, strides=strides, use_cudnn_on_gpu=use_cudnn_on_gpu, padding=padding, explicit_paddings=explicit_paddings, data_format=data_format, dilations=dilations)
         else
             conv2d_backprop_input_graph(input_sizes_, filter_, out_backprop_; name=name, strides=strides, use_cudnn_on_gpu=use_cudnn_on_gpu, padding=padding, explicit_paddings=explicit_paddings, data_format=data_format, dilations=dilations)
@@ -5751,7 +5751,7 @@ begin
         return res[1]
     end
     function dataset_to_single_element(dataset_; name=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             dataset_to_single_element_eager(dataset_; name=name, output_types=output_types, output_shapes=output_shapes)
         else
             dataset_to_single_element_graph(dataset_; name=name, output_types=output_types, output_shapes=output_shapes)
@@ -5801,7 +5801,7 @@ begin
         return res[1]
     end
     function cache_dataset(input_dataset_, filename_; name=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             cache_dataset_eager(input_dataset_, filename_; name=name, output_types=output_types, output_shapes=output_shapes)
         else
             cache_dataset_graph(input_dataset_, filename_; name=name, output_types=output_types, output_shapes=output_shapes)
@@ -5864,7 +5864,7 @@ begin
         return res
     end
     function fake_quant_with_min_max_vars_gradient(gradients_, inputs_, min_, max_; name=nothing, num_bits=nothing, narrow_range=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             fake_quant_with_min_max_vars_gradient_eager(gradients_, inputs_, min_, max_; name=name, num_bits=num_bits, narrow_range=narrow_range)
         else
             fake_quant_with_min_max_vars_gradient_graph(gradients_, inputs_, min_, max_; name=name, num_bits=num_bits, narrow_range=narrow_range)
@@ -5937,7 +5937,7 @@ begin
         return res[1]
     end
     function fused_resize_and_pad_conv2d(input_, size_, paddings_, filter_; name=nothing, resize_align_corners=nothing, mode=nothing, strides=nothing, padding=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             fused_resize_and_pad_conv2d_eager(input_, size_, paddings_, filter_; name=name, resize_align_corners=resize_align_corners, mode=mode, strides=strides, padding=padding)
         else
             fused_resize_and_pad_conv2d_graph(input_, size_, paddings_, filter_; name=name, resize_align_corners=resize_align_corners, mode=mode, strides=strides, padding=padding)
@@ -6036,7 +6036,7 @@ begin
         return res
     end
     function batch(in_tensors_; name=nothing, num_batch_threads=nothing, max_batch_size=nothing, max_enqueued_batches=nothing, batch_timeout_micros=nothing, allowed_batch_sizes=nothing, grad_timeout_micros=nothing, container=nothing, shared_name=nothing, batching_queue=nothing, T=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             batch_eager(in_tensors_; name=name, num_batch_threads=num_batch_threads, max_batch_size=max_batch_size, max_enqueued_batches=max_enqueued_batches, batch_timeout_micros=batch_timeout_micros, allowed_batch_sizes=allowed_batch_sizes, grad_timeout_micros=grad_timeout_micros, container=container, shared_name=shared_name, batching_queue=batching_queue, T=T)
         else
             batch_graph(in_tensors_; name=name, num_batch_threads=num_batch_threads, max_batch_size=max_batch_size, max_enqueued_batches=max_enqueued_batches, batch_timeout_micros=batch_timeout_micros, allowed_batch_sizes=allowed_batch_sizes, grad_timeout_micros=grad_timeout_micros, container=container, shared_name=shared_name, batching_queue=batching_queue, T=T)
@@ -6090,7 +6090,7 @@ begin
         return res[1]
     end
     function collective_bcast_recv(; name=nothing, group_size=nothing, group_key=nothing, instance_key=nothing, shape=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             collective_bcast_recv_eager(; name=name, group_size=group_size, group_key=group_key, instance_key=instance_key, shape=shape)
         else
             collective_bcast_recv_graph(; name=name, group_size=group_size, group_key=group_key, instance_key=instance_key, shape=shape)
@@ -6138,7 +6138,7 @@ begin
         return res[1]
     end
     function batch_to_space_nd(input_, block_shape_, crops_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             batch_to_space_nd_eager(input_, block_shape_, crops_; name=name)
         else
             batch_to_space_nd_graph(input_, block_shape_, crops_; name=name)
@@ -6172,7 +6172,7 @@ begin
         return res[1]
     end
     function loop_cond(input_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             loop_cond_eager(input_; name=name)
         else
             loop_cond_graph(input_; name=name)
@@ -6220,7 +6220,7 @@ begin
         return res[1]
     end
     function depth_to_space(input_; name=nothing, block_size=nothing, data_format=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             depth_to_space_eager(input_; name=name, block_size=block_size, data_format=data_format)
         else
             depth_to_space_graph(input_; name=name, block_size=block_size, data_format=data_format)
@@ -6262,7 +6262,7 @@ begin
         return res[1]
     end
     function destroy_temporary_variable(ref_; name=nothing, var_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             destroy_temporary_variable_eager(ref_; name=name, var_name=var_name)
         else
             destroy_temporary_variable_graph(ref_; name=name, var_name=var_name)
@@ -6360,7 +6360,7 @@ begin
         return res
     end
     function cudnn_rnn(input_, input_h_, input_c_, params_; name=nothing, rnn_mode=nothing, input_mode=nothing, direction=nothing, dropout=nothing, seed=nothing, seed2=nothing, is_training=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             cudnn_rnn_eager(input_, input_h_, input_c_, params_; name=name, rnn_mode=rnn_mode, input_mode=input_mode, direction=direction, dropout=dropout, seed=seed, seed2=seed2, is_training=is_training)
         else
             cudnn_rnn_graph(input_, input_h_, input_c_, params_; name=name, rnn_mode=rnn_mode, input_mode=input_mode, direction=direction, dropout=dropout, seed=seed, seed2=seed2, is_training=is_training)
@@ -6396,7 +6396,7 @@ begin
         return res[1]
     end
     function ref_identity(input_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             ref_identity_eager(input_; name=name)
         else
             ref_identity_graph(input_; name=name)
@@ -6467,7 +6467,7 @@ begin
         return res[1]
     end
     function max_pool3d_grad(orig_input_, orig_output_, grad_; name=nothing, ksize=nothing, strides=nothing, padding=nothing, data_format=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             max_pool3d_grad_eager(orig_input_, orig_output_, grad_; name=name, ksize=ksize, strides=strides, padding=padding, data_format=data_format)
         else
             max_pool3d_grad_graph(orig_input_, orig_output_, grad_; name=name, ksize=ksize, strides=strides, padding=padding, data_format=data_format)
@@ -6533,7 +6533,7 @@ begin
         return res[1]
     end
     function load_tpu_embedding_momentum_parameters_grad_accum_debug(parameters_, momenta_, gradient_accumulators_; name=nothing, table_id=nothing, table_name=nothing, num_shards=nothing, shard_id=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             load_tpu_embedding_momentum_parameters_grad_accum_debug_eager(parameters_, momenta_, gradient_accumulators_; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
         else
             load_tpu_embedding_momentum_parameters_grad_accum_debug_graph(parameters_, momenta_, gradient_accumulators_; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
@@ -6593,7 +6593,7 @@ begin
         return res[1]
     end
     function padding_fifo_queue_v2(; name=nothing, component_types=nothing, shapes=nothing, capacity=nothing, container=nothing, shared_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             padding_fifo_queue_v2_eager(; name=name, component_types=component_types, shapes=shapes, capacity=capacity, container=container, shared_name=shared_name)
         else
             padding_fifo_queue_v2_graph(; name=name, component_types=component_types, shapes=shapes, capacity=capacity, container=container, shared_name=shared_name)
@@ -6657,7 +6657,7 @@ begin
         return res[1]
     end
     function conv3d_backprop_input(input_, filter_, out_backprop_; name=nothing, strides=nothing, padding=nothing, dilations=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             conv3d_backprop_input_eager(input_, filter_, out_backprop_; name=name, strides=strides, padding=padding, dilations=dilations)
         else
             conv3d_backprop_input_graph(input_, filter_, out_backprop_; name=name, strides=strides, padding=padding, dilations=dilations)
@@ -6693,7 +6693,7 @@ begin
         return res[1]
     end
     function ref_exit(data_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             ref_exit_eager(data_; name=name)
         else
             ref_exit_graph(data_; name=name)
@@ -6753,7 +6753,7 @@ begin
         return res[1]
     end
     function map_clear(; name=nothing, capacity=nothing, memory_limit=nothing, dtypes=nothing, container=nothing, shared_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             map_clear_eager(; name=name, capacity=capacity, memory_limit=memory_limit, dtypes=dtypes, container=container, shared_name=shared_name)
         else
             map_clear_graph(; name=name, capacity=capacity, memory_limit=memory_limit, dtypes=dtypes, container=container, shared_name=shared_name)
@@ -6791,7 +6791,7 @@ begin
         return res[1]
     end
     function encode_wav(audio_, sample_rate_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             encode_wav_eager(audio_, sample_rate_; name=name)
         else
             encode_wav_graph(audio_, sample_rate_; name=name)
@@ -6835,7 +6835,7 @@ begin
         return res[1]
     end
     function tensor_summary_v2(tag_, tensor_, serialized_summary_metadata_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_summary_v2_eager(tag_, tensor_, serialized_summary_metadata_; name=name)
         else
             tensor_summary_v2_graph(tag_, tensor_, serialized_summary_metadata_; name=name)
@@ -6885,7 +6885,7 @@ begin
         return res[1]
     end
     function queue_dequeue_up_to(handle_, n_; name=nothing, component_types=nothing, timeout_ms=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             queue_dequeue_up_to_eager(handle_, n_; name=name, component_types=component_types, timeout_ms=timeout_ms)
         else
             queue_dequeue_up_to_graph(handle_, n_; name=name, component_types=component_types, timeout_ms=timeout_ms)
@@ -6932,7 +6932,7 @@ begin
         return res[1]
     end
     function matrix_band_part(input_, num_lower_, num_upper_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             matrix_band_part_eager(input_, num_lower_, num_upper_; name=name)
         else
             matrix_band_part_graph(input_, num_lower_, num_upper_; name=name)
@@ -6980,7 +6980,7 @@ begin
         return res[1]
     end
     function copy(input_; name=nothing, tensor_name=nothing, debug_ops_spec=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             copy_eager(input_; name=name, tensor_name=tensor_name, debug_ops_spec=debug_ops_spec)
         else
             copy_graph(input_; name=name, tensor_name=tensor_name, debug_ops_spec=debug_ops_spec)
@@ -7033,7 +7033,7 @@ begin
         return res
     end
     function shape_n(input_; name=nothing, N=nothing, out_type=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             shape_n_eager(input_; name=name, N=N, out_type=out_type)
         else
             shape_n_graph(input_; name=name, N=N, out_type=out_type)
@@ -7123,7 +7123,7 @@ begin
         return res[1]
     end
     function experimental_parse_example_dataset(input_dataset_, num_parallel_calls_, dense_defaults_; name=nothing, sparse_keys=nothing, dense_keys=nothing, sparse_types=nothing, Tdense=nothing, dense_shapes=nothing, output_types=nothing, output_shapes=nothing, sloppy=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             experimental_parse_example_dataset_eager(input_dataset_, num_parallel_calls_, dense_defaults_; name=name, sparse_keys=sparse_keys, dense_keys=dense_keys, sparse_types=sparse_types, Tdense=Tdense, dense_shapes=dense_shapes, output_types=output_types, output_shapes=output_shapes, sloppy=sloppy)
         else
             experimental_parse_example_dataset_graph(input_dataset_, num_parallel_calls_, dense_defaults_; name=name, sparse_keys=sparse_keys, dense_keys=dense_keys, sparse_types=sparse_types, Tdense=Tdense, dense_shapes=dense_shapes, output_types=output_types, output_shapes=output_shapes, sloppy=sloppy)
@@ -7169,7 +7169,7 @@ begin
         return res[1]
     end
     function concat(concat_dim_, values_; name=nothing, N=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             concat_eager(concat_dim_, values_; name=name, N=N)
         else
             concat_graph(concat_dim_, values_; name=name, N=N)
@@ -7217,7 +7217,7 @@ begin
         return res[1]
     end
     function data_format_dim_map(x_; name=nothing, src_format=nothing, dst_format=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             data_format_dim_map_eager(x_; name=name, src_format=src_format, dst_format=dst_format)
         else
             data_format_dim_map_graph(x_; name=name, src_format=src_format, dst_format=dst_format)
@@ -7259,7 +7259,7 @@ begin
         return res[1]
     end
     function identity_reader(; name=nothing, container=nothing, shared_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             identity_reader_eager(; name=name, container=container, shared_name=shared_name)
         else
             identity_reader_graph(; name=name, container=container, shared_name=shared_name)
@@ -7295,7 +7295,7 @@ begin
         return res[1]
     end
     function softplus(features_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             softplus_eager(features_; name=name)
         else
             softplus_graph(features_; name=name)
@@ -7367,7 +7367,7 @@ begin
         return res[1]
     end
     function resource_sparse_apply_proximal_adagrad(var_, accum_, lr_, l1_, l2_, grad_, indices_; name=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             resource_sparse_apply_proximal_adagrad_eager(var_, accum_, lr_, l1_, l2_, grad_, indices_; name=name, use_locking=use_locking)
         else
             resource_sparse_apply_proximal_adagrad_graph(var_, accum_, lr_, l1_, l2_, grad_, indices_; name=name, use_locking=use_locking)
@@ -7494,7 +7494,7 @@ begin
         return res
     end
     function parse_single_sequence_example(serialized_, feature_list_dense_missing_assumed_empty_, context_sparse_keys_, context_dense_keys_, feature_list_sparse_keys_, feature_list_dense_keys_, context_dense_defaults_, debug_name_; name=nothing, Ncontext_sparse=nothing, Ncontext_dense=nothing, Nfeature_list_sparse=nothing, Nfeature_list_dense=nothing, context_sparse_types=nothing, Tcontext_dense=nothing, feature_list_dense_types=nothing, context_dense_shapes=nothing, feature_list_sparse_types=nothing, feature_list_dense_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             parse_single_sequence_example_eager(serialized_, feature_list_dense_missing_assumed_empty_, context_sparse_keys_, context_dense_keys_, feature_list_sparse_keys_, feature_list_dense_keys_, context_dense_defaults_, debug_name_; name=name, Ncontext_sparse=Ncontext_sparse, Ncontext_dense=Ncontext_dense, Nfeature_list_sparse=Nfeature_list_sparse, Nfeature_list_dense=Nfeature_list_dense, context_sparse_types=context_sparse_types, Tcontext_dense=Tcontext_dense, feature_list_dense_types=feature_list_dense_types, context_dense_shapes=context_dense_shapes, feature_list_sparse_types=feature_list_sparse_types, feature_list_dense_shapes=feature_list_dense_shapes)
         else
             parse_single_sequence_example_graph(serialized_, feature_list_dense_missing_assumed_empty_, context_sparse_keys_, context_dense_keys_, feature_list_sparse_keys_, feature_list_dense_keys_, context_dense_defaults_, debug_name_; name=name, Ncontext_sparse=Ncontext_sparse, Ncontext_dense=Ncontext_dense, Nfeature_list_sparse=Nfeature_list_sparse, Nfeature_list_dense=Nfeature_list_dense, context_sparse_types=context_sparse_types, Tcontext_dense=Tcontext_dense, feature_list_dense_types=feature_list_dense_types, context_dense_shapes=context_dense_shapes, feature_list_sparse_types=feature_list_sparse_types, feature_list_dense_shapes=feature_list_dense_shapes)
@@ -7530,7 +7530,7 @@ begin
         return res[1]
     end
     function matrix_diag(diagonal_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             matrix_diag_eager(diagonal_; name=name)
         else
             matrix_diag_graph(diagonal_; name=name)
@@ -7561,7 +7561,7 @@ begin
         return res[1]
     end
     function fact(; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             fact_eager(; name=name)
         else
             fact_graph(; name=name)
@@ -7615,7 +7615,7 @@ begin
         return res[1]
     end
     function shard_dataset(input_dataset_, num_shards_, index_; name=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             shard_dataset_eager(input_dataset_, num_shards_, index_; name=name, output_types=output_types, output_shapes=output_shapes)
         else
             shard_dataset_graph(input_dataset_, num_shards_, index_; name=name, output_types=output_types, output_shapes=output_shapes)
@@ -7685,7 +7685,7 @@ begin
         return res[1]
     end
     function max_pool_grad_grad(orig_input_, orig_output_, grad_; name=nothing, ksize=nothing, strides=nothing, padding=nothing, data_format=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             max_pool_grad_grad_eager(orig_input_, orig_output_, grad_; name=name, ksize=ksize, strides=strides, padding=padding, data_format=data_format)
         else
             max_pool_grad_grad_graph(orig_input_, orig_output_, grad_; name=name, ksize=ksize, strides=strides, padding=padding, data_format=data_format)
@@ -7731,7 +7731,7 @@ begin
         return res[1]
     end
     function resize_bilinear_grad(grads_, original_image_; name=nothing, align_corners=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             resize_bilinear_grad_eager(grads_, original_image_; name=name, align_corners=align_corners)
         else
             resize_bilinear_grad_graph(grads_, original_image_; name=name, align_corners=align_corners)
@@ -7780,7 +7780,7 @@ begin
         return res[1]
     end
     function batch_to_space(input_, crops_; name=nothing, block_size=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             batch_to_space_eager(input_, crops_; name=name, block_size=block_size)
         else
             batch_to_space_graph(input_, crops_; name=name, block_size=block_size)
@@ -7820,7 +7820,7 @@ begin
         return res[1]
     end
     function optional_from_value(components_; name=nothing, Toutput_types=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             optional_from_value_eager(components_; name=name, Toutput_types=Toutput_types)
         else
             optional_from_value_graph(components_; name=name, Toutput_types=Toutput_types)
@@ -7861,7 +7861,7 @@ begin
         return res[1]
     end
     function xlogy(x_, y_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             xlogy_eager(x_, y_; name=name)
         else
             xlogy_graph(x_, y_; name=name)
@@ -7902,7 +7902,7 @@ begin
         return res[1]
     end
     function cross(a_, b_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             cross_eager(a_, b_; name=name)
         else
             cross_graph(a_, b_; name=name)
@@ -7943,7 +7943,7 @@ begin
         return res[1]
     end
     function bitwise_and(x_, y_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             bitwise_and_eager(x_, y_; name=name)
         else
             bitwise_and_graph(x_, y_; name=name)
@@ -7985,7 +7985,7 @@ begin
         return res[1]
     end
     function broadcast_to(input_, shape_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             broadcast_to_eager(input_, shape_; name=name)
         else
             broadcast_to_graph(input_, shape_; name=name)
@@ -8026,7 +8026,7 @@ begin
         return res[1]
     end
     function elu_grad(gradients_, outputs_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             elu_grad_eager(gradients_, outputs_; name=name)
         else
             elu_grad_graph(gradients_, outputs_; name=name)
@@ -8153,7 +8153,7 @@ begin
         return res
     end
     function cudnn_rnn_backprop(input_, input_h_, input_c_, params_, output_, output_h_, output_c_, output_backprop_, output_h_backprop_, output_c_backprop_, reserve_space_; name=nothing, rnn_mode=nothing, input_mode=nothing, direction=nothing, dropout=nothing, seed=nothing, seed2=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             cudnn_rnn_backprop_eager(input_, input_h_, input_c_, params_, output_, output_h_, output_c_, output_backprop_, output_h_backprop_, output_c_backprop_, reserve_space_; name=name, rnn_mode=rnn_mode, input_mode=input_mode, direction=direction, dropout=dropout, seed=seed, seed2=seed2)
         else
             cudnn_rnn_backprop_graph(input_, input_h_, input_c_, params_, output_, output_h_, output_c_, output_backprop_, output_h_backprop_, output_c_backprop_, reserve_space_; name=name, rnn_mode=rnn_mode, input_mode=input_mode, direction=direction, dropout=dropout, seed=seed, seed2=seed2)
@@ -8193,7 +8193,7 @@ begin
         return res[1]
     end
     function string_to_hash_bucket_fast(input_; name=nothing, num_buckets=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             string_to_hash_bucket_fast_eager(input_; name=name, num_buckets=num_buckets)
         else
             string_to_hash_bucket_fast_graph(input_; name=name, num_buckets=num_buckets)
@@ -8253,7 +8253,7 @@ begin
         return res[1]
     end
     function mutable_hash_table(; name=nothing, container=nothing, shared_name=nothing, use_node_name_sharing=nothing, key_dtype=nothing, value_dtype=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             mutable_hash_table_eager(; name=name, container=container, shared_name=shared_name, use_node_name_sharing=use_node_name_sharing, key_dtype=key_dtype, value_dtype=value_dtype)
         else
             mutable_hash_table_graph(; name=name, container=container, shared_name=shared_name, use_node_name_sharing=use_node_name_sharing, key_dtype=key_dtype, value_dtype=value_dtype)
@@ -8289,7 +8289,7 @@ begin
         return res[1]
     end
     function relu(features_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             relu_eager(features_; name=name)
         else
             relu_graph(features_; name=name)
@@ -8335,7 +8335,7 @@ begin
         return res[1]
     end
     function nth_element(input_, n_; name=nothing, reverse=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             nth_element_eager(input_, n_; name=name, reverse=reverse)
         else
             nth_element_graph(input_, n_; name=name, reverse=reverse)
@@ -8371,7 +8371,7 @@ begin
         return res[1]
     end
     function softsign(features_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             softsign_eager(features_; name=name)
         else
             softsign_graph(features_; name=name)
@@ -8455,7 +8455,7 @@ begin
         return res[1]
     end
     function mutable_dense_hash_table(empty_key_; name=nothing, container=nothing, shared_name=nothing, use_node_name_sharing=nothing, key_dtype=nothing, value_dtype=nothing, value_shape=nothing, initial_num_buckets=nothing, max_load_factor=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             mutable_dense_hash_table_eager(empty_key_; name=name, container=container, shared_name=shared_name, use_node_name_sharing=use_node_name_sharing, key_dtype=key_dtype, value_dtype=value_dtype, value_shape=value_shape, initial_num_buckets=initial_num_buckets, max_load_factor=max_load_factor)
         else
             mutable_dense_hash_table_graph(empty_key_; name=name, container=container, shared_name=shared_name, use_node_name_sharing=use_node_name_sharing, key_dtype=key_dtype, value_dtype=value_dtype, value_shape=value_shape, initial_num_buckets=initial_num_buckets, max_load_factor=max_load_factor)
@@ -8486,7 +8486,7 @@ begin
         return res[1]
     end
     function _shutdown_distributed_tpu(; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             _shutdown_distributed_tpu_eager(; name=name)
         else
             _shutdown_distributed_tpu_graph(; name=name)
@@ -8527,7 +8527,7 @@ begin
         return res[1]
     end
     function polygamma(a_, x_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             polygamma_eager(a_, x_; name=name)
         else
             polygamma_graph(a_, x_; name=name)
@@ -8575,7 +8575,7 @@ begin
         return res[1]
     end
     function nccl_reduce(input_; name=nothing, reduction=nothing, num_devices=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             nccl_reduce_eager(input_; name=name, reduction=reduction, num_devices=num_devices)
         else
             nccl_reduce_graph(input_; name=name, reduction=reduction, num_devices=num_devices)
@@ -8624,7 +8624,7 @@ begin
         return res[1]
     end
     function arg_max(input_, dimension_; name=nothing, output_type=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             arg_max_eager(input_, dimension_; name=name, output_type=output_type)
         else
             arg_max_graph(input_, dimension_; name=name, output_type=output_type)
@@ -8665,7 +8665,7 @@ begin
         return res[1]
     end
     function matrix_set_diag(input_, diagonal_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             matrix_set_diag_eager(input_, diagonal_; name=name)
         else
             matrix_set_diag_graph(input_, diagonal_; name=name)
@@ -8713,7 +8713,7 @@ begin
         return res[1]
     end
     function space_to_batch_nd(input_, block_shape_, paddings_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             space_to_batch_nd_eager(input_, block_shape_, paddings_; name=name)
         else
             space_to_batch_nd_graph(input_, block_shape_, paddings_; name=name)
@@ -8760,7 +8760,7 @@ begin
         return res
     end
     function sparse_reshape(input_indices_, input_shape_, new_shape_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sparse_reshape_eager(input_indices_, input_shape_, new_shape_; name=name)
         else
             sparse_reshape_graph(input_indices_, input_shape_, new_shape_; name=name)
@@ -8810,7 +8810,7 @@ begin
         return res[1]
     end
     function optimize_dataset(input_dataset_, optimizations_; name=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             optimize_dataset_eager(input_dataset_, optimizations_; name=name, output_types=output_types, output_shapes=output_shapes)
         else
             optimize_dataset_graph(input_dataset_, optimizations_; name=name, output_types=output_types, output_shapes=output_shapes)
@@ -8859,7 +8859,7 @@ begin
         return res[1]
     end
     function concat_v2(values_, axis_; name=nothing, N=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             concat_v2_eager(values_, axis_; name=name, N=N)
         else
             concat_v2_graph(values_, axis_; name=name, N=N)
@@ -8935,7 +8935,7 @@ begin
         return res[1]
     end
     function resource_sparse_apply_adadelta(var_, accum_, accum_update_, lr_, rho_, epsilon_, grad_, indices_; name=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             resource_sparse_apply_adadelta_eager(var_, accum_, accum_update_, lr_, rho_, epsilon_, grad_, indices_; name=name, use_locking=use_locking)
         else
             resource_sparse_apply_adadelta_graph(var_, accum_, accum_update_, lr_, rho_, epsilon_, grad_, indices_; name=name, use_locking=use_locking)
@@ -8977,7 +8977,7 @@ begin
         return res[1]
     end
     function tile(input_, multiples_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tile_eager(input_, multiples_; name=name)
         else
             tile_graph(input_, multiples_; name=name)
@@ -9019,7 +9019,7 @@ begin
         return res[1]
     end
     function mutex_v2(; name=nothing, container=nothing, shared_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             mutex_v2_eager(; name=name, container=container, shared_name=shared_name)
         else
             mutex_v2_graph(; name=name, container=container, shared_name=shared_name)
@@ -9069,7 +9069,7 @@ begin
         return res[1]
     end
     function serialize_many_sparse(sparse_indices_, sparse_values_, sparse_shape_; name=nothing, out_type=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             serialize_many_sparse_eager(sparse_indices_, sparse_values_, sparse_shape_; name=name, out_type=out_type)
         else
             serialize_many_sparse_graph(sparse_indices_, sparse_values_, sparse_shape_; name=name, out_type=out_type)
@@ -9119,7 +9119,7 @@ begin
         return res[1]
     end
     function tpu_embedding_activations(embedding_variable_, sliced_activations_; name=nothing, table_id=nothing, lookup_id=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tpu_embedding_activations_eager(embedding_variable_, sliced_activations_; name=name, table_id=table_id, lookup_id=lookup_id)
         else
             tpu_embedding_activations_graph(embedding_variable_, sliced_activations_; name=name, table_id=table_id, lookup_id=lookup_id)
@@ -9170,7 +9170,7 @@ begin
         return res[1]
     end
     function batch_matrix_solve_ls(matrix_, rhs_, l2_regularizer_; name=nothing, fast=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             batch_matrix_solve_ls_eager(matrix_, rhs_, l2_regularizer_; name=name, fast=fast)
         else
             batch_matrix_solve_ls_graph(matrix_, rhs_, l2_regularizer_; name=name, fast=fast)
@@ -9211,7 +9211,7 @@ begin
         return res[1]
     end
     function not_equal(x_, y_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             not_equal_eager(x_, y_; name=name)
         else
             not_equal_graph(x_, y_; name=name)
@@ -9247,7 +9247,7 @@ begin
         return res[1]
     end
     function lgamma(x_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             lgamma_eager(x_; name=name)
         else
             lgamma_graph(x_; name=name)
@@ -9331,7 +9331,7 @@ begin
         return res[1]
     end
     function tpu_replicate_metadata(; name=nothing, num_replicas=nothing, num_cores_per_replica=nothing, topology=nothing, use_tpu=nothing, device_assignment=nothing, computation_shape=nothing, host_compute_core=nothing, padding_map=nothing, step_marker_location=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tpu_replicate_metadata_eager(; name=name, num_replicas=num_replicas, num_cores_per_replica=num_cores_per_replica, topology=topology, use_tpu=use_tpu, device_assignment=device_assignment, computation_shape=computation_shape, host_compute_core=host_compute_core, padding_map=padding_map, step_marker_location=step_marker_location)
         else
             tpu_replicate_metadata_graph(; name=name, num_replicas=num_replicas, num_cores_per_replica=num_cores_per_replica, topology=topology, use_tpu=use_tpu, device_assignment=device_assignment, computation_shape=computation_shape, host_compute_core=host_compute_core, padding_map=padding_map, step_marker_location=step_marker_location)
@@ -9391,7 +9391,7 @@ begin
         return res[1]
     end
     function experimental_thread_pool_handle(; name=nothing, num_threads=nothing, max_intra_op_parallelism=nothing, display_name=nothing, container=nothing, shared_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             experimental_thread_pool_handle_eager(; name=name, num_threads=num_threads, max_intra_op_parallelism=max_intra_op_parallelism, display_name=display_name, container=container, shared_name=shared_name)
         else
             experimental_thread_pool_handle_graph(; name=name, num_threads=num_threads, max_intra_op_parallelism=max_intra_op_parallelism, display_name=display_name, container=container, shared_name=shared_name)
@@ -9427,7 +9427,7 @@ begin
         return res[1]
     end
     function self_adjoint_eig(input_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             self_adjoint_eig_eager(input_; name=name)
         else
             self_adjoint_eig_graph(input_; name=name)
@@ -9472,7 +9472,7 @@ begin
         return res
     end
     function boosted_trees_quantile_stream_resource_get_bucket_boundaries(quantile_stream_resource_handle_; name=nothing, num_features=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             boosted_trees_quantile_stream_resource_get_bucket_boundaries_eager(quantile_stream_resource_handle_; name=name, num_features=num_features)
         else
             boosted_trees_quantile_stream_resource_get_bucket_boundaries_graph(quantile_stream_resource_handle_; name=name, num_features=num_features)
@@ -9521,7 +9521,7 @@ begin
         return res[1]
     end
     function sparse_dense_cwise_div(sp_indices_, sp_values_, sp_shape_, dense_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sparse_dense_cwise_div_eager(sp_indices_, sp_values_, sp_shape_, dense_; name=name)
         else
             sparse_dense_cwise_div_graph(sp_indices_, sp_values_, sp_shape_, dense_; name=name)
@@ -9557,7 +9557,7 @@ begin
         return res[1]
     end
     function acos(x_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             acos_eager(x_; name=name)
         else
             acos_graph(x_; name=name)
@@ -9604,7 +9604,7 @@ begin
         return res[1]
     end
     function all(input_, reduction_indices_; name=nothing, keep_dims=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             all_eager(input_, reduction_indices_; name=name, keep_dims=keep_dims)
         else
             all_graph(input_, reduction_indices_; name=name, keep_dims=keep_dims)
@@ -9645,7 +9645,7 @@ begin
         return res[1]
     end
     function compare_and_bitpack(input_, threshold_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             compare_and_bitpack_eager(input_, threshold_; name=name)
         else
             compare_and_bitpack_graph(input_, threshold_; name=name)
@@ -9699,7 +9699,7 @@ begin
         return res[1]
     end
     function var_handle_op(; name=nothing, container=nothing, shared_name=nothing, dtype=nothing, shape=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             var_handle_op_eager(; name=name, container=container, shared_name=shared_name, dtype=dtype, shape=shape)
         else
             var_handle_op_graph(; name=name, container=container, shared_name=shared_name, dtype=dtype, shape=shape)
@@ -9745,7 +9745,7 @@ begin
         return res[1]
     end
     function experimental_unique_dataset(input_dataset_; name=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             experimental_unique_dataset_eager(input_dataset_; name=name, output_types=output_types, output_shapes=output_shapes)
         else
             experimental_unique_dataset_graph(input_dataset_; name=name, output_types=output_types, output_shapes=output_shapes)
@@ -9840,7 +9840,7 @@ begin
         return res
     end
     function quantized_conv2d_with_bias_sum_and_relu(input_, filter_, bias_, min_input_, max_input_, min_filter_, max_filter_, summand_; name=nothing, out_type=nothing, strides=nothing, padding=nothing, dilations=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             quantized_conv2d_with_bias_sum_and_relu_eager(input_, filter_, bias_, min_input_, max_input_, min_filter_, max_filter_, summand_; name=name, out_type=out_type, strides=strides, padding=padding, dilations=dilations)
         else
             quantized_conv2d_with_bias_sum_and_relu_graph(input_, filter_, bias_, min_input_, max_input_, min_filter_, max_filter_, summand_; name=name, out_type=out_type, strides=strides, padding=padding, dilations=dilations)
@@ -9892,7 +9892,7 @@ begin
         return res
     end
     function list_diff(x_, y_; name=nothing, out_idx=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             list_diff_eager(x_, y_; name=name, out_idx=out_idx)
         else
             list_diff_graph(x_, y_; name=name, out_idx=out_idx)
@@ -9942,7 +9942,7 @@ begin
         return res[1]
     end
     function create_summary_file_writer(writer_, logdir_, max_queue_, flush_millis_, filename_suffix_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             create_summary_file_writer_eager(writer_, logdir_, max_queue_, flush_millis_, filename_suffix_; name=name)
         else
             create_summary_file_writer_graph(writer_, logdir_, max_queue_, flush_millis_, filename_suffix_; name=name)
@@ -10003,7 +10003,7 @@ begin
         return res
     end
     function generate_vocab_remapping(new_vocab_file_, old_vocab_file_; name=nothing, new_vocab_offset=nothing, num_new_vocab=nothing, old_vocab_size=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             generate_vocab_remapping_eager(new_vocab_file_, old_vocab_file_; name=name, new_vocab_offset=new_vocab_offset, num_new_vocab=num_new_vocab, old_vocab_size=old_vocab_size)
         else
             generate_vocab_remapping_graph(new_vocab_file_, old_vocab_file_; name=name, new_vocab_offset=new_vocab_offset, num_new_vocab=num_new_vocab, old_vocab_size=old_vocab_size)
@@ -10045,7 +10045,7 @@ begin
         return res[1]
     end
     function batch_matrix_inverse(input_; name=nothing, adjoint=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             batch_matrix_inverse_eager(input_; name=name, adjoint=adjoint)
         else
             batch_matrix_inverse_graph(input_; name=name, adjoint=adjoint)
@@ -10076,7 +10076,7 @@ begin
         return res[1]
     end
     function control_trigger(; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             control_trigger_eager(; name=name)
         else
             control_trigger_graph(; name=name)
@@ -10107,7 +10107,7 @@ begin
         return res[1]
     end
     function tpu_ordinal_selector(; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tpu_ordinal_selector_eager(; name=name)
         else
             tpu_ordinal_selector_graph(; name=name)
@@ -10143,7 +10143,7 @@ begin
         return res[1]
     end
     function stop_gradient(input_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             stop_gradient_eager(input_; name=name)
         else
             stop_gradient_graph(input_; name=name)
@@ -10195,7 +10195,7 @@ begin
         return res
     end
     function split(split_dim_, value_; name=nothing, num_split=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             split_eager(split_dim_, value_; name=name, num_split=num_split)
         else
             split_graph(split_dim_, value_; name=name, num_split=num_split)
@@ -10254,7 +10254,7 @@ begin
         return res
     end
     function unpack(value_; name=nothing, num=nothing, axis=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             unpack_eager(value_; name=name, num=num, axis=axis)
         else
             unpack_graph(value_; name=name, num=num, axis=axis)
@@ -10307,7 +10307,7 @@ begin
         return res[1]
     end
     function resource_scatter_max(resource_, indices_, updates_; name=nothing, dtype=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             resource_scatter_max_eager(resource_, indices_, updates_; name=name, dtype=dtype)
         else
             resource_scatter_max_graph(resource_, indices_, updates_; name=name, dtype=dtype)
@@ -10355,7 +10355,7 @@ begin
         return res[1]
     end
     function tensor_array_write(handle_, index_, value_, flow_in_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_array_write_eager(handle_, index_, value_, flow_in_; name=name)
         else
             tensor_array_write_graph(handle_, index_, value_, flow_in_; name=name)
@@ -10403,7 +10403,7 @@ begin
         return res[1]
     end
     function fill(dims_, value_; name=nothing, index_type=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             fill_eager(dims_, value_; name=name, index_type=index_type)
         else
             fill_graph(dims_, value_; name=name, index_type=index_type)
@@ -10504,7 +10504,7 @@ begin
         return res
     end
     function quantized_conv2d_with_bias_and_requantize(input_, filter_, bias_, min_input_, max_input_, min_filter_, max_filter_, min_freezed_output_, max_freezed_output_; name=nothing, out_type=nothing, strides=nothing, padding=nothing, dilations=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             quantized_conv2d_with_bias_and_requantize_eager(input_, filter_, bias_, min_input_, max_input_, min_filter_, max_filter_, min_freezed_output_, max_freezed_output_; name=name, out_type=out_type, strides=strides, padding=padding, dilations=dilations)
         else
             quantized_conv2d_with_bias_and_requantize_graph(input_, filter_, bias_, min_input_, max_input_, min_filter_, max_filter_, min_freezed_output_, max_freezed_output_; name=name, out_type=out_type, strides=strides, padding=padding, dilations=dilations)
@@ -10540,7 +10540,7 @@ begin
         return res[1]
     end
     function softmax(logits_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             softmax_eager(logits_; name=name)
         else
             softmax_graph(logits_; name=name)
@@ -10586,7 +10586,7 @@ begin
         return res[1]
     end
     function resize_bicubic(images_, size_; name=nothing, align_corners=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             resize_bicubic_eager(images_, size_; name=name, align_corners=align_corners)
         else
             resize_bicubic_graph(images_, size_; name=name, align_corners=align_corners)
@@ -10628,7 +10628,7 @@ begin
         return res[1]
     end
     function infeed_dequeue_tuple(; name=nothing, dtypes=nothing, shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             infeed_dequeue_tuple_eager(; name=name, dtypes=dtypes, shapes=shapes)
         else
             infeed_dequeue_tuple_graph(; name=name, dtypes=dtypes, shapes=shapes)
@@ -10688,7 +10688,7 @@ begin
         return res[1]
     end
     function multi_device_iterator(; name=nothing, devices=nothing, shared_name=nothing, container=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             multi_device_iterator_eager(; name=name, devices=devices, shared_name=shared_name, container=container, output_types=output_types, output_shapes=output_shapes)
         else
             multi_device_iterator_graph(; name=name, devices=devices, shared_name=shared_name, container=container, output_types=output_types, output_shapes=output_shapes)
@@ -10756,7 +10756,7 @@ begin
         return res[1]
     end
     function decode_csv(records_, record_defaults_; name=nothing, OUT_TYPE=nothing, field_delim=nothing, use_quote_delim=nothing, na_value=nothing, select_cols=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             decode_csv_eager(records_, record_defaults_; name=name, OUT_TYPE=OUT_TYPE, field_delim=field_delim, use_quote_delim=use_quote_delim, na_value=na_value, select_cols=select_cols)
         else
             decode_csv_graph(records_, record_defaults_; name=name, OUT_TYPE=OUT_TYPE, field_delim=field_delim, use_quote_delim=use_quote_delim, na_value=na_value, select_cols=select_cols)
@@ -10802,7 +10802,7 @@ begin
         return res[1]
     end
     function lookup_table_find(table_handle_, keys_, default_value_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             lookup_table_find_eager(table_handle_, keys_, default_value_; name=name)
         else
             lookup_table_find_graph(table_handle_, keys_, default_value_; name=name)
@@ -10864,7 +10864,7 @@ begin
         return res[1]
     end
     function shuffle_and_repeat_dataset(input_dataset_, buffer_size_, seed_, seed2_, count_; name=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             shuffle_and_repeat_dataset_eager(input_dataset_, buffer_size_, seed_, seed2_, count_; name=name, output_types=output_types, output_shapes=output_shapes)
         else
             shuffle_and_repeat_dataset_graph(input_dataset_, buffer_size_, seed_, seed2_, count_; name=name, output_types=output_types, output_shapes=output_shapes)
@@ -10919,7 +10919,7 @@ begin
         return res
     end
     function requantization_range_per_channel(input_, input_min_, input_max_; name=nothing, clip_value_max=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             requantization_range_per_channel_eager(input_, input_min_, input_max_; name=name, clip_value_max=clip_value_max)
         else
             requantization_range_per_channel_graph(input_, input_min_, input_max_; name=name, clip_value_max=clip_value_max)
@@ -10965,7 +10965,7 @@ begin
         return res[1]
     end
     function experimental_unbatch_dataset(input_dataset_; name=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             experimental_unbatch_dataset_eager(input_dataset_; name=name, output_types=output_types, output_shapes=output_shapes)
         else
             experimental_unbatch_dataset_graph(input_dataset_; name=name, output_types=output_types, output_shapes=output_shapes)
@@ -11029,7 +11029,7 @@ begin
         return res[1]
     end
     function avg_pool3d_grad(orig_input_shape_, grad_; name=nothing, ksize=nothing, strides=nothing, padding=nothing, data_format=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             avg_pool3d_grad_eager(orig_input_shape_, grad_; name=name, ksize=ksize, strides=strides, padding=padding, data_format=data_format)
         else
             avg_pool3d_grad_graph(orig_input_shape_, grad_; name=name, ksize=ksize, strides=strides, padding=padding, data_format=data_format)
@@ -11077,7 +11077,7 @@ begin
         return res[1]
     end
     function placeholder_with_default(input_; name=nothing, dtype=nothing, shape=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             placeholder_with_default_eager(input_; name=name, dtype=dtype, shape=shape)
         else
             placeholder_with_default_graph(input_; name=name, dtype=dtype, shape=shape)
@@ -11123,7 +11123,7 @@ begin
         return res[1]
     end
     function initialize_table_v2(table_handle_, keys_, values_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             initialize_table_v2_eager(table_handle_, keys_, values_; name=name)
         else
             initialize_table_v2_graph(table_handle_, keys_, values_; name=name)
@@ -11173,7 +11173,7 @@ begin
         return res[1]
     end
     function set_size(set_indices_, set_values_, set_shape_; name=nothing, validate_indices=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             set_size_eager(set_indices_, set_values_, set_shape_; name=name, validate_indices=validate_indices)
         else
             set_size_graph(set_indices_, set_values_, set_shape_; name=name, validate_indices=validate_indices)
@@ -11223,7 +11223,7 @@ begin
         return res[1]
     end
     function assert(condition_, data_; name=nothing, T=nothing, summarize=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             assert_eager(condition_, data_; name=name, T=T, summarize=summarize)
         else
             assert_graph(condition_, data_; name=name, T=T, summarize=summarize)
@@ -11287,7 +11287,7 @@ begin
         return res
     end
     function non_max_suppression_v4(boxes_, scores_, max_output_size_, iou_threshold_, score_threshold_; name=nothing, pad_to_max_output_size=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             non_max_suppression_v4_eager(boxes_, scores_, max_output_size_, iou_threshold_, score_threshold_; name=name, pad_to_max_output_size=pad_to_max_output_size)
         else
             non_max_suppression_v4_graph(boxes_, scores_, max_output_size_, iou_threshold_, score_threshold_; name=name, pad_to_max_output_size=pad_to_max_output_size)
@@ -11372,7 +11372,7 @@ begin
         return res
     end
     function sample_distorted_bounding_box_v2(image_size_, bounding_boxes_, min_object_covered_; name=nothing, seed=nothing, seed2=nothing, aspect_ratio_range=nothing, area_range=nothing, max_attempts=nothing, use_image_if_no_bounding_boxes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sample_distorted_bounding_box_v2_eager(image_size_, bounding_boxes_, min_object_covered_; name=name, seed=seed, seed2=seed2, aspect_ratio_range=aspect_ratio_range, area_range=area_range, max_attempts=max_attempts, use_image_if_no_bounding_boxes=use_image_if_no_bounding_boxes)
         else
             sample_distorted_bounding_box_v2_graph(image_size_, bounding_boxes_, min_object_covered_; name=name, seed=seed, seed2=seed2, aspect_ratio_range=aspect_ratio_range, area_range=area_range, max_attempts=max_attempts, use_image_if_no_bounding_boxes=use_image_if_no_bounding_boxes)
@@ -11434,7 +11434,7 @@ begin
         return res[1]
     end
     function initialize_table_from_text_file(table_handle_, filename_; name=nothing, key_index=nothing, value_index=nothing, vocab_size=nothing, delimiter=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             initialize_table_from_text_file_eager(table_handle_, filename_; name=name, key_index=key_index, value_index=value_index, vocab_size=vocab_size, delimiter=delimiter)
         else
             initialize_table_from_text_file_graph(table_handle_, filename_; name=name, key_index=key_index, value_index=value_index, vocab_size=vocab_size, delimiter=delimiter)
@@ -11468,7 +11468,7 @@ begin
         return res[1]
     end
     function lookup_table_size(table_handle_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             lookup_table_size_eager(table_handle_; name=name)
         else
             lookup_table_size_graph(table_handle_; name=name)
@@ -11551,7 +11551,7 @@ begin
         return res[1]
     end
     function sparse_apply_adagrad_da(var_, gradient_accumulator_, gradient_squared_accumulator_, grad_, indices_, lr_, l1_, l2_, global_step_; name=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sparse_apply_adagrad_da_eager(var_, gradient_accumulator_, gradient_squared_accumulator_, grad_, indices_, lr_, l1_, l2_, global_step_; name=name, use_locking=use_locking)
         else
             sparse_apply_adagrad_da_graph(var_, gradient_accumulator_, gradient_squared_accumulator_, grad_, indices_, lr_, l1_, l2_, global_step_; name=name, use_locking=use_locking)
@@ -11597,7 +11597,7 @@ begin
         return res
     end
     function broadcast_gradient_args(s0_, s1_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             broadcast_gradient_args_eager(s0_, s1_; name=name)
         else
             broadcast_gradient_args_graph(s0_, s1_; name=name)
@@ -11639,7 +11639,7 @@ begin
         return res[1]
     end
     function summary_writer(; name=nothing, shared_name=nothing, container=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             summary_writer_eager(; name=name, shared_name=shared_name, container=container)
         else
             summary_writer_graph(; name=name, shared_name=shared_name, container=container)
@@ -11686,7 +11686,7 @@ begin
         return res
     end
     function recv_tpu_embedding_activations(; name=nothing, num_outputs=nothing, config=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             recv_tpu_embedding_activations_eager(; name=name, num_outputs=num_outputs, config=config)
         else
             recv_tpu_embedding_activations_graph(; name=name, num_outputs=num_outputs, config=config)
@@ -11738,7 +11738,7 @@ begin
         return res[1]
     end
     function _while(input_; name=nothing, T=nothing, cond=nothing, body=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             _while_eager(input_; name=name, T=T, cond=cond, body=body)
         else
             _while_graph(input_; name=name, T=T, cond=cond, body=body)
@@ -11784,7 +11784,7 @@ begin
         return res[1]
     end
     function initialize_table(table_handle_, keys_, values_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             initialize_table_eager(table_handle_, keys_, values_; name=name)
         else
             initialize_table_graph(table_handle_, keys_, values_; name=name)
@@ -11862,7 +11862,7 @@ begin
         return res[1]
     end
     function debug_numeric_summary(input_; name=nothing, device_name=nothing, tensor_name=nothing, debug_urls=nothing, lower_bound=nothing, upper_bound=nothing, mute_if_healthy=nothing, gated_grpc=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             debug_numeric_summary_eager(input_; name=name, device_name=device_name, tensor_name=tensor_name, debug_urls=debug_urls, lower_bound=lower_bound, upper_bound=upper_bound, mute_if_healthy=mute_if_healthy, gated_grpc=gated_grpc)
         else
             debug_numeric_summary_graph(input_; name=name, device_name=device_name, tensor_name=tensor_name, debug_urls=debug_urls, lower_bound=lower_bound, upper_bound=upper_bound, mute_if_healthy=mute_if_healthy, gated_grpc=gated_grpc)
@@ -11921,7 +11921,7 @@ begin
         return res
     end
     function retrieve_tpu_embedding_adagrad_parameters_grad_accum_debug(; name=nothing, table_id=nothing, table_name=nothing, num_shards=nothing, shard_id=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             retrieve_tpu_embedding_adagrad_parameters_grad_accum_debug_eager(; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
         else
             retrieve_tpu_embedding_adagrad_parameters_grad_accum_debug_graph(; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
@@ -11957,7 +11957,7 @@ begin
         return res[1]
     end
     function tanh(x_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tanh_eager(x_; name=name)
         else
             tanh_graph(x_; name=name)
@@ -12009,7 +12009,7 @@ begin
         return res[1]
     end
     function symbolic_gradient(input_; name=nothing, Tin=nothing, Tout=nothing, f=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             symbolic_gradient_eager(input_; name=name, Tin=Tin, Tout=Tout, f=f)
         else
             symbolic_gradient_graph(input_; name=name, Tin=Tin, Tout=Tout, f=f)
@@ -12087,7 +12087,7 @@ begin
         return res[1]
     end
     function boosted_trees_update_ensemble(tree_ensemble_handle_, feature_ids_, node_ids_, gains_, thresholds_, left_node_contribs_, right_node_contribs_, max_depth_, learning_rate_; name=nothing, pruning_mode=nothing, num_features=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             boosted_trees_update_ensemble_eager(tree_ensemble_handle_, feature_ids_, node_ids_, gains_, thresholds_, left_node_contribs_, right_node_contribs_, max_depth_, learning_rate_; name=name, pruning_mode=pruning_mode, num_features=num_features)
         else
             boosted_trees_update_ensemble_graph(tree_ensemble_handle_, feature_ids_, node_ids_, gains_, thresholds_, left_node_contribs_, right_node_contribs_, max_depth_, learning_rate_; name=name, pruning_mode=pruning_mode, num_features=num_features)
@@ -12155,7 +12155,7 @@ begin
         return res[1]
     end
     function apply_momentum(var_, accum_, lr_, grad_, momentum_; name=nothing, use_locking=nothing, use_nesterov=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             apply_momentum_eager(var_, accum_, lr_, grad_, momentum_; name=name, use_locking=use_locking, use_nesterov=use_nesterov)
         else
             apply_momentum_graph(var_, accum_, lr_, grad_, momentum_; name=name, use_locking=use_locking, use_nesterov=use_nesterov)
@@ -12198,7 +12198,7 @@ begin
         return res
     end
     function reader_read(reader_handle_, queue_handle_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             reader_read_eager(reader_handle_, queue_handle_; name=name)
         else
             reader_read_graph(reader_handle_, queue_handle_; name=name)
@@ -12244,7 +12244,7 @@ begin
         return res[1]
     end
     function _wait_for_distributed_tpu(inputs_; name=nothing, startup_timeout_sec=nothing, N=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             _wait_for_distributed_tpu_eager(inputs_; name=name, startup_timeout_sec=startup_timeout_sec, N=N)
         else
             _wait_for_distributed_tpu_graph(inputs_; name=name, startup_timeout_sec=startup_timeout_sec, N=N)
@@ -12278,7 +12278,7 @@ begin
         return res[1]
     end
     function mutex_lock(mutex_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             mutex_lock_eager(mutex_; name=name)
         else
             mutex_lock_graph(mutex_; name=name)
@@ -12316,7 +12316,7 @@ begin
         return res[1]
     end
     function accumulator_set_global_step(handle_, new_global_step_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             accumulator_set_global_step_eager(handle_, new_global_step_; name=name)
         else
             accumulator_set_global_step_graph(handle_, new_global_step_; name=name)
@@ -12379,7 +12379,7 @@ begin
         return res
     end
     function quantized_add(x_, y_, min_x_, max_x_, min_y_, max_y_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             quantized_add_eager(x_, y_, min_x_, max_x_, min_y_, max_y_; name=name)
         else
             quantized_add_graph(x_, y_, min_x_, max_x_, min_y_, max_y_; name=name)
@@ -12421,7 +12421,7 @@ begin
         return res[1]
     end
     function squeeze(input_; name=nothing, squeeze_dims=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             squeeze_eager(input_; name=name, squeeze_dims=squeeze_dims)
         else
             squeeze_graph(input_; name=name, squeeze_dims=squeeze_dims)
@@ -12455,7 +12455,7 @@ begin
         return res[1]
     end
     function experimental_matching_files_dataset(patterns_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             experimental_matching_files_dataset_eager(patterns_; name=name)
         else
             experimental_matching_files_dataset_graph(patterns_; name=name)
@@ -12497,7 +12497,7 @@ begin
         return res[1]
     end
     function experimental_dataset_to_tf_record(input_dataset_, filename_, compression_type_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             experimental_dataset_to_tf_record_eager(input_dataset_, filename_, compression_type_; name=name)
         else
             experimental_dataset_to_tf_record_graph(input_dataset_, filename_, compression_type_; name=name)
@@ -12555,7 +12555,7 @@ begin
         return res[1]
     end
     function load_tpu_embedding_stochastic_gradient_descent_parameters(parameters_; name=nothing, table_id=nothing, table_name=nothing, num_shards=nothing, shard_id=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             load_tpu_embedding_stochastic_gradient_descent_parameters_eager(parameters_; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
         else
             load_tpu_embedding_stochastic_gradient_descent_parameters_graph(parameters_; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
@@ -12586,7 +12586,7 @@ begin
         return res[1]
     end
     function no_op(; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             no_op_eager(; name=name)
         else
             no_op_graph(; name=name)
@@ -12638,7 +12638,7 @@ begin
         return res[1]
     end
     function zip_dataset(input_datasets_; name=nothing, output_types=nothing, output_shapes=nothing, N=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             zip_dataset_eager(input_datasets_; name=name, output_types=output_types, output_shapes=output_shapes, N=N)
         else
             zip_dataset_graph(input_datasets_; name=name, output_types=output_types, output_shapes=output_shapes, N=N)
@@ -12680,7 +12680,7 @@ begin
         return res[1]
     end
     function identity_reader_v2(; name=nothing, container=nothing, shared_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             identity_reader_v2_eager(; name=name, container=container, shared_name=shared_name)
         else
             identity_reader_v2_graph(; name=name, container=container, shared_name=shared_name)
@@ -12722,7 +12722,7 @@ begin
         return res[1]
     end
     function lmdb_reader(; name=nothing, container=nothing, shared_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             lmdb_reader_eager(; name=name, container=container, shared_name=shared_name)
         else
             lmdb_reader_graph(; name=name, container=container, shared_name=shared_name)
@@ -12776,7 +12776,7 @@ begin
         return res[1]
     end
     function nccl_all_reduce(input_; name=nothing, reduction=nothing, num_devices=nothing, shared_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             nccl_all_reduce_eager(input_; name=name, reduction=reduction, num_devices=num_devices, shared_name=shared_name)
         else
             nccl_all_reduce_graph(input_; name=name, reduction=reduction, num_devices=num_devices, shared_name=shared_name)
@@ -12818,7 +12818,7 @@ begin
         return res[1]
     end
     function text_line_dataset(filenames_, compression_type_, buffer_size_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             text_line_dataset_eager(filenames_, compression_type_, buffer_size_; name=name)
         else
             text_line_dataset_graph(filenames_, compression_type_, buffer_size_; name=name)
@@ -12870,7 +12870,7 @@ begin
         return res[1]
     end
     function sdca_shrink_l1(weights_; name=nothing, num_features=nothing, l1=nothing, l2=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sdca_shrink_l1_eager(weights_; name=name, num_features=num_features, l1=l1, l2=l2)
         else
             sdca_shrink_l1_graph(weights_; name=name, num_features=num_features, l1=l1, l2=l2)
@@ -12918,7 +12918,7 @@ begin
         return res[1]
     end
     function tf_record_reader_v2(; name=nothing, container=nothing, shared_name=nothing, compression_type=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tf_record_reader_v2_eager(; name=name, container=container, shared_name=shared_name, compression_type=compression_type)
         else
             tf_record_reader_v2_graph(; name=name, container=container, shared_name=shared_name, compression_type=compression_type)
@@ -12964,7 +12964,7 @@ begin
         return res[1]
     end
     function multi_device_iterator_from_string_handle(string_handle_; name=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             multi_device_iterator_from_string_handle_eager(string_handle_; name=name, output_types=output_types, output_shapes=output_shapes)
         else
             multi_device_iterator_from_string_handle_graph(string_handle_; name=name, output_types=output_types, output_shapes=output_shapes)
@@ -13032,7 +13032,7 @@ begin
         return res[1]
     end
     function padded_batch_dataset_v2(input_dataset_, batch_size_, padded_shapes_, padding_values_, drop_remainder_; name=nothing, Toutput_types=nothing, output_shapes=nothing, N=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             padded_batch_dataset_v2_eager(input_dataset_, batch_size_, padded_shapes_, padding_values_, drop_remainder_; name=name, Toutput_types=Toutput_types, output_shapes=output_shapes, N=N)
         else
             padded_batch_dataset_v2_graph(input_dataset_, batch_size_, padded_shapes_, padding_values_, drop_remainder_; name=name, Toutput_types=Toutput_types, output_shapes=output_shapes, N=N)
@@ -13094,7 +13094,7 @@ begin
         return res[1]
     end
     function load_tpu_embedding_proximal_adagrad_parameters(parameters_, accumulators_; name=nothing, table_id=nothing, table_name=nothing, num_shards=nothing, shard_id=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             load_tpu_embedding_proximal_adagrad_parameters_eager(parameters_, accumulators_; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
         else
             load_tpu_embedding_proximal_adagrad_parameters_graph(parameters_, accumulators_; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
@@ -13132,7 +13132,7 @@ begin
         return res[1]
     end
     function tensor_array_size(handle_, flow_in_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_array_size_eager(handle_, flow_in_; name=name)
         else
             tensor_array_size_graph(handle_, flow_in_; name=name)
@@ -13192,7 +13192,7 @@ begin
         return res[1]
     end
     function ordered_map_size(; name=nothing, capacity=nothing, memory_limit=nothing, dtypes=nothing, container=nothing, shared_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             ordered_map_size_eager(; name=name, capacity=capacity, memory_limit=memory_limit, dtypes=dtypes, container=container, shared_name=shared_name)
         else
             ordered_map_size_graph(; name=name, capacity=capacity, memory_limit=memory_limit, dtypes=dtypes, container=container, shared_name=shared_name)
@@ -13240,7 +13240,7 @@ begin
         return res[1]
     end
     function stateless_random_uniform(shape_, seed_; name=nothing, dtype=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             stateless_random_uniform_eager(shape_, seed_; name=name, dtype=dtype)
         else
             stateless_random_uniform_graph(shape_, seed_; name=name, dtype=dtype)
@@ -13314,7 +13314,7 @@ begin
         return res
     end
     function sparse_to_sparse_set_operation(set1_indices_, set1_values_, set1_shape_, set2_indices_, set2_values_, set2_shape_; name=nothing, set_operation=nothing, validate_indices=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sparse_to_sparse_set_operation_eager(set1_indices_, set1_values_, set1_shape_, set2_indices_, set2_values_, set2_shape_; name=name, set_operation=set_operation, validate_indices=validate_indices)
         else
             sparse_to_sparse_set_operation_graph(set1_indices_, set1_values_, set1_shape_, set2_indices_, set2_values_, set2_shape_; name=name, set_operation=set_operation, validate_indices=validate_indices)
@@ -13368,7 +13368,7 @@ begin
         return res[1]
     end
     function tensor_summary(tensor_; name=nothing, description=nothing, labels=nothing, display_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_summary_eager(tensor_; name=name, description=description, labels=labels, display_name=display_name)
         else
             tensor_summary_graph(tensor_; name=name, description=description, labels=labels, display_name=display_name)
@@ -13420,7 +13420,7 @@ begin
         return res[1]
     end
     function remote_fused_graph_execute(inputs_; name=nothing, Tinputs=nothing, Toutputs=nothing, serialized_remote_fused_graph_execute_info=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             remote_fused_graph_execute_eager(inputs_; name=name, Tinputs=Tinputs, Toutputs=Toutputs, serialized_remote_fused_graph_execute_info=serialized_remote_fused_graph_execute_info)
         else
             remote_fused_graph_execute_graph(inputs_; name=name, Tinputs=Tinputs, Toutputs=Toutputs, serialized_remote_fused_graph_execute_info=serialized_remote_fused_graph_execute_info)
@@ -13468,7 +13468,7 @@ begin
         return res[1]
     end
     function sparse_slice_grad(backprop_val_grad_, input_indices_, input_start_, output_indices_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sparse_slice_grad_eager(backprop_val_grad_, input_indices_, input_start_, output_indices_; name=name)
         else
             sparse_slice_grad_graph(backprop_val_grad_, input_indices_, input_start_, output_indices_; name=name)
@@ -13523,7 +13523,7 @@ begin
         return res[1]
     end
     function cumsum(x_, axis_; name=nothing, exclusive=nothing, reverse=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             cumsum_eager(x_, axis_; name=name, exclusive=exclusive, reverse=reverse)
         else
             cumsum_graph(x_, axis_; name=name, exclusive=exclusive, reverse=reverse)
@@ -13596,7 +13596,7 @@ begin
         return res
     end
     function batch_norm_with_global_normalization_grad(t_, m_, v_, gamma_, backprop_; name=nothing, variance_epsilon=nothing, scale_after_normalization=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             batch_norm_with_global_normalization_grad_eager(t_, m_, v_, gamma_, backprop_; name=name, variance_epsilon=variance_epsilon, scale_after_normalization=scale_after_normalization)
         else
             batch_norm_with_global_normalization_grad_graph(t_, m_, v_, gamma_, backprop_; name=name, variance_epsilon=variance_epsilon, scale_after_normalization=scale_after_normalization)
@@ -13660,7 +13660,7 @@ begin
         return res[1]
     end
     function avg_pool_grad(orig_input_shape_, grad_; name=nothing, ksize=nothing, strides=nothing, padding=nothing, data_format=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             avg_pool_grad_eager(orig_input_shape_, grad_; name=name, ksize=ksize, strides=strides, padding=padding, data_format=data_format)
         else
             avg_pool_grad_graph(orig_input_shape_, grad_; name=name, ksize=ksize, strides=strides, padding=padding, data_format=data_format)
@@ -13708,7 +13708,7 @@ begin
         return res[1]
     end
     function restore_v2(prefix_, tensor_names_, shape_and_slices_; name=nothing, dtypes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             restore_v2_eager(prefix_, tensor_names_, shape_and_slices_; name=name, dtypes=dtypes)
         else
             restore_v2_graph(prefix_, tensor_names_, shape_and_slices_; name=name, dtypes=dtypes)
@@ -13744,7 +13744,7 @@ begin
         return res[1]
     end
     function relu6(features_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             relu6_eager(features_; name=name)
         else
             relu6_graph(features_; name=name)
@@ -13828,7 +13828,7 @@ begin
         return res[1]
     end
     function sparse_apply_rms_prop(var_, ms_, mom_, lr_, rho_, momentum_, epsilon_, grad_, indices_; name=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sparse_apply_rms_prop_eager(var_, ms_, mom_, lr_, rho_, momentum_, epsilon_, grad_, indices_; name=name, use_locking=use_locking)
         else
             sparse_apply_rms_prop_graph(var_, ms_, mom_, lr_, rho_, momentum_, epsilon_, grad_, indices_; name=name, use_locking=use_locking)
@@ -13894,7 +13894,7 @@ begin
         return res[1]
     end
     function _recv(; name=nothing, tensor_type=nothing, tensor_name=nothing, send_device=nothing, send_device_incarnation=nothing, recv_device=nothing, client_terminated=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             _recv_eager(; name=name, tensor_type=tensor_type, tensor_name=tensor_name, send_device=send_device, send_device_incarnation=send_device_incarnation, recv_device=recv_device, client_terminated=client_terminated)
         else
             _recv_graph(; name=name, tensor_type=tensor_type, tensor_name=tensor_name, send_device=send_device, send_device_incarnation=send_device_incarnation, recv_device=recv_device, client_terminated=client_terminated)
@@ -13954,7 +13954,7 @@ begin
         return res[1]
     end
     function max_pool(input_; name=nothing, ksize=nothing, strides=nothing, padding=nothing, data_format=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             max_pool_eager(input_; name=name, ksize=ksize, strides=strides, padding=padding, data_format=data_format)
         else
             max_pool_graph(input_; name=name, ksize=ksize, strides=strides, padding=padding, data_format=data_format)
@@ -13990,7 +13990,7 @@ begin
         return res[1]
     end
     function invert(x_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             invert_eager(x_; name=name)
         else
             invert_graph(x_; name=name)
@@ -14032,7 +14032,7 @@ begin
         return res[1]
     end
     function _unary_ops_composition(x_; name=nothing, op_names=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             _unary_ops_composition_eager(x_; name=name, op_names=op_names)
         else
             _unary_ops_composition_graph(x_; name=name, op_names=op_names)
@@ -14106,7 +14106,7 @@ begin
         return res[1]
     end
     function experimental_map_dataset(input_dataset_, other_arguments_; name=nothing, f=nothing, Targuments=nothing, output_types=nothing, output_shapes=nothing, use_inter_op_parallelism=nothing, preserve_cardinality=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             experimental_map_dataset_eager(input_dataset_, other_arguments_; name=name, f=f, Targuments=Targuments, output_types=output_types, output_shapes=output_shapes, use_inter_op_parallelism=use_inter_op_parallelism, preserve_cardinality=preserve_cardinality)
         else
             experimental_map_dataset_graph(input_dataset_, other_arguments_; name=name, f=f, Targuments=Targuments, output_types=output_types, output_shapes=output_shapes, use_inter_op_parallelism=use_inter_op_parallelism, preserve_cardinality=preserve_cardinality)
@@ -14172,7 +14172,7 @@ begin
         return res[1]
     end
     function load_tpu_embedding_adam_parameters(parameters_, momenta_, velocities_; name=nothing, table_id=nothing, table_name=nothing, num_shards=nothing, shard_id=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             load_tpu_embedding_adam_parameters_eager(parameters_, momenta_, velocities_; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
         else
             load_tpu_embedding_adam_parameters_graph(parameters_, momenta_, velocities_; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
@@ -14212,7 +14212,7 @@ begin
         return res[1]
     end
     function parse_tensor(serialized_; name=nothing, out_type=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             parse_tensor_eager(serialized_; name=name, out_type=out_type)
         else
             parse_tensor_graph(serialized_; name=name, out_type=out_type)
@@ -14266,7 +14266,7 @@ begin
         return res[1]
     end
     function experimental_materialized_index_dataset_handle(; name=nothing, container=nothing, shared_name=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             experimental_materialized_index_dataset_handle_eager(; name=name, container=container, shared_name=shared_name, output_types=output_types, output_shapes=output_shapes)
         else
             experimental_materialized_index_dataset_handle_graph(; name=name, container=container, shared_name=shared_name, output_types=output_types, output_shapes=output_shapes)
@@ -14320,7 +14320,7 @@ begin
         return res[1]
     end
     function multi_device_iterator_get_next_from_shard(multi_device_iterator_, shard_num_, incarnation_id_; name=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             multi_device_iterator_get_next_from_shard_eager(multi_device_iterator_, shard_num_, incarnation_id_; name=name, output_types=output_types, output_shapes=output_shapes)
         else
             multi_device_iterator_get_next_from_shard_graph(multi_device_iterator_, shard_num_, incarnation_id_; name=name, output_types=output_types, output_shapes=output_shapes)
@@ -14379,7 +14379,7 @@ begin
         return res[1]
     end
     function random_uniform_int(shape_, minval_, maxval_; name=nothing, seed=nothing, seed2=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             random_uniform_int_eager(shape_, minval_, maxval_; name=name, seed=seed, seed2=seed2)
         else
             random_uniform_int_graph(shape_, minval_, maxval_; name=name, seed=seed, seed2=seed2)
@@ -14426,7 +14426,7 @@ begin
         return res
     end
     function sparse_softmax_cross_entropy_with_logits(features_, labels_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sparse_softmax_cross_entropy_with_logits_eager(features_, labels_; name=name)
         else
             sparse_softmax_cross_entropy_with_logits_graph(features_, labels_; name=name)
@@ -14474,7 +14474,7 @@ begin
         return res[1]
     end
     function tensor_array_read_v2(handle_, index_, flow_in_; name=nothing, dtype=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_array_read_v2_eager(handle_, index_, flow_in_; name=name, dtype=dtype)
         else
             tensor_array_read_v2_graph(handle_, index_, flow_in_; name=name, dtype=dtype)
@@ -14521,7 +14521,7 @@ begin
         return res
     end
     function reader_read_up_to(reader_handle_, queue_handle_, num_records_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             reader_read_up_to_eager(reader_handle_, queue_handle_, num_records_; name=name)
         else
             reader_read_up_to_graph(reader_handle_, queue_handle_, num_records_; name=name)
@@ -14583,7 +14583,7 @@ begin
         return res[1]
     end
     function encode_proto(sizes_, values_; name=nothing, field_names=nothing, message_type=nothing, descriptor_source=nothing, Tinput_types=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             encode_proto_eager(sizes_, values_; name=name, field_names=field_names, message_type=message_type, descriptor_source=descriptor_source, Tinput_types=Tinput_types)
         else
             encode_proto_graph(sizes_, values_; name=name, field_names=field_names, message_type=message_type, descriptor_source=descriptor_source, Tinput_types=Tinput_types)
@@ -14709,7 +14709,7 @@ begin
         return res[1]
     end
     function strided_slice_grad(shape_, begin_, end_, strides_, dy_; name=nothing, Index=nothing, begin_mask=nothing, end_mask=nothing, ellipsis_mask=nothing, new_axis_mask=nothing, shrink_axis_mask=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             strided_slice_grad_eager(shape_, begin_, end_, strides_, dy_; name=name, Index=Index, begin_mask=begin_mask, end_mask=end_mask, ellipsis_mask=ellipsis_mask, new_axis_mask=new_axis_mask, shrink_axis_mask=shrink_axis_mask)
         else
             strided_slice_grad_graph(shape_, begin_, end_, strides_, dy_; name=name, Index=Index, begin_mask=begin_mask, end_mask=end_mask, ellipsis_mask=ellipsis_mask, new_axis_mask=new_axis_mask, shrink_axis_mask=shrink_axis_mask)
@@ -14763,7 +14763,7 @@ begin
         return res[1]
     end
     function _nccl_reduce_send(input_; name=nothing, reduction=nothing, num_devices=nothing, shared_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             _nccl_reduce_send_eager(input_; name=name, reduction=reduction, num_devices=num_devices, shared_name=shared_name)
         else
             _nccl_reduce_send_graph(input_; name=name, reduction=reduction, num_devices=num_devices, shared_name=shared_name)
@@ -14827,7 +14827,7 @@ begin
         return res[1]
     end
     function padded_batch_dataset(input_dataset_, batch_size_, padded_shapes_, padding_values_; name=nothing, Toutput_types=nothing, output_shapes=nothing, N=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             padded_batch_dataset_eager(input_dataset_, batch_size_, padded_shapes_, padding_values_; name=name, Toutput_types=Toutput_types, output_shapes=output_shapes, N=N)
         else
             padded_batch_dataset_graph(input_dataset_, batch_size_, padded_shapes_, padding_values_; name=name, Toutput_types=Toutput_types, output_shapes=output_shapes, N=N)
@@ -14875,7 +14875,7 @@ begin
         return res[1]
     end
     function data_format_vec_permute(x_; name=nothing, src_format=nothing, dst_format=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             data_format_vec_permute_eager(x_; name=name, src_format=src_format, dst_format=dst_format)
         else
             data_format_vec_permute_graph(x_; name=name, src_format=src_format, dst_format=dst_format)
@@ -14933,7 +14933,7 @@ begin
         return res[1]
     end
     function string_format(inputs_; name=nothing, T=nothing, template=nothing, placeholder=nothing, summarize=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             string_format_eager(inputs_; name=name, T=T, template=template, placeholder=placeholder, summarize=summarize)
         else
             string_format_graph(inputs_; name=name, T=T, template=template, placeholder=placeholder, summarize=summarize)
@@ -14999,7 +14999,7 @@ begin
         return res[1]
     end
     function as_string(input_; name=nothing, precision=nothing, scientific=nothing, shortest=nothing, width=nothing, fill=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             as_string_eager(input_; name=name, precision=precision, scientific=scientific, shortest=shortest, width=width, fill=fill)
         else
             as_string_graph(input_; name=name, precision=precision, scientific=scientific, shortest=shortest, width=width, fill=fill)
@@ -15049,7 +15049,7 @@ begin
         return res[1]
     end
     function queue_enqueue_many(handle_, components_; name=nothing, Tcomponents=nothing, timeout_ms=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             queue_enqueue_many_eager(handle_, components_; name=name, Tcomponents=Tcomponents, timeout_ms=timeout_ms)
         else
             queue_enqueue_many_graph(handle_, components_; name=name, Tcomponents=Tcomponents, timeout_ms=timeout_ms)
@@ -15091,7 +15091,7 @@ begin
         return res[1]
     end
     function fake_param(; name=nothing, dtype=nothing, shape=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             fake_param_eager(; name=name, dtype=dtype, shape=shape)
         else
             fake_param_graph(; name=name, dtype=dtype, shape=shape)
@@ -15154,7 +15154,7 @@ begin
         return res[1]
     end
     function apply_adagrad(var_, accum_, lr_, grad_; name=nothing, use_locking=nothing, update_slots=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             apply_adagrad_eager(var_, accum_, lr_, grad_; name=name, use_locking=use_locking, update_slots=update_slots)
         else
             apply_adagrad_graph(var_, accum_, lr_, grad_; name=name, use_locking=use_locking, update_slots=update_slots)
@@ -15188,7 +15188,7 @@ begin
         return res[1]
     end
     function experimental_iterator_get_device(resource_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             experimental_iterator_get_device_eager(resource_; name=name)
         else
             experimental_iterator_get_device_graph(resource_; name=name)
@@ -15236,7 +15236,7 @@ begin
         return res[1]
     end
     function adjust_contrast(images_, contrast_factor_, min_value_, max_value_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             adjust_contrast_eager(images_, contrast_factor_, min_value_, max_value_; name=name)
         else
             adjust_contrast_graph(images_, contrast_factor_, min_value_, max_value_; name=name)
@@ -15296,7 +15296,7 @@ begin
         return res[1]
     end
     function extract_image_patches(images_; name=nothing, ksizes=nothing, strides=nothing, rates=nothing, padding=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             extract_image_patches_eager(images_; name=name, ksizes=ksizes, strides=strides, rates=rates, padding=padding)
         else
             extract_image_patches_graph(images_; name=name, ksizes=ksizes, strides=strides, rates=rates, padding=padding)
@@ -15350,7 +15350,7 @@ begin
         return res[1]
     end
     function scale_and_translate(images_, size_, scale_, translation_; name=nothing, kernel_type=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             scale_and_translate_eager(images_, size_, scale_, translation_; name=name, kernel_type=kernel_type)
         else
             scale_and_translate_graph(images_, size_, scale_, translation_; name=name, kernel_type=kernel_type)
@@ -15381,7 +15381,7 @@ begin
         return res[1]
     end
     function optional_none(; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             optional_none_eager(; name=name)
         else
             optional_none_graph(; name=name)
@@ -15435,7 +15435,7 @@ begin
         return res[1]
     end
     function variable_v2(; name=nothing, shape=nothing, dtype=nothing, container=nothing, shared_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             variable_v2_eager(; name=name, shape=shape, dtype=dtype, container=container, shared_name=shared_name)
         else
             variable_v2_graph(; name=name, shape=shape, dtype=dtype, container=container, shared_name=shared_name)
@@ -15471,7 +15471,7 @@ begin
         return res[1]
     end
     function elu(features_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             elu_eager(features_; name=name)
         else
             elu_graph(features_; name=name)
@@ -15525,7 +15525,7 @@ begin
         return res[1]
     end
     function scatter_update(ref_, indices_, updates_; name=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             scatter_update_eager(ref_, indices_, updates_; name=name, use_locking=use_locking)
         else
             scatter_update_graph(ref_, indices_, updates_; name=name, use_locking=use_locking)
@@ -15566,7 +15566,7 @@ begin
         return res[1]
     end
     function floor_mod(x_, y_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             floor_mod_eager(x_, y_; name=name)
         else
             floor_mod_graph(x_, y_; name=name)
@@ -15612,7 +15612,7 @@ begin
         return res[1]
     end
     function experimental_ignore_errors_dataset(input_dataset_; name=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             experimental_ignore_errors_dataset_eager(input_dataset_; name=name, output_types=output_types, output_shapes=output_shapes)
         else
             experimental_ignore_errors_dataset_graph(input_dataset_; name=name, output_types=output_types, output_shapes=output_shapes)
@@ -15670,7 +15670,7 @@ begin
         return res[1]
     end
     function experimental_set_stats_aggregator_dataset(input_dataset_, stats_aggregator_, tag_, counter_prefix_; name=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             experimental_set_stats_aggregator_dataset_eager(input_dataset_, stats_aggregator_, tag_, counter_prefix_; name=name, output_types=output_types, output_shapes=output_shapes)
         else
             experimental_set_stats_aggregator_dataset_graph(input_dataset_, stats_aggregator_, tag_, counter_prefix_; name=name, output_types=output_types, output_shapes=output_shapes)
@@ -15731,7 +15731,7 @@ begin
         return res
     end
     function compute_accidental_hits(true_classes_, sampled_candidates_; name=nothing, num_true=nothing, seed=nothing, seed2=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             compute_accidental_hits_eager(true_classes_, sampled_candidates_; name=name, num_true=num_true, seed=seed, seed2=seed2)
         else
             compute_accidental_hits_graph(true_classes_, sampled_candidates_; name=name, num_true=num_true, seed=seed, seed2=seed2)
@@ -15771,7 +15771,7 @@ begin
         return res[1]
     end
     function string_to_number(string_tensor_; name=nothing, out_type=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             string_to_number_eager(string_tensor_; name=name, out_type=out_type)
         else
             string_to_number_graph(string_tensor_; name=name, out_type=out_type)
@@ -15807,7 +15807,7 @@ begin
         return res[1]
     end
     function snapshot(input_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             snapshot_eager(input_; name=name)
         else
             snapshot_graph(input_; name=name)
@@ -15845,7 +15845,7 @@ begin
         return res[1]
     end
     function deserialize_iterator(resource_handle_, serialized_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             deserialize_iterator_eager(resource_handle_, serialized_; name=name)
         else
             deserialize_iterator_graph(resource_handle_, serialized_; name=name)
@@ -15881,7 +15881,7 @@ begin
         return res[1]
     end
     function atan(x_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             atan_eager(x_; name=name)
         else
             atan_graph(x_; name=name)
@@ -15934,7 +15934,7 @@ begin
         return res[1]
     end
     function mat_mul(a_, b_; name=nothing, transpose_a=nothing, transpose_b=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             mat_mul_eager(a_, b_; name=name, transpose_a=transpose_a, transpose_b=transpose_b)
         else
             mat_mul_graph(a_, b_; name=name, transpose_a=transpose_a, transpose_b=transpose_b)
@@ -15970,7 +15970,7 @@ begin
         return res[1]
     end
     function erfc(x_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             erfc_eager(x_; name=name)
         else
             erfc_graph(x_; name=name)
@@ -16011,7 +16011,7 @@ begin
         return res[1]
     end
     function sigmoid_grad(y_, dy_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sigmoid_grad_eager(y_, dy_; name=name)
         else
             sigmoid_grad_graph(y_, dy_; name=name)
@@ -16083,7 +16083,7 @@ begin
         return res[1]
     end
     function fixed_length_record_reader_v2(; name=nothing, header_bytes=nothing, record_bytes=nothing, footer_bytes=nothing, hop_bytes=nothing, container=nothing, shared_name=nothing, encoding=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             fixed_length_record_reader_v2_eager(; name=name, header_bytes=header_bytes, record_bytes=record_bytes, footer_bytes=footer_bytes, hop_bytes=hop_bytes, container=container, shared_name=shared_name, encoding=encoding)
         else
             fixed_length_record_reader_v2_graph(; name=name, header_bytes=header_bytes, record_bytes=record_bytes, footer_bytes=footer_bytes, hop_bytes=hop_bytes, container=container, shared_name=shared_name, encoding=encoding)
@@ -16136,7 +16136,7 @@ begin
         return res[1]
     end
     function non_max_suppression_v3(boxes_, scores_, max_output_size_, iou_threshold_, score_threshold_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             non_max_suppression_v3_eager(boxes_, scores_, max_output_size_, iou_threshold_, score_threshold_; name=name)
         else
             non_max_suppression_v3_graph(boxes_, scores_, max_output_size_, iou_threshold_, score_threshold_; name=name)
@@ -16200,7 +16200,7 @@ begin
         return res[1]
     end
     function dilation2d_backprop_input(input_, filter_, out_backprop_; name=nothing, strides=nothing, rates=nothing, padding=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             dilation2d_backprop_input_eager(input_, filter_, out_backprop_; name=name, strides=strides, rates=rates, padding=padding)
         else
             dilation2d_backprop_input_graph(input_, filter_, out_backprop_; name=name, strides=strides, rates=rates, padding=padding)
@@ -16238,7 +16238,7 @@ begin
         return res[1]
     end
     function logical_or(x_, y_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             logical_or_eager(x_, y_; name=name)
         else
             logical_or_graph(x_, y_; name=name)
@@ -16307,7 +16307,7 @@ begin
         return res[1]
     end
     function resource_apply_adadelta(var_, accum_, accum_update_, lr_, rho_, epsilon_, grad_; name=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             resource_apply_adadelta_eager(var_, accum_, accum_update_, lr_, rho_, epsilon_, grad_; name=name, use_locking=use_locking)
         else
             resource_apply_adadelta_graph(var_, accum_, accum_update_, lr_, rho_, epsilon_, grad_; name=name, use_locking=use_locking)
@@ -16373,7 +16373,7 @@ begin
         return res
     end
     function dense_to_sparse_set_operation(set1_, set2_indices_, set2_values_, set2_shape_; name=nothing, set_operation=nothing, validate_indices=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             dense_to_sparse_set_operation_eager(set1_, set2_indices_, set2_values_, set2_shape_; name=name, set_operation=set_operation, validate_indices=validate_indices)
         else
             dense_to_sparse_set_operation_graph(set1_, set2_indices_, set2_values_, set2_shape_; name=name, set_operation=set_operation, validate_indices=validate_indices)
@@ -16407,7 +16407,7 @@ begin
         return res[1]
     end
     function reader_num_records_produced(reader_handle_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             reader_num_records_produced_eager(reader_handle_; name=name)
         else
             reader_num_records_produced_graph(reader_handle_; name=name)
@@ -16447,7 +16447,7 @@ begin
         return res[1]
     end
     function adjust_hue(images_, delta_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             adjust_hue_eager(images_, delta_; name=name)
         else
             adjust_hue_graph(images_, delta_; name=name)
@@ -16491,7 +16491,7 @@ begin
         return res[1]
     end
     function boosted_trees_quantile_stream_resource_flush(quantile_stream_resource_handle_, num_buckets_; name=nothing, generate_quantiles=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             boosted_trees_quantile_stream_resource_flush_eager(quantile_stream_resource_handle_, num_buckets_; name=name, generate_quantiles=generate_quantiles)
         else
             boosted_trees_quantile_stream_resource_flush_graph(quantile_stream_resource_handle_, num_buckets_; name=name, generate_quantiles=generate_quantiles)
@@ -16571,7 +16571,7 @@ begin
         return res[1]
     end
     function experimental_map_and_batch_dataset(input_dataset_, other_arguments_, batch_size_, num_parallel_calls_, drop_remainder_; name=nothing, f=nothing, Targuments=nothing, output_types=nothing, output_shapes=nothing, preserve_cardinality=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             experimental_map_and_batch_dataset_eager(input_dataset_, other_arguments_, batch_size_, num_parallel_calls_, drop_remainder_; name=name, f=f, Targuments=Targuments, output_types=output_types, output_shapes=output_shapes, preserve_cardinality=preserve_cardinality)
         else
             experimental_map_and_batch_dataset_graph(input_dataset_, other_arguments_, batch_size_, num_parallel_calls_, drop_remainder_; name=name, f=f, Targuments=Targuments, output_types=output_types, output_shapes=output_shapes, preserve_cardinality=preserve_cardinality)
@@ -16612,7 +16612,7 @@ begin
         return res[1]
     end
     function real_div(x_, y_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             real_div_eager(x_, y_; name=name)
         else
             real_div_graph(x_, y_; name=name)
@@ -16666,7 +16666,7 @@ begin
         return res[1]
     end
     function restore_slice(file_pattern_, tensor_name_, shape_and_slice_; name=nothing, dt=nothing, preferred_shard=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             restore_slice_eager(file_pattern_, tensor_name_, shape_and_slice_; name=name, dt=dt, preferred_shard=preferred_shard)
         else
             restore_slice_graph(file_pattern_, tensor_name_, shape_and_slice_; name=name, dt=dt, preferred_shard=preferred_shard)
@@ -16706,7 +16706,7 @@ begin
         return res[1]
     end
     function stack_pop_v2(handle_; name=nothing, elem_type=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             stack_pop_v2_eager(handle_; name=name, elem_type=elem_type)
         else
             stack_pop_v2_graph(handle_; name=name, elem_type=elem_type)
@@ -16746,7 +16746,7 @@ begin
         return res[1]
     end
     function reverse(tensor_, dims_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             reverse_eager(tensor_, dims_; name=name)
         else
             reverse_graph(tensor_, dims_; name=name)
@@ -16792,7 +16792,7 @@ begin
         return res[1]
     end
     function decode_png(contents_; name=nothing, channels=nothing, dtype=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             decode_png_eager(contents_; name=name, channels=channels, dtype=dtype)
         else
             decode_png_graph(contents_; name=name, channels=channels, dtype=dtype)
@@ -16841,7 +16841,7 @@ begin
         return res[1]
     end
     function non_max_suppression_v2(boxes_, scores_, max_output_size_, iou_threshold_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             non_max_suppression_v2_eager(boxes_, scores_, max_output_size_, iou_threshold_; name=name)
         else
             non_max_suppression_v2_graph(boxes_, scores_, max_output_size_, iou_threshold_; name=name)
@@ -16882,7 +16882,7 @@ begin
         return res[1]
     end
     function igamma(a_, x_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             igamma_eager(a_, x_; name=name)
         else
             igamma_graph(a_, x_; name=name)
@@ -16918,7 +16918,7 @@ begin
         return res[1]
     end
     function digamma(x_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             digamma_eager(x_; name=name)
         else
             digamma_graph(x_; name=name)
@@ -16997,7 +16997,7 @@ begin
         return res[1]
     end
     function resource_apply_ada_max(var_, m_, v_, beta1_power_, lr_, beta1_, beta2_, epsilon_, grad_; name=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             resource_apply_ada_max_eager(var_, m_, v_, beta1_power_, lr_, beta1_, beta2_, epsilon_, grad_; name=name, use_locking=use_locking)
         else
             resource_apply_ada_max_graph(var_, m_, v_, beta1_power_, lr_, beta1_, beta2_, epsilon_, grad_; name=name, use_locking=use_locking)
@@ -17045,7 +17045,7 @@ begin
         return res[1]
     end
     function space_to_depth(input_; name=nothing, block_size=nothing, data_format=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             space_to_depth_eager(input_; name=name, block_size=block_size, data_format=data_format)
         else
             space_to_depth_graph(input_; name=name, block_size=block_size, data_format=data_format)
@@ -17086,7 +17086,7 @@ begin
         return res[1]
     end
     function sqrt_grad(y_, dy_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sqrt_grad_eager(y_, dy_; name=name)
         else
             sqrt_grad_graph(y_, dy_; name=name)
@@ -17154,7 +17154,7 @@ begin
         return res[1]
     end
     function map_unstage(key_, indices_; name=nothing, capacity=nothing, memory_limit=nothing, dtypes=nothing, container=nothing, shared_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             map_unstage_eager(key_, indices_; name=name, capacity=capacity, memory_limit=memory_limit, dtypes=dtypes, container=container, shared_name=shared_name)
         else
             map_unstage_graph(key_, indices_; name=name, capacity=capacity, memory_limit=memory_limit, dtypes=dtypes, container=container, shared_name=shared_name)
@@ -17201,7 +17201,7 @@ begin
         return res
     end
     function qr(input_; name=nothing, full_matrices=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             qr_eager(input_; name=name, full_matrices=full_matrices)
         else
             qr_graph(input_; name=name, full_matrices=full_matrices)
@@ -17272,7 +17272,7 @@ begin
         return res
     end
     function boosted_trees_calculate_best_gains_per_feature(node_id_range_, stats_summary_list_, l1_, l2_, tree_complexity_, min_node_weight_; name=nothing, max_splits=nothing, num_features=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             boosted_trees_calculate_best_gains_per_feature_eager(node_id_range_, stats_summary_list_, l1_, l2_, tree_complexity_, min_node_weight_; name=name, max_splits=max_splits, num_features=num_features)
         else
             boosted_trees_calculate_best_gains_per_feature_graph(node_id_range_, stats_summary_list_, l1_, l2_, tree_complexity_, min_node_weight_; name=name, max_splits=max_splits, num_features=num_features)
@@ -17333,7 +17333,7 @@ begin
         return res[1]
     end
     function unbatch_grad(original_input_, batch_index_, grad_, id_; name=nothing, container=nothing, shared_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             unbatch_grad_eager(original_input_, batch_index_, grad_, id_; name=name, container=container, shared_name=shared_name)
         else
             unbatch_grad_graph(original_input_, batch_index_, grad_, id_; name=name, container=container, shared_name=shared_name)
@@ -17369,7 +17369,7 @@ begin
         return res[1]
     end
     function log_softmax(logits_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             log_softmax_eager(logits_; name=name)
         else
             log_softmax_graph(logits_; name=name)
@@ -17409,7 +17409,7 @@ begin
         return res[1]
     end
     function resource_count_up_to(resource_; name=nothing, limit=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             resource_count_up_to_eager(resource_; name=name, limit=limit)
         else
             resource_count_up_to_graph(resource_; name=name, limit=limit)
@@ -17457,7 +17457,7 @@ begin
         return res[1]
     end
     function accumulate_nv2(inputs_; name=nothing, N=nothing, shape=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             accumulate_nv2_eager(inputs_; name=name, N=N, shape=shape)
         else
             accumulate_nv2_graph(inputs_; name=name, N=N, shape=shape)
@@ -17541,7 +17541,7 @@ begin
         return res[1]
     end
     function parallel_map_dataset(input_dataset_, other_arguments_, num_parallel_calls_; name=nothing, f=nothing, Targuments=nothing, output_types=nothing, output_shapes=nothing, use_inter_op_parallelism=nothing, sloppy=nothing, preserve_cardinality=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             parallel_map_dataset_eager(input_dataset_, other_arguments_, num_parallel_calls_; name=name, f=f, Targuments=Targuments, output_types=output_types, output_shapes=output_shapes, use_inter_op_parallelism=use_inter_op_parallelism, sloppy=sloppy, preserve_cardinality=preserve_cardinality)
         else
             parallel_map_dataset_graph(input_dataset_, other_arguments_, num_parallel_calls_; name=name, f=f, Targuments=Targuments, output_types=output_types, output_shapes=output_shapes, use_inter_op_parallelism=use_inter_op_parallelism, sloppy=sloppy, preserve_cardinality=preserve_cardinality)
@@ -17595,7 +17595,7 @@ begin
         return res[1]
     end
     function random_uniform(shape_; name=nothing, seed=nothing, seed2=nothing, dtype=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             random_uniform_eager(shape_; name=name, seed=seed, seed2=seed2, dtype=dtype)
         else
             random_uniform_graph(shape_; name=name, seed=seed, seed2=seed2, dtype=dtype)
@@ -17659,7 +17659,7 @@ begin
         return res[1]
     end
     function unicode_transcode(input_; name=nothing, input_encoding=nothing, output_encoding=nothing, errors=nothing, replacement_char=nothing, replace_control_characters=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             unicode_transcode_eager(input_; name=name, input_encoding=input_encoding, output_encoding=output_encoding, errors=errors, replacement_char=replacement_char, replace_control_characters=replace_control_characters)
         else
             unicode_transcode_graph(input_; name=name, input_encoding=input_encoding, output_encoding=output_encoding, errors=errors, replacement_char=replacement_char, replace_control_characters=replace_control_characters)
@@ -17693,7 +17693,7 @@ begin
         return res[1]
     end
     function reader_reset(reader_handle_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             reader_reset_eager(reader_handle_; name=name)
         else
             reader_reset_graph(reader_handle_; name=name)
@@ -17741,7 +17741,7 @@ begin
         return res[1]
     end
     function _nccl_broadcast_send(input_; name=nothing, num_devices=nothing, shared_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             _nccl_broadcast_send_eager(input_; name=name, num_devices=num_devices, shared_name=shared_name)
         else
             _nccl_broadcast_send_graph(input_; name=name, num_devices=num_devices, shared_name=shared_name)
@@ -17777,7 +17777,7 @@ begin
         return res[1]
     end
     function batch_matrix_determinant(input_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             batch_matrix_determinant_eager(input_; name=name)
         else
             batch_matrix_determinant_graph(input_; name=name)
@@ -17818,7 +17818,7 @@ begin
         return res[1]
     end
     function less_equal(x_, y_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             less_equal_eager(x_, y_; name=name)
         else
             less_equal_graph(x_, y_; name=name)
@@ -17870,7 +17870,7 @@ begin
         return res[1]
     end
     function apply_gradient_descent(var_, alpha_, delta_; name=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             apply_gradient_descent_eager(var_, alpha_, delta_; name=name, use_locking=use_locking)
         else
             apply_gradient_descent_graph(var_, alpha_, delta_; name=name, use_locking=use_locking)
@@ -17917,7 +17917,7 @@ begin
         return res[1]
     end
     function sparse_segment_sqrt_n(data_, indices_, segment_ids_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sparse_segment_sqrt_n_eager(data_, indices_, segment_ids_; name=name)
         else
             sparse_segment_sqrt_n_graph(data_, indices_, segment_ids_; name=name)
@@ -17953,7 +17953,7 @@ begin
         return res[1]
     end
     function matrix_logarithm(input_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             matrix_logarithm_eager(input_; name=name)
         else
             matrix_logarithm_graph(input_; name=name)
@@ -18007,7 +18007,7 @@ begin
         return res[1]
     end
     function scatter_mul(ref_, indices_, updates_; name=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             scatter_mul_eager(ref_, indices_, updates_; name=name, use_locking=use_locking)
         else
             scatter_mul_graph(ref_, indices_, updates_; name=name, use_locking=use_locking)
@@ -18077,7 +18077,7 @@ begin
         return res[1]
     end
     function decode_jpeg(contents_; name=nothing, channels=nothing, ratio=nothing, fancy_upscaling=nothing, try_recover_truncated=nothing, acceptable_fraction=nothing, dct_method=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             decode_jpeg_eager(contents_; name=name, channels=channels, ratio=ratio, fancy_upscaling=fancy_upscaling, try_recover_truncated=try_recover_truncated, acceptable_fraction=acceptable_fraction, dct_method=dct_method)
         else
             decode_jpeg_graph(contents_; name=name, channels=channels, ratio=ratio, fancy_upscaling=fancy_upscaling, try_recover_truncated=try_recover_truncated, acceptable_fraction=acceptable_fraction, dct_method=dct_method)
@@ -18155,7 +18155,7 @@ begin
         return res[1]
     end
     function random_shuffle_queue_v2(; name=nothing, component_types=nothing, shapes=nothing, capacity=nothing, min_after_dequeue=nothing, seed=nothing, seed2=nothing, container=nothing, shared_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             random_shuffle_queue_v2_eager(; name=name, component_types=component_types, shapes=shapes, capacity=capacity, min_after_dequeue=min_after_dequeue, seed=seed, seed2=seed2, container=container, shared_name=shared_name)
         else
             random_shuffle_queue_v2_graph(; name=name, component_types=component_types, shapes=shapes, capacity=capacity, min_after_dequeue=min_after_dequeue, seed=seed, seed2=seed2, container=container, shared_name=shared_name)
@@ -18205,7 +18205,7 @@ begin
         return res[1]
     end
     function queue_enqueue_many_v2(handle_, components_; name=nothing, Tcomponents=nothing, timeout_ms=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             queue_enqueue_many_v2_eager(handle_, components_; name=name, Tcomponents=Tcomponents, timeout_ms=timeout_ms)
         else
             queue_enqueue_many_v2_graph(handle_, components_; name=name, Tcomponents=Tcomponents, timeout_ms=timeout_ms)
@@ -18290,7 +18290,7 @@ begin
         return res[1]
     end
     function resource_sparse_apply_centered_rms_prop(var_, mg_, ms_, mom_, lr_, rho_, momentum_, epsilon_, grad_, indices_; name=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             resource_sparse_apply_centered_rms_prop_eager(var_, mg_, ms_, mom_, lr_, rho_, momentum_, epsilon_, grad_, indices_; name=name, use_locking=use_locking)
         else
             resource_sparse_apply_centered_rms_prop_graph(var_, mg_, ms_, mom_, lr_, rho_, momentum_, epsilon_, grad_, indices_; name=name, use_locking=use_locking)
@@ -18360,7 +18360,7 @@ begin
         return res[1]
     end
     function interleave_dataset(input_dataset_, other_arguments_, cycle_length_, block_length_; name=nothing, f=nothing, Targuments=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             interleave_dataset_eager(input_dataset_, other_arguments_, cycle_length_, block_length_; name=name, f=f, Targuments=Targuments, output_types=output_types, output_shapes=output_shapes)
         else
             interleave_dataset_graph(input_dataset_, other_arguments_, cycle_length_, block_length_; name=name, f=f, Targuments=Targuments, output_types=output_types, output_shapes=output_shapes)
@@ -18400,7 +18400,7 @@ begin
         return res[1]
     end
     function stack_pop(handle_; name=nothing, elem_type=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             stack_pop_eager(handle_; name=name, elem_type=elem_type)
         else
             stack_pop_graph(handle_; name=name, elem_type=elem_type)
@@ -18456,7 +18456,7 @@ begin
         return res[1]
     end
     function max_pool_v2(input_, ksize_, strides_; name=nothing, padding=nothing, data_format=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             max_pool_v2_eager(input_, ksize_, strides_; name=name, padding=padding, data_format=data_format)
         else
             max_pool_v2_graph(input_, ksize_, strides_; name=name, padding=padding, data_format=data_format)
@@ -18498,7 +18498,7 @@ begin
         return res[1]
     end
     function boosted_trees_deserialize_ensemble(tree_ensemble_handle_, stamp_token_, tree_ensemble_serialized_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             boosted_trees_deserialize_ensemble_eager(tree_ensemble_handle_, stamp_token_, tree_ensemble_serialized_; name=name)
         else
             boosted_trees_deserialize_ensemble_graph(tree_ensemble_handle_, stamp_token_, tree_ensemble_serialized_; name=name)
@@ -18566,7 +18566,7 @@ begin
         return res[1]
     end
     function load_and_remap_matrix(ckpt_path_, old_tensor_name_, row_remapping_, col_remapping_, initializing_values_; name=nothing, num_rows=nothing, num_cols=nothing, max_rows_in_memory=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             load_and_remap_matrix_eager(ckpt_path_, old_tensor_name_, row_remapping_, col_remapping_, initializing_values_; name=name, num_rows=num_rows, num_cols=num_cols, max_rows_in_memory=max_rows_in_memory)
         else
             load_and_remap_matrix_graph(ckpt_path_, old_tensor_name_, row_remapping_, col_remapping_, initializing_values_; name=name, num_rows=num_rows, num_cols=num_cols, max_rows_in_memory=max_rows_in_memory)
@@ -18635,7 +18635,7 @@ begin
         return res[1]
     end
     function sparse_apply_proximal_gradient_descent(var_, alpha_, l1_, l2_, grad_, indices_; name=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sparse_apply_proximal_gradient_descent_eager(var_, alpha_, l1_, l2_, grad_, indices_; name=name, use_locking=use_locking)
         else
             sparse_apply_proximal_gradient_descent_graph(var_, alpha_, l1_, l2_, grad_, indices_; name=name, use_locking=use_locking)
@@ -18687,7 +18687,7 @@ begin
         return res[1]
     end
     function py_func_stateless(input_; name=nothing, token=nothing, Tin=nothing, Tout=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             py_func_stateless_eager(input_; name=name, token=token, Tin=Tin, Tout=Tout)
         else
             py_func_stateless_graph(input_; name=name, token=token, Tin=Tin, Tout=Tout)
@@ -18723,7 +18723,7 @@ begin
         return res[1]
     end
     function where(input_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             where_eager(input_; name=name)
         else
             where_graph(input_; name=name)
@@ -18785,7 +18785,7 @@ begin
         return res[1]
     end
     function mfcc(spectrogram_, sample_rate_; name=nothing, upper_frequency_limit=nothing, lower_frequency_limit=nothing, filterbank_channel_count=nothing, dct_coefficient_count=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             mfcc_eager(spectrogram_, sample_rate_; name=name, upper_frequency_limit=upper_frequency_limit, lower_frequency_limit=lower_frequency_limit, filterbank_channel_count=filterbank_channel_count, dct_coefficient_count=dct_coefficient_count)
         else
             mfcc_graph(spectrogram_, sample_rate_; name=name, upper_frequency_limit=upper_frequency_limit, lower_frequency_limit=lower_frequency_limit, filterbank_channel_count=filterbank_channel_count, dct_coefficient_count=dct_coefficient_count)
@@ -18827,7 +18827,7 @@ begin
         return res[1]
     end
     function check_numerics(tensor_; name=nothing, message=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             check_numerics_eager(tensor_; name=name, message=message)
         else
             check_numerics_graph(tensor_; name=name, message=message)
@@ -18858,7 +18858,7 @@ begin
         return res[1]
     end
     function tpu_compilation_result(; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tpu_compilation_result_eager(; name=name)
         else
             tpu_compilation_result_graph(; name=name)
@@ -18912,7 +18912,7 @@ begin
         return res[1]
     end
     function retrieve_tpu_embedding_stochastic_gradient_descent_parameters(; name=nothing, table_id=nothing, table_name=nothing, num_shards=nothing, shard_id=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             retrieve_tpu_embedding_stochastic_gradient_descent_parameters_eager(; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
         else
             retrieve_tpu_embedding_stochastic_gradient_descent_parameters_graph(; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
@@ -18963,7 +18963,7 @@ begin
         return res[1]
     end
     function sparse_segment_mean_grad(grad_, indices_, segment_ids_, output_dim0_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sparse_segment_mean_grad_eager(grad_, indices_, segment_ids_, output_dim0_; name=name)
         else
             sparse_segment_mean_grad_graph(grad_, indices_, segment_ids_, output_dim0_; name=name)
@@ -19028,7 +19028,7 @@ begin
         return res
     end
     function try_rpc(address_, method_, request_; name=nothing, protocol=nothing, fail_fast=nothing, timeout_in_ms=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             try_rpc_eager(address_, method_, request_; name=name, protocol=protocol, fail_fast=fail_fast, timeout_in_ms=timeout_in_ms)
         else
             try_rpc_graph(address_, method_, request_; name=name, protocol=protocol, fail_fast=fail_fast, timeout_in_ms=timeout_in_ms)
@@ -19081,7 +19081,7 @@ begin
         return res[1]
     end
     function batch_matrix_triangular_solve(matrix_, rhs_; name=nothing, lower=nothing, adjoint=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             batch_matrix_triangular_solve_eager(matrix_, rhs_; name=name, lower=lower, adjoint=adjoint)
         else
             batch_matrix_triangular_solve_graph(matrix_, rhs_; name=name, lower=lower, adjoint=adjoint)
@@ -19123,7 +19123,7 @@ begin
         return res[1]
     end
     function _retval(input_; name=nothing, index=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             _retval_eager(input_; name=name, index=index)
         else
             _retval_graph(input_; name=name, index=index)
@@ -19170,7 +19170,7 @@ begin
         return res
     end
     function unique_with_counts(x_; name=nothing, out_idx=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             unique_with_counts_eager(x_; name=name, out_idx=out_idx)
         else
             unique_with_counts_graph(x_; name=name, out_idx=out_idx)
@@ -19211,7 +19211,7 @@ begin
         return res[1]
     end
     function add(x_, y_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             add_eager(x_, y_; name=name)
         else
             add_graph(x_, y_; name=name)
@@ -19289,7 +19289,7 @@ begin
         return res[1]
     end
     function experimental_scan_dataset(input_dataset_, initial_state_, other_arguments_; name=nothing, f=nothing, Tstate=nothing, Targuments=nothing, output_types=nothing, output_shapes=nothing, preserve_cardinality=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             experimental_scan_dataset_eager(input_dataset_, initial_state_, other_arguments_; name=name, f=f, Tstate=Tstate, Targuments=Targuments, output_types=output_types, output_shapes=output_shapes, preserve_cardinality=preserve_cardinality)
         else
             experimental_scan_dataset_graph(input_dataset_, initial_state_, other_arguments_; name=name, f=f, Tstate=Tstate, Targuments=Targuments, output_types=output_types, output_shapes=output_shapes, preserve_cardinality=preserve_cardinality)
@@ -19335,7 +19335,7 @@ begin
         return res[1]
     end
     function assign_add_variable_op(resource_, value_; name=nothing, dtype=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             assign_add_variable_op_eager(resource_, value_; name=name, dtype=dtype)
         else
             assign_add_variable_op_graph(resource_, value_; name=name, dtype=dtype)
@@ -19393,7 +19393,7 @@ begin
         return res
     end
     function split_v(value_, size_splits_, split_dim_; name=nothing, num_split=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             split_v_eager(value_, size_splits_, split_dim_; name=name, num_split=num_split)
         else
             split_v_graph(value_, size_splits_, split_dim_; name=name, num_split=num_split)
@@ -19446,7 +19446,7 @@ begin
         return res[1]
     end
     function assign(ref_, value_; name=nothing, validate_shape=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             assign_eager(ref_, value_; name=name, validate_shape=validate_shape, use_locking=use_locking)
         else
             assign_graph(ref_, value_; name=name, validate_shape=validate_shape, use_locking=use_locking)
@@ -19505,7 +19505,7 @@ begin
         return res
     end
     function max_pool_with_argmax(input_; name=nothing, ksize=nothing, strides=nothing, padding=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             max_pool_with_argmax_eager(input_; name=name, ksize=ksize, strides=strides, padding=padding)
         else
             max_pool_with_argmax_graph(input_; name=name, ksize=ksize, strides=strides, padding=padding)
@@ -19564,7 +19564,7 @@ begin
         return res
     end
     function quantized_relu_x(features_, max_value_, min_features_, max_features_; name=nothing, out_type=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             quantized_relu_x_eager(features_, max_value_, min_features_, max_features_; name=name, out_type=out_type)
         else
             quantized_relu_x_graph(features_, max_value_, min_features_, max_features_; name=name, out_type=out_type)
@@ -19642,7 +19642,7 @@ begin
         return res[1]
     end
     function random_shuffle_queue(; name=nothing, component_types=nothing, shapes=nothing, capacity=nothing, min_after_dequeue=nothing, seed=nothing, seed2=nothing, container=nothing, shared_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             random_shuffle_queue_eager(; name=name, component_types=component_types, shapes=shapes, capacity=capacity, min_after_dequeue=min_after_dequeue, seed=seed, seed2=seed2, container=container, shared_name=shared_name)
         else
             random_shuffle_queue_graph(; name=name, component_types=component_types, shapes=shapes, capacity=capacity, min_after_dequeue=min_after_dequeue, seed=seed, seed2=seed2, container=container, shared_name=shared_name)
@@ -19678,7 +19678,7 @@ begin
         return res[1]
     end
     function fft2d(input_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             fft2d_eager(input_; name=name)
         else
             fft2d_graph(input_; name=name)
@@ -19728,7 +19728,7 @@ begin
         return res[1]
     end
     function experimental_thread_pool_dataset(input_dataset_, thread_pool_; name=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             experimental_thread_pool_dataset_eager(input_dataset_, thread_pool_; name=name, output_types=output_types, output_shapes=output_shapes)
         else
             experimental_thread_pool_dataset_graph(input_dataset_, thread_pool_; name=name, output_types=output_types, output_shapes=output_shapes)
@@ -19784,7 +19784,7 @@ begin
         return res[1]
     end
     function experimental_directed_interleave_dataset(selector_input_dataset_, data_input_datasets_; name=nothing, output_types=nothing, output_shapes=nothing, N=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             experimental_directed_interleave_dataset_eager(selector_input_dataset_, data_input_datasets_; name=name, output_types=output_types, output_shapes=output_shapes, N=N)
         else
             experimental_directed_interleave_dataset_graph(selector_input_dataset_, data_input_datasets_; name=name, output_types=output_types, output_shapes=output_shapes, N=N)
@@ -19835,7 +19835,7 @@ begin
         return res[1]
     end
     function sparse_segment_sqrt_n_grad(grad_, indices_, segment_ids_, output_dim0_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sparse_segment_sqrt_n_grad_eager(grad_, indices_, segment_ids_, output_dim0_; name=name)
         else
             sparse_segment_sqrt_n_grad_graph(grad_, indices_, segment_ids_, output_dim0_; name=name)
@@ -19871,7 +19871,7 @@ begin
         return res[1]
     end
     function real(input_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             real_eager(input_; name=name)
         else
             real_graph(input_; name=name)
@@ -19939,7 +19939,7 @@ begin
         return res[1]
     end
     function ordered_map_unstage(key_, indices_; name=nothing, capacity=nothing, memory_limit=nothing, dtypes=nothing, container=nothing, shared_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             ordered_map_unstage_eager(key_, indices_; name=name, capacity=capacity, memory_limit=memory_limit, dtypes=dtypes, container=container, shared_name=shared_name)
         else
             ordered_map_unstage_graph(key_, indices_; name=name, capacity=capacity, memory_limit=memory_limit, dtypes=dtypes, container=container, shared_name=shared_name)
@@ -19977,7 +19977,7 @@ begin
         return res[1]
     end
     function rfft2d(input_, fft_length_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             rfft2d_eager(input_, fft_length_; name=name)
         else
             rfft2d_graph(input_, fft_length_; name=name)
@@ -20011,7 +20011,7 @@ begin
         return res[1]
     end
     function var_is_initialized_op(resource_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             var_is_initialized_op_eager(resource_; name=name)
         else
             var_is_initialized_op_graph(resource_; name=name)
@@ -20053,7 +20053,7 @@ begin
         return res[1]
     end
     function boosted_trees_quantile_stream_resource_handle_op(; name=nothing, container=nothing, shared_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             boosted_trees_quantile_stream_resource_handle_op_eager(; name=name, container=container, shared_name=shared_name)
         else
             boosted_trees_quantile_stream_resource_handle_op_graph(; name=name, container=container, shared_name=shared_name)
@@ -20094,7 +20094,7 @@ begin
         return res[1]
     end
     function atan2(y_, x_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             atan2_eager(y_, x_; name=name)
         else
             atan2_graph(y_, x_; name=name)
@@ -20160,7 +20160,7 @@ begin
         return res[1]
     end
     function random_poisson(shape_, rate_; name=nothing, seed=nothing, seed2=nothing, S=nothing, dtype=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             random_poisson_eager(shape_, rate_; name=name, seed=seed, seed2=seed2, S=S, dtype=dtype)
         else
             random_poisson_graph(shape_, rate_; name=name, seed=seed, seed2=seed2, S=S, dtype=dtype)
@@ -20214,7 +20214,7 @@ begin
         return res[1]
     end
     function reverse_sequence(input_, seq_lengths_; name=nothing, seq_dim=nothing, batch_dim=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             reverse_sequence_eager(input_, seq_lengths_; name=name, seq_dim=seq_dim, batch_dim=batch_dim)
         else
             reverse_sequence_graph(input_, seq_lengths_; name=name, seq_dim=seq_dim, batch_dim=batch_dim)
@@ -20256,7 +20256,7 @@ begin
         return res[1]
     end
     function outfeed_enqueue(input_; name=nothing, dtype=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             outfeed_enqueue_eager(input_; name=name, dtype=dtype)
         else
             outfeed_enqueue_graph(input_; name=name, dtype=dtype)
@@ -20297,7 +20297,7 @@ begin
         return res[1]
     end
     function sub(x_, y_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sub_eager(x_, y_; name=name)
         else
             sub_graph(x_, y_; name=name)
@@ -20346,7 +20346,7 @@ begin
         return res
     end
     function string_split(input_, delimiter_; name=nothing, skip_empty=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             string_split_eager(input_, delimiter_; name=name, skip_empty=skip_empty)
         else
             string_split_graph(input_, delimiter_; name=name, skip_empty=skip_empty)
@@ -20401,7 +20401,7 @@ begin
         return res[1]
     end
     function cumprod(x_, axis_; name=nothing, exclusive=nothing, reverse=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             cumprod_eager(x_, axis_; name=name, exclusive=exclusive, reverse=reverse)
         else
             cumprod_graph(x_, axis_; name=name, exclusive=exclusive, reverse=reverse)
@@ -20460,7 +20460,7 @@ begin
         return res
     end
     function quantized_resize_bilinear(images_, size_, min_, max_; name=nothing, align_corners=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             quantized_resize_bilinear_eager(images_, size_, min_, max_; name=name, align_corners=align_corners)
         else
             quantized_resize_bilinear_graph(images_, size_, min_, max_; name=name, align_corners=align_corners)
@@ -20539,7 +20539,7 @@ begin
         return res
     end
     function parse_single_example(serialized_, dense_defaults_; name=nothing, num_sparse=nothing, sparse_keys=nothing, dense_keys=nothing, sparse_types=nothing, Tdense=nothing, dense_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             parse_single_example_eager(serialized_, dense_defaults_; name=name, num_sparse=num_sparse, sparse_keys=sparse_keys, dense_keys=dense_keys, sparse_types=sparse_types, Tdense=Tdense, dense_shapes=dense_shapes)
         else
             parse_single_example_graph(serialized_, dense_defaults_; name=name, num_sparse=num_sparse, sparse_keys=sparse_keys, dense_keys=dense_keys, sparse_types=sparse_types, Tdense=Tdense, dense_shapes=dense_shapes)
@@ -20581,7 +20581,7 @@ begin
         return res[1]
     end
     function is_variable_initialized(ref_; name=nothing, dtype=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             is_variable_initialized_eager(ref_; name=name, dtype=dtype)
         else
             is_variable_initialized_graph(ref_; name=name, dtype=dtype)
@@ -20623,7 +20623,7 @@ begin
         return res[1]
     end
     function experimental_stats_aggregator_handle(; name=nothing, container=nothing, shared_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             experimental_stats_aggregator_handle_eager(; name=name, container=container, shared_name=shared_name)
         else
             experimental_stats_aggregator_handle_graph(; name=name, container=container, shared_name=shared_name)
@@ -20684,7 +20684,7 @@ begin
         return res
     end
     function tensor_list_concat_v2(input_handle_, element_shape_, leading_dims_; name=nothing, element_dtype=nothing, shape_type=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_list_concat_v2_eager(input_handle_, element_shape_, leading_dims_; name=name, element_dtype=element_dtype, shape_type=shape_type)
         else
             tensor_list_concat_v2_graph(input_handle_, element_shape_, leading_dims_; name=name, element_dtype=element_dtype, shape_type=shape_type)
@@ -20782,7 +20782,7 @@ begin
         return res
     end
     function cudnn_rnnv2(input_, input_h_, input_c_, params_; name=nothing, rnn_mode=nothing, input_mode=nothing, direction=nothing, dropout=nothing, seed=nothing, seed2=nothing, is_training=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             cudnn_rnnv2_eager(input_, input_h_, input_c_, params_; name=name, rnn_mode=rnn_mode, input_mode=input_mode, direction=direction, dropout=dropout, seed=seed, seed2=seed2, is_training=is_training)
         else
             cudnn_rnnv2_graph(input_, input_h_, input_c_, params_; name=name, rnn_mode=rnn_mode, input_mode=input_mode, direction=direction, dropout=dropout, seed=seed, seed2=seed2, is_training=is_training)
@@ -20835,7 +20835,7 @@ begin
         return res[1]
     end
     function resource_scatter_sub(resource_, indices_, updates_; name=nothing, dtype=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             resource_scatter_sub_eager(resource_, indices_, updates_; name=name, dtype=dtype)
         else
             resource_scatter_sub_graph(resource_, indices_, updates_; name=name, dtype=dtype)
@@ -20882,7 +20882,7 @@ begin
         return res[1]
     end
     function assign_add(ref_, value_; name=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             assign_add_eager(ref_, value_; name=name, use_locking=use_locking)
         else
             assign_add_graph(ref_, value_; name=name, use_locking=use_locking)
@@ -20928,7 +20928,7 @@ begin
         return res[1]
     end
     function tensor_dataset(components_; name=nothing, Toutput_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_dataset_eager(components_; name=name, Toutput_types=Toutput_types, output_shapes=output_shapes)
         else
             tensor_dataset_graph(components_; name=name, Toutput_types=Toutput_types, output_shapes=output_shapes)
@@ -20970,7 +20970,7 @@ begin
         return res[1]
     end
     function bucketize(input_; name=nothing, boundaries=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             bucketize_eager(input_; name=name, boundaries=boundaries)
         else
             bucketize_graph(input_; name=name, boundaries=boundaries)
@@ -21024,7 +21024,7 @@ begin
         return res[1]
     end
     function sparse_reduce_max(input_indices_, input_values_, input_shape_, reduction_axes_; name=nothing, keep_dims=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sparse_reduce_max_eager(input_indices_, input_values_, input_shape_, reduction_axes_; name=name, keep_dims=keep_dims)
         else
             sparse_reduce_max_graph(input_indices_, input_values_, input_shape_, reduction_axes_; name=name, keep_dims=keep_dims)
@@ -21083,7 +21083,7 @@ begin
         return res
     end
     function retrieve_tpu_embedding_mdl_adagrad_light_parameters(; name=nothing, table_id=nothing, table_name=nothing, num_shards=nothing, shard_id=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             retrieve_tpu_embedding_mdl_adagrad_light_parameters_eager(; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
         else
             retrieve_tpu_embedding_mdl_adagrad_light_parameters_graph(; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
@@ -21136,7 +21136,7 @@ begin
         return res
     end
     function tensor_array_grad_with_shape(handle_, flow_in_, shape_to_prepend_; name=nothing, source=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_array_grad_with_shape_eager(handle_, flow_in_, shape_to_prepend_; name=name, source=source)
         else
             tensor_array_grad_with_shape_graph(handle_, flow_in_, shape_to_prepend_; name=name, source=source)
@@ -21170,7 +21170,7 @@ begin
         return res[1]
     end
     function tensor_array_close_v3(handle_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_array_close_v3_eager(handle_; name=name)
         else
             tensor_array_close_v3_graph(handle_; name=name)
@@ -21220,7 +21220,7 @@ begin
         return res[1]
     end
     function non_max_suppression_with_overlaps(overlaps_, scores_, max_output_size_, overlap_threshold_, score_threshold_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             non_max_suppression_with_overlaps_eager(overlaps_, scores_, max_output_size_, overlap_threshold_, score_threshold_; name=name)
         else
             non_max_suppression_with_overlaps_graph(overlaps_, scores_, max_output_size_, overlap_threshold_, score_threshold_; name=name)
@@ -21274,7 +21274,7 @@ begin
         return res[1]
     end
     function pack(values_; name=nothing, N=nothing, axis=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             pack_eager(values_; name=name, N=N, axis=axis)
         else
             pack_graph(values_; name=name, N=N, axis=axis)
@@ -21318,7 +21318,7 @@ begin
         return res[1]
     end
     function tensor_array_grad_v2(handle_, flow_in_; name=nothing, source=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_array_grad_v2_eager(handle_, flow_in_; name=name, source=source)
         else
             tensor_array_grad_v2_graph(handle_, flow_in_; name=name, source=source)
@@ -21364,7 +21364,7 @@ begin
         return res[1]
     end
     function assign_sub_variable_op(resource_, value_; name=nothing, dtype=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             assign_sub_variable_op_eager(resource_, value_; name=name, dtype=dtype)
         else
             assign_sub_variable_op_graph(resource_, value_; name=name, dtype=dtype)
@@ -21398,7 +21398,7 @@ begin
         return res[1]
     end
     function batch_fft2d(input_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             batch_fft2d_eager(input_; name=name)
         else
             batch_fft2d_graph(input_; name=name)
@@ -21432,7 +21432,7 @@ begin
         return res[1]
     end
     function close_summary_writer(writer_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             close_summary_writer_eager(writer_; name=name)
         else
             close_summary_writer_graph(writer_; name=name)
@@ -21468,7 +21468,7 @@ begin
         return res[1]
     end
     function rank(input_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             rank_eager(input_; name=name)
         else
             rank_graph(input_; name=name)
@@ -21504,7 +21504,7 @@ begin
         return res[1]
     end
     function fft3d(input_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             fft3d_eager(input_; name=name)
         else
             fft3d_graph(input_; name=name)
@@ -21581,7 +21581,7 @@ begin
         return res[1]
     end
     function apply_ftrl(var_, accum_, linear_, grad_, lr_, l1_, l2_, lr_power_; name=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             apply_ftrl_eager(var_, accum_, linear_, grad_, lr_, l1_, l2_, lr_power_; name=name, use_locking=use_locking)
         else
             apply_ftrl_graph(var_, accum_, linear_, grad_, lr_, l1_, l2_, lr_power_; name=name, use_locking=use_locking)
@@ -21623,7 +21623,7 @@ begin
         return res[1]
     end
     function abort(; name=nothing, error_msg=nothing, exit_without_error=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             abort_eager(; name=name, error_msg=error_msg, exit_without_error=exit_without_error)
         else
             abort_graph(; name=name, error_msg=error_msg, exit_without_error=exit_without_error)
@@ -21675,7 +21675,7 @@ begin
         return res[1]
     end
     function audio_spectrogram(input_; name=nothing, window_size=nothing, stride=nothing, magnitude_squared=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             audio_spectrogram_eager(input_; name=name, window_size=window_size, stride=stride, magnitude_squared=magnitude_squared)
         else
             audio_spectrogram_graph(input_; name=name, window_size=window_size, stride=stride, magnitude_squared=magnitude_squared)
@@ -21715,7 +21715,7 @@ begin
         return res[1]
     end
     function variable_shape(input_; name=nothing, out_type=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             variable_shape_eager(input_; name=name, out_type=out_type)
         else
             variable_shape_graph(input_; name=name, out_type=out_type)
@@ -21775,7 +21775,7 @@ begin
         return res[1]
     end
     function fifo_queue_v2(; name=nothing, component_types=nothing, shapes=nothing, capacity=nothing, container=nothing, shared_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             fifo_queue_v2_eager(; name=name, component_types=component_types, shapes=shapes, capacity=capacity, container=container, shared_name=shared_name)
         else
             fifo_queue_v2_graph(; name=name, component_types=component_types, shapes=shapes, capacity=capacity, container=container, shared_name=shared_name)
@@ -21829,7 +21829,7 @@ begin
         return res[1]
     end
     function variable(; name=nothing, shape=nothing, dtype=nothing, container=nothing, shared_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             variable_eager(; name=name, shape=shape, dtype=dtype, container=container, shared_name=shared_name)
         else
             variable_graph(; name=name, shape=shape, dtype=dtype, container=container, shared_name=shared_name)
@@ -21867,7 +21867,7 @@ begin
         return res[1]
     end
     function tensor_forest_create_tree_variable(tree_handle_, tree_config_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_forest_create_tree_variable_eager(tree_handle_, tree_config_; name=name)
         else
             tensor_forest_create_tree_variable_graph(tree_handle_, tree_config_; name=name)
@@ -21932,7 +21932,7 @@ begin
         return res[1]
     end
     function max_pool_grad_with_argmax(input_, grad_, argmax_; name=nothing, ksize=nothing, strides=nothing, padding=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             max_pool_grad_with_argmax_eager(input_, grad_, argmax_; name=name, ksize=ksize, strides=strides, padding=padding)
         else
             max_pool_grad_with_argmax_graph(input_, grad_, argmax_; name=name, ksize=ksize, strides=strides, padding=padding)
@@ -21977,7 +21977,7 @@ begin
         return res
     end
     function ref_switch(data_, pred_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             ref_switch_eager(data_, pred_; name=name)
         else
             ref_switch_graph(data_, pred_; name=name)
@@ -22011,7 +22011,7 @@ begin
         return res[1]
     end
     function sdca_fprint(input_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sdca_fprint_eager(input_; name=name)
         else
             sdca_fprint_graph(input_; name=name)
@@ -22069,7 +22069,7 @@ begin
         return res[1]
     end
     function experimental_choose_fastest_dataset(input_datasets_; name=nothing, N=nothing, num_experiments=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             experimental_choose_fastest_dataset_eager(input_datasets_; name=name, N=N, num_experiments=num_experiments, output_types=output_types, output_shapes=output_shapes)
         else
             experimental_choose_fastest_dataset_graph(input_datasets_; name=name, N=N, num_experiments=num_experiments, output_types=output_types, output_shapes=output_shapes)
@@ -22111,7 +22111,7 @@ begin
         return res[1]
     end
     function leaky_relu(features_; name=nothing, alpha=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             leaky_relu_eager(features_; name=name, alpha=alpha)
         else
             leaky_relu_graph(features_; name=name, alpha=alpha)
@@ -22151,7 +22151,7 @@ begin
         return res[1]
     end
     function identity_n(input_; name=nothing, T=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             identity_n_eager(input_; name=name, T=T)
         else
             identity_n_graph(input_; name=name, T=T)
@@ -22282,7 +22282,7 @@ begin
         return res
     end
     function cudnn_rnn_backprop_v2(input_, input_h_, input_c_, params_, output_, output_h_, output_c_, output_backprop_, output_h_backprop_, output_c_backprop_, reserve_space_, host_reserved_; name=nothing, rnn_mode=nothing, input_mode=nothing, direction=nothing, dropout=nothing, seed=nothing, seed2=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             cudnn_rnn_backprop_v2_eager(input_, input_h_, input_c_, params_, output_, output_h_, output_c_, output_backprop_, output_h_backprop_, output_c_backprop_, reserve_space_, host_reserved_; name=name, rnn_mode=rnn_mode, input_mode=input_mode, direction=direction, dropout=dropout, seed=seed, seed2=seed2)
         else
             cudnn_rnn_backprop_v2_graph(input_, input_h_, input_c_, params_, output_, output_h_, output_c_, output_backprop_, output_h_backprop_, output_c_backprop_, reserve_space_, host_reserved_; name=name, rnn_mode=rnn_mode, input_mode=input_mode, direction=direction, dropout=dropout, seed=seed, seed2=seed2)
@@ -22331,7 +22331,7 @@ begin
         return res
     end
     function requantization_range(input_, input_min_, input_max_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             requantization_range_eager(input_, input_min_, input_max_; name=name)
         else
             requantization_range_graph(input_, input_min_, input_max_; name=name)
@@ -22372,7 +22372,7 @@ begin
         return res[1]
     end
     function maximum(x_, y_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             maximum_eager(x_, y_; name=name)
         else
             maximum_graph(x_, y_; name=name)
@@ -22414,7 +22414,7 @@ begin
         return res[1]
     end
     function reshape(tensor_, shape_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             reshape_eager(tensor_, shape_; name=name)
         else
             reshape_graph(tensor_, shape_; name=name)
@@ -22465,7 +22465,7 @@ begin
         return res[1]
     end
     function matrix_solve_ls(matrix_, rhs_, l2_regularizer_; name=nothing, fast=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             matrix_solve_ls_eager(matrix_, rhs_, l2_regularizer_; name=name, fast=fast)
         else
             matrix_solve_ls_graph(matrix_, rhs_, l2_regularizer_; name=name, fast=fast)
@@ -22507,7 +22507,7 @@ begin
         return res[1]
     end
     function tf_record_dataset(filenames_, compression_type_, buffer_size_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tf_record_dataset_eager(filenames_, compression_type_, buffer_size_; name=name)
         else
             tf_record_dataset_graph(filenames_, compression_type_, buffer_size_; name=name)
@@ -22557,7 +22557,7 @@ begin
         return res[1]
     end
     function boosted_trees_example_debug_outputs(tree_ensemble_handle_, bucketized_features_; name=nothing, num_bucketized_features=nothing, logits_dimension=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             boosted_trees_example_debug_outputs_eager(tree_ensemble_handle_, bucketized_features_; name=name, num_bucketized_features=num_bucketized_features, logits_dimension=logits_dimension)
         else
             boosted_trees_example_debug_outputs_graph(tree_ensemble_handle_, bucketized_features_; name=name, num_bucketized_features=num_bucketized_features, logits_dimension=logits_dimension)
@@ -22593,7 +22593,7 @@ begin
         return res[1]
     end
     function hsv_to_rgb(images_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             hsv_to_rgb_eager(images_; name=name)
         else
             hsv_to_rgb_graph(images_; name=name)
@@ -22643,7 +22643,7 @@ begin
         return res[1]
     end
     function experimental_max_intra_op_parallelism_dataset(input_dataset_, max_intra_op_parallelism_; name=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             experimental_max_intra_op_parallelism_dataset_eager(input_dataset_, max_intra_op_parallelism_; name=name, output_types=output_types, output_shapes=output_shapes)
         else
             experimental_max_intra_op_parallelism_dataset_graph(input_dataset_, max_intra_op_parallelism_; name=name, output_types=output_types, output_shapes=output_shapes)
@@ -22697,7 +22697,7 @@ begin
         return res[1]
     end
     function scatter_div(ref_, indices_, updates_; name=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             scatter_div_eager(ref_, indices_, updates_; name=name, use_locking=use_locking)
         else
             scatter_div_graph(ref_, indices_, updates_; name=name, use_locking=use_locking)
@@ -22748,7 +22748,7 @@ begin
         return res
     end
     function decode_wav(contents_; name=nothing, desired_channels=nothing, desired_samples=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             decode_wav_eager(contents_; name=name, desired_channels=desired_channels, desired_samples=desired_samples)
         else
             decode_wav_graph(contents_; name=name, desired_channels=desired_channels, desired_samples=desired_samples)
@@ -22784,7 +22784,7 @@ begin
         return res[1]
     end
     function log(x_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             log_eager(x_; name=name)
         else
             log_graph(x_; name=name)
@@ -22836,7 +22836,7 @@ begin
         return res[1]
     end
     function save_v2(prefix_, tensor_names_, shape_and_slices_, tensors_; name=nothing, dtypes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             save_v2_eager(prefix_, tensor_names_, shape_and_slices_, tensors_; name=name, dtypes=dtypes)
         else
             save_v2_graph(prefix_, tensor_names_, shape_and_slices_, tensors_; name=name, dtypes=dtypes)
@@ -22872,7 +22872,7 @@ begin
         return res[1]
     end
     function deep_copy(x_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             deep_copy_eager(x_; name=name)
         else
             deep_copy_graph(x_; name=name)
@@ -22918,7 +22918,7 @@ begin
         return res[1]
     end
     function model_dataset(input_dataset_; name=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             model_dataset_eager(input_dataset_; name=name, output_types=output_types, output_shapes=output_shapes)
         else
             model_dataset_graph(input_dataset_; name=name, output_types=output_types, output_shapes=output_shapes)
@@ -23055,7 +23055,7 @@ begin
         return res
     end
     function parse_sequence_example(serialized_, debug_name_, context_dense_defaults_; name=nothing, feature_list_dense_missing_assumed_empty=nothing, context_sparse_keys=nothing, context_dense_keys=nothing, feature_list_sparse_keys=nothing, feature_list_dense_keys=nothing, Ncontext_sparse=nothing, Ncontext_dense=nothing, Nfeature_list_sparse=nothing, Nfeature_list_dense=nothing, context_sparse_types=nothing, Tcontext_dense=nothing, feature_list_dense_types=nothing, context_dense_shapes=nothing, feature_list_sparse_types=nothing, feature_list_dense_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             parse_sequence_example_eager(serialized_, debug_name_, context_dense_defaults_; name=name, feature_list_dense_missing_assumed_empty=feature_list_dense_missing_assumed_empty, context_sparse_keys=context_sparse_keys, context_dense_keys=context_dense_keys, feature_list_sparse_keys=feature_list_sparse_keys, feature_list_dense_keys=feature_list_dense_keys, Ncontext_sparse=Ncontext_sparse, Ncontext_dense=Ncontext_dense, Nfeature_list_sparse=Nfeature_list_sparse, Nfeature_list_dense=Nfeature_list_dense, context_sparse_types=context_sparse_types, Tcontext_dense=Tcontext_dense, feature_list_dense_types=feature_list_dense_types, context_dense_shapes=context_dense_shapes, feature_list_sparse_types=feature_list_sparse_types, feature_list_dense_shapes=feature_list_dense_shapes)
         else
             parse_sequence_example_graph(serialized_, debug_name_, context_dense_defaults_; name=name, feature_list_dense_missing_assumed_empty=feature_list_dense_missing_assumed_empty, context_sparse_keys=context_sparse_keys, context_dense_keys=context_dense_keys, feature_list_sparse_keys=feature_list_sparse_keys, feature_list_dense_keys=feature_list_dense_keys, Ncontext_sparse=Ncontext_sparse, Ncontext_dense=Ncontext_dense, Nfeature_list_sparse=Nfeature_list_sparse, Nfeature_list_dense=Nfeature_list_dense, context_sparse_types=context_sparse_types, Tcontext_dense=Tcontext_dense, feature_list_dense_types=feature_list_dense_types, context_dense_shapes=context_dense_shapes, feature_list_sparse_types=feature_list_sparse_types, feature_list_dense_shapes=feature_list_dense_shapes)
@@ -23091,7 +23091,7 @@ begin
         return res[1]
     end
     function sinh(x_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sinh_eager(x_; name=name)
         else
             sinh_graph(x_; name=name)
@@ -23145,7 +23145,7 @@ begin
         return res[1]
     end
     function iterator_v2(; name=nothing, shared_name=nothing, container=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             iterator_v2_eager(; name=name, shared_name=shared_name, container=container, output_types=output_types, output_shapes=output_shapes)
         else
             iterator_v2_graph(; name=name, shared_name=shared_name, container=container, output_types=output_types, output_shapes=output_shapes)
@@ -23193,7 +23193,7 @@ begin
         return res[1]
     end
     function tensor_array_write_v2(handle_, index_, value_, flow_in_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_array_write_v2_eager(handle_, index_, value_, flow_in_; name=name)
         else
             tensor_array_write_v2_graph(handle_, index_, value_, flow_in_; name=name)
@@ -23233,7 +23233,7 @@ begin
         return res[1]
     end
     function tensor_list_element_shape(input_handle_; name=nothing, shape_type=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_list_element_shape_eager(input_handle_; name=name, shape_type=shape_type)
         else
             tensor_list_element_shape_graph(input_handle_; name=name, shape_type=shape_type)
@@ -23267,7 +23267,7 @@ begin
         return res[1]
     end
     function queue_size_v2(handle_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             queue_size_v2_eager(handle_; name=name)
         else
             queue_size_v2_graph(handle_; name=name)
@@ -23303,7 +23303,7 @@ begin
         return res[1]
     end
     function expm1(x_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             expm1_eager(x_; name=name)
         else
             expm1_graph(x_; name=name)
@@ -23347,7 +23347,7 @@ begin
         return res[1]
     end
     function batch_matrix_band_part(input_, num_lower_, num_upper_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             batch_matrix_band_part_eager(input_, num_lower_, num_upper_; name=name)
         else
             batch_matrix_band_part_graph(input_, num_lower_, num_upper_; name=name)
@@ -23397,7 +23397,7 @@ begin
         return res[1]
     end
     function concatenate_dataset(input_dataset_, another_dataset_; name=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             concatenate_dataset_eager(input_dataset_, another_dataset_; name=name, output_types=output_types, output_shapes=output_shapes)
         else
             concatenate_dataset_graph(input_dataset_, another_dataset_; name=name, output_types=output_types, output_shapes=output_shapes)
@@ -23431,7 +23431,7 @@ begin
         return res[1]
     end
     function decode_gif(contents_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             decode_gif_eager(contents_; name=name)
         else
             decode_gif_graph(contents_; name=name)
@@ -23561,7 +23561,7 @@ begin
         return res[1]
     end
     function tpu_replicate(inputs_, broadcast_inputs_, variables_, guaranteed_constants_; name=nothing, computation=nothing, num_replicas=nothing, num_cores_per_replica=nothing, topology=nothing, use_tpu=nothing, device_assignment=nothing, host_compute_core=nothing, Tinputs=nothing, Tbroadcast_inputs=nothing, NumVariables=nothing, Tguaranteed_constants=nothing, output_types=nothing, padding_map=nothing, step_marker_location=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tpu_replicate_eager(inputs_, broadcast_inputs_, variables_, guaranteed_constants_; name=name, computation=computation, num_replicas=num_replicas, num_cores_per_replica=num_cores_per_replica, topology=topology, use_tpu=use_tpu, device_assignment=device_assignment, host_compute_core=host_compute_core, Tinputs=Tinputs, Tbroadcast_inputs=Tbroadcast_inputs, NumVariables=NumVariables, Tguaranteed_constants=Tguaranteed_constants, output_types=output_types, padding_map=padding_map, step_marker_location=step_marker_location)
         else
             tpu_replicate_graph(inputs_, broadcast_inputs_, variables_, guaranteed_constants_; name=name, computation=computation, num_replicas=num_replicas, num_cores_per_replica=num_cores_per_replica, topology=topology, use_tpu=use_tpu, device_assignment=device_assignment, host_compute_core=host_compute_core, Tinputs=Tinputs, Tbroadcast_inputs=Tbroadcast_inputs, NumVariables=NumVariables, Tguaranteed_constants=Tguaranteed_constants, output_types=output_types, padding_map=padding_map, step_marker_location=step_marker_location)
@@ -23608,7 +23608,7 @@ begin
         return res
     end
     function batch_self_adjoint_eig_v2(input_; name=nothing, compute_v=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             batch_self_adjoint_eig_v2_eager(input_; name=name, compute_v=compute_v)
         else
             batch_self_adjoint_eig_v2_graph(input_; name=name, compute_v=compute_v)
@@ -23650,7 +23650,7 @@ begin
         return res[1]
     end
     function shape(input_; name=nothing, out_type=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             shape_eager(input_; name=name, out_type=out_type)
         else
             shape_graph(input_; name=name, out_type=out_type)
@@ -23700,7 +23700,7 @@ begin
         return res[1]
     end
     function repeat_dataset(input_dataset_, count_; name=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             repeat_dataset_eager(input_dataset_, count_; name=name, output_types=output_types, output_shapes=output_shapes)
         else
             repeat_dataset_graph(input_dataset_, count_; name=name, output_types=output_types, output_shapes=output_shapes)
@@ -23754,7 +23754,7 @@ begin
         return res[1]
     end
     function crop_and_resize_grad_boxes(grads_, image_, boxes_, box_ind_; name=nothing, method=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             crop_and_resize_grad_boxes_eager(grads_, image_, boxes_, box_ind_; name=name, method=method)
         else
             crop_and_resize_grad_boxes_graph(grads_, image_, boxes_, box_ind_; name=name, method=method)
@@ -23795,7 +23795,7 @@ begin
         return res[1]
     end
     function reciprocal_grad(y_, dy_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             reciprocal_grad_eager(y_, dy_; name=name)
         else
             reciprocal_grad_graph(y_, dy_; name=name)
@@ -23842,7 +23842,7 @@ begin
         return res[1]
     end
     function batch_matrix_solve(matrix_, rhs_; name=nothing, adjoint=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             batch_matrix_solve_eager(matrix_, rhs_; name=name, adjoint=adjoint)
         else
             batch_matrix_solve_graph(matrix_, rhs_; name=name, adjoint=adjoint)
@@ -23902,7 +23902,7 @@ begin
         return res[1]
     end
     function mutable_hash_table_v2(; name=nothing, container=nothing, shared_name=nothing, use_node_name_sharing=nothing, key_dtype=nothing, value_dtype=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             mutable_hash_table_v2_eager(; name=name, container=container, shared_name=shared_name, use_node_name_sharing=use_node_name_sharing, key_dtype=key_dtype, value_dtype=value_dtype)
         else
             mutable_hash_table_v2_graph(; name=name, container=container, shared_name=shared_name, use_node_name_sharing=use_node_name_sharing, key_dtype=key_dtype, value_dtype=value_dtype)
@@ -23938,7 +23938,7 @@ begin
         return res[1]
     end
     function exit(data_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             exit_eager(data_; name=name)
         else
             exit_graph(data_; name=name)
@@ -23998,7 +23998,7 @@ begin
         return res[1]
     end
     function lrn(input_; name=nothing, depth_radius=nothing, bias=nothing, alpha=nothing, beta=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             lrn_eager(input_; name=name, depth_radius=depth_radius, bias=bias, alpha=alpha, beta=beta)
         else
             lrn_graph(input_; name=name, depth_radius=depth_radius, bias=bias, alpha=alpha, beta=beta)
@@ -24062,7 +24062,7 @@ begin
         return res[1]
     end
     function stateless_if(cond_, input_; name=nothing, Tin=nothing, Tout=nothing, then_branch=nothing, else_branch=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             stateless_if_eager(cond_, input_; name=name, Tin=Tin, Tout=Tout, then_branch=then_branch, else_branch=else_branch)
         else
             stateless_if_graph(cond_, input_; name=name, Tin=Tin, Tout=Tout, then_branch=then_branch, else_branch=else_branch)
@@ -24112,7 +24112,7 @@ begin
         return res[1]
     end
     function tensor_list_set_item(input_handle_, index_, item_; name=nothing, element_dtype=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_list_set_item_eager(input_handle_, index_, item_; name=name, element_dtype=element_dtype)
         else
             tensor_list_set_item_graph(input_handle_, index_, item_; name=name, element_dtype=element_dtype)
@@ -24148,7 +24148,7 @@ begin
         return res[1]
     end
     function rsqrt(x_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             rsqrt_eager(x_; name=name)
         else
             rsqrt_graph(x_; name=name)
@@ -24263,7 +24263,7 @@ begin
         return res
     end
     function quantized_conv2d_with_bias_sum_and_relu_and_requantize(input_, filter_, bias_, min_input_, max_input_, min_filter_, max_filter_, min_freezed_output_, max_freezed_output_, summand_, min_summand_, max_summand_; name=nothing, out_type=nothing, strides=nothing, padding=nothing, dilations=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             quantized_conv2d_with_bias_sum_and_relu_and_requantize_eager(input_, filter_, bias_, min_input_, max_input_, min_filter_, max_filter_, min_freezed_output_, max_freezed_output_, summand_, min_summand_, max_summand_; name=name, out_type=out_type, strides=strides, padding=padding, dilations=dilations)
         else
             quantized_conv2d_with_bias_sum_and_relu_and_requantize_graph(input_, filter_, bias_, min_input_, max_input_, min_filter_, max_filter_, min_freezed_output_, max_freezed_output_, summand_, min_summand_, max_summand_; name=name, out_type=out_type, strides=strides, padding=padding, dilations=dilations)
@@ -24297,7 +24297,7 @@ begin
         return res[1]
     end
     function delete_session_tensor(handle_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             delete_session_tensor_eager(handle_; name=name)
         else
             delete_session_tensor_graph(handle_; name=name)
@@ -24361,7 +24361,7 @@ begin
         return res[1]
     end
     function one_hot(indices_, depth_, on_value_, off_value_; name=nothing, axis=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             one_hot_eager(indices_, depth_, on_value_, off_value_; name=name, axis=axis)
         else
             one_hot_graph(indices_, depth_, on_value_, off_value_; name=name, axis=axis)
@@ -24435,7 +24435,7 @@ begin
         return res[1]
     end
     function resource_apply_ftrl(var_, accum_, linear_, grad_, lr_, l1_, l2_, lr_power_; name=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             resource_apply_ftrl_eager(var_, accum_, linear_, grad_, lr_, l1_, l2_, lr_power_; name=name, use_locking=use_locking)
         else
             resource_apply_ftrl_graph(var_, accum_, linear_, grad_, lr_, l1_, l2_, lr_power_; name=name, use_locking=use_locking)
@@ -24564,7 +24564,7 @@ begin
         return res
     end
     function sdca_optimizer_v2(sparse_example_indices_, sparse_feature_indices_, sparse_feature_values_, dense_features_, example_weights_, example_labels_, sparse_indices_, sparse_weights_, dense_weights_, example_state_data_; name=nothing, loss_type=nothing, adaptive=nothing, num_sparse_features=nothing, num_sparse_features_with_values=nothing, num_dense_features=nothing, l1=nothing, l2=nothing, num_loss_partitions=nothing, num_inner_iterations=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sdca_optimizer_v2_eager(sparse_example_indices_, sparse_feature_indices_, sparse_feature_values_, dense_features_, example_weights_, example_labels_, sparse_indices_, sparse_weights_, dense_weights_, example_state_data_; name=name, loss_type=loss_type, adaptive=adaptive, num_sparse_features=num_sparse_features, num_sparse_features_with_values=num_sparse_features_with_values, num_dense_features=num_dense_features, l1=l1, l2=l2, num_loss_partitions=num_loss_partitions, num_inner_iterations=num_inner_iterations)
         else
             sdca_optimizer_v2_graph(sparse_example_indices_, sparse_feature_indices_, sparse_feature_values_, dense_features_, example_weights_, example_labels_, sparse_indices_, sparse_weights_, dense_weights_, example_state_data_; name=name, loss_type=loss_type, adaptive=adaptive, num_sparse_features=num_sparse_features, num_sparse_features_with_values=num_sparse_features_with_values, num_dense_features=num_dense_features, l1=l1, l2=l2, num_loss_partitions=num_loss_partitions, num_inner_iterations=num_inner_iterations)
@@ -24614,7 +24614,7 @@ begin
         return res[1]
     end
     function queue_enqueue(handle_, components_; name=nothing, Tcomponents=nothing, timeout_ms=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             queue_enqueue_eager(handle_, components_; name=name, Tcomponents=Tcomponents, timeout_ms=timeout_ms)
         else
             queue_enqueue_graph(handle_, components_; name=name, Tcomponents=Tcomponents, timeout_ms=timeout_ms)
@@ -24674,7 +24674,7 @@ begin
         return res[1]
     end
     function conditional_accumulator(; name=nothing, dtype=nothing, shape=nothing, container=nothing, shared_name=nothing, reduction_type=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             conditional_accumulator_eager(; name=name, dtype=dtype, shape=shape, container=container, shared_name=shared_name, reduction_type=reduction_type)
         else
             conditional_accumulator_graph(; name=name, dtype=dtype, shape=shape, container=container, shared_name=shared_name, reduction_type=reduction_type)
@@ -24735,7 +24735,7 @@ begin
         return res
     end
     function ctc_beam_search_decoder(inputs_, sequence_length_; name=nothing, beam_width=nothing, top_paths=nothing, merge_repeated=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             ctc_beam_search_decoder_eager(inputs_, sequence_length_; name=name, beam_width=beam_width, top_paths=top_paths, merge_repeated=merge_repeated)
         else
             ctc_beam_search_decoder_graph(inputs_, sequence_length_; name=name, beam_width=beam_width, top_paths=top_paths, merge_repeated=merge_repeated)
@@ -24777,7 +24777,7 @@ begin
         return res[1]
     end
     function whole_file_reader(; name=nothing, container=nothing, shared_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             whole_file_reader_eager(; name=name, container=container, shared_name=shared_name)
         else
             whole_file_reader_graph(; name=name, container=container, shared_name=shared_name)
@@ -24854,7 +24854,7 @@ begin
         return res[1]
     end
     function apply_rms_prop(var_, ms_, mom_, lr_, rho_, momentum_, epsilon_, grad_; name=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             apply_rms_prop_eager(var_, ms_, mom_, lr_, rho_, momentum_, epsilon_, grad_; name=name, use_locking=use_locking)
         else
             apply_rms_prop_graph(var_, ms_, mom_, lr_, rho_, momentum_, epsilon_, grad_; name=name, use_locking=use_locking)
@@ -24894,7 +24894,7 @@ begin
         return res[1]
     end
     function adjust_saturation(images_, scale_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             adjust_saturation_eager(images_, scale_; name=name)
         else
             adjust_saturation_graph(images_, scale_; name=name)
@@ -24934,7 +24934,7 @@ begin
         return res[1]
     end
     function lookup_table_remove_v2(table_handle_, keys_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             lookup_table_remove_v2_eager(table_handle_, keys_; name=name)
         else
             lookup_table_remove_v2_graph(table_handle_, keys_; name=name)
@@ -24974,7 +24974,7 @@ begin
         return res[1]
     end
     function queue_close(handle_; name=nothing, cancel_pending_enqueues=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             queue_close_eager(handle_; name=name, cancel_pending_enqueues=cancel_pending_enqueues)
         else
             queue_close_graph(handle_; name=name, cancel_pending_enqueues=cancel_pending_enqueues)
@@ -25024,7 +25024,7 @@ begin
         return res[1]
     end
     function prefetch_dataset(input_dataset_, buffer_size_; name=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             prefetch_dataset_eager(input_dataset_, buffer_size_; name=name, output_types=output_types, output_shapes=output_shapes)
         else
             prefetch_dataset_graph(input_dataset_, buffer_size_; name=name, output_types=output_types, output_shapes=output_shapes)
@@ -25098,7 +25098,7 @@ begin
         return res[1]
     end
     function map_dataset(input_dataset_, other_arguments_; name=nothing, f=nothing, Targuments=nothing, output_types=nothing, output_shapes=nothing, use_inter_op_parallelism=nothing, preserve_cardinality=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             map_dataset_eager(input_dataset_, other_arguments_; name=name, f=f, Targuments=Targuments, output_types=output_types, output_shapes=output_shapes, use_inter_op_parallelism=use_inter_op_parallelism, preserve_cardinality=preserve_cardinality)
         else
             map_dataset_graph(input_dataset_, other_arguments_; name=name, f=f, Targuments=Targuments, output_types=output_types, output_shapes=output_shapes, use_inter_op_parallelism=use_inter_op_parallelism, preserve_cardinality=preserve_cardinality)
@@ -25189,7 +25189,7 @@ begin
         return res
     end
     function quantized_conv2d_with_bias(input_, filter_, bias_, min_input_, max_input_, min_filter_, max_filter_; name=nothing, out_type=nothing, strides=nothing, padding=nothing, dilations=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             quantized_conv2d_with_bias_eager(input_, filter_, bias_, min_input_, max_input_, min_filter_, max_filter_; name=name, out_type=out_type, strides=strides, padding=padding, dilations=dilations)
         else
             quantized_conv2d_with_bias_graph(input_, filter_, bias_, min_input_, max_input_, min_filter_, max_filter_; name=name, out_type=out_type, strides=strides, padding=padding, dilations=dilations)
@@ -25237,7 +25237,7 @@ begin
         return res[1]
     end
     function tensor_array_read_v3(handle_, index_, flow_in_; name=nothing, dtype=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_array_read_v3_eager(handle_, index_, flow_in_; name=name, dtype=dtype)
         else
             tensor_array_read_v3_graph(handle_, index_, flow_in_; name=name, dtype=dtype)
@@ -25273,7 +25273,7 @@ begin
         return res[1]
     end
     function identity(input_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             identity_eager(input_; name=name)
         else
             identity_graph(input_; name=name)
@@ -25337,7 +25337,7 @@ begin
         return res[1]
     end
     function print(input_, data_; name=nothing, U=nothing, message=nothing, first_n=nothing, summarize=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             print_eager(input_, data_; name=name, U=U, message=message, first_n=first_n, summarize=summarize)
         else
             print_graph(input_, data_; name=name, U=U, message=message, first_n=first_n, summarize=summarize)
@@ -25397,7 +25397,7 @@ begin
         return res[1]
     end
     function collective_bcast_send(input_; name=nothing, group_size=nothing, group_key=nothing, instance_key=nothing, shape=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             collective_bcast_send_eager(input_; name=name, group_size=group_size, group_key=group_key, instance_key=instance_key, shape=shape)
         else
             collective_bcast_send_graph(input_; name=name, group_size=group_size, group_key=group_key, instance_key=instance_key, shape=shape)
@@ -25448,7 +25448,7 @@ begin
         return res
     end
     function _list_to_array(input_; name=nothing, Tin=nothing, N=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             _list_to_array_eager(input_; name=name, Tin=Tin, N=N)
         else
             _list_to_array_graph(input_; name=name, Tin=Tin, N=N)
@@ -25510,7 +25510,7 @@ begin
         return res[1]
     end
     function neg_train(w_in_, w_out_, examples_, labels_, lr_; name=nothing, vocab_count=nothing, num_negative_samples=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             neg_train_eager(w_in_, w_out_, examples_, labels_, lr_; name=name, vocab_count=vocab_count, num_negative_samples=num_negative_samples)
         else
             neg_train_graph(w_in_, w_out_, examples_, labels_, lr_; name=name, vocab_count=vocab_count, num_negative_samples=num_negative_samples)
@@ -25544,7 +25544,7 @@ begin
         return res[1]
     end
     function worker_heartbeat(request_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             worker_heartbeat_eager(request_; name=name)
         else
             worker_heartbeat_graph(request_; name=name)
@@ -25588,7 +25588,7 @@ begin
         return res[1]
     end
     function merge_v2checkpoints(checkpoint_prefixes_, destination_prefix_; name=nothing, delete_old_dirs=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             merge_v2checkpoints_eager(checkpoint_prefixes_, destination_prefix_; name=name, delete_old_dirs=delete_old_dirs)
         else
             merge_v2checkpoints_graph(checkpoint_prefixes_, destination_prefix_; name=name, delete_old_dirs=delete_old_dirs)
@@ -25628,7 +25628,7 @@ begin
         return res[1]
     end
     function collective_permute(input_, source_target_pairs_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             collective_permute_eager(input_, source_target_pairs_; name=name)
         else
             collective_permute_graph(input_, source_target_pairs_; name=name)
@@ -25690,7 +25690,7 @@ begin
         return res[1]
     end
     function quantize_and_dequantize_v3(input_, input_min_, input_max_, num_bits_; name=nothing, signed_input=nothing, range_given=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             quantize_and_dequantize_v3_eager(input_, input_min_, input_max_, num_bits_; name=name, signed_input=signed_input, range_given=range_given)
         else
             quantize_and_dequantize_v3_graph(input_, input_min_, input_max_, num_bits_; name=name, signed_input=signed_input, range_given=range_given)
@@ -25750,7 +25750,7 @@ begin
         return res[1]
     end
     function hash_table(; name=nothing, container=nothing, shared_name=nothing, use_node_name_sharing=nothing, key_dtype=nothing, value_dtype=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             hash_table_eager(; name=name, container=container, shared_name=shared_name, use_node_name_sharing=use_node_name_sharing, key_dtype=key_dtype, value_dtype=value_dtype)
         else
             hash_table_graph(; name=name, container=container, shared_name=shared_name, use_node_name_sharing=use_node_name_sharing, key_dtype=key_dtype, value_dtype=value_dtype)
@@ -25791,7 +25791,7 @@ begin
         return res[1]
     end
     function softplus_grad(gradients_, features_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             softplus_grad_eager(gradients_, features_; name=name)
         else
             softplus_grad_graph(gradients_, features_; name=name)
@@ -25857,7 +25857,7 @@ begin
         return res[1]
     end
     function fixed_length_record_reader(; name=nothing, header_bytes=nothing, record_bytes=nothing, footer_bytes=nothing, hop_bytes=nothing, container=nothing, shared_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             fixed_length_record_reader_eager(; name=name, header_bytes=header_bytes, record_bytes=record_bytes, footer_bytes=footer_bytes, hop_bytes=hop_bytes, container=container, shared_name=shared_name)
         else
             fixed_length_record_reader_graph(; name=name, header_bytes=header_bytes, record_bytes=record_bytes, footer_bytes=footer_bytes, hop_bytes=hop_bytes, container=container, shared_name=shared_name)
@@ -25905,7 +25905,7 @@ begin
         return res[1]
     end
     function tensor_array_scatter_v2(handle_, indices_, value_, flow_in_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_array_scatter_v2_eager(handle_, indices_, value_, flow_in_; name=name)
         else
             tensor_array_scatter_v2_graph(handle_, indices_, value_, flow_in_; name=name)
@@ -25939,7 +25939,7 @@ begin
         return res[1]
     end
     function decode_json_example(json_examples_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             decode_json_example_eager(json_examples_; name=name)
         else
             decode_json_example_graph(json_examples_; name=name)
@@ -26024,7 +26024,7 @@ begin
         return res
     end
     function fused_batch_norm_grad_v2(y_backprop_, x_, scale_, reserve_space_1_, reserve_space_2_; name=nothing, U=nothing, epsilon=nothing, data_format=nothing, is_training=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             fused_batch_norm_grad_v2_eager(y_backprop_, x_, scale_, reserve_space_1_, reserve_space_2_; name=name, U=U, epsilon=epsilon, data_format=data_format, is_training=is_training)
         else
             fused_batch_norm_grad_v2_graph(y_backprop_, x_, scale_, reserve_space_1_, reserve_space_2_; name=name, U=U, epsilon=epsilon, data_format=data_format, is_training=is_training)
@@ -26078,7 +26078,7 @@ begin
         return res[1]
     end
     function _host_cast(x_; name=nothing, SrcT=nothing, DstT=nothing, Truncate=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             _host_cast_eager(x_; name=name, SrcT=SrcT, DstT=DstT, Truncate=Truncate)
         else
             _host_cast_graph(x_; name=name, SrcT=SrcT, DstT=DstT, Truncate=Truncate)
@@ -26126,7 +26126,7 @@ begin
         return res[1]
     end
     function tf_record_reader(; name=nothing, container=nothing, shared_name=nothing, compression_type=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tf_record_reader_eager(; name=name, container=container, shared_name=shared_name, compression_type=compression_type)
         else
             tf_record_reader_graph(; name=name, container=container, shared_name=shared_name, compression_type=compression_type)
@@ -26190,7 +26190,7 @@ begin
         return res[1]
     end
     function while_(input_; name=nothing, T=nothing, cond=nothing, body=nothing, output_shapes=nothing, parallel_iterations=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             while__eager(input_; name=name, T=T, cond=cond, body=body, output_shapes=output_shapes, parallel_iterations=parallel_iterations)
         else
             while__graph(input_; name=name, T=T, cond=cond, body=body, output_shapes=output_shapes, parallel_iterations=parallel_iterations)
@@ -26242,7 +26242,7 @@ begin
         return res[1]
     end
     function stateless_multinomial(logits_, num_samples_, seed_; name=nothing, output_dtype=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             stateless_multinomial_eager(logits_, num_samples_, seed_; name=name, output_dtype=output_dtype)
         else
             stateless_multinomial_graph(logits_, num_samples_, seed_; name=name, output_dtype=output_dtype)
@@ -26296,7 +26296,7 @@ begin
         return res[1]
     end
     function scatter_add(ref_, indices_, updates_; name=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             scatter_add_eager(ref_, indices_, updates_; name=name, use_locking=use_locking)
         else
             scatter_add_graph(ref_, indices_, updates_; name=name, use_locking=use_locking)
@@ -26332,7 +26332,7 @@ begin
         return res[1]
     end
     function conj(input_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             conj_eager(input_; name=name)
         else
             conj_graph(input_; name=name)
@@ -26378,7 +26378,7 @@ begin
         return res[1]
     end
     function parallel_dynamic_stitch(indices_, data_; name=nothing, N=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             parallel_dynamic_stitch_eager(indices_, data_; name=name, N=N)
         else
             parallel_dynamic_stitch_graph(indices_, data_; name=name, N=N)
@@ -26416,7 +26416,7 @@ begin
         return res[1]
     end
     function make_iterator(dataset_, iterator_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             make_iterator_eager(dataset_, iterator_; name=name)
         else
             make_iterator_graph(dataset_, iterator_; name=name)
@@ -26454,7 +26454,7 @@ begin
         return res[1]
     end
     function rfft3d(input_, fft_length_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             rfft3d_eager(input_, fft_length_; name=name)
         else
             rfft3d_graph(input_, fft_length_; name=name)
@@ -26513,7 +26513,7 @@ begin
         return res
     end
     function sparse_reduce_sum_sparse(input_indices_, input_values_, input_shape_, reduction_axes_; name=nothing, keep_dims=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sparse_reduce_sum_sparse_eager(input_indices_, input_values_, input_shape_, reduction_axes_; name=name, keep_dims=keep_dims)
         else
             sparse_reduce_sum_sparse_graph(input_indices_, input_values_, input_shape_, reduction_axes_; name=name, keep_dims=keep_dims)
@@ -26573,7 +26573,7 @@ begin
         return res[1]
     end
     function collective_gather(input_; name=nothing, group_size=nothing, group_key=nothing, instance_key=nothing, shape=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             collective_gather_eager(input_; name=name, group_size=group_size, group_key=group_key, instance_key=instance_key, shape=shape)
         else
             collective_gather_graph(input_; name=name, group_size=group_size, group_key=group_key, instance_key=instance_key, shape=shape)
@@ -26638,7 +26638,7 @@ begin
         return res
     end
     function combined_non_max_suppression(boxes_, scores_, max_output_size_per_class_, max_total_size_, iou_threshold_, score_threshold_; name=nothing, pad_per_class=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             combined_non_max_suppression_eager(boxes_, scores_, max_output_size_per_class_, max_total_size_, iou_threshold_, score_threshold_; name=name, pad_per_class=pad_per_class)
         else
             combined_non_max_suppression_graph(boxes_, scores_, max_output_size_per_class_, max_total_size_, iou_threshold_, score_threshold_; name=name, pad_per_class=pad_per_class)
@@ -26698,7 +26698,7 @@ begin
         return res[1]
     end
     function _scoped_allocator(; name=nothing, shapes=nothing, shape=nothing, sa_name=nothing, id=nothing, expected_call_count=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             _scoped_allocator_eager(; name=name, shapes=shapes, shape=shape, sa_name=sa_name, id=id, expected_call_count=expected_call_count)
         else
             _scoped_allocator_graph(; name=name, shapes=shapes, shape=shape, sa_name=sa_name, id=id, expected_call_count=expected_call_count)
@@ -26764,7 +26764,7 @@ begin
         return res[1]
     end
     function load_tpu_embedding_adadelta_parameters(parameters_, accumulators_, updates_; name=nothing, table_id=nothing, table_name=nothing, num_shards=nothing, shard_id=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             load_tpu_embedding_adadelta_parameters_eager(parameters_, accumulators_, updates_; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
         else
             load_tpu_embedding_adadelta_parameters_graph(parameters_, accumulators_, updates_; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
@@ -26832,7 +26832,7 @@ begin
         return res
     end
     function sparse_add(a_indices_, a_values_, a_shape_, b_indices_, b_values_, b_shape_, thresh_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sparse_add_eager(a_indices_, a_values_, a_shape_, b_indices_, b_values_, b_shape_, thresh_; name=name)
         else
             sparse_add_graph(a_indices_, a_values_, a_shape_, b_indices_, b_values_, b_shape_, thresh_; name=name)
@@ -26881,7 +26881,7 @@ begin
         return res
     end
     function ctc_greedy_decoder(inputs_, sequence_length_; name=nothing, merge_repeated=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             ctc_greedy_decoder_eager(inputs_, sequence_length_; name=name, merge_repeated=merge_repeated)
         else
             ctc_greedy_decoder_graph(inputs_, sequence_length_; name=name, merge_repeated=merge_repeated)
@@ -26929,7 +26929,7 @@ begin
         return res[1]
     end
     function immutable_const(; name=nothing, dtype=nothing, shape=nothing, memory_region_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             immutable_const_eager(; name=name, dtype=dtype, shape=shape, memory_region_name=memory_region_name)
         else
             immutable_const_graph(; name=name, dtype=dtype, shape=shape, memory_region_name=memory_region_name)
@@ -26963,7 +26963,7 @@ begin
         return res[1]
     end
     function consume_mutex_lock(mutex_lock_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             consume_mutex_lock_eager(mutex_lock_; name=name)
         else
             consume_mutex_lock_graph(mutex_lock_; name=name)
@@ -27004,7 +27004,7 @@ begin
         return res[1]
     end
     function greater_equal(x_, y_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             greater_equal_eager(x_, y_; name=name)
         else
             greater_equal_graph(x_, y_; name=name)
@@ -27066,7 +27066,7 @@ begin
         return res[1]
     end
     function initialize_table_from_text_file_v2(table_handle_, filename_; name=nothing, key_index=nothing, value_index=nothing, vocab_size=nothing, delimiter=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             initialize_table_from_text_file_v2_eager(table_handle_, filename_; name=name, key_index=key_index, value_index=value_index, vocab_size=vocab_size, delimiter=delimiter)
         else
             initialize_table_from_text_file_v2_graph(table_handle_, filename_; name=name, key_index=key_index, value_index=value_index, vocab_size=vocab_size, delimiter=delimiter)
@@ -27112,7 +27112,7 @@ begin
         return res[1]
     end
     function queue_dequeue(handle_; name=nothing, component_types=nothing, timeout_ms=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             queue_dequeue_eager(handle_; name=name, component_types=component_types, timeout_ms=timeout_ms)
         else
             queue_dequeue_graph(handle_; name=name, component_types=component_types, timeout_ms=timeout_ms)
@@ -27153,7 +27153,7 @@ begin
         return res[1]
     end
     function equal(x_, y_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             equal_eager(x_, y_; name=name)
         else
             equal_graph(x_, y_; name=name)
@@ -27199,7 +27199,7 @@ begin
         return res[1]
     end
     function iterator_from_string_handle(string_handle_; name=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             iterator_from_string_handle_eager(string_handle_; name=name, output_types=output_types, output_shapes=output_shapes)
         else
             iterator_from_string_handle_graph(string_handle_; name=name, output_types=output_types, output_shapes=output_shapes)
@@ -27257,7 +27257,7 @@ begin
         return res[1]
     end
     function tensor_list_split(tensor_, element_shape_, lengths_; name=nothing, element_dtype=nothing, shape_type=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_list_split_eager(tensor_, element_shape_, lengths_; name=name, element_dtype=element_dtype, shape_type=shape_type)
         else
             tensor_list_split_graph(tensor_, element_shape_, lengths_; name=name, element_dtype=element_dtype, shape_type=shape_type)
@@ -27334,7 +27334,7 @@ begin
         return res
     end
     function fractional_max_pool(value_; name=nothing, pooling_ratio=nothing, pseudo_random=nothing, overlapping=nothing, deterministic=nothing, seed=nothing, seed2=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             fractional_max_pool_eager(value_; name=name, pooling_ratio=pooling_ratio, pseudo_random=pseudo_random, overlapping=overlapping, deterministic=deterministic, seed=seed, seed2=seed2)
         else
             fractional_max_pool_graph(value_; name=name, pooling_ratio=pooling_ratio, pseudo_random=pseudo_random, overlapping=overlapping, deterministic=deterministic, seed=seed, seed2=seed2)
@@ -27382,7 +27382,7 @@ begin
         return res[1]
     end
     function scatter_nd(indices_, updates_, shape_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             scatter_nd_eager(indices_, updates_, shape_; name=name)
         else
             scatter_nd_graph(indices_, updates_, shape_; name=name)
@@ -27432,7 +27432,7 @@ begin
         return res[1]
     end
     function tensor_list_scatter_into_existing_list(input_handle_, tensor_, indices_; name=nothing, element_dtype=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_list_scatter_into_existing_list_eager(input_handle_, tensor_, indices_; name=name, element_dtype=element_dtype)
         else
             tensor_list_scatter_into_existing_list_graph(input_handle_, tensor_, indices_; name=name, element_dtype=element_dtype)
@@ -27477,7 +27477,7 @@ begin
         return res[1]
     end
     function select(condition_, t_, e_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             select_eager(condition_, t_, e_; name=name)
         else
             select_graph(condition_, t_, e_; name=name)
@@ -27526,7 +27526,7 @@ begin
         return res[1]
     end
     function min(input_, reduction_indices_; name=nothing, keep_dims=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             min_eager(input_, reduction_indices_; name=name, keep_dims=keep_dims)
         else
             min_graph(input_, reduction_indices_; name=name, keep_dims=keep_dims)
@@ -27596,7 +27596,7 @@ begin
         return res[1]
     end
     function lrn_grad(input_grads_, input_image_, output_image_; name=nothing, depth_radius=nothing, bias=nothing, alpha=nothing, beta=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             lrn_grad_eager(input_grads_, input_image_, output_image_; name=name, depth_radius=depth_radius, bias=bias, alpha=alpha, beta=beta)
         else
             lrn_grad_graph(input_grads_, input_image_, output_image_; name=name, depth_radius=depth_radius, bias=bias, alpha=alpha, beta=beta)
@@ -27668,7 +27668,7 @@ begin
         return res[1]
     end
     function random_poisson_v2(shape_, rate_; name=nothing, seed=nothing, seed2=nothing, S=nothing, R=nothing, dtype=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             random_poisson_v2_eager(shape_, rate_; name=name, seed=seed, seed2=seed2, S=S, R=R, dtype=dtype)
         else
             random_poisson_v2_graph(shape_, rate_; name=name, seed=seed, seed2=seed2, S=S, R=R, dtype=dtype)
@@ -27728,7 +27728,7 @@ begin
         return res[1]
     end
     function fifo_queue(; name=nothing, component_types=nothing, shapes=nothing, capacity=nothing, container=nothing, shared_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             fifo_queue_eager(; name=name, component_types=component_types, shapes=shapes, capacity=capacity, container=container, shared_name=shared_name)
         else
             fifo_queue_graph(; name=name, component_types=component_types, shapes=shapes, capacity=capacity, container=container, shared_name=shared_name)
@@ -27796,7 +27796,7 @@ begin
         return res[1]
     end
     function resource_sparse_apply_proximal_gradient_descent(var_, alpha_, l1_, l2_, grad_, indices_; name=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             resource_sparse_apply_proximal_gradient_descent_eager(var_, alpha_, l1_, l2_, grad_, indices_; name=name, use_locking=use_locking)
         else
             resource_sparse_apply_proximal_gradient_descent_graph(var_, alpha_, l1_, l2_, grad_, indices_; name=name, use_locking=use_locking)
@@ -27842,7 +27842,7 @@ begin
         return res[1]
     end
     function experimental_non_serializable_dataset(input_dataset_; name=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             experimental_non_serializable_dataset_eager(input_dataset_; name=name, output_types=output_types, output_shapes=output_shapes)
         else
             experimental_non_serializable_dataset_graph(input_dataset_; name=name, output_types=output_types, output_shapes=output_shapes)
@@ -27892,7 +27892,7 @@ begin
         return res[1]
     end
     function experimental_bytes_produced_stats_dataset(input_dataset_, tag_; name=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             experimental_bytes_produced_stats_dataset_eager(input_dataset_, tag_; name=name, output_types=output_types, output_shapes=output_shapes)
         else
             experimental_bytes_produced_stats_dataset_graph(input_dataset_, tag_; name=name, output_types=output_types, output_shapes=output_shapes)
@@ -27956,7 +27956,7 @@ begin
         return res[1]
     end
     function dilation2d_backprop_filter(input_, filter_, out_backprop_; name=nothing, strides=nothing, rates=nothing, padding=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             dilation2d_backprop_filter_eager(input_, filter_, out_backprop_; name=name, strides=strides, rates=rates, padding=padding)
         else
             dilation2d_backprop_filter_graph(input_, filter_, out_backprop_; name=name, strides=strides, rates=rates, padding=padding)
@@ -28020,7 +28020,7 @@ begin
         return res[1]
     end
     function _if(cond_, input_; name=nothing, Tin=nothing, Tout=nothing, then_branch=nothing, else_branch=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             _if_eager(cond_, input_; name=name, Tin=Tin, Tout=Tout, then_branch=then_branch, else_branch=else_branch)
         else
             _if_graph(cond_, input_; name=name, Tin=Tin, Tout=Tout, then_branch=then_branch, else_branch=else_branch)
@@ -28062,7 +28062,7 @@ begin
         return res[1]
     end
     function bias_add_grad(out_backprop_; name=nothing, data_format=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             bias_add_grad_eager(out_backprop_; name=name, data_format=data_format)
         else
             bias_add_grad_graph(out_backprop_; name=name, data_format=data_format)
@@ -28096,7 +28096,7 @@ begin
         return res[1]
     end
     function reader_serialize_state_v2(reader_handle_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             reader_serialize_state_v2_eager(reader_handle_; name=name)
         else
             reader_serialize_state_v2_graph(reader_handle_; name=name)
@@ -28130,7 +28130,7 @@ begin
         return res[1]
     end
     function wrap_dataset_variant(input_handle_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             wrap_dataset_variant_eager(input_handle_; name=name)
         else
             wrap_dataset_variant_graph(input_handle_; name=name)
@@ -28210,7 +28210,7 @@ begin
         return res[1]
     end
     function parallel_interleave_dataset_v2(input_dataset_, other_arguments_, cycle_length_, block_length_, num_parallel_calls_; name=nothing, f=nothing, Targuments=nothing, output_types=nothing, output_shapes=nothing, sloppy=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             parallel_interleave_dataset_v2_eager(input_dataset_, other_arguments_, cycle_length_, block_length_, num_parallel_calls_; name=name, f=f, Targuments=Targuments, output_types=output_types, output_shapes=output_shapes, sloppy=sloppy)
         else
             parallel_interleave_dataset_v2_graph(input_dataset_, other_arguments_, cycle_length_, block_length_, num_parallel_calls_; name=name, f=f, Targuments=Targuments, output_types=output_types, output_shapes=output_shapes, sloppy=sloppy)
@@ -28279,7 +28279,7 @@ begin
         return res[1]
     end
     function depthwise_conv2d_native_backprop_input(input_sizes_, filter_, out_backprop_; name=nothing, strides=nothing, padding=nothing, data_format=nothing, dilations=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             depthwise_conv2d_native_backprop_input_eager(input_sizes_, filter_, out_backprop_; name=name, strides=strides, padding=padding, data_format=data_format, dilations=dilations)
         else
             depthwise_conv2d_native_backprop_input_graph(input_sizes_, filter_, out_backprop_; name=name, strides=strides, padding=padding, data_format=data_format, dilations=dilations)
@@ -28353,7 +28353,7 @@ begin
         return res[1]
     end
     function resource_apply_rms_prop(var_, ms_, mom_, lr_, rho_, momentum_, epsilon_, grad_; name=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             resource_apply_rms_prop_eager(var_, ms_, mom_, lr_, rho_, momentum_, epsilon_, grad_; name=name, use_locking=use_locking)
         else
             resource_apply_rms_prop_graph(var_, ms_, mom_, lr_, rho_, momentum_, epsilon_, grad_; name=name, use_locking=use_locking)
@@ -28402,7 +28402,7 @@ begin
         return res
     end
     function sparse_accumulator_take_gradient(handle_, num_required_; name=nothing, dtype=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sparse_accumulator_take_gradient_eager(handle_, num_required_; name=name, dtype=dtype)
         else
             sparse_accumulator_take_gradient_graph(handle_, num_required_; name=name, dtype=dtype)
@@ -28448,7 +28448,7 @@ begin
         return res[1]
     end
     function experimental_lmdb_dataset(filenames_; name=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             experimental_lmdb_dataset_eager(filenames_; name=name, output_types=output_types, output_shapes=output_shapes)
         else
             experimental_lmdb_dataset_graph(filenames_; name=name, output_types=output_types, output_shapes=output_shapes)
@@ -28482,7 +28482,7 @@ begin
         return res[1]
     end
     function stack_close_v2(handle_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             stack_close_v2_eager(handle_; name=name)
         else
             stack_close_v2_graph(handle_; name=name)
@@ -28542,7 +28542,7 @@ begin
         return res[1]
     end
     function map_size(; name=nothing, capacity=nothing, memory_limit=nothing, dtypes=nothing, container=nothing, shared_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             map_size_eager(; name=name, capacity=capacity, memory_limit=memory_limit, dtypes=dtypes, container=container, shared_name=shared_name)
         else
             map_size_graph(; name=name, capacity=capacity, memory_limit=memory_limit, dtypes=dtypes, container=container, shared_name=shared_name)
@@ -28615,7 +28615,7 @@ begin
         return res[1]
     end
     function resource_apply_adagrad_da(var_, gradient_accumulator_, gradient_squared_accumulator_, grad_, lr_, l1_, l2_, global_step_; name=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             resource_apply_adagrad_da_eager(var_, gradient_accumulator_, gradient_squared_accumulator_, grad_, lr_, l1_, l2_, global_step_; name=name, use_locking=use_locking)
         else
             resource_apply_adagrad_da_graph(var_, gradient_accumulator_, gradient_squared_accumulator_, grad_, lr_, l1_, l2_, global_step_; name=name, use_locking=use_locking)
@@ -28649,7 +28649,7 @@ begin
         return res[1]
     end
     function tensor_forest_tree_size(tree_handle_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_forest_tree_size_eager(tree_handle_; name=name)
         else
             tensor_forest_tree_size_graph(tree_handle_; name=name)
@@ -28685,7 +28685,7 @@ begin
         return res[1]
     end
     function matrix_diag_part(input_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             matrix_diag_part_eager(input_; name=name)
         else
             matrix_diag_part_graph(input_; name=name)
@@ -28719,7 +28719,7 @@ begin
         return res[1]
     end
     function reader_num_work_units_completed_v2(reader_handle_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             reader_num_work_units_completed_v2_eager(reader_handle_; name=name)
         else
             reader_num_work_units_completed_v2_graph(reader_handle_; name=name)
@@ -28767,7 +28767,7 @@ begin
         return res[1]
     end
     function tensor_array_split_v3(handle_, value_, lengths_, flow_in_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_array_split_v3_eager(handle_, value_, lengths_, flow_in_; name=name)
         else
             tensor_array_split_v3_graph(handle_, value_, lengths_, flow_in_; name=name)
@@ -28827,7 +28827,7 @@ begin
         return res[1]
     end
     function sparse_to_dense(sparse_indices_, output_shape_, sparse_values_, default_value_; name=nothing, validate_indices=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sparse_to_dense_eager(sparse_indices_, output_shape_, sparse_values_, default_value_; name=name, validate_indices=validate_indices)
         else
             sparse_to_dense_graph(sparse_indices_, output_shape_, sparse_values_, default_value_; name=name, validate_indices=validate_indices)
@@ -28869,7 +28869,7 @@ begin
         return res[1]
     end
     function tpu_replicated_input(inputs_; name=nothing, N=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tpu_replicated_input_eager(inputs_; name=name, N=N)
         else
             tpu_replicated_input_graph(inputs_; name=name, N=N)
@@ -28903,7 +28903,7 @@ begin
         return res[1]
     end
     function stack_close(handle_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             stack_close_eager(handle_; name=name)
         else
             stack_close_graph(handle_; name=name)
@@ -28948,7 +28948,7 @@ begin
         return res
     end
     function deserialize_many_sparse(serialized_sparse_; name=nothing, dtype=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             deserialize_many_sparse_eager(serialized_sparse_; name=name, dtype=dtype)
         else
             deserialize_many_sparse_graph(serialized_sparse_; name=name, dtype=dtype)
@@ -29002,7 +29002,7 @@ begin
         return res[1]
     end
     function _nccl_reduce_recv(input_; name=nothing, reduction=nothing, num_devices=nothing, shared_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             _nccl_reduce_recv_eager(input_; name=name, reduction=reduction, num_devices=num_devices, shared_name=shared_name)
         else
             _nccl_reduce_recv_graph(input_; name=name, reduction=reduction, num_devices=num_devices, shared_name=shared_name)
@@ -29050,7 +29050,7 @@ begin
         return res[1]
     end
     function mirror_pad_grad(input_, paddings_; name=nothing, mode=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             mirror_pad_grad_eager(input_, paddings_; name=name, mode=mode)
         else
             mirror_pad_grad_graph(input_, paddings_; name=name, mode=mode)
@@ -29091,7 +29091,7 @@ begin
         return res[1]
     end
     function broadcast_args(s0_, s1_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             broadcast_args_eager(s0_, s1_; name=name)
         else
             broadcast_args_graph(s0_, s1_; name=name)
@@ -29139,7 +29139,7 @@ begin
         return res[1]
     end
     function stateless_truncated_normal(shape_, seed_; name=nothing, dtype=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             stateless_truncated_normal_eager(shape_, seed_; name=name, dtype=dtype)
         else
             stateless_truncated_normal_graph(shape_, seed_; name=name, dtype=dtype)
@@ -29177,7 +29177,7 @@ begin
         return res[1]
     end
     function regex_full_match(input_, pattern_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             regex_full_match_eager(input_, pattern_; name=name)
         else
             regex_full_match_graph(input_, pattern_; name=name)
@@ -29211,7 +29211,7 @@ begin
         return res[1]
     end
     function unwrap_dataset_variant(input_handle_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             unwrap_dataset_variant_eager(input_handle_; name=name)
         else
             unwrap_dataset_variant_graph(input_handle_; name=name)
@@ -29257,7 +29257,7 @@ begin
         return res[1]
     end
     function empty(shape_; name=nothing, dtype=nothing, init=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             empty_eager(shape_; name=name, dtype=dtype, init=init)
         else
             empty_graph(shape_; name=name, dtype=dtype, init=init)
@@ -29305,7 +29305,7 @@ begin
         return res[1]
     end
     function outfeed_dequeue_tuple(; name=nothing, dtypes=nothing, shapes=nothing, device_ordinal=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             outfeed_dequeue_tuple_eager(; name=name, dtypes=dtypes, shapes=shapes, device_ordinal=device_ordinal)
         else
             outfeed_dequeue_tuple_graph(; name=name, dtypes=dtypes, shapes=shapes, device_ordinal=device_ordinal)
@@ -29346,7 +29346,7 @@ begin
         return res[1]
     end
     function div(x_, y_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             div_eager(x_, y_; name=name)
         else
             div_graph(x_, y_; name=name)
@@ -29406,7 +29406,7 @@ begin
         return res[1]
     end
     function barrier(; name=nothing, component_types=nothing, shapes=nothing, capacity=nothing, container=nothing, shared_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             barrier_eager(; name=name, component_types=component_types, shapes=shapes, capacity=capacity, container=container, shared_name=shared_name)
         else
             barrier_graph(; name=name, component_types=component_types, shapes=shapes, capacity=capacity, container=container, shared_name=shared_name)
@@ -29447,7 +29447,7 @@ begin
         return res[1]
     end
     function truncate_div(x_, y_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             truncate_div_eager(x_, y_; name=name)
         else
             truncate_div_graph(x_, y_; name=name)
@@ -29503,7 +29503,7 @@ begin
         return res[1]
     end
     function unicode_encode(input_values_, input_splits_; name=nothing, errors=nothing, output_encoding=nothing, replacement_char=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             unicode_encode_eager(input_values_, input_splits_; name=name, errors=errors, output_encoding=output_encoding, replacement_char=replacement_char)
         else
             unicode_encode_graph(input_values_, input_splits_; name=name, errors=errors, output_encoding=output_encoding, replacement_char=replacement_char)
@@ -29543,7 +29543,7 @@ begin
         return res[1]
     end
     function merge_summary(inputs_; name=nothing, N=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             merge_summary_eager(inputs_; name=name, N=N)
         else
             merge_summary_graph(inputs_; name=name, N=N)
@@ -29577,7 +29577,7 @@ begin
         return res[1]
     end
     function fake_queue(resource_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             fake_queue_eager(resource_; name=name)
         else
             fake_queue_graph(resource_; name=name)
@@ -29613,7 +29613,7 @@ begin
         return res[1]
     end
     function batch_cholesky(input_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             batch_cholesky_eager(input_; name=name)
         else
             batch_cholesky_graph(input_; name=name)
@@ -29667,7 +29667,7 @@ begin
         return res[1]
     end
     function iterator(; name=nothing, shared_name=nothing, container=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             iterator_eager(; name=name, shared_name=shared_name, container=container, output_types=output_types, output_shapes=output_shapes)
         else
             iterator_graph(; name=name, shared_name=shared_name, container=container, output_types=output_types, output_shapes=output_shapes)
@@ -29703,7 +29703,7 @@ begin
         return res[1]
     end
     function bessel_i1e(x_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             bessel_i1e_eager(x_; name=name)
         else
             bessel_i1e_graph(x_; name=name)
@@ -29741,7 +29741,7 @@ begin
         return res[1]
     end
     function import_event(writer_, event_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             import_event_eager(writer_, event_; name=name)
         else
             import_event_graph(writer_, event_; name=name)
@@ -29820,7 +29820,7 @@ begin
         return res
     end
     function quantized_instance_norm(x_, x_min_, x_max_; name=nothing, output_range_given=nothing, given_y_min=nothing, given_y_max=nothing, variance_epsilon=nothing, min_separation=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             quantized_instance_norm_eager(x_, x_min_, x_max_; name=name, output_range_given=output_range_given, given_y_min=given_y_min, given_y_max=given_y_max, variance_epsilon=variance_epsilon, min_separation=min_separation)
         else
             quantized_instance_norm_graph(x_, x_min_, x_max_; name=name, output_range_given=output_range_given, given_y_min=given_y_min, given_y_max=given_y_max, variance_epsilon=variance_epsilon, min_separation=min_separation)
@@ -29882,7 +29882,7 @@ begin
         return res[1]
     end
     function load_tpu_embedding_adagrad_parameters(parameters_, accumulators_; name=nothing, table_id=nothing, table_name=nothing, num_shards=nothing, shard_id=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             load_tpu_embedding_adagrad_parameters_eager(parameters_, accumulators_; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
         else
             load_tpu_embedding_adagrad_parameters_graph(parameters_, accumulators_; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
@@ -29930,7 +29930,7 @@ begin
         return res[1]
     end
     function tensor_array_write_v3(handle_, index_, value_, flow_in_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_array_write_v3_eager(handle_, index_, value_, flow_in_; name=name)
         else
             tensor_array_write_v3_graph(handle_, index_, value_, flow_in_; name=name)
@@ -29988,7 +29988,7 @@ begin
         return res
     end
     function dense_to_dense_set_operation(set1_, set2_; name=nothing, set_operation=nothing, validate_indices=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             dense_to_dense_set_operation_eager(set1_, set2_; name=name, set_operation=set_operation, validate_indices=validate_indices)
         else
             dense_to_dense_set_operation_graph(set1_, set2_; name=name, set_operation=set_operation, validate_indices=validate_indices)
@@ -30076,7 +30076,7 @@ begin
         return res[1]
     end
     function encode_jpeg(image_; name=nothing, format=nothing, quality=nothing, progressive=nothing, optimize_size=nothing, chroma_downsampling=nothing, density_unit=nothing, x_density=nothing, y_density=nothing, xmp_metadata=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             encode_jpeg_eager(image_; name=name, format=format, quality=quality, progressive=progressive, optimize_size=optimize_size, chroma_downsampling=chroma_downsampling, density_unit=density_unit, x_density=x_density, y_density=y_density, xmp_metadata=xmp_metadata)
         else
             encode_jpeg_graph(image_; name=name, format=format, quality=quality, progressive=progressive, optimize_size=optimize_size, chroma_downsampling=chroma_downsampling, density_unit=density_unit, x_density=x_density, y_density=y_density, xmp_metadata=xmp_metadata)
@@ -30121,7 +30121,7 @@ begin
         return res[1]
     end
     function inplace_update(x_, i_, v_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             inplace_update_eager(x_, i_, v_; name=name)
         else
             inplace_update_graph(x_, i_, v_; name=name)
@@ -30184,7 +30184,7 @@ begin
         return res[1]
     end
     function fused_pad_conv2d(input_, paddings_, filter_; name=nothing, mode=nothing, strides=nothing, padding=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             fused_pad_conv2d_eager(input_, paddings_, filter_; name=name, mode=mode, strides=strides, padding=padding)
         else
             fused_pad_conv2d_graph(input_, paddings_, filter_; name=name, mode=mode, strides=strides, padding=padding)
@@ -30239,7 +30239,7 @@ begin
         return res
     end
     function quantized_relu(features_, min_features_, max_features_; name=nothing, out_type=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             quantized_relu_eager(features_, min_features_, max_features_; name=name, out_type=out_type)
         else
             quantized_relu_graph(features_, min_features_, max_features_; name=name, out_type=out_type)
@@ -30282,7 +30282,7 @@ begin
         return res[1]
     end
     function gather_nd(params_, indices_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             gather_nd_eager(params_, indices_; name=name)
         else
             gather_nd_graph(params_, indices_; name=name)
@@ -30324,7 +30324,7 @@ begin
         return res[1]
     end
     function placeholder(; name=nothing, dtype=nothing, shape=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             placeholder_eager(; name=name, dtype=dtype, shape=shape)
         else
             placeholder_graph(; name=name, dtype=dtype, shape=shape)
@@ -30370,7 +30370,7 @@ begin
         return res[1]
     end
     function filter_by_last_component_dataset(input_dataset_; name=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             filter_by_last_component_dataset_eager(input_dataset_; name=name, output_types=output_types, output_shapes=output_shapes)
         else
             filter_by_last_component_dataset_graph(input_dataset_; name=name, output_types=output_types, output_shapes=output_shapes)
@@ -30416,7 +30416,7 @@ begin
         return res[1]
     end
     function clip_by_value(t_, clip_value_min_, clip_value_max_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             clip_by_value_eager(t_, clip_value_min_, clip_value_max_; name=name)
         else
             clip_by_value_graph(t_, clip_value_min_, clip_value_max_; name=name)
@@ -30468,7 +30468,7 @@ begin
         return res[1]
     end
     function image_summary(tag_, tensor_; name=nothing, max_images=nothing, bad_color=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             image_summary_eager(tag_, tensor_; name=name, max_images=max_images, bad_color=bad_color)
         else
             image_summary_graph(tag_, tensor_; name=name, max_images=max_images, bad_color=bad_color)
@@ -30527,7 +30527,7 @@ begin
         return res
     end
     function retrieve_tpu_embedding_adadelta_parameters(; name=nothing, table_id=nothing, table_name=nothing, num_shards=nothing, shard_id=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             retrieve_tpu_embedding_adadelta_parameters_eager(; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
         else
             retrieve_tpu_embedding_adadelta_parameters_graph(; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
@@ -30573,7 +30573,7 @@ begin
         return res[1]
     end
     function string_join(inputs_; name=nothing, N=nothing, separator=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             string_join_eager(inputs_; name=name, N=N, separator=separator)
         else
             string_join_graph(inputs_; name=name, N=N, separator=separator)
@@ -30626,7 +30626,7 @@ begin
         return res[1]
     end
     function resource_scatter_nd_add(ref_, indices_, updates_; name=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             resource_scatter_nd_add_eager(ref_, indices_, updates_; name=name, use_locking=use_locking)
         else
             resource_scatter_nd_add_graph(ref_, indices_, updates_; name=name, use_locking=use_locking)
@@ -30670,7 +30670,7 @@ begin
         return res[1]
     end
     function boosted_trees_quantile_stream_resource_deserialize(quantile_stream_resource_handle_, bucket_boundaries_; name=nothing, num_streams=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             boosted_trees_quantile_stream_resource_deserialize_eager(quantile_stream_resource_handle_, bucket_boundaries_; name=name, num_streams=num_streams)
         else
             boosted_trees_quantile_stream_resource_deserialize_graph(quantile_stream_resource_handle_, bucket_boundaries_; name=name, num_streams=num_streams)
@@ -30711,7 +30711,7 @@ begin
         return res[1]
     end
     function left_shift(x_, y_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             left_shift_eager(x_, y_; name=name)
         else
             left_shift_graph(x_, y_; name=name)
@@ -30774,7 +30774,7 @@ begin
         return res
     end
     function requantize_per_channel(input_, input_min_, input_max_, requested_output_min_, requested_output_max_; name=nothing, out_type=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             requantize_per_channel_eager(input_, input_min_, input_max_, requested_output_min_, requested_output_max_; name=name, out_type=out_type)
         else
             requantize_per_channel_graph(input_, input_min_, input_max_, requested_output_min_, requested_output_max_; name=name, out_type=out_type)
@@ -30822,7 +30822,7 @@ begin
         return res[1]
     end
     function tensor_scatter_add(tensor_, indices_, updates_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_scatter_add_eager(tensor_, indices_, updates_; name=name)
         else
             tensor_scatter_add_graph(tensor_, indices_, updates_; name=name)
@@ -30887,7 +30887,7 @@ begin
         return res
     end
     function _var_handles_op(; name=nothing, containers=nothing, shared_names=nothing, N=nothing, dtypes=nothing, shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             _var_handles_op_eager(; name=name, containers=containers, shared_names=shared_names, N=N, dtypes=dtypes, shapes=shapes)
         else
             _var_handles_op_graph(; name=name, containers=containers, shared_names=shared_names, N=N, dtypes=dtypes, shapes=shapes)
@@ -30923,7 +30923,7 @@ begin
         return res[1]
     end
     function ifft3d(input_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             ifft3d_eager(input_; name=name)
         else
             ifft3d_graph(input_; name=name)
@@ -30972,7 +30972,7 @@ begin
         return res[1]
     end
     function euclidean_norm(input_, reduction_indices_; name=nothing, keep_dims=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             euclidean_norm_eager(input_, reduction_indices_; name=name, keep_dims=keep_dims)
         else
             euclidean_norm_graph(input_, reduction_indices_; name=name, keep_dims=keep_dims)
@@ -31018,7 +31018,7 @@ begin
         return res[1]
     end
     function ref_select(index_, inputs_; name=nothing, N=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             ref_select_eager(index_, inputs_; name=name, N=N)
         else
             ref_select_graph(index_, inputs_; name=name, N=N)
@@ -31062,7 +31062,7 @@ begin
         return res[1]
     end
     function sparse_tensor_slice_dataset(indices_, values_, dense_shape_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sparse_tensor_slice_dataset_eager(indices_, values_, dense_shape_; name=name)
         else
             sparse_tensor_slice_dataset_graph(indices_, values_, dense_shape_; name=name)
@@ -31121,7 +31121,7 @@ begin
         return res
     end
     function retrieve_tpu_embedding_ftrl_parameters_grad_accum_debug(; name=nothing, table_id=nothing, table_name=nothing, num_shards=nothing, shard_id=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             retrieve_tpu_embedding_ftrl_parameters_grad_accum_debug_eager(; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
         else
             retrieve_tpu_embedding_ftrl_parameters_grad_accum_debug_graph(; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
@@ -31155,7 +31155,7 @@ begin
         return res[1]
     end
     function batch_ifft2d(input_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             batch_ifft2d_eager(input_; name=name)
         else
             batch_ifft2d_graph(input_; name=name)
@@ -31209,7 +31209,7 @@ begin
         return res[1]
     end
     function tensor_array_gather(handle_, indices_, flow_in_; name=nothing, dtype=nothing, element_shape=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_array_gather_eager(handle_, indices_, flow_in_; name=name, dtype=dtype, element_shape=element_shape)
         else
             tensor_array_gather_graph(handle_, indices_, flow_in_; name=name, dtype=dtype, element_shape=element_shape)
@@ -31262,7 +31262,7 @@ begin
         return res[1]
     end
     function sparse_segment_mean_with_num_segments(data_, indices_, segment_ids_, num_segments_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sparse_segment_mean_with_num_segments_eager(data_, indices_, segment_ids_, num_segments_; name=name)
         else
             sparse_segment_mean_with_num_segments_graph(data_, indices_, segment_ids_, num_segments_; name=name)
@@ -31304,7 +31304,7 @@ begin
         return res[1]
     end
     function ensure_shape(input_; name=nothing, shape=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             ensure_shape_eager(input_; name=name, shape=shape)
         else
             ensure_shape_graph(input_; name=name, shape=shape)
@@ -31366,7 +31366,7 @@ begin
         return res[1]
     end
     function apply_proximal_gradient_descent(var_, alpha_, l1_, l2_, delta_; name=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             apply_proximal_gradient_descent_eager(var_, alpha_, l1_, l2_, delta_; name=name, use_locking=use_locking)
         else
             apply_proximal_gradient_descent_graph(var_, alpha_, l1_, l2_, delta_; name=name, use_locking=use_locking)
@@ -31444,7 +31444,7 @@ begin
         return res[1]
     end
     function collective_reduce(input_; name=nothing, group_size=nothing, group_key=nothing, instance_key=nothing, merge_op=nothing, final_op=nothing, subdiv_offsets=nothing, wait_for=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             collective_reduce_eager(input_; name=name, group_size=group_size, group_key=group_key, instance_key=instance_key, merge_op=merge_op, final_op=final_op, subdiv_offsets=subdiv_offsets, wait_for=wait_for)
         else
             collective_reduce_graph(input_; name=name, group_size=group_size, group_key=group_key, instance_key=instance_key, merge_op=merge_op, final_op=final_op, subdiv_offsets=subdiv_offsets, wait_for=wait_for)
@@ -31480,7 +31480,7 @@ begin
         return res[1]
     end
     function is_nan(x_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             is_nan_eager(x_; name=name)
         else
             is_nan_graph(x_; name=name)
@@ -31562,7 +31562,7 @@ begin
         return res[1]
     end
     function apply_ada_max(var_, m_, v_, beta1_power_, lr_, beta1_, beta2_, epsilon_, grad_; name=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             apply_ada_max_eager(var_, m_, v_, beta1_power_, lr_, beta1_, beta2_, epsilon_, grad_; name=name, use_locking=use_locking)
         else
             apply_ada_max_graph(var_, m_, v_, beta1_power_, lr_, beta1_, beta2_, epsilon_, grad_; name=name, use_locking=use_locking)
@@ -31636,7 +31636,7 @@ begin
         return res[1]
     end
     function decode_and_crop_jpeg(contents_, crop_window_; name=nothing, channels=nothing, ratio=nothing, fancy_upscaling=nothing, try_recover_truncated=nothing, acceptable_fraction=nothing, dct_method=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             decode_and_crop_jpeg_eager(contents_, crop_window_; name=name, channels=channels, ratio=ratio, fancy_upscaling=fancy_upscaling, try_recover_truncated=try_recover_truncated, acceptable_fraction=acceptable_fraction, dct_method=dct_method)
         else
             decode_and_crop_jpeg_graph(contents_, crop_window_; name=name, channels=channels, ratio=ratio, fancy_upscaling=fancy_upscaling, try_recover_truncated=try_recover_truncated, acceptable_fraction=acceptable_fraction, dct_method=dct_method)
@@ -31718,7 +31718,7 @@ begin
         return res[1]
     end
     function apply_centered_rms_prop(var_, mg_, ms_, mom_, lr_, rho_, momentum_, epsilon_, grad_; name=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             apply_centered_rms_prop_eager(var_, mg_, ms_, mom_, lr_, rho_, momentum_, epsilon_, grad_; name=name, use_locking=use_locking)
         else
             apply_centered_rms_prop_graph(var_, mg_, ms_, mom_, lr_, rho_, momentum_, epsilon_, grad_; name=name, use_locking=use_locking)
@@ -31787,7 +31787,7 @@ begin
         return res[1]
     end
     function conv3d_backprop_filter_v2(input_, filter_sizes_, out_backprop_; name=nothing, strides=nothing, padding=nothing, data_format=nothing, dilations=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             conv3d_backprop_filter_v2_eager(input_, filter_sizes_, out_backprop_; name=name, strides=strides, padding=padding, data_format=data_format, dilations=dilations)
         else
             conv3d_backprop_filter_v2_graph(input_, filter_sizes_, out_backprop_; name=name, strides=strides, padding=padding, data_format=data_format, dilations=dilations)
@@ -31840,7 +31840,7 @@ begin
         return res[1]
     end
     function matrix_triangular_solve(matrix_, rhs_; name=nothing, lower=nothing, adjoint=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             matrix_triangular_solve_eager(matrix_, rhs_; name=name, lower=lower, adjoint=adjoint)
         else
             matrix_triangular_solve_graph(matrix_, rhs_; name=name, lower=lower, adjoint=adjoint)
@@ -31874,7 +31874,7 @@ begin
         return res[1]
     end
     function reader_num_work_units_completed(reader_handle_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             reader_num_work_units_completed_eager(reader_handle_; name=name)
         else
             reader_num_work_units_completed_graph(reader_handle_; name=name)
@@ -31930,7 +31930,7 @@ begin
         return res[1]
     end
     function write_audio_summary(writer_, step_, tag_, tensor_, sample_rate_; name=nothing, max_outputs=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             write_audio_summary_eager(writer_, step_, tag_, tensor_, sample_rate_; name=name, max_outputs=max_outputs)
         else
             write_audio_summary_graph(writer_, step_, tag_, tensor_, sample_rate_; name=name, max_outputs=max_outputs)
@@ -31968,7 +31968,7 @@ begin
         return res[1]
     end
     function sharded_filespec(basename_, num_shards_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sharded_filespec_eager(basename_, num_shards_; name=name)
         else
             sharded_filespec_graph(basename_, num_shards_; name=name)
@@ -32009,7 +32009,7 @@ begin
         return res[1]
     end
     function div_no_nan(x_, y_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             div_no_nan_eager(x_, y_; name=name)
         else
             div_no_nan_graph(x_, y_; name=name)
@@ -32073,7 +32073,7 @@ begin
         return res[1]
     end
     function sparse_accumulator_apply_gradient(handle_, local_step_, gradient_indices_, gradient_values_, gradient_shape_; name=nothing, dtype=nothing, has_known_shape=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sparse_accumulator_apply_gradient_eager(handle_, local_step_, gradient_indices_, gradient_values_, gradient_shape_; name=name, dtype=dtype, has_known_shape=has_known_shape)
         else
             sparse_accumulator_apply_gradient_graph(handle_, local_step_, gradient_indices_, gradient_values_, gradient_shape_; name=name, dtype=dtype, has_known_shape=has_known_shape)
@@ -32124,7 +32124,7 @@ begin
         return res
     end
     function ragged_tensor_to_sparse(rt_nested_splits_, rt_dense_values_; name=nothing, RAGGED_RANK=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             ragged_tensor_to_sparse_eager(rt_nested_splits_, rt_dense_values_; name=name, RAGGED_RANK=RAGGED_RANK)
         else
             ragged_tensor_to_sparse_graph(rt_nested_splits_, rt_dense_values_; name=name, RAGGED_RANK=RAGGED_RANK)
@@ -32178,7 +32178,7 @@ begin
         return res[1]
     end
     function extract_volume_patches(input_; name=nothing, ksizes=nothing, strides=nothing, padding=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             extract_volume_patches_eager(input_; name=name, ksizes=ksizes, strides=strides, padding=padding)
         else
             extract_volume_patches_graph(input_; name=name, ksizes=ksizes, strides=strides, padding=padding)
@@ -32234,7 +32234,7 @@ begin
         return res[1]
     end
     function barrier_insert_many(handle_, keys_, values_; name=nothing, component_index=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             barrier_insert_many_eager(handle_, keys_, values_; name=name, component_index=component_index)
         else
             barrier_insert_many_graph(handle_, keys_, values_; name=name, component_index=component_index)
@@ -32276,7 +32276,7 @@ begin
         return res[1]
     end
     function const_(; name=nothing, value=nothing, dtype=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             const__eager(; name=name, value=value, dtype=dtype)
         else
             const__graph(; name=name, value=value, dtype=dtype)
@@ -32324,7 +32324,7 @@ begin
         return res[1]
     end
     function space_to_batch(input_, paddings_; name=nothing, block_size=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             space_to_batch_eager(input_, paddings_; name=name, block_size=block_size)
         else
             space_to_batch_graph(input_, paddings_; name=name, block_size=block_size)
@@ -32384,7 +32384,7 @@ begin
         return res[1]
     end
     function stage_size(; name=nothing, capacity=nothing, memory_limit=nothing, dtypes=nothing, container=nothing, shared_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             stage_size_eager(; name=name, capacity=capacity, memory_limit=memory_limit, dtypes=dtypes, container=container, shared_name=shared_name)
         else
             stage_size_graph(; name=name, capacity=capacity, memory_limit=memory_limit, dtypes=dtypes, container=container, shared_name=shared_name)
@@ -32436,7 +32436,7 @@ begin
         return res[1]
     end
     function empty_tensor_list(element_shape_, max_num_elements_; name=nothing, element_dtype=nothing, shape_type=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             empty_tensor_list_eager(element_shape_, max_num_elements_; name=name, element_dtype=element_dtype, shape_type=shape_type)
         else
             empty_tensor_list_graph(element_shape_, max_num_elements_; name=name, element_dtype=element_dtype, shape_type=shape_type)
@@ -32531,7 +32531,7 @@ begin
         return res
     end
     function quantized_conv2d_and_requantize(input_, filter_, min_input_, max_input_, min_filter_, max_filter_, min_freezed_output_, max_freezed_output_; name=nothing, out_type=nothing, strides=nothing, padding=nothing, dilations=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             quantized_conv2d_and_requantize_eager(input_, filter_, min_input_, max_input_, min_filter_, max_filter_, min_freezed_output_, max_freezed_output_; name=name, out_type=out_type, strides=strides, padding=padding, dilations=dilations)
         else
             quantized_conv2d_and_requantize_graph(input_, filter_, min_input_, max_input_, min_filter_, max_filter_, min_freezed_output_, max_freezed_output_; name=name, out_type=out_type, strides=strides, padding=padding, dilations=dilations)
@@ -32578,7 +32578,7 @@ begin
         return res
     end
     function lu(input_; name=nothing, output_idx_type=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             lu_eager(input_; name=name, output_idx_type=output_idx_type)
         else
             lu_graph(input_; name=name, output_idx_type=output_idx_type)
@@ -32618,7 +32618,7 @@ begin
         return res[1]
     end
     function decode_compressed(bytes_; name=nothing, compression_type=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             decode_compressed_eager(bytes_; name=name, compression_type=compression_type)
         else
             decode_compressed_graph(bytes_; name=name, compression_type=compression_type)
@@ -32658,7 +32658,7 @@ begin
         return res[1]
     end
     function get_session_tensor(handle_; name=nothing, dtype=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             get_session_tensor_eager(handle_; name=name, dtype=dtype)
         else
             get_session_tensor_graph(handle_; name=name, dtype=dtype)
@@ -32712,7 +32712,7 @@ begin
         return res[1]
     end
     function tensor_array_gather_v3(handle_, indices_, flow_in_; name=nothing, dtype=nothing, element_shape=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_array_gather_v3_eager(handle_, indices_, flow_in_; name=name, dtype=dtype, element_shape=element_shape)
         else
             tensor_array_gather_v3_graph(handle_, indices_, flow_in_; name=name, dtype=dtype, element_shape=element_shape)
@@ -32782,7 +32782,7 @@ begin
         return res[1]
     end
     function load_tpu_embedding_ftrl_parameters_grad_accum_debug(parameters_, accumulators_, linears_, gradient_accumulators_; name=nothing, table_id=nothing, table_name=nothing, num_shards=nothing, shard_id=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             load_tpu_embedding_ftrl_parameters_grad_accum_debug_eager(parameters_, accumulators_, linears_, gradient_accumulators_; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
         else
             load_tpu_embedding_ftrl_parameters_grad_accum_debug_graph(parameters_, accumulators_, linears_, gradient_accumulators_; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
@@ -32822,7 +32822,7 @@ begin
         return res[1]
     end
     function destroy_resource_op(resource_; name=nothing, ignore_lookup_error=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             destroy_resource_op_eager(resource_; name=name, ignore_lookup_error=ignore_lookup_error)
         else
             destroy_resource_op_graph(resource_; name=name, ignore_lookup_error=ignore_lookup_error)
@@ -32870,7 +32870,7 @@ begin
         return res[1]
     end
     function text_line_reader(; name=nothing, skip_header_lines=nothing, container=nothing, shared_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             text_line_reader_eager(; name=name, skip_header_lines=skip_header_lines, container=container, shared_name=shared_name)
         else
             text_line_reader_graph(; name=name, skip_header_lines=skip_header_lines, container=container, shared_name=shared_name)
@@ -32920,7 +32920,7 @@ begin
         return res[1]
     end
     function create_summary_db_writer(writer_, db_uri_, experiment_name_, run_name_, user_name_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             create_summary_db_writer_eager(writer_, db_uri_, experiment_name_, run_name_, user_name_; name=name)
         else
             create_summary_db_writer_graph(writer_, db_uri_, experiment_name_, run_name_, user_name_; name=name)
@@ -32961,7 +32961,7 @@ begin
         return res[1]
     end
     function tanh_grad(y_, dy_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tanh_grad_eager(y_, dy_; name=name)
         else
             tanh_grad_graph(y_, dy_; name=name)
@@ -32995,7 +32995,7 @@ begin
         return res[1]
     end
     function decode_base64(input_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             decode_base64_eager(input_; name=name)
         else
             decode_base64_graph(input_; name=name)
@@ -33061,7 +33061,7 @@ begin
         return res[1]
     end
     function max_pool_grad_grad_v2(orig_input_, orig_output_, grad_, ksize_, strides_; name=nothing, padding=nothing, data_format=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             max_pool_grad_grad_v2_eager(orig_input_, orig_output_, grad_, ksize_, strides_; name=name, padding=padding, data_format=data_format)
         else
             max_pool_grad_grad_v2_graph(orig_input_, orig_output_, grad_, ksize_, strides_; name=name, padding=padding, data_format=data_format)
@@ -33109,7 +33109,7 @@ begin
         return res[1]
     end
     function audio_summary_v2(tag_, tensor_, sample_rate_; name=nothing, max_outputs=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             audio_summary_v2_eager(tag_, tensor_, sample_rate_; name=name, max_outputs=max_outputs)
         else
             audio_summary_v2_graph(tag_, tensor_, sample_rate_; name=name, max_outputs=max_outputs)
@@ -33179,7 +33179,7 @@ begin
         return res[1]
     end
     function stateful_partitioned_call(args_; name=nothing, Tin=nothing, Tout=nothing, f=nothing, config=nothing, config_proto=nothing, executor_type=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             stateful_partitioned_call_eager(args_; name=name, Tin=Tin, Tout=Tout, f=f, config=config, config_proto=config_proto, executor_type=executor_type)
         else
             stateful_partitioned_call_graph(args_; name=name, Tin=Tin, Tout=Tout, f=f, config=config, config_proto=config_proto, executor_type=executor_type)
@@ -33250,7 +33250,7 @@ begin
         return res[1]
     end
     function _scoped_allocator_concat(backing_, inputs_; name=nothing, shape=nothing, reshape=nothing, sa_name=nothing, id=nothing, N=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             _scoped_allocator_concat_eager(backing_, inputs_; name=name, shape=shape, reshape=reshape, sa_name=sa_name, id=id, N=N)
         else
             _scoped_allocator_concat_graph(backing_, inputs_; name=name, shape=shape, reshape=reshape, sa_name=sa_name, id=id, N=N)
@@ -33312,7 +33312,7 @@ begin
         return res[1]
     end
     function fake_quant_with_min_max_args_gradient(gradients_, inputs_; name=nothing, min=nothing, max=nothing, num_bits=nothing, narrow_range=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             fake_quant_with_min_max_args_gradient_eager(gradients_, inputs_; name=name, min=min, max=max, num_bits=num_bits, narrow_range=narrow_range)
         else
             fake_quant_with_min_max_args_gradient_graph(gradients_, inputs_; name=name, min=min, max=max, num_bits=num_bits, narrow_range=narrow_range)
@@ -33365,7 +33365,7 @@ begin
         return res
     end
     function batch_svd(input_; name=nothing, compute_uv=nothing, full_matrices=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             batch_svd_eager(input_; name=name, compute_uv=compute_uv, full_matrices=full_matrices)
         else
             batch_svd_graph(input_; name=name, compute_uv=compute_uv, full_matrices=full_matrices)
@@ -33443,7 +33443,7 @@ begin
         return res[1]
     end
     function map_stage(key_, indices_, values_; name=nothing, capacity=nothing, memory_limit=nothing, dtypes=nothing, fake_dtypes=nothing, container=nothing, shared_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             map_stage_eager(key_, indices_, values_; name=name, capacity=capacity, memory_limit=memory_limit, dtypes=dtypes, fake_dtypes=fake_dtypes, container=container, shared_name=shared_name)
         else
             map_stage_graph(key_, indices_, values_; name=name, capacity=capacity, memory_limit=memory_limit, dtypes=dtypes, fake_dtypes=fake_dtypes, container=container, shared_name=shared_name)
@@ -33524,7 +33524,7 @@ begin
         return res[1]
     end
     function resource_sparse_apply_ftrl(var_, accum_, linear_, grad_, indices_, lr_, l1_, l2_, lr_power_; name=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             resource_sparse_apply_ftrl_eager(var_, accum_, linear_, grad_, indices_, lr_, l1_, l2_, lr_power_; name=name, use_locking=use_locking)
         else
             resource_sparse_apply_ftrl_graph(var_, accum_, linear_, grad_, indices_, lr_, l1_, l2_, lr_power_; name=name, use_locking=use_locking)
@@ -33570,7 +33570,7 @@ begin
         return res[1]
     end
     function resize_nearest_neighbor(images_, size_; name=nothing, align_corners=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             resize_nearest_neighbor_eager(images_, size_; name=name, align_corners=align_corners)
         else
             resize_nearest_neighbor_graph(images_, size_; name=name, align_corners=align_corners)
@@ -33648,7 +33648,7 @@ begin
         return res[1]
     end
     function experimental_csv_dataset(filenames_, compression_type_, buffer_size_, header_, field_delim_, use_quote_delim_, na_value_, select_cols_, record_defaults_; name=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             experimental_csv_dataset_eager(filenames_, compression_type_, buffer_size_, header_, field_delim_, use_quote_delim_, na_value_, select_cols_, record_defaults_; name=name, output_types=output_types, output_shapes=output_shapes)
         else
             experimental_csv_dataset_graph(filenames_, compression_type_, buffer_size_, header_, field_delim_, use_quote_delim_, na_value_, select_cols_, record_defaults_; name=name, output_types=output_types, output_shapes=output_shapes)
@@ -33702,7 +33702,7 @@ begin
         return res
     end
     function _mkl_mul(x_, y_, mkl_x_, mkl_y_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             _mkl_mul_eager(x_, y_, mkl_x_, mkl_y_; name=name)
         else
             _mkl_mul_graph(x_, y_, mkl_x_, mkl_y_; name=name)
@@ -33738,7 +33738,7 @@ begin
         return res[1]
     end
     function batch_matrix_diag(diagonal_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             batch_matrix_diag_eager(diagonal_; name=name)
         else
             batch_matrix_diag_graph(diagonal_; name=name)
@@ -33774,7 +33774,7 @@ begin
         return res[1]
     end
     function is_inf(x_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             is_inf_eager(x_; name=name)
         else
             is_inf_graph(x_; name=name)
@@ -33885,7 +33885,7 @@ begin
         return res
     end
     function fixed_unigram_candidate_sampler(true_classes_; name=nothing, num_true=nothing, num_sampled=nothing, unique=nothing, range_max=nothing, vocab_file=nothing, distortion=nothing, num_reserved_ids=nothing, num_shards=nothing, shard=nothing, unigrams=nothing, seed=nothing, seed2=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             fixed_unigram_candidate_sampler_eager(true_classes_; name=name, num_true=num_true, num_sampled=num_sampled, unique=unique, range_max=range_max, vocab_file=vocab_file, distortion=distortion, num_reserved_ids=num_reserved_ids, num_shards=num_shards, shard=shard, unigrams=unigrams, seed=seed, seed2=seed2)
         else
             fixed_unigram_candidate_sampler_graph(true_classes_; name=name, num_true=num_true, num_sampled=num_sampled, unique=unique, range_max=range_max, vocab_file=vocab_file, distortion=distortion, num_reserved_ids=num_reserved_ids, num_shards=num_shards, shard=shard, unigrams=unigrams, seed=seed, seed2=seed2)
@@ -33974,7 +33974,7 @@ begin
         return res[1]
     end
     function sparse_apply_ftrl_v2(var_, accum_, linear_, grad_, indices_, lr_, l1_, l2_, l2_shrinkage_, lr_power_; name=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sparse_apply_ftrl_v2_eager(var_, accum_, linear_, grad_, indices_, lr_, l1_, l2_, l2_shrinkage_, lr_power_; name=name, use_locking=use_locking)
         else
             sparse_apply_ftrl_v2_graph(var_, accum_, linear_, grad_, indices_, lr_, l1_, l2_, l2_shrinkage_, lr_power_; name=name, use_locking=use_locking)
@@ -34017,7 +34017,7 @@ begin
         return res[1]
     end
     function unravel_index(indices_, dims_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             unravel_index_eager(indices_, dims_; name=name)
         else
             unravel_index_graph(indices_, dims_; name=name)
@@ -34066,7 +34066,7 @@ begin
         return res[1]
     end
     function max(input_, reduction_indices_; name=nothing, keep_dims=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             max_eager(input_, reduction_indices_; name=name, keep_dims=keep_dims)
         else
             max_graph(input_, reduction_indices_; name=name, keep_dims=keep_dims)
@@ -34102,7 +34102,7 @@ begin
         return res[1]
     end
     function ifft2d(input_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             ifft2d_eager(input_; name=name)
         else
             ifft2d_graph(input_; name=name)
@@ -34169,7 +34169,7 @@ begin
         return res
     end
     function sparse_concat(indices_, values_, shapes_; name=nothing, concat_dim=nothing, N=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sparse_concat_eager(indices_, values_, shapes_; name=name, concat_dim=concat_dim, N=N)
         else
             sparse_concat_graph(indices_, values_, shapes_; name=name, concat_dim=concat_dim, N=N)
@@ -34209,7 +34209,7 @@ begin
         return res[1]
     end
     function histogram_summary(tag_, values_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             histogram_summary_eager(tag_, values_; name=name)
         else
             histogram_summary_graph(tag_, values_; name=name)
@@ -34252,7 +34252,7 @@ begin
         return res[1]
     end
     function segment_sum(data_, segment_ids_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             segment_sum_eager(data_, segment_ids_; name=name)
         else
             segment_sum_graph(data_, segment_ids_; name=name)
@@ -34288,7 +34288,7 @@ begin
         return res[1]
     end
     function exp(x_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             exp_eager(x_; name=name)
         else
             exp_graph(x_; name=name)
@@ -34336,7 +34336,7 @@ begin
         return res[1]
     end
     function configure_distributed_tpu(; name=nothing, embedding_config=nothing, tpu_embedding_config=nothing, is_global_init=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             configure_distributed_tpu_eager(; name=name, embedding_config=embedding_config, tpu_embedding_config=tpu_embedding_config, is_global_init=is_global_init)
         else
             configure_distributed_tpu_graph(; name=name, embedding_config=embedding_config, tpu_embedding_config=tpu_embedding_config, is_global_init=is_global_init)
@@ -34389,7 +34389,7 @@ begin
         return res[1]
     end
     function resource_scatter_nd_sub(ref_, indices_, updates_; name=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             resource_scatter_nd_sub_eager(ref_, indices_, updates_; name=name, use_locking=use_locking)
         else
             resource_scatter_nd_sub_graph(ref_, indices_, updates_; name=name, use_locking=use_locking)
@@ -34445,7 +34445,7 @@ begin
         return res[1]
     end
     function _xla_send_from_host(inputs_, dynamic_key_; name=nothing, Tinputs=nothing, key=nothing, device_ordinal=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             _xla_send_from_host_eager(inputs_, dynamic_key_; name=name, Tinputs=Tinputs, key=key, device_ordinal=device_ordinal)
         else
             _xla_send_from_host_graph(inputs_, dynamic_key_; name=name, Tinputs=Tinputs, key=key, device_ordinal=device_ordinal)
@@ -34481,7 +34481,7 @@ begin
         return res[1]
     end
     function get_session_handle_v2(value_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             get_session_handle_v2_eager(value_; name=name)
         else
             get_session_handle_v2_graph(value_; name=name)
@@ -34522,7 +34522,7 @@ begin
         return res[1]
     end
     function relu_grad(gradients_, features_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             relu_grad_eager(gradients_, features_; name=name)
         else
             relu_grad_graph(gradients_, features_; name=name)
@@ -34571,7 +34571,7 @@ begin
         return res[1]
     end
     function unsorted_segment_min(data_, segment_ids_, num_segments_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             unsorted_segment_min_eager(data_, segment_ids_, num_segments_; name=name)
         else
             unsorted_segment_min_graph(data_, segment_ids_, num_segments_; name=name)
@@ -34656,7 +34656,7 @@ begin
         return res
     end
     function parse_example(serialized_, names_, sparse_keys_, dense_keys_, dense_defaults_; name=nothing, Nsparse=nothing, Ndense=nothing, sparse_types=nothing, Tdense=nothing, dense_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             parse_example_eager(serialized_, names_, sparse_keys_, dense_keys_, dense_defaults_; name=name, Nsparse=Nsparse, Ndense=Ndense, sparse_types=sparse_types, Tdense=Tdense, dense_shapes=dense_shapes)
         else
             parse_example_graph(serialized_, names_, sparse_keys_, dense_keys_, dense_defaults_; name=name, Nsparse=Nsparse, Ndense=Ndense, sparse_types=sparse_types, Tdense=Tdense, dense_shapes=dense_shapes)
@@ -34706,7 +34706,7 @@ begin
         return res[1]
     end
     function queue_enqueue_v2(handle_, components_; name=nothing, Tcomponents=nothing, timeout_ms=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             queue_enqueue_v2_eager(handle_, components_; name=name, Tcomponents=Tcomponents, timeout_ms=timeout_ms)
         else
             queue_enqueue_v2_graph(handle_, components_; name=name, Tcomponents=Tcomponents, timeout_ms=timeout_ms)
@@ -34760,7 +34760,7 @@ begin
         return res[1]
     end
     function scatter_nd_add(ref_, indices_, updates_; name=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             scatter_nd_add_eager(ref_, indices_, updates_; name=name, use_locking=use_locking)
         else
             scatter_nd_add_graph(ref_, indices_, updates_; name=name, use_locking=use_locking)
@@ -34794,7 +34794,7 @@ begin
         return res[1]
     end
     function reader_num_records_produced_v2(reader_handle_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             reader_num_records_produced_v2_eager(reader_handle_; name=name)
         else
             reader_num_records_produced_v2_graph(reader_handle_; name=name)
@@ -34864,7 +34864,7 @@ begin
         return res[1]
     end
     function load_tpu_embedding_centered_rms_prop_parameters(parameters_, ms_, mom_, mg_; name=nothing, table_id=nothing, table_name=nothing, num_shards=nothing, shard_id=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             load_tpu_embedding_centered_rms_prop_parameters_eager(parameters_, ms_, mom_, mg_; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
         else
             load_tpu_embedding_centered_rms_prop_parameters_graph(parameters_, ms_, mom_, mg_; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
@@ -34911,7 +34911,7 @@ begin
         return res[1]
     end
     function assign_sub(ref_, value_; name=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             assign_sub_eager(ref_, value_; name=name, use_locking=use_locking)
         else
             assign_sub_graph(ref_, value_; name=name, use_locking=use_locking)
@@ -34960,7 +34960,7 @@ begin
         return res[1]
     end
     function unsorted_segment_sum(data_, segment_ids_, num_segments_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             unsorted_segment_sum_eager(data_, segment_ids_, num_segments_; name=name)
         else
             unsorted_segment_sum_graph(data_, segment_ids_, num_segments_; name=name)
@@ -35039,7 +35039,7 @@ begin
         return res
     end
     function fused_batch_norm_grad(y_backprop_, x_, scale_, reserve_space_1_, reserve_space_2_; name=nothing, epsilon=nothing, data_format=nothing, is_training=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             fused_batch_norm_grad_eager(y_backprop_, x_, scale_, reserve_space_1_, reserve_space_2_; name=name, epsilon=epsilon, data_format=data_format, is_training=is_training)
         else
             fused_batch_norm_grad_graph(y_backprop_, x_, scale_, reserve_space_1_, reserve_space_2_; name=name, epsilon=epsilon, data_format=data_format, is_training=is_training)
@@ -35105,7 +35105,7 @@ begin
         return res[1]
     end
     function max_pool_grad_v2(orig_input_, orig_output_, grad_, ksize_, strides_; name=nothing, padding=nothing, data_format=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             max_pool_grad_v2_eager(orig_input_, orig_output_, grad_, ksize_, strides_; name=name, padding=padding, data_format=data_format)
         else
             max_pool_grad_v2_graph(orig_input_, orig_output_, grad_, ksize_, strides_; name=name, padding=padding, data_format=data_format)
@@ -35196,7 +35196,7 @@ begin
         return res
     end
     function quantized_conv2d_with_bias_and_relu(input_, filter_, bias_, min_input_, max_input_, min_filter_, max_filter_; name=nothing, out_type=nothing, strides=nothing, padding=nothing, dilations=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             quantized_conv2d_with_bias_and_relu_eager(input_, filter_, bias_, min_input_, max_input_, min_filter_, max_filter_; name=name, out_type=out_type, strides=strides, padding=padding, dilations=dilations)
         else
             quantized_conv2d_with_bias_and_relu_graph(input_, filter_, bias_, min_input_, max_input_, min_filter_, max_filter_; name=name, out_type=out_type, strides=strides, padding=padding, dilations=dilations)
@@ -35238,7 +35238,7 @@ begin
         return res[1]
     end
     function boosted_trees_create_ensemble(tree_ensemble_handle_, stamp_token_, tree_ensemble_serialized_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             boosted_trees_create_ensemble_eager(tree_ensemble_handle_, stamp_token_, tree_ensemble_serialized_; name=name)
         else
             boosted_trees_create_ensemble_graph(tree_ensemble_handle_, stamp_token_, tree_ensemble_serialized_; name=name)
@@ -35298,7 +35298,7 @@ begin
         return res[1]
     end
     function ordered_map_incomplete_size(; name=nothing, capacity=nothing, memory_limit=nothing, dtypes=nothing, container=nothing, shared_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             ordered_map_incomplete_size_eager(; name=name, capacity=capacity, memory_limit=memory_limit, dtypes=dtypes, container=container, shared_name=shared_name)
         else
             ordered_map_incomplete_size_graph(; name=name, capacity=capacity, memory_limit=memory_limit, dtypes=dtypes, container=container, shared_name=shared_name)
@@ -35363,7 +35363,7 @@ begin
         return res
     end
     function skipgram(; name=nothing, filename=nothing, batch_size=nothing, window_size=nothing, min_count=nothing, subsample=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             skipgram_eager(; name=name, filename=filename, batch_size=batch_size, window_size=window_size, min_count=min_count, subsample=subsample)
         else
             skipgram_graph(; name=name, filename=filename, batch_size=batch_size, window_size=window_size, min_count=min_count, subsample=subsample)
@@ -35412,7 +35412,7 @@ begin
         return res[1]
     end
     function arg_min(input_, dimension_; name=nothing, output_type=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             arg_min_eager(input_, dimension_; name=name, output_type=output_type)
         else
             arg_min_graph(input_, dimension_; name=name, output_type=output_type)
@@ -35462,7 +35462,7 @@ begin
         return res[1]
     end
     function queue_dequeue_many(handle_, n_; name=nothing, component_types=nothing, timeout_ms=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             queue_dequeue_many_eager(handle_, n_; name=name, component_types=component_types, timeout_ms=timeout_ms)
         else
             queue_dequeue_many_graph(handle_, n_; name=name, component_types=component_types, timeout_ms=timeout_ms)
@@ -35501,7 +35501,7 @@ begin
         return res
     end
     function boosted_trees_serialize_ensemble(tree_ensemble_handle_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             boosted_trees_serialize_ensemble_eager(tree_ensemble_handle_; name=name)
         else
             boosted_trees_serialize_ensemble_graph(tree_ensemble_handle_; name=name)
@@ -35542,7 +35542,7 @@ begin
         return res[1]
     end
     function minimum(x_, y_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             minimum_eager(x_, y_; name=name)
         else
             minimum_graph(x_, y_; name=name)
@@ -35593,7 +35593,7 @@ begin
         return res[1]
     end
     function substr(input_, pos_, len_; name=nothing, unit=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             substr_eager(input_, pos_, len_; name=name, unit=unit)
         else
             substr_graph(input_, pos_, len_; name=name, unit=unit)
@@ -35627,7 +35627,7 @@ begin
         return res[1]
     end
     function queue_size(handle_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             queue_size_eager(handle_; name=name)
         else
             queue_size_graph(handle_; name=name)
@@ -35709,7 +35709,7 @@ begin
         return res[1]
     end
     function apply_ftrl_v2(var_, accum_, linear_, grad_, lr_, l1_, l2_, l2_shrinkage_, lr_power_; name=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             apply_ftrl_v2_eager(var_, accum_, linear_, grad_, lr_, l1_, l2_, l2_shrinkage_, lr_power_; name=name, use_locking=use_locking)
         else
             apply_ftrl_v2_graph(var_, accum_, linear_, grad_, lr_, l1_, l2_, l2_shrinkage_, lr_power_; name=name, use_locking=use_locking)
@@ -35771,7 +35771,7 @@ begin
         return res[1]
     end
     function load_tpu_embedding_momentum_parameters(parameters_, momenta_; name=nothing, table_id=nothing, table_name=nothing, num_shards=nothing, shard_id=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             load_tpu_embedding_momentum_parameters_eager(parameters_, momenta_; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
         else
             load_tpu_embedding_momentum_parameters_graph(parameters_, momenta_; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
@@ -35818,7 +35818,7 @@ begin
         return res[1]
     end
     function sparse_segment_mean(data_, indices_, segment_ids_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sparse_segment_mean_eager(data_, indices_, segment_ids_; name=name)
         else
             sparse_segment_mean_graph(data_, indices_, segment_ids_; name=name)
@@ -35883,7 +35883,7 @@ begin
         return res[1]
     end
     function resource_apply_proximal_adagrad(var_, accum_, lr_, l1_, l2_, grad_; name=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             resource_apply_proximal_adagrad_eager(var_, accum_, lr_, l1_, l2_, grad_; name=name, use_locking=use_locking)
         else
             resource_apply_proximal_adagrad_graph(var_, accum_, lr_, l1_, l2_, grad_; name=name, use_locking=use_locking)
@@ -35937,7 +35937,7 @@ begin
         return res[1]
     end
     function tensor_array_gather_v2(handle_, indices_, flow_in_; name=nothing, dtype=nothing, element_shape=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_array_gather_v2_eager(handle_, indices_, flow_in_; name=name, dtype=dtype, element_shape=element_shape)
         else
             tensor_array_gather_v2_graph(handle_, indices_, flow_in_; name=name, dtype=dtype, element_shape=element_shape)
@@ -35978,7 +35978,7 @@ begin
         return res[1]
     end
     function less(x_, y_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             less_eager(x_, y_; name=name)
         else
             less_graph(x_, y_; name=name)
@@ -36020,7 +36020,7 @@ begin
         return res[1]
     end
     function host_const(; name=nothing, value=nothing, dtype=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             host_const_eager(; name=name, value=value, dtype=dtype)
         else
             host_const_graph(; name=name, value=value, dtype=dtype)
@@ -36067,7 +36067,7 @@ begin
         return res[1]
     end
     function upper_bound(sorted_inputs_, values_; name=nothing, out_type=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             upper_bound_eager(sorted_inputs_, values_; name=name, out_type=out_type)
         else
             upper_bound_graph(sorted_inputs_, values_; name=name, out_type=out_type)
@@ -36115,7 +36115,7 @@ begin
         return res[1]
     end
     function tensor_list_get_item(input_handle_, index_, element_shape_; name=nothing, element_dtype=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_list_get_item_eager(input_handle_, index_, element_shape_; name=name, element_dtype=element_dtype)
         else
             tensor_list_get_item_graph(input_handle_, index_, element_shape_; name=name, element_dtype=element_dtype)
@@ -36169,7 +36169,7 @@ begin
         return res[1]
     end
     function fake_quant_with_min_max_vars(inputs_, min_, max_; name=nothing, num_bits=nothing, narrow_range=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             fake_quant_with_min_max_vars_eager(inputs_, min_, max_; name=name, num_bits=num_bits, narrow_range=narrow_range)
         else
             fake_quant_with_min_max_vars_graph(inputs_, min_, max_; name=name, num_bits=num_bits, narrow_range=narrow_range)
@@ -36203,7 +36203,7 @@ begin
         return res[1]
     end
     function is_boosted_trees_quantile_stream_resource_initialized(quantile_stream_resource_handle_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             is_boosted_trees_quantile_stream_resource_initialized_eager(quantile_stream_resource_handle_; name=name)
         else
             is_boosted_trees_quantile_stream_resource_initialized_graph(quantile_stream_resource_handle_; name=name)
@@ -36250,7 +36250,7 @@ begin
         return res
     end
     function reader_read_up_to_v2(reader_handle_, queue_handle_, num_records_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             reader_read_up_to_v2_eager(reader_handle_, queue_handle_, num_records_; name=name)
         else
             reader_read_up_to_v2_graph(reader_handle_, queue_handle_, num_records_; name=name)
@@ -36291,7 +36291,7 @@ begin
         return res[1]
     end
     function complex(real_, imag_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             complex_eager(real_, imag_; name=name)
         else
             complex_graph(real_, imag_; name=name)
@@ -36343,7 +36343,7 @@ begin
         return res[1]
     end
     function tensor_list_reserve(element_shape_, num_elements_; name=nothing, element_dtype=nothing, shape_type=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_list_reserve_eager(element_shape_, num_elements_; name=name, element_dtype=element_dtype, shape_type=shape_type)
         else
             tensor_list_reserve_graph(element_shape_, num_elements_; name=name, element_dtype=element_dtype, shape_type=shape_type)
@@ -36385,7 +36385,7 @@ begin
         return res[1]
     end
     function bitcast(input_; name=nothing, type_=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             bitcast_eager(input_; name=name, type_=type_)
         else
             bitcast_graph(input_; name=name, type_=type_)
@@ -36445,7 +36445,7 @@ begin
         return res[1]
     end
     function priority_queue(; name=nothing, component_types=nothing, shapes=nothing, capacity=nothing, container=nothing, shared_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             priority_queue_eager(; name=name, component_types=component_types, shapes=shapes, capacity=capacity, container=container, shared_name=shared_name)
         else
             priority_queue_graph(; name=name, component_types=component_types, shapes=shapes, capacity=capacity, container=container, shared_name=shared_name)
@@ -36564,7 +36564,7 @@ begin
         return res
     end
     function quantized_batch_norm_with_global_normalization(t_, t_min_, t_max_, m_, m_min_, m_max_, v_, v_min_, v_max_, beta_, beta_min_, beta_max_, gamma_, gamma_min_, gamma_max_; name=nothing, out_type=nothing, variance_epsilon=nothing, scale_after_normalization=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             quantized_batch_norm_with_global_normalization_eager(t_, t_min_, t_max_, m_, m_min_, m_max_, v_, v_min_, v_max_, beta_, beta_min_, beta_max_, gamma_, gamma_min_, gamma_max_; name=name, out_type=out_type, variance_epsilon=variance_epsilon, scale_after_normalization=scale_after_normalization)
         else
             quantized_batch_norm_with_global_normalization_graph(t_, t_min_, t_max_, m_, m_min_, m_max_, v_, v_min_, v_max_, beta_, beta_min_, beta_max_, gamma_, gamma_min_, gamma_max_; name=name, out_type=out_type, variance_epsilon=variance_epsilon, scale_after_normalization=scale_after_normalization)
@@ -36600,7 +36600,7 @@ begin
         return res[1]
     end
     function cos(x_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             cos_eager(x_; name=name)
         else
             cos_graph(x_; name=name)
@@ -36655,7 +36655,7 @@ begin
         return res
     end
     function quantize_down_and_shrink_range(input_, input_min_, input_max_; name=nothing, out_type=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             quantize_down_and_shrink_range_eager(input_, input_min_, input_max_; name=name, out_type=out_type)
         else
             quantize_down_and_shrink_range_graph(input_, input_min_, input_max_; name=name, out_type=out_type)
@@ -36705,7 +36705,7 @@ begin
         return res[1]
     end
     function experimental_random_dataset(seed_, seed2_; name=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             experimental_random_dataset_eager(seed_, seed2_; name=name, output_types=output_types, output_shapes=output_shapes)
         else
             experimental_random_dataset_graph(seed_, seed2_; name=name, output_types=output_types, output_shapes=output_shapes)
@@ -36765,7 +36765,7 @@ begin
         return res[1]
     end
     function rpc(address_, method_, request_; name=nothing, protocol=nothing, fail_fast=nothing, timeout_in_ms=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             rpc_eager(address_, method_, request_; name=name, protocol=protocol, fail_fast=fail_fast, timeout_in_ms=timeout_in_ms)
         else
             rpc_graph(address_, method_, request_; name=name, protocol=protocol, fail_fast=fail_fast, timeout_in_ms=timeout_in_ms)
@@ -36880,7 +36880,7 @@ begin
         return res
     end
     function quantized_conv2d_with_bias_signed_sum_and_relu_and_requantize(input_, filter_, bias_, min_input_, max_input_, min_filter_, max_filter_, min_freezed_output_, max_freezed_output_, summand_, min_summand_, max_summand_; name=nothing, out_type=nothing, strides=nothing, padding=nothing, dilations=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             quantized_conv2d_with_bias_signed_sum_and_relu_and_requantize_eager(input_, filter_, bias_, min_input_, max_input_, min_filter_, max_filter_, min_freezed_output_, max_freezed_output_, summand_, min_summand_, max_summand_; name=name, out_type=out_type, strides=strides, padding=padding, dilations=dilations)
         else
             quantized_conv2d_with_bias_signed_sum_and_relu_and_requantize_graph(input_, filter_, bias_, min_input_, max_input_, min_filter_, max_filter_, min_freezed_output_, max_freezed_output_, summand_, min_summand_, max_summand_; name=name, out_type=out_type, strides=strides, padding=padding, dilations=dilations)
@@ -36914,7 +36914,7 @@ begin
         return res[1]
     end
     function tensor_list_length(input_handle_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_list_length_eager(input_handle_; name=name)
         else
             tensor_list_length_graph(input_handle_; name=name)
@@ -36974,7 +36974,7 @@ begin
         return res[1]
     end
     function map_incomplete_size(; name=nothing, capacity=nothing, memory_limit=nothing, dtypes=nothing, container=nothing, shared_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             map_incomplete_size_eager(; name=name, capacity=capacity, memory_limit=memory_limit, dtypes=dtypes, container=container, shared_name=shared_name)
         else
             map_incomplete_size_graph(; name=name, capacity=capacity, memory_limit=memory_limit, dtypes=dtypes, container=container, shared_name=shared_name)
@@ -37026,7 +37026,7 @@ begin
         return res[1]
     end
     function stateless_while(input_; name=nothing, T=nothing, cond=nothing, body=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             stateless_while_eager(input_; name=name, T=T, cond=cond, body=body)
         else
             stateless_while_graph(input_; name=name, T=T, cond=cond, body=body)
@@ -37086,7 +37086,7 @@ begin
         return res[1]
     end
     function sparse_conditional_accumulator(; name=nothing, dtype=nothing, shape=nothing, container=nothing, shared_name=nothing, reduction_type=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sparse_conditional_accumulator_eager(; name=name, dtype=dtype, shape=shape, container=container, shared_name=shared_name, reduction_type=reduction_type)
         else
             sparse_conditional_accumulator_graph(; name=name, dtype=dtype, shape=shape, container=container, shared_name=shared_name, reduction_type=reduction_type)
@@ -37129,7 +37129,7 @@ begin
         return res[1]
     end
     function segment_min(data_, segment_ids_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             segment_min_eager(data_, segment_ids_; name=name)
         else
             segment_min_graph(data_, segment_ids_; name=name)
@@ -37171,7 +37171,7 @@ begin
         return res[1]
     end
     function write_graph_summary(writer_, step_, tensor_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             write_graph_summary_eager(writer_, step_, tensor_; name=name)
         else
             write_graph_summary_graph(writer_, step_, tensor_; name=name)
@@ -37212,7 +37212,7 @@ begin
         return res[1]
     end
     function cholesky_grad(l_, grad_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             cholesky_grad_eager(l_, grad_; name=name)
         else
             cholesky_grad_graph(l_, grad_; name=name)
@@ -37287,7 +37287,7 @@ begin
         return res
     end
     function log_uniform_candidate_sampler(true_classes_; name=nothing, num_true=nothing, num_sampled=nothing, unique=nothing, range_max=nothing, seed=nothing, seed2=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             log_uniform_candidate_sampler_eager(true_classes_; name=name, num_true=num_true, num_sampled=num_sampled, unique=unique, range_max=range_max, seed=seed, seed2=seed2)
         else
             log_uniform_candidate_sampler_graph(true_classes_; name=name, num_true=num_true, num_sampled=num_sampled, unique=unique, range_max=range_max, seed=seed, seed2=seed2)
@@ -37337,7 +37337,7 @@ begin
         return res[1]
     end
     function serialize_sparse(sparse_indices_, sparse_values_, sparse_shape_; name=nothing, out_type=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             serialize_sparse_eager(sparse_indices_, sparse_values_, sparse_shape_; name=name, out_type=out_type)
         else
             serialize_sparse_graph(sparse_indices_, sparse_values_, sparse_shape_; name=name, out_type=out_type)
@@ -37385,7 +37385,7 @@ begin
         return res[1]
     end
     function scatter_nd_non_aliasing_add(input_, indices_, updates_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             scatter_nd_non_aliasing_add_eager(input_, indices_, updates_; name=name)
         else
             scatter_nd_non_aliasing_add_graph(input_, indices_, updates_; name=name)
@@ -37432,7 +37432,7 @@ begin
         return res
     end
     function ref_merge(inputs_; name=nothing, N=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             ref_merge_eager(inputs_; name=name, N=N)
         else
             ref_merge_graph(inputs_; name=name, N=N)
@@ -37483,7 +37483,7 @@ begin
         return res
     end
     function tensor_list_concat(input_handle_; name=nothing, element_dtype=nothing, element_shape=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_list_concat_eager(input_handle_; name=name, element_dtype=element_dtype, element_shape=element_shape)
         else
             tensor_list_concat_graph(input_handle_; name=name, element_dtype=element_dtype, element_shape=element_shape)
@@ -37578,7 +37578,7 @@ begin
         return res[1]
     end
     function cudnn_rnn_canonical_to_params(num_layers_, num_units_, input_size_, weights_, biases_; name=nothing, num_params=nothing, rnn_mode=nothing, input_mode=nothing, direction=nothing, dropout=nothing, seed=nothing, seed2=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             cudnn_rnn_canonical_to_params_eager(num_layers_, num_units_, input_size_, weights_, biases_; name=name, num_params=num_params, rnn_mode=rnn_mode, input_mode=input_mode, direction=direction, dropout=dropout, seed=seed, seed2=seed2)
         else
             cudnn_rnn_canonical_to_params_graph(num_layers_, num_units_, input_size_, weights_, biases_; name=name, num_params=num_params, rnn_mode=rnn_mode, input_mode=input_mode, direction=direction, dropout=dropout, seed=seed, seed2=seed2)
@@ -37657,7 +37657,7 @@ begin
         return res[1]
     end
     function sparse_apply_adadelta(var_, accum_, accum_update_, lr_, rho_, epsilon_, grad_, indices_; name=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sparse_apply_adadelta_eager(var_, accum_, accum_update_, lr_, rho_, epsilon_, grad_, indices_; name=name, use_locking=use_locking)
         else
             sparse_apply_adadelta_graph(var_, accum_, accum_update_, lr_, rho_, epsilon_, grad_, indices_; name=name, use_locking=use_locking)
@@ -37691,7 +37691,7 @@ begin
         return res[1]
     end
     function tensor_array_close(handle_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_array_close_eager(handle_; name=name)
         else
             tensor_array_close_graph(handle_; name=name)
@@ -37732,7 +37732,7 @@ begin
         return res[1]
     end
     function selu_grad(gradients_, outputs_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             selu_grad_eager(gradients_, outputs_; name=name)
         else
             selu_grad_graph(gradients_, outputs_; name=name)
@@ -37784,7 +37784,7 @@ begin
         return res[1]
     end
     function crop_and_resize_grad_image(grads_, boxes_, box_ind_, image_size_; name=nothing, method=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             crop_and_resize_grad_image_eager(grads_, boxes_, box_ind_, image_size_; name=name, method=method)
         else
             crop_and_resize_grad_image_graph(grads_, boxes_, box_ind_, image_size_; name=name, method=method)
@@ -37822,7 +37822,7 @@ begin
         return res[1]
     end
     function rfft(input_, fft_length_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             rfft_eager(input_, fft_length_; name=name)
         else
             rfft_graph(input_, fft_length_; name=name)
@@ -37876,7 +37876,7 @@ begin
         return res[1]
     end
     function experimental_sql_dataset(driver_name_, data_source_name_, query_; name=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             experimental_sql_dataset_eager(driver_name_, data_source_name_, query_; name=name, output_types=output_types, output_shapes=output_shapes)
         else
             experimental_sql_dataset_graph(driver_name_, data_source_name_, query_; name=name, output_types=output_types, output_shapes=output_shapes)
@@ -37946,7 +37946,7 @@ begin
         return res[1]
     end
     function resource_apply_power_sign(var_, m_, lr_, logbase_, sign_decay_, beta_, grad_; name=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             resource_apply_power_sign_eager(var_, m_, lr_, logbase_, sign_decay_, beta_, grad_; name=name, use_locking=use_locking)
         else
             resource_apply_power_sign_graph(var_, m_, lr_, logbase_, sign_decay_, beta_, grad_; name=name, use_locking=use_locking)
@@ -37982,7 +37982,7 @@ begin
         return res[1]
     end
     function matrix_determinant(input_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             matrix_determinant_eager(input_; name=name)
         else
             matrix_determinant_graph(input_; name=name)
@@ -38034,7 +38034,7 @@ begin
         return res[1]
     end
     function static_regex_replace(input_; name=nothing, pattern=nothing, rewrite=nothing, replace_global=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             static_regex_replace_eager(input_; name=name, pattern=pattern, rewrite=rewrite, replace_global=replace_global)
         else
             static_regex_replace_graph(input_; name=name, pattern=pattern, rewrite=rewrite, replace_global=replace_global)
@@ -38094,7 +38094,7 @@ begin
         return res[1]
     end
     function avg_pool(value_; name=nothing, ksize=nothing, strides=nothing, padding=nothing, data_format=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             avg_pool_eager(value_; name=name, ksize=ksize, strides=strides, padding=padding, data_format=data_format)
         else
             avg_pool_graph(value_; name=name, ksize=ksize, strides=strides, padding=padding, data_format=data_format)
@@ -38143,7 +38143,7 @@ begin
         return res[1]
     end
     function sparse_dense_cwise_add(sp_indices_, sp_values_, sp_shape_, dense_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sparse_dense_cwise_add_eager(sp_indices_, sp_values_, sp_shape_, dense_; name=name)
         else
             sparse_dense_cwise_add_graph(sp_indices_, sp_values_, sp_shape_, dense_; name=name)
@@ -38184,7 +38184,7 @@ begin
         return res[1]
     end
     function bias_add_v1(value_, bias_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             bias_add_v1_eager(value_, bias_; name=name)
         else
             bias_add_v1_graph(value_, bias_; name=name)
@@ -38220,7 +38220,7 @@ begin
         return res[1]
     end
     function invert_permutation(x_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             invert_permutation_eager(x_; name=name)
         else
             invert_permutation_graph(x_; name=name)
@@ -38280,7 +38280,7 @@ begin
         return res[1]
     end
     function hash_table_v2(; name=nothing, container=nothing, shared_name=nothing, use_node_name_sharing=nothing, key_dtype=nothing, value_dtype=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             hash_table_v2_eager(; name=name, container=container, shared_name=shared_name, use_node_name_sharing=use_node_name_sharing, key_dtype=key_dtype, value_dtype=value_dtype)
         else
             hash_table_v2_graph(; name=name, container=container, shared_name=shared_name, use_node_name_sharing=use_node_name_sharing, key_dtype=key_dtype, value_dtype=value_dtype)
@@ -38355,7 +38355,7 @@ begin
         return res[1]
     end
     function sparse_apply_momentum(var_, accum_, lr_, grad_, indices_, momentum_; name=nothing, use_locking=nothing, use_nesterov=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sparse_apply_momentum_eager(var_, accum_, lr_, grad_, indices_, momentum_; name=name, use_locking=use_locking, use_nesterov=use_nesterov)
         else
             sparse_apply_momentum_graph(var_, accum_, lr_, grad_, indices_, momentum_; name=name, use_locking=use_locking, use_nesterov=use_nesterov)
@@ -38415,7 +38415,7 @@ begin
         return res[1]
     end
     function infeed_enqueue(input_; name=nothing, dtype=nothing, shape=nothing, layout=nothing, device_ordinal=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             infeed_enqueue_eager(input_; name=name, dtype=dtype, shape=shape, layout=layout, device_ordinal=device_ordinal)
         else
             infeed_enqueue_graph(input_; name=name, dtype=dtype, shape=shape, layout=layout, device_ordinal=device_ordinal)
@@ -38474,7 +38474,7 @@ begin
         return res[1]
     end
     function stateless_random_uniform_int(shape_, seed_, minval_, maxval_; name=nothing, dtype=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             stateless_random_uniform_int_eager(shape_, seed_, minval_, maxval_; name=name, dtype=dtype)
         else
             stateless_random_uniform_int_graph(shape_, seed_, minval_, maxval_; name=name, dtype=dtype)
@@ -38544,7 +38544,7 @@ begin
         return res[1]
     end
     function load_tpu_embedding_adadelta_parameters_grad_accum_debug(parameters_, accumulators_, updates_, gradient_accumulators_; name=nothing, table_id=nothing, table_name=nothing, num_shards=nothing, shard_id=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             load_tpu_embedding_adadelta_parameters_grad_accum_debug_eager(parameters_, accumulators_, updates_, gradient_accumulators_; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
         else
             load_tpu_embedding_adadelta_parameters_grad_accum_debug_graph(parameters_, accumulators_, updates_, gradient_accumulators_; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
@@ -38610,7 +38610,7 @@ begin
         return res[1]
     end
     function _send(tensor_; name=nothing, tensor_name=nothing, send_device=nothing, send_device_incarnation=nothing, recv_device=nothing, client_terminated=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             _send_eager(tensor_; name=name, tensor_name=tensor_name, send_device=send_device, send_device_incarnation=send_device_incarnation, recv_device=recv_device, client_terminated=client_terminated)
         else
             _send_graph(tensor_; name=name, tensor_name=tensor_name, send_device=send_device, send_device_incarnation=send_device_incarnation, recv_device=recv_device, client_terminated=client_terminated)
@@ -38678,7 +38678,7 @@ begin
         return res[1]
     end
     function map_peek(key_, indices_; name=nothing, capacity=nothing, memory_limit=nothing, dtypes=nothing, container=nothing, shared_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             map_peek_eager(key_, indices_; name=name, capacity=capacity, memory_limit=memory_limit, dtypes=dtypes, container=container, shared_name=shared_name)
         else
             map_peek_graph(key_, indices_; name=name, capacity=capacity, memory_limit=memory_limit, dtypes=dtypes, container=container, shared_name=shared_name)
@@ -38726,7 +38726,7 @@ begin
         return res[1]
     end
     function write_scalar_summary(writer_, step_, tag_, value_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             write_scalar_summary_eager(writer_, step_, tag_, value_; name=name)
         else
             write_scalar_summary_graph(writer_, step_, tag_, value_; name=name)
@@ -38795,7 +38795,7 @@ begin
         return res
     end
     function ordered_map_unstage_no_key(indices_; name=nothing, capacity=nothing, memory_limit=nothing, dtypes=nothing, container=nothing, shared_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             ordered_map_unstage_no_key_eager(indices_; name=name, capacity=capacity, memory_limit=memory_limit, dtypes=dtypes, container=container, shared_name=shared_name)
         else
             ordered_map_unstage_no_key_graph(indices_; name=name, capacity=capacity, memory_limit=memory_limit, dtypes=dtypes, container=container, shared_name=shared_name)
@@ -38884,7 +38884,7 @@ begin
         return res[1]
     end
     function sparse_apply_centered_rms_prop(var_, mg_, ms_, mom_, lr_, rho_, momentum_, epsilon_, grad_, indices_; name=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sparse_apply_centered_rms_prop_eager(var_, mg_, ms_, mom_, lr_, rho_, momentum_, epsilon_, grad_, indices_; name=name, use_locking=use_locking)
         else
             sparse_apply_centered_rms_prop_graph(var_, mg_, ms_, mom_, lr_, rho_, momentum_, epsilon_, grad_, indices_; name=name, use_locking=use_locking)
@@ -38946,7 +38946,7 @@ begin
         return res[1]
     end
     function tensor_list_scatter_v2(tensor_, indices_, element_shape_, num_elements_; name=nothing, element_dtype=nothing, shape_type=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_list_scatter_v2_eager(tensor_, indices_, element_shape_, num_elements_; name=name, element_dtype=element_dtype, shape_type=shape_type)
         else
             tensor_list_scatter_v2_graph(tensor_, indices_, element_shape_, num_elements_; name=name, element_dtype=element_dtype, shape_type=shape_type)
@@ -39017,7 +39017,7 @@ begin
         return res[1]
     end
     function conv3d_backprop_input_v2(input_sizes_, filter_, out_backprop_; name=nothing, strides=nothing, padding=nothing, data_format=nothing, dilations=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             conv3d_backprop_input_v2_eager(input_sizes_, filter_, out_backprop_; name=name, strides=strides, padding=padding, data_format=data_format, dilations=dilations)
         else
             conv3d_backprop_input_v2_graph(input_sizes_, filter_, out_backprop_; name=name, strides=strides, padding=padding, data_format=data_format, dilations=dilations)
@@ -39076,7 +39076,7 @@ begin
         return res
     end
     function retrieve_tpu_embedding_proximal_adagrad_parameters(; name=nothing, table_id=nothing, table_name=nothing, num_shards=nothing, shard_id=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             retrieve_tpu_embedding_proximal_adagrad_parameters_eager(; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
         else
             retrieve_tpu_embedding_proximal_adagrad_parameters_graph(; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
@@ -39124,7 +39124,7 @@ begin
         return res[1]
     end
     function random_shuffle(value_; name=nothing, seed=nothing, seed2=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             random_shuffle_eager(value_; name=name, seed=seed, seed2=seed2)
         else
             random_shuffle_graph(value_; name=name, seed=seed, seed2=seed2)
@@ -39199,7 +39199,7 @@ begin
         return res
     end
     function uniform_candidate_sampler(true_classes_; name=nothing, num_true=nothing, num_sampled=nothing, unique=nothing, range_max=nothing, seed=nothing, seed2=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             uniform_candidate_sampler_eager(true_classes_; name=name, num_true=num_true, num_sampled=num_sampled, unique=unique, range_max=range_max, seed=seed, seed2=seed2)
         else
             uniform_candidate_sampler_graph(true_classes_; name=name, num_true=num_true, num_sampled=num_sampled, unique=unique, range_max=range_max, seed=seed, seed2=seed2)
@@ -39247,7 +39247,7 @@ begin
         return res[1]
     end
     function tensor_array_split_v2(handle_, value_, lengths_, flow_in_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_array_split_v2_eager(handle_, value_, lengths_, flow_in_; name=name)
         else
             tensor_array_split_v2_graph(handle_, value_, lengths_, flow_in_; name=name)
@@ -39336,7 +39336,7 @@ begin
         return res[1]
     end
     function mutable_dense_hash_table_v2(empty_key_, deleted_key_; name=nothing, container=nothing, shared_name=nothing, use_node_name_sharing=nothing, key_dtype=nothing, value_dtype=nothing, value_shape=nothing, initial_num_buckets=nothing, max_load_factor=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             mutable_dense_hash_table_v2_eager(empty_key_, deleted_key_; name=name, container=container, shared_name=shared_name, use_node_name_sharing=use_node_name_sharing, key_dtype=key_dtype, value_dtype=value_dtype, value_shape=value_shape, initial_num_buckets=initial_num_buckets, max_load_factor=max_load_factor)
         else
             mutable_dense_hash_table_v2_graph(empty_key_, deleted_key_; name=name, container=container, shared_name=shared_name, use_node_name_sharing=use_node_name_sharing, key_dtype=key_dtype, value_dtype=value_dtype, value_shape=value_shape, initial_num_buckets=initial_num_buckets, max_load_factor=max_load_factor)
@@ -39376,7 +39376,7 @@ begin
         return res[1]
     end
     function draw_bounding_boxes(images_, boxes_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             draw_bounding_boxes_eager(images_, boxes_; name=name)
         else
             draw_bounding_boxes_graph(images_, boxes_; name=name)
@@ -39450,7 +39450,7 @@ begin
         return res[1]
     end
     function sparse_apply_proximal_adagrad(var_, accum_, lr_, l1_, l2_, grad_, indices_; name=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sparse_apply_proximal_adagrad_eager(var_, accum_, lr_, l1_, l2_, grad_, indices_; name=name, use_locking=use_locking)
         else
             sparse_apply_proximal_adagrad_graph(var_, accum_, lr_, l1_, l2_, grad_, indices_; name=name, use_locking=use_locking)
@@ -39504,7 +39504,7 @@ begin
         return res[1]
     end
     function range_dataset(start_, stop_, step_; name=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             range_dataset_eager(start_, stop_, step_; name=name, output_types=output_types, output_shapes=output_shapes)
         else
             range_dataset_graph(start_, stop_, step_; name=name, output_types=output_types, output_shapes=output_shapes)
@@ -39542,7 +39542,7 @@ begin
         return res[1]
     end
     function reader_restore_state_v2(reader_handle_, state_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             reader_restore_state_v2_eager(reader_handle_, state_; name=name)
         else
             reader_restore_state_v2_graph(reader_handle_, state_; name=name)
@@ -39593,7 +39593,7 @@ begin
         return res
     end
     function top_kv2(input_, k_; name=nothing, sorted=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             top_kv2_eager(input_, k_; name=name, sorted=sorted)
         else
             top_kv2_graph(input_, k_; name=name, sorted=sorted)
@@ -39629,7 +39629,7 @@ begin
         return res[1]
     end
     function atanh(x_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             atanh_eager(x_; name=name)
         else
             atanh_graph(x_; name=name)
@@ -39665,7 +39665,7 @@ begin
         return res[1]
     end
     function debug_gradient_identity(input_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             debug_gradient_identity_eager(input_; name=name)
         else
             debug_gradient_identity_graph(input_; name=name)
@@ -39718,7 +39718,7 @@ begin
         return res
     end
     function sparse_add_grad(backprop_val_grad_, a_indices_, b_indices_, sum_indices_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sparse_add_grad_eager(backprop_val_grad_, a_indices_, b_indices_, sum_indices_; name=name)
         else
             sparse_add_grad_graph(backprop_val_grad_, a_indices_, b_indices_, sum_indices_; name=name)
@@ -39771,7 +39771,7 @@ begin
         return res[1]
     end
     function resource_scatter_add(resource_, indices_, updates_; name=nothing, dtype=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             resource_scatter_add_eager(resource_, indices_, updates_; name=name, dtype=dtype)
         else
             resource_scatter_add_graph(resource_, indices_, updates_; name=name, dtype=dtype)
@@ -39807,7 +39807,7 @@ begin
         return res[1]
     end
     function ceil(x_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             ceil_eager(x_; name=name)
         else
             ceil_graph(x_; name=name)
@@ -39855,7 +39855,7 @@ begin
         return res[1]
     end
     function save(filename_, tensor_names_, data_; name=nothing, T=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             save_eager(filename_, tensor_names_, data_; name=name, T=T)
         else
             save_graph(filename_, tensor_names_, data_; name=name, T=T)
@@ -39914,7 +39914,7 @@ begin
         return res
     end
     function retrieve_tpu_embedding_centered_rms_prop_parameters(; name=nothing, table_id=nothing, table_name=nothing, num_shards=nothing, shard_id=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             retrieve_tpu_embedding_centered_rms_prop_parameters_eager(; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
         else
             retrieve_tpu_embedding_centered_rms_prop_parameters_graph(; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
@@ -39973,7 +39973,7 @@ begin
         return res
     end
     function quantized_concat(concat_dim_, values_, input_mins_, input_maxes_; name=nothing, N=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             quantized_concat_eager(concat_dim_, values_, input_mins_, input_maxes_; name=name, N=N)
         else
             quantized_concat_graph(concat_dim_, values_, input_mins_, input_maxes_; name=name, N=N)
@@ -40009,7 +40009,7 @@ begin
         return res[1]
     end
     function zeros_like(x_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             zeros_like_eager(x_; name=name)
         else
             zeros_like_graph(x_; name=name)
@@ -40086,7 +40086,7 @@ begin
         return res
     end
     function fractional_avg_pool(value_; name=nothing, pooling_ratio=nothing, pseudo_random=nothing, overlapping=nothing, deterministic=nothing, seed=nothing, seed2=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             fractional_avg_pool_eager(value_; name=name, pooling_ratio=pooling_ratio, pseudo_random=pseudo_random, overlapping=overlapping, deterministic=deterministic, seed=seed, seed2=seed2)
         else
             fractional_avg_pool_graph(value_; name=name, pooling_ratio=pooling_ratio, pseudo_random=pseudo_random, overlapping=overlapping, deterministic=deterministic, seed=seed, seed2=seed2)
@@ -40149,7 +40149,7 @@ begin
         return res[1]
     end
     function edit_distance(hypothesis_indices_, hypothesis_values_, hypothesis_shape_, truth_indices_, truth_values_, truth_shape_; name=nothing, normalize=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             edit_distance_eager(hypothesis_indices_, hypothesis_values_, hypothesis_shape_, truth_indices_, truth_values_, truth_shape_; name=name, normalize=normalize)
         else
             edit_distance_graph(hypothesis_indices_, hypothesis_values_, hypothesis_shape_, truth_indices_, truth_values_, truth_shape_; name=name, normalize=normalize)
@@ -40202,7 +40202,7 @@ begin
         return res
     end
     function unique_v2(x_, axis_; name=nothing, out_idx=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             unique_v2_eager(x_, axis_; name=name, out_idx=out_idx)
         else
             unique_v2_graph(x_, axis_; name=name, out_idx=out_idx)
@@ -40272,7 +40272,7 @@ begin
         return res[1]
     end
     function quantize_and_dequantize_v2(input_, input_min_, input_max_; name=nothing, signed_input=nothing, num_bits=nothing, range_given=nothing, round_mode=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             quantize_and_dequantize_v2_eager(input_, input_min_, input_max_; name=name, signed_input=signed_input, num_bits=num_bits, range_given=range_given, round_mode=round_mode)
         else
             quantize_and_dequantize_v2_graph(input_, input_min_, input_max_; name=name, signed_input=signed_input, num_bits=num_bits, range_given=range_given, round_mode=round_mode)
@@ -40338,7 +40338,7 @@ begin
         return res[1]
     end
     function quantize_and_dequantize(input_; name=nothing, signed_input=nothing, num_bits=nothing, range_given=nothing, input_min=nothing, input_max=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             quantize_and_dequantize_eager(input_; name=name, signed_input=signed_input, num_bits=num_bits, range_given=range_given, input_min=input_min, input_max=input_max)
         else
             quantize_and_dequantize_graph(input_; name=name, signed_input=signed_input, num_bits=num_bits, range_given=range_given, input_min=input_min, input_max=input_max)
@@ -40387,7 +40387,7 @@ begin
         return res
     end
     function tensor_list_pop_back(input_handle_, element_shape_; name=nothing, element_dtype=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_list_pop_back_eager(input_handle_, element_shape_; name=name, element_dtype=element_dtype)
         else
             tensor_list_pop_back_graph(input_handle_, element_shape_; name=name, element_dtype=element_dtype)
@@ -40447,7 +40447,7 @@ begin
         return res[1]
     end
     function debug_nan_count(input_; name=nothing, device_name=nothing, tensor_name=nothing, debug_urls=nothing, gated_grpc=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             debug_nan_count_eager(input_; name=name, device_name=device_name, tensor_name=tensor_name, debug_urls=debug_urls, gated_grpc=gated_grpc)
         else
             debug_nan_count_graph(input_; name=name, device_name=device_name, tensor_name=tensor_name, debug_urls=debug_urls, gated_grpc=gated_grpc)
@@ -40523,7 +40523,7 @@ begin
         return res[1]
     end
     function apply_adagrad_da(var_, gradient_accumulator_, gradient_squared_accumulator_, grad_, lr_, l1_, l2_, global_step_; name=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             apply_adagrad_da_eager(var_, gradient_accumulator_, gradient_squared_accumulator_, grad_, lr_, l1_, l2_, global_step_; name=name, use_locking=use_locking)
         else
             apply_adagrad_da_graph(var_, gradient_accumulator_, gradient_squared_accumulator_, grad_, lr_, l1_, l2_, global_step_; name=name, use_locking=use_locking)
@@ -40588,7 +40588,7 @@ begin
         return res[1]
     end
     function depthwise_conv2d_native(input_, filter_; name=nothing, strides=nothing, padding=nothing, data_format=nothing, dilations=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             depthwise_conv2d_native_eager(input_, filter_; name=name, strides=strides, padding=padding, data_format=data_format, dilations=dilations)
         else
             depthwise_conv2d_native_graph(input_, filter_; name=name, strides=strides, padding=padding, data_format=data_format, dilations=dilations)
@@ -40622,7 +40622,7 @@ begin
         return res[1]
     end
     function serialize_iterator(resource_handle_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             serialize_iterator_eager(resource_handle_; name=name)
         else
             serialize_iterator_graph(resource_handle_; name=name)
@@ -40656,7 +40656,7 @@ begin
         return res[1]
     end
     function dataset_to_graph(input_dataset_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             dataset_to_graph_eager(input_dataset_; name=name)
         else
             dataset_to_graph_graph(input_dataset_; name=name)
@@ -40709,7 +40709,7 @@ begin
         return res
     end
     function top_k(input_; name=nothing, k=nothing, sorted=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             top_k_eager(input_; name=name, k=k, sorted=sorted)
         else
             top_k_graph(input_; name=name, k=k, sorted=sorted)
@@ -40788,7 +40788,7 @@ begin
         return res[1]
     end
     function resource_apply_ftrl_v2(var_, accum_, linear_, grad_, lr_, l1_, l2_, l2_shrinkage_, lr_power_; name=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             resource_apply_ftrl_v2_eager(var_, accum_, linear_, grad_, lr_, l1_, l2_, l2_shrinkage_, lr_power_; name=name, use_locking=use_locking)
         else
             resource_apply_ftrl_v2_graph(var_, accum_, linear_, grad_, lr_, l1_, l2_, l2_shrinkage_, lr_power_; name=name, use_locking=use_locking)
@@ -40834,7 +40834,7 @@ begin
         return res[1]
     end
     function _nccl_broadcast_recv(shape_; name=nothing, num_devices=nothing, shared_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             _nccl_broadcast_recv_eager(shape_; name=name, num_devices=num_devices, shared_name=shared_name)
         else
             _nccl_broadcast_recv_graph(shape_; name=name, num_devices=num_devices, shared_name=shared_name)
@@ -40868,7 +40868,7 @@ begin
         return res[1]
     end
     function queue_is_closed(handle_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             queue_is_closed_eager(handle_; name=name)
         else
             queue_is_closed_graph(handle_; name=name)
@@ -40932,7 +40932,7 @@ begin
         return res[1]
     end
     function shuffle_dataset(input_dataset_, buffer_size_, seed_, seed2_; name=nothing, reshuffle_each_iteration=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             shuffle_dataset_eager(input_dataset_, buffer_size_, seed_, seed2_; name=name, reshuffle_each_iteration=reshuffle_each_iteration, output_types=output_types, output_shapes=output_shapes)
         else
             shuffle_dataset_graph(input_dataset_, buffer_size_, seed_, seed2_; name=name, reshuffle_each_iteration=reshuffle_each_iteration, output_types=output_types, output_shapes=output_shapes)
@@ -40979,7 +40979,7 @@ begin
         return res
     end
     function deserialize_sparse(serialized_sparse_; name=nothing, dtype=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             deserialize_sparse_eager(serialized_sparse_; name=name, dtype=dtype)
         else
             deserialize_sparse_graph(serialized_sparse_; name=name, dtype=dtype)
@@ -41039,7 +41039,7 @@ begin
         return res[1]
     end
     function priority_queue_v2(; name=nothing, component_types=nothing, shapes=nothing, capacity=nothing, container=nothing, shared_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             priority_queue_v2_eager(; name=name, component_types=component_types, shapes=shapes, capacity=capacity, container=container, shared_name=shared_name)
         else
             priority_queue_v2_graph(; name=name, component_types=component_types, shapes=shapes, capacity=capacity, container=container, shared_name=shared_name)
@@ -41075,7 +41075,7 @@ begin
         return res[1]
     end
     function _device_arg(; name=nothing, index=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             _device_arg_eager(; name=name, index=index)
         else
             _device_arg_graph(; name=name, index=index)
@@ -41129,7 +41129,7 @@ begin
         return res[1]
     end
     function truncated_normal(shape_; name=nothing, seed=nothing, seed2=nothing, dtype=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             truncated_normal_eager(shape_; name=name, seed=seed, seed2=seed2, dtype=dtype)
         else
             truncated_normal_graph(shape_; name=name, seed=seed, seed2=seed2, dtype=dtype)
@@ -41173,7 +41173,7 @@ begin
         return res[1]
     end
     function tensor_forest_tree_predict(tree_handle_, dense_features_; name=nothing, logits_dimension=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_forest_tree_predict_eager(tree_handle_, dense_features_; name=name, logits_dimension=logits_dimension)
         else
             tensor_forest_tree_predict_graph(tree_handle_, dense_features_; name=name, logits_dimension=logits_dimension)
@@ -41219,7 +41219,7 @@ begin
         return res[1]
     end
     function stack_v2(max_size_; name=nothing, elem_type=nothing, stack_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             stack_v2_eager(max_size_; name=name, elem_type=elem_type, stack_name=stack_name)
         else
             stack_v2_graph(max_size_; name=name, elem_type=elem_type, stack_name=stack_name)
@@ -41253,7 +41253,7 @@ begin
         return res[1]
     end
     function accumulator_num_accumulated(handle_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             accumulator_num_accumulated_eager(handle_; name=name)
         else
             accumulator_num_accumulated_graph(handle_; name=name)
@@ -41287,7 +41287,7 @@ begin
         return res[1]
     end
     function reader_reset_v2(reader_handle_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             reader_reset_v2_eager(reader_handle_; name=name)
         else
             reader_reset_v2_graph(reader_handle_; name=name)
@@ -41359,7 +41359,7 @@ begin
         return res[1]
     end
     function apply_add_sign(var_, m_, lr_, alpha_, sign_decay_, beta_, grad_; name=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             apply_add_sign_eager(var_, m_, lr_, alpha_, sign_decay_, beta_, grad_; name=name, use_locking=use_locking)
         else
             apply_add_sign_graph(var_, m_, lr_, alpha_, sign_decay_, beta_, grad_; name=name, use_locking=use_locking)
@@ -41418,7 +41418,7 @@ begin
         return res
     end
     function retrieve_tpu_embedding_rms_prop_parameters_grad_accum_debug(; name=nothing, table_id=nothing, table_name=nothing, num_shards=nothing, shard_id=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             retrieve_tpu_embedding_rms_prop_parameters_grad_accum_debug_eager(; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
         else
             retrieve_tpu_embedding_rms_prop_parameters_grad_accum_debug_graph(; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
@@ -41454,7 +41454,7 @@ begin
         return res[1]
     end
     function rint(x_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             rint_eager(x_; name=name)
         else
             rint_graph(x_; name=name)
@@ -41513,7 +41513,7 @@ begin
         return res
     end
     function retrieve_tpu_embedding_adadelta_parameters_grad_accum_debug(; name=nothing, table_id=nothing, table_name=nothing, num_shards=nothing, shard_id=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             retrieve_tpu_embedding_adadelta_parameters_grad_accum_debug_eager(; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
         else
             retrieve_tpu_embedding_adadelta_parameters_grad_accum_debug_graph(; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
@@ -41579,7 +41579,7 @@ begin
         return res[1]
     end
     function extract_glimpse(input_, size_, offsets_; name=nothing, centered=nothing, normalized=nothing, uniform_noise=nothing, noise=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             extract_glimpse_eager(input_, size_, offsets_; name=name, centered=centered, normalized=normalized, uniform_noise=uniform_noise, noise=noise)
         else
             extract_glimpse_graph(input_, size_, offsets_; name=name, centered=centered, normalized=normalized, uniform_noise=uniform_noise, noise=noise)
@@ -41625,7 +41625,7 @@ begin
         return res[1]
     end
     function string_to_hash_bucket_strong(input_; name=nothing, num_buckets=nothing, key=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             string_to_hash_bucket_strong_eager(input_; name=name, num_buckets=num_buckets, key=key)
         else
             string_to_hash_bucket_strong_graph(input_; name=name, num_buckets=num_buckets, key=key)
@@ -41685,7 +41685,7 @@ begin
         return res[1]
     end
     function one_shot_iterator(; name=nothing, dataset_factory=nothing, output_types=nothing, output_shapes=nothing, container=nothing, shared_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             one_shot_iterator_eager(; name=name, dataset_factory=dataset_factory, output_types=output_types, output_shapes=output_shapes, container=container, shared_name=shared_name)
         else
             one_shot_iterator_graph(; name=name, dataset_factory=dataset_factory, output_types=output_types, output_shapes=output_shapes, container=container, shared_name=shared_name)
@@ -41758,7 +41758,7 @@ begin
         return res[1]
     end
     function resource_sparse_apply_momentum(var_, accum_, lr_, grad_, indices_, momentum_; name=nothing, use_locking=nothing, use_nesterov=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             resource_sparse_apply_momentum_eager(var_, accum_, lr_, grad_, indices_, momentum_; name=name, use_locking=use_locking, use_nesterov=use_nesterov)
         else
             resource_sparse_apply_momentum_graph(var_, accum_, lr_, grad_, indices_, momentum_; name=name, use_locking=use_locking, use_nesterov=use_nesterov)
@@ -41810,7 +41810,7 @@ begin
         return res[1]
     end
     function save_slices(filename_, tensor_names_, shapes_and_slices_, data_; name=nothing, T=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             save_slices_eager(filename_, tensor_names_, shapes_and_slices_, data_; name=name, T=T)
         else
             save_slices_graph(filename_, tensor_names_, shapes_and_slices_, data_; name=name, T=T)
@@ -41844,7 +41844,7 @@ begin
         return res[1]
     end
     function experimental_dataset_cardinality(input_dataset_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             experimental_dataset_cardinality_eager(input_dataset_; name=name)
         else
             experimental_dataset_cardinality_graph(input_dataset_; name=name)
@@ -41880,7 +41880,7 @@ begin
         return res[1]
     end
     function is_finite(x_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             is_finite_eager(x_; name=name)
         else
             is_finite_graph(x_; name=name)
@@ -41960,7 +41960,7 @@ begin
         return res[1]
     end
     function experimental_numa_map_and_batch_dataset(input_dataset_, other_arguments_, batch_size_, num_parallel_calls_, drop_remainder_; name=nothing, f=nothing, Targuments=nothing, output_types=nothing, output_shapes=nothing, preserve_cardinality=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             experimental_numa_map_and_batch_dataset_eager(input_dataset_, other_arguments_, batch_size_, num_parallel_calls_, drop_remainder_; name=name, f=f, Targuments=Targuments, output_types=output_types, output_shapes=output_shapes, preserve_cardinality=preserve_cardinality)
         else
             experimental_numa_map_and_batch_dataset_graph(input_dataset_, other_arguments_, batch_size_, num_parallel_calls_, drop_remainder_; name=name, f=f, Targuments=Targuments, output_types=output_types, output_shapes=output_shapes, preserve_cardinality=preserve_cardinality)
@@ -42018,7 +42018,7 @@ begin
         return res[1]
     end
     function all_to_all(input_, group_assignment_; name=nothing, concat_dimension=nothing, split_dimension=nothing, split_count=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             all_to_all_eager(input_, group_assignment_; name=name, concat_dimension=concat_dimension, split_dimension=split_dimension, split_count=split_count)
         else
             all_to_all_graph(input_, group_assignment_; name=name, concat_dimension=concat_dimension, split_dimension=split_dimension, split_count=split_count)
@@ -42075,7 +42075,7 @@ begin
         return res
     end
     function take_many_sparse_from_tensors_map(sparse_handles_; name=nothing, dtype=nothing, container=nothing, shared_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             take_many_sparse_from_tensors_map_eager(sparse_handles_; name=name, dtype=dtype, container=container, shared_name=shared_name)
         else
             take_many_sparse_from_tensors_map_graph(sparse_handles_; name=name, dtype=dtype, container=container, shared_name=shared_name)
@@ -42111,7 +42111,7 @@ begin
         return res[1]
     end
     function batch_matrix_diag_part(input_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             batch_matrix_diag_part_eager(input_; name=name)
         else
             batch_matrix_diag_part_graph(input_; name=name)
@@ -42161,7 +42161,7 @@ begin
         return res[1]
     end
     function fixed_length_record_dataset(filenames_, header_bytes_, record_bytes_, footer_bytes_, buffer_size_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             fixed_length_record_dataset_eager(filenames_, header_bytes_, record_bytes_, footer_bytes_, buffer_size_; name=name)
         else
             fixed_length_record_dataset_graph(filenames_, header_bytes_, record_bytes_, footer_bytes_, buffer_size_; name=name)
@@ -42207,7 +42207,7 @@ begin
         return res[1]
     end
     function stack_push(handle_, elem_; name=nothing, swap_memory=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             stack_push_eager(handle_, elem_; name=name, swap_memory=swap_memory)
         else
             stack_push_graph(handle_, elem_; name=name, swap_memory=swap_memory)
@@ -42249,7 +42249,7 @@ begin
         return res[1]
     end
     function placeholder_v2(; name=nothing, dtype=nothing, shape=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             placeholder_v2_eager(; name=name, dtype=dtype, shape=shape)
         else
             placeholder_v2_graph(; name=name, dtype=dtype, shape=shape)
@@ -42291,7 +42291,7 @@ begin
         return res[1]
     end
     function multi_device_iterator_init(dataset_, multi_device_iterator_, max_buffer_size_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             multi_device_iterator_init_eager(dataset_, multi_device_iterator_, max_buffer_size_; name=name)
         else
             multi_device_iterator_init_graph(dataset_, multi_device_iterator_, max_buffer_size_; name=name)
@@ -42333,7 +42333,7 @@ begin
         return res[1]
     end
     function gcs_configure_block_cache(max_cache_size_, block_size_, max_staleness_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             gcs_configure_block_cache_eager(max_cache_size_, block_size_, max_staleness_; name=name)
         else
             gcs_configure_block_cache_graph(max_cache_size_, block_size_, max_staleness_; name=name)
@@ -42379,7 +42379,7 @@ begin
         return res[1]
     end
     function queue_dequeue_v2(handle_; name=nothing, component_types=nothing, timeout_ms=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             queue_dequeue_v2_eager(handle_; name=name, component_types=component_types, timeout_ms=timeout_ms)
         else
             queue_dequeue_v2_graph(handle_; name=name, component_types=component_types, timeout_ms=timeout_ms)
@@ -42438,7 +42438,7 @@ begin
         return res
     end
     function retrieve_tpu_embedding_rms_prop_parameters(; name=nothing, table_id=nothing, table_name=nothing, num_shards=nothing, shard_id=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             retrieve_tpu_embedding_rms_prop_parameters_eager(; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
         else
             retrieve_tpu_embedding_rms_prop_parameters_graph(; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
@@ -42480,7 +42480,7 @@ begin
         return res[1]
     end
     function transpose(x_, perm_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             transpose_eager(x_, perm_; name=name)
         else
             transpose_graph(x_, perm_; name=name)
@@ -42516,7 +42516,7 @@ begin
         return res[1]
     end
     function ifft(input_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             ifft_eager(input_; name=name)
         else
             ifft_graph(input_; name=name)
@@ -42569,7 +42569,7 @@ begin
         return res[1]
     end
     function sparse_segment_sum_with_num_segments(data_, indices_, segment_ids_, num_segments_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sparse_segment_sum_with_num_segments_eager(data_, indices_, segment_ids_, num_segments_; name=name)
         else
             sparse_segment_sum_with_num_segments_graph(data_, indices_, segment_ids_, num_segments_; name=name)
@@ -42603,7 +42603,7 @@ begin
         return res[1]
     end
     function queue_is_closed_v2(handle_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             queue_is_closed_v2_eager(handle_; name=name)
         else
             queue_is_closed_v2_graph(handle_; name=name)
@@ -42678,7 +42678,7 @@ begin
         return res[1]
     end
     function parameterized_truncated_normal(shape_, means_, stdevs_, minvals_, maxvals_; name=nothing, seed=nothing, seed2=nothing, dtype=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             parameterized_truncated_normal_eager(shape_, means_, stdevs_, minvals_, maxvals_; name=name, seed=seed, seed2=seed2, dtype=dtype)
         else
             parameterized_truncated_normal_graph(shape_, means_, stdevs_, minvals_, maxvals_; name=name, seed=seed, seed2=seed2, dtype=dtype)
@@ -42714,7 +42714,7 @@ begin
         return res[1]
     end
     function diag_part(input_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             diag_part_eager(input_; name=name)
         else
             diag_part_graph(input_; name=name)
@@ -42760,7 +42760,7 @@ begin
         return res[1]
     end
     function kmeans_plus_plus_initialization(points_, num_to_sample_, seed_, num_retries_per_sample_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             kmeans_plus_plus_initialization_eager(points_, num_to_sample_, seed_, num_retries_per_sample_; name=name)
         else
             kmeans_plus_plus_initialization_graph(points_, num_to_sample_, seed_, num_retries_per_sample_; name=name)
@@ -42808,7 +42808,7 @@ begin
         return res[1]
     end
     function regex_replace(input_, pattern_, rewrite_; name=nothing, replace_global=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             regex_replace_eager(input_, pattern_, rewrite_; name=name, replace_global=replace_global)
         else
             regex_replace_graph(input_, pattern_, rewrite_; name=name, replace_global=replace_global)
@@ -42872,7 +42872,7 @@ begin
         return res[1]
     end
     function sparse_tensor_dense_mat_mul(a_indices_, a_values_, a_shape_, b_; name=nothing, adjoint_a=nothing, adjoint_b=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sparse_tensor_dense_mat_mul_eager(a_indices_, a_values_, a_shape_, b_; name=name, adjoint_a=adjoint_a, adjoint_b=adjoint_b)
         else
             sparse_tensor_dense_mat_mul_graph(a_indices_, a_values_, a_shape_, b_; name=name, adjoint_a=adjoint_a, adjoint_b=adjoint_b)
@@ -42940,7 +42940,7 @@ begin
         return res[1]
     end
     function map_defun(arguments_, captured_inputs_; name=nothing, Targuments=nothing, Tcaptured=nothing, output_types=nothing, output_shapes=nothing, f=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             map_defun_eager(arguments_, captured_inputs_; name=name, Targuments=Targuments, Tcaptured=Tcaptured, output_types=output_types, output_shapes=output_shapes, f=f)
         else
             map_defun_graph(arguments_, captured_inputs_; name=name, Targuments=Targuments, Tcaptured=Tcaptured, output_types=output_types, output_shapes=output_shapes, f=f)
@@ -43015,7 +43015,7 @@ begin
         return res
     end
     function thread_unsafe_unigram_candidate_sampler(true_classes_; name=nothing, num_true=nothing, num_sampled=nothing, unique=nothing, range_max=nothing, seed=nothing, seed2=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             thread_unsafe_unigram_candidate_sampler_eager(true_classes_; name=name, num_true=num_true, num_sampled=num_sampled, unique=unique, range_max=range_max, seed=seed, seed2=seed2)
         else
             thread_unsafe_unigram_candidate_sampler_graph(true_classes_; name=name, num_true=num_true, num_sampled=num_sampled, unique=unique, range_max=range_max, seed=seed, seed2=seed2)
@@ -43074,7 +43074,7 @@ begin
         return res
     end
     function retrieve_tpu_embedding_adam_parameters_grad_accum_debug(; name=nothing, table_id=nothing, table_name=nothing, num_shards=nothing, shard_id=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             retrieve_tpu_embedding_adam_parameters_grad_accum_debug_eager(; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
         else
             retrieve_tpu_embedding_adam_parameters_grad_accum_debug_graph(; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
@@ -43122,7 +43122,7 @@ begin
         return res[1]
     end
     function parallel_concat(values_; name=nothing, N=nothing, shape=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             parallel_concat_eager(values_; name=name, N=N, shape=shape)
         else
             parallel_concat_graph(values_; name=name, N=N, shape=shape)
@@ -43168,7 +43168,7 @@ begin
         return res[1]
     end
     function lookup_table_find_v2(table_handle_, keys_, default_value_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             lookup_table_find_v2_eager(table_handle_, keys_, default_value_; name=name)
         else
             lookup_table_find_v2_graph(table_handle_, keys_, default_value_; name=name)
@@ -43206,7 +43206,7 @@ begin
         return res[1]
     end
     function tensor_forest_tree_deserialize(tree_handle_, tree_config_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_forest_tree_deserialize_eager(tree_handle_, tree_config_; name=name)
         else
             tensor_forest_tree_deserialize_graph(tree_handle_, tree_config_; name=name)
@@ -43265,7 +43265,7 @@ begin
         return res
     end
     function retrieve_tpu_embedding_momentum_parameters(; name=nothing, table_id=nothing, table_name=nothing, num_shards=nothing, shard_id=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             retrieve_tpu_embedding_momentum_parameters_eager(; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
         else
             retrieve_tpu_embedding_momentum_parameters_graph(; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
@@ -43323,7 +43323,7 @@ begin
         return res[1]
     end
     function fake_quant_with_min_max_args(inputs_; name=nothing, min=nothing, max=nothing, num_bits=nothing, narrow_range=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             fake_quant_with_min_max_args_eager(inputs_; name=name, min=min, max=max, num_bits=num_bits, narrow_range=narrow_range)
         else
             fake_quant_with_min_max_args_graph(inputs_; name=name, min=min, max=max, num_bits=num_bits, narrow_range=narrow_range)
@@ -43374,7 +43374,7 @@ begin
         return res[1]
     end
     function resource_apply_gradient_descent(var_, alpha_, delta_; name=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             resource_apply_gradient_descent_eager(var_, alpha_, delta_; name=name, use_locking=use_locking)
         else
             resource_apply_gradient_descent_graph(var_, alpha_, delta_; name=name, use_locking=use_locking)
@@ -43432,7 +43432,7 @@ begin
         return res[1]
     end
     function experimental_sliding_window_dataset(input_dataset_, window_size_, window_shift_, window_stride_; name=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             experimental_sliding_window_dataset_eager(input_dataset_, window_size_, window_shift_, window_stride_; name=name, output_types=output_types, output_shapes=output_shapes)
         else
             experimental_sliding_window_dataset_graph(input_dataset_, window_size_, window_shift_, window_stride_; name=name, output_types=output_types, output_shapes=output_shapes)
@@ -43478,7 +43478,7 @@ begin
         return res[1]
     end
     function decode_raw(bytes_; name=nothing, out_type=nothing, little_endian=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             decode_raw_eager(bytes_; name=name, out_type=out_type, little_endian=little_endian)
         else
             decode_raw_graph(bytes_; name=name, out_type=out_type, little_endian=little_endian)
@@ -43541,7 +43541,7 @@ begin
         return res
     end
     function fake_quant_with_min_max_vars_per_channel_gradient(gradients_, inputs_, min_, max_; name=nothing, num_bits=nothing, narrow_range=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             fake_quant_with_min_max_vars_per_channel_gradient_eager(gradients_, inputs_, min_, max_; name=name, num_bits=num_bits, narrow_range=narrow_range)
         else
             fake_quant_with_min_max_vars_per_channel_gradient_graph(gradients_, inputs_, min_, max_; name=name, num_bits=num_bits, narrow_range=narrow_range)
@@ -43594,7 +43594,7 @@ begin
         return res
     end
     function unique_with_counts_v2(x_, axis_; name=nothing, out_idx=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             unique_with_counts_v2_eager(x_, axis_; name=name, out_idx=out_idx)
         else
             unique_with_counts_v2_graph(x_, axis_; name=name, out_idx=out_idx)
@@ -43644,7 +43644,7 @@ begin
         return res[1]
     end
     function experimental_sleep_dataset(input_dataset_, sleep_microseconds_; name=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             experimental_sleep_dataset_eager(input_dataset_, sleep_microseconds_; name=name, output_types=output_types, output_shapes=output_shapes)
         else
             experimental_sleep_dataset_graph(input_dataset_, sleep_microseconds_; name=name, output_types=output_types, output_shapes=output_shapes)
@@ -43691,7 +43691,7 @@ begin
         return res
     end
     function tpu_replicated_output(input_; name=nothing, num_replicas=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tpu_replicated_output_eager(input_; name=name, num_replicas=num_replicas)
         else
             tpu_replicated_output_graph(input_; name=name, num_replicas=num_replicas)
@@ -43738,7 +43738,7 @@ begin
         return res[1]
     end
     function lower_bound(sorted_inputs_, values_; name=nothing, out_type=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             lower_bound_eager(sorted_inputs_, values_; name=name, out_type=out_type)
         else
             lower_bound_graph(sorted_inputs_, values_; name=name, out_type=out_type)
@@ -43774,7 +43774,7 @@ begin
         return res[1]
     end
     function tan(x_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tan_eager(x_; name=name)
         else
             tan_graph(x_; name=name)
@@ -43828,7 +43828,7 @@ begin
         return res[1]
     end
     function enter(data_; name=nothing, frame_name=nothing, is_constant=nothing, parallel_iterations=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             enter_eager(data_; name=name, frame_name=frame_name, is_constant=is_constant, parallel_iterations=parallel_iterations)
         else
             enter_graph(data_; name=name, frame_name=frame_name, is_constant=is_constant, parallel_iterations=parallel_iterations)
@@ -43886,7 +43886,7 @@ begin
         return res[1]
     end
     function infeed_enqueue_tuple(inputs_; name=nothing, dtypes=nothing, shapes=nothing, layouts=nothing, device_ordinal=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             infeed_enqueue_tuple_eager(inputs_; name=name, dtypes=dtypes, shapes=shapes, layouts=layouts, device_ordinal=device_ordinal)
         else
             infeed_enqueue_tuple_graph(inputs_; name=name, dtypes=dtypes, shapes=shapes, layouts=layouts, device_ordinal=device_ordinal)
@@ -43920,7 +43920,7 @@ begin
         return res[1]
     end
     function _set_global_tpu_array(topology_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             _set_global_tpu_array_eager(topology_; name=name)
         else
             _set_global_tpu_array_graph(topology_; name=name)
@@ -43956,7 +43956,7 @@ begin
         return res[1]
     end
     function square(x_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             square_eager(x_; name=name)
         else
             square_graph(x_; name=name)
@@ -43992,7 +43992,7 @@ begin
         return res[1]
     end
     function debug_gradient_ref_identity(input_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             debug_gradient_ref_identity_eager(input_; name=name)
         else
             debug_gradient_ref_identity_graph(input_; name=name)
@@ -44064,7 +44064,7 @@ begin
         return res[1]
     end
     function apply_adadelta(var_, accum_, accum_update_, lr_, rho_, epsilon_, grad_; name=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             apply_adadelta_eager(var_, accum_, accum_update_, lr_, rho_, epsilon_, grad_; name=name, use_locking=use_locking)
         else
             apply_adadelta_graph(var_, accum_, accum_update_, lr_, rho_, epsilon_, grad_; name=name, use_locking=use_locking)
@@ -44158,7 +44158,7 @@ begin
         return res[1]
     end
     function experimental_group_by_window_dataset(input_dataset_, key_func_other_arguments_, reduce_func_other_arguments_, window_size_func_other_arguments_; name=nothing, key_func=nothing, reduce_func=nothing, window_size_func=nothing, Tkey_func_other_arguments=nothing, Treduce_func_other_arguments=nothing, Twindow_size_func_other_arguments=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             experimental_group_by_window_dataset_eager(input_dataset_, key_func_other_arguments_, reduce_func_other_arguments_, window_size_func_other_arguments_; name=name, key_func=key_func, reduce_func=reduce_func, window_size_func=window_size_func, Tkey_func_other_arguments=Tkey_func_other_arguments, Treduce_func_other_arguments=Treduce_func_other_arguments, Twindow_size_func_other_arguments=Twindow_size_func_other_arguments, output_types=output_types, output_shapes=output_shapes)
         else
             experimental_group_by_window_dataset_graph(input_dataset_, key_func_other_arguments_, reduce_func_other_arguments_, window_size_func_other_arguments_; name=name, key_func=key_func, reduce_func=reduce_func, window_size_func=window_size_func, Tkey_func_other_arguments=Tkey_func_other_arguments, Treduce_func_other_arguments=Treduce_func_other_arguments, Twindow_size_func_other_arguments=Twindow_size_func_other_arguments, output_types=output_types, output_shapes=output_shapes)
@@ -44208,7 +44208,7 @@ begin
         return res[1]
     end
     function audio_summary(tag_, tensor_; name=nothing, sample_rate=nothing, max_outputs=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             audio_summary_eager(tag_, tensor_; name=name, sample_rate=sample_rate, max_outputs=max_outputs)
         else
             audio_summary_graph(tag_, tensor_; name=name, sample_rate=sample_rate, max_outputs=max_outputs)
@@ -44249,7 +44249,7 @@ begin
         return res[1]
     end
     function squared_difference(x_, y_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             squared_difference_eager(x_, y_; name=name)
         else
             squared_difference_graph(x_, y_; name=name)
@@ -44311,7 +44311,7 @@ begin
         return res[1]
     end
     function experimental_take_while_dataset(input_dataset_, other_arguments_; name=nothing, predicate=nothing, Targuments=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             experimental_take_while_dataset_eager(input_dataset_, other_arguments_; name=name, predicate=predicate, Targuments=Targuments, output_types=output_types, output_shapes=output_shapes)
         else
             experimental_take_while_dataset_graph(input_dataset_, other_arguments_; name=name, predicate=predicate, Targuments=Targuments, output_types=output_types, output_shapes=output_shapes)
@@ -44365,7 +44365,7 @@ begin
         return res[1]
     end
     function scatter_nd_update(ref_, indices_, updates_; name=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             scatter_nd_update_eager(ref_, indices_, updates_; name=name, use_locking=use_locking)
         else
             scatter_nd_update_graph(ref_, indices_, updates_; name=name, use_locking=use_locking)
@@ -44411,7 +44411,7 @@ begin
         return res[1]
     end
     function dynamic_stitch(indices_, data_; name=nothing, N=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             dynamic_stitch_eager(indices_, data_; name=name, N=N)
         else
             dynamic_stitch_graph(indices_, data_; name=name, N=N)
@@ -44447,7 +44447,7 @@ begin
         return res[1]
     end
     function ones_like(x_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             ones_like_eager(x_; name=name)
         else
             ones_like_graph(x_; name=name)
@@ -44507,7 +44507,7 @@ begin
         return res[1]
     end
     function fractional_max_pool_grad(orig_input_, orig_output_, out_backprop_, row_pooling_sequence_, col_pooling_sequence_; name=nothing, overlapping=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             fractional_max_pool_grad_eager(orig_input_, orig_output_, out_backprop_, row_pooling_sequence_, col_pooling_sequence_; name=name, overlapping=overlapping)
         else
             fractional_max_pool_grad_graph(orig_input_, orig_output_, out_backprop_, row_pooling_sequence_, col_pooling_sequence_; name=name, overlapping=overlapping)
@@ -44563,7 +44563,7 @@ begin
         return res[1]
     end
     function remote_call(target_, args_; name=nothing, Tin=nothing, Tout=nothing, f=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             remote_call_eager(target_, args_; name=name, Tin=Tin, Tout=Tout, f=f)
         else
             remote_call_graph(target_, args_; name=name, Tin=Tin, Tout=Tout, f=f)
@@ -44612,7 +44612,7 @@ begin
         return res[1]
     end
     function gather(params_, indices_; name=nothing, validate_indices=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             gather_eager(params_, indices_; name=name, validate_indices=validate_indices)
         else
             gather_graph(params_, indices_; name=name, validate_indices=validate_indices)
@@ -44687,7 +44687,7 @@ begin
         return res
     end
     function quantized_mat_mul(a_, b_, min_a_, max_a_, min_b_, max_b_; name=nothing, transpose_a=nothing, transpose_b=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             quantized_mat_mul_eager(a_, b_, min_a_, max_a_, min_b_, max_b_; name=name, transpose_a=transpose_a, transpose_b=transpose_b)
         else
             quantized_mat_mul_graph(a_, b_, min_a_, max_a_, min_b_, max_b_; name=name, transpose_a=transpose_a, transpose_b=transpose_b)
@@ -44750,7 +44750,7 @@ begin
         return res
     end
     function unicode_decode_with_offsets(input_; name=nothing, input_encoding=nothing, errors=nothing, replacement_char=nothing, replace_control_characters=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             unicode_decode_with_offsets_eager(input_; name=name, input_encoding=input_encoding, errors=errors, replacement_char=replacement_char, replace_control_characters=replace_control_characters)
         else
             unicode_decode_with_offsets_graph(input_; name=name, input_encoding=input_encoding, errors=errors, replacement_char=replacement_char, replace_control_characters=replace_control_characters)
@@ -44820,7 +44820,7 @@ begin
         return res[1]
     end
     function enqueue_tpu_embedding_sparse_tensor_batch(sample_indices_, embedding_indices_, aggregation_weights_, mode_override_; name=nothing, N=nothing, device_ordinal=nothing, combiners=nothing, table_ids=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             enqueue_tpu_embedding_sparse_tensor_batch_eager(sample_indices_, embedding_indices_, aggregation_weights_, mode_override_; name=name, N=N, device_ordinal=device_ordinal, combiners=combiners, table_ids=table_ids)
         else
             enqueue_tpu_embedding_sparse_tensor_batch_graph(sample_indices_, embedding_indices_, aggregation_weights_, mode_override_; name=name, N=N, device_ordinal=device_ordinal, combiners=combiners, table_ids=table_ids)
@@ -44870,7 +44870,7 @@ begin
         return res[1]
     end
     function accumulator_apply_gradient(handle_, local_step_, gradient_; name=nothing, dtype=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             accumulator_apply_gradient_eager(handle_, local_step_, gradient_; name=name, dtype=dtype)
         else
             accumulator_apply_gradient_graph(handle_, local_step_, gradient_; name=name, dtype=dtype)
@@ -44922,7 +44922,7 @@ begin
         return res[1]
     end
     function write_summary(writer_, step_, tensor_, tag_, summary_metadata_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             write_summary_eager(writer_, step_, tensor_, tag_, summary_metadata_; name=name)
         else
             write_summary_graph(writer_, step_, tensor_, tag_, summary_metadata_; name=name)
@@ -45009,7 +45009,7 @@ begin
         return res
     end
     function quantized_conv2d(input_, filter_, min_input_, max_input_, min_filter_, max_filter_; name=nothing, out_type=nothing, strides=nothing, padding=nothing, dilations=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             quantized_conv2d_eager(input_, filter_, min_input_, max_input_, min_filter_, max_filter_; name=name, out_type=out_type, strides=strides, padding=padding, dilations=dilations)
         else
             quantized_conv2d_graph(input_, filter_, min_input_, max_input_, min_filter_, max_filter_; name=name, out_type=out_type, strides=strides, padding=padding, dilations=dilations)
@@ -45075,7 +45075,7 @@ begin
         return res[1]
     end
     function resource_apply_momentum(var_, accum_, lr_, grad_, momentum_; name=nothing, use_locking=nothing, use_nesterov=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             resource_apply_momentum_eager(var_, accum_, lr_, grad_, momentum_; name=name, use_locking=use_locking, use_nesterov=use_nesterov)
         else
             resource_apply_momentum_graph(var_, accum_, lr_, grad_, momentum_; name=name, use_locking=use_locking, use_nesterov=use_nesterov)
@@ -45111,7 +45111,7 @@ begin
         return res[1]
     end
     function log1p(x_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             log1p_eager(x_; name=name)
         else
             log1p_graph(x_; name=name)
@@ -45171,7 +45171,7 @@ begin
         return res[1]
     end
     function ordered_map_clear(; name=nothing, capacity=nothing, memory_limit=nothing, dtypes=nothing, container=nothing, shared_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             ordered_map_clear_eager(; name=name, capacity=capacity, memory_limit=memory_limit, dtypes=dtypes, container=container, shared_name=shared_name)
         else
             ordered_map_clear_graph(; name=name, capacity=capacity, memory_limit=memory_limit, dtypes=dtypes, container=container, shared_name=shared_name)
@@ -45224,7 +45224,7 @@ begin
         return res[1]
     end
     function resource_scatter_update(resource_, indices_, updates_; name=nothing, dtype=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             resource_scatter_update_eager(resource_, indices_, updates_; name=name, dtype=dtype)
         else
             resource_scatter_update_graph(resource_, indices_, updates_; name=name, dtype=dtype)
@@ -45291,7 +45291,7 @@ begin
         return res
     end
     function barrier_take_many(handle_, num_elements_; name=nothing, component_types=nothing, allow_small_batch=nothing, wait_for_incomplete=nothing, timeout_ms=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             barrier_take_many_eager(handle_, num_elements_; name=name, component_types=component_types, allow_small_batch=allow_small_batch, wait_for_incomplete=wait_for_incomplete, timeout_ms=timeout_ms)
         else
             barrier_take_many_graph(handle_, num_elements_; name=name, component_types=component_types, allow_small_batch=allow_small_batch, wait_for_incomplete=wait_for_incomplete, timeout_ms=timeout_ms)
@@ -45357,7 +45357,7 @@ begin
         return res[1]
     end
     function resource_apply_keras_momentum(var_, accum_, lr_, grad_, momentum_; name=nothing, use_locking=nothing, use_nesterov=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             resource_apply_keras_momentum_eager(var_, accum_, lr_, grad_, momentum_; name=name, use_locking=use_locking, use_nesterov=use_nesterov)
         else
             resource_apply_keras_momentum_graph(var_, accum_, lr_, grad_, momentum_; name=name, use_locking=use_locking, use_nesterov=use_nesterov)
@@ -45429,7 +45429,7 @@ begin
         return res[1]
     end
     function generate_big_query_reader_partitions(; name=nothing, project_id=nothing, dataset_id=nothing, table_id=nothing, columns=nothing, timestamp_millis=nothing, num_partitions=nothing, test_end_point=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             generate_big_query_reader_partitions_eager(; name=name, project_id=project_id, dataset_id=dataset_id, table_id=table_id, columns=columns, timestamp_millis=timestamp_millis, num_partitions=num_partitions, test_end_point=test_end_point)
         else
             generate_big_query_reader_partitions_graph(; name=name, project_id=project_id, dataset_id=dataset_id, table_id=table_id, columns=columns, timestamp_millis=timestamp_millis, num_partitions=num_partitions, test_end_point=test_end_point)
@@ -45481,7 +45481,7 @@ begin
         return res[1]
     end
     function _xla_recv_at_host(dynamic_key_; name=nothing, Toutputs=nothing, key=nothing, device_ordinal=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             _xla_recv_at_host_eager(dynamic_key_; name=name, Toutputs=Toutputs, key=key, device_ordinal=device_ordinal)
         else
             _xla_recv_at_host_graph(dynamic_key_; name=name, Toutputs=Toutputs, key=key, device_ordinal=device_ordinal)
@@ -45548,7 +45548,7 @@ begin
         return res
     end
     function quantized_avg_pool(input_, min_input_, max_input_; name=nothing, ksize=nothing, strides=nothing, padding=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             quantized_avg_pool_eager(input_, min_input_, max_input_; name=name, ksize=ksize, strides=strides, padding=padding)
         else
             quantized_avg_pool_graph(input_, min_input_, max_input_; name=name, ksize=ksize, strides=strides, padding=padding)
@@ -45636,7 +45636,7 @@ begin
         return res[1]
     end
     function resource_apply_adam_with_amsgrad(var_, m_, v_, vhat_, beta1_power_, beta2_power_, lr_, beta1_, beta2_, epsilon_, grad_; name=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             resource_apply_adam_with_amsgrad_eager(var_, m_, v_, vhat_, beta1_power_, beta2_power_, lr_, beta1_, beta2_, epsilon_, grad_; name=name, use_locking=use_locking)
         else
             resource_apply_adam_with_amsgrad_graph(var_, m_, v_, vhat_, beta1_power_, beta2_power_, lr_, beta1_, beta2_, epsilon_, grad_; name=name, use_locking=use_locking)
@@ -45674,7 +45674,7 @@ begin
         return res[1]
     end
     function tensor_list_resize(input_handle_, size_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_list_resize_eager(input_handle_, size_; name=name)
         else
             tensor_list_resize_graph(input_handle_, size_; name=name)
@@ -45740,7 +45740,7 @@ begin
         return res[1]
     end
     function _host_recv(; name=nothing, tensor_type=nothing, tensor_name=nothing, send_device=nothing, send_device_incarnation=nothing, recv_device=nothing, client_terminated=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             _host_recv_eager(; name=name, tensor_type=tensor_type, tensor_name=tensor_name, send_device=send_device, send_device_incarnation=send_device_incarnation, recv_device=recv_device, client_terminated=client_terminated)
         else
             _host_recv_graph(; name=name, tensor_type=tensor_type, tensor_name=tensor_name, send_device=send_device, send_device_incarnation=send_device_incarnation, recv_device=recv_device, client_terminated=client_terminated)
@@ -45790,7 +45790,7 @@ begin
         return res[1]
     end
     function boosted_trees_center_bias(tree_ensemble_handle_, mean_gradients_, mean_hessians_, l1_, l2_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             boosted_trees_center_bias_eager(tree_ensemble_handle_, mean_gradients_, mean_hessians_, l1_, l2_; name=name)
         else
             boosted_trees_center_bias_graph(tree_ensemble_handle_, mean_gradients_, mean_hessians_, l1_, l2_; name=name)
@@ -45824,7 +45824,7 @@ begin
         return res[1]
     end
     function lookup_table_size_v2(table_handle_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             lookup_table_size_v2_eager(table_handle_; name=name)
         else
             lookup_table_size_v2_graph(table_handle_; name=name)
@@ -45862,7 +45862,7 @@ begin
         return res[1]
     end
     function irfft(input_, fft_length_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             irfft_eager(input_, fft_length_; name=name)
         else
             irfft_graph(input_, fft_length_; name=name)
@@ -45907,7 +45907,7 @@ begin
         return res[1]
     end
     function inplace_add(x_, i_, v_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             inplace_add_eager(x_, i_, v_; name=name)
         else
             inplace_add_graph(x_, i_, v_; name=name)
@@ -45954,7 +45954,7 @@ begin
         return res[1]
     end
     function bias_add(value_, bias_; name=nothing, data_format=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             bias_add_eager(value_, bias_; name=name, data_format=data_format)
         else
             bias_add_graph(value_, bias_; name=name, data_format=data_format)
@@ -46024,7 +46024,7 @@ begin
         return res[1]
     end
     function load_tpu_embedding_adam_parameters_grad_accum_debug(parameters_, momenta_, velocities_, gradient_accumulators_; name=nothing, table_id=nothing, table_name=nothing, num_shards=nothing, shard_id=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             load_tpu_embedding_adam_parameters_grad_accum_debug_eager(parameters_, momenta_, velocities_, gradient_accumulators_; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
         else
             load_tpu_embedding_adam_parameters_grad_accum_debug_graph(parameters_, momenta_, velocities_, gradient_accumulators_; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
@@ -46055,7 +46055,7 @@ begin
         return res[1]
     end
     function _disconnect_host_from_distributed_tpu_system(; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             _disconnect_host_from_distributed_tpu_system_eager(; name=name)
         else
             _disconnect_host_from_distributed_tpu_system_graph(; name=name)
@@ -46106,7 +46106,7 @@ begin
         return res
     end
     function ragged_range(starts_, limits_, deltas_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             ragged_range_eager(starts_, limits_, deltas_; name=name)
         else
             ragged_range_graph(starts_, limits_, deltas_; name=name)
@@ -46168,7 +46168,7 @@ begin
         return res[1]
     end
     function window_dataset(input_dataset_, size_, shift_, stride_, drop_remainder_; name=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             window_dataset_eager(input_dataset_, size_, shift_, stride_, drop_remainder_; name=name, output_types=output_types, output_shapes=output_shapes)
         else
             window_dataset_graph(input_dataset_, size_, shift_, stride_, drop_remainder_; name=name, output_types=output_types, output_shapes=output_shapes)
@@ -46204,7 +46204,7 @@ begin
         return res[1]
     end
     function diag(diagonal_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             diag_eager(diagonal_; name=name)
         else
             diag_graph(diagonal_; name=name)
@@ -46246,7 +46246,7 @@ begin
         return res[1]
     end
     function infeed_dequeue(; name=nothing, dtype=nothing, shape=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             infeed_dequeue_eager(; name=name, dtype=dtype, shape=shape)
         else
             infeed_dequeue_graph(; name=name, dtype=dtype, shape=shape)
@@ -46296,7 +46296,7 @@ begin
         return res[1]
     end
     function experimental_latency_stats_dataset(input_dataset_, tag_; name=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             experimental_latency_stats_dataset_eager(input_dataset_, tag_; name=name, output_types=output_types, output_shapes=output_shapes)
         else
             experimental_latency_stats_dataset_graph(input_dataset_, tag_; name=name, output_types=output_types, output_shapes=output_shapes)
@@ -46352,7 +46352,7 @@ begin
         return res[1]
     end
     function add_sparse_to_tensors_map(sparse_indices_, sparse_values_, sparse_shape_; name=nothing, container=nothing, shared_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             add_sparse_to_tensors_map_eager(sparse_indices_, sparse_values_, sparse_shape_; name=name, container=container, shared_name=shared_name)
         else
             add_sparse_to_tensors_map_graph(sparse_indices_, sparse_values_, sparse_shape_; name=name, container=container, shared_name=shared_name)
@@ -46416,7 +46416,7 @@ begin
         return res
     end
     function ragged_gather(params_nested_splits_, params_dense_values_, indices_; name=nothing, PARAMS_RAGGED_RANK=nothing, OUTPUT_RAGGED_RANK=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             ragged_gather_eager(params_nested_splits_, params_dense_values_, indices_; name=name, PARAMS_RAGGED_RANK=PARAMS_RAGGED_RANK, OUTPUT_RAGGED_RANK=OUTPUT_RAGGED_RANK)
         else
             ragged_gather_graph(params_nested_splits_, params_dense_values_, indices_; name=name, PARAMS_RAGGED_RANK=PARAMS_RAGGED_RANK, OUTPUT_RAGGED_RANK=OUTPUT_RAGGED_RANK)
@@ -46452,7 +46452,7 @@ begin
         return res[1]
     end
     function rgb_to_hsv(images_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             rgb_to_hsv_eager(images_; name=name)
         else
             rgb_to_hsv_graph(images_; name=name)
@@ -46486,7 +46486,7 @@ begin
         return res[1]
     end
     function multi_device_iterator_to_string_handle(multi_device_iterator_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             multi_device_iterator_to_string_handle_eager(multi_device_iterator_; name=name)
         else
             multi_device_iterator_to_string_handle_graph(multi_device_iterator_; name=name)
@@ -46544,7 +46544,7 @@ begin
         return res[1]
     end
     function for_(start_, limit_, delta_, input_; name=nothing, T=nothing, body=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             for__eager(start_, limit_, delta_, input_; name=name, T=T, body=body)
         else
             for__graph(start_, limit_, delta_, input_; name=name, T=T, body=body)
@@ -46603,7 +46603,7 @@ begin
         return res
     end
     function sparse_reduce_max_sparse(input_indices_, input_values_, input_shape_, reduction_axes_; name=nothing, keep_dims=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sparse_reduce_max_sparse_eager(input_indices_, input_values_, input_shape_, reduction_axes_; name=name, keep_dims=keep_dims)
         else
             sparse_reduce_max_sparse_graph(input_indices_, input_values_, input_shape_, reduction_axes_; name=name, keep_dims=keep_dims)
@@ -46652,7 +46652,7 @@ begin
         return res
     end
     function concat_offset(concat_dim_, shape_; name=nothing, N=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             concat_offset_eager(concat_dim_, shape_; name=name, N=N)
         else
             concat_offset_graph(concat_dim_, shape_; name=name, N=N)
@@ -46716,7 +46716,7 @@ begin
         return res[1]
     end
     function stage(values_; name=nothing, capacity=nothing, memory_limit=nothing, dtypes=nothing, container=nothing, shared_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             stage_eager(values_; name=name, capacity=capacity, memory_limit=memory_limit, dtypes=dtypes, container=container, shared_name=shared_name)
         else
             stage_graph(values_; name=name, capacity=capacity, memory_limit=memory_limit, dtypes=dtypes, container=container, shared_name=shared_name)
@@ -46761,7 +46761,7 @@ begin
         return res
     end
     function switch(data_, pred_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             switch_eager(data_, pred_; name=name)
         else
             switch_graph(data_, pred_; name=name)
@@ -46811,7 +46811,7 @@ begin
         return res[1]
     end
     function queue_dequeue_many_v2(handle_, n_; name=nothing, component_types=nothing, timeout_ms=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             queue_dequeue_many_v2_eager(handle_, n_; name=name, component_types=component_types, timeout_ms=timeout_ms)
         else
             queue_dequeue_many_v2_graph(handle_, n_; name=name, component_types=component_types, timeout_ms=timeout_ms)
@@ -46854,7 +46854,7 @@ begin
         return res[1]
     end
     function segment_prod(data_, segment_ids_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             segment_prod_eager(data_, segment_ids_; name=name)
         else
             segment_prod_graph(data_, segment_ids_; name=name)
@@ -46901,7 +46901,7 @@ begin
         return res[1]
     end
     function approximate_equal(x_, y_; name=nothing, tolerance=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             approximate_equal_eager(x_, y_; name=name, tolerance=tolerance)
         else
             approximate_equal_graph(x_, y_; name=name, tolerance=tolerance)
@@ -46978,7 +46978,7 @@ begin
         return res[1]
     end
     function conv2d(input_, filter_; name=nothing, strides=nothing, use_cudnn_on_gpu=nothing, padding=nothing, explicit_paddings=nothing, data_format=nothing, dilations=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             conv2d_eager(input_, filter_; name=name, strides=strides, use_cudnn_on_gpu=use_cudnn_on_gpu, padding=padding, explicit_paddings=explicit_paddings, data_format=data_format, dilations=dilations)
         else
             conv2d_graph(input_, filter_; name=name, strides=strides, use_cudnn_on_gpu=use_cudnn_on_gpu, padding=padding, explicit_paddings=explicit_paddings, data_format=data_format, dilations=dilations)
@@ -47018,7 +47018,7 @@ begin
         return res[1]
     end
     function cross_replica_sum(input_, group_assignment_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             cross_replica_sum_eager(input_, group_assignment_; name=name)
         else
             cross_replica_sum_graph(input_, group_assignment_; name=name)
@@ -47084,7 +47084,7 @@ begin
         return res[1]
     end
     function sparse_mat_mul(a_, b_; name=nothing, transpose_a=nothing, transpose_b=nothing, a_is_sparse=nothing, b_is_sparse=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sparse_mat_mul_eager(a_, b_; name=name, transpose_a=transpose_a, transpose_b=transpose_b, a_is_sparse=a_is_sparse, b_is_sparse=b_is_sparse)
         else
             sparse_mat_mul_graph(a_, b_; name=name, transpose_a=transpose_a, transpose_b=transpose_b, a_is_sparse=a_is_sparse, b_is_sparse=b_is_sparse)
@@ -47154,7 +47154,7 @@ begin
         return res
     end
     function _scoped_allocator_split(concat_, split_; name=nothing, sa_name=nothing, id=nothing, N=nothing, shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             _scoped_allocator_split_eager(concat_, split_; name=name, sa_name=sa_name, id=id, N=N, shapes=shapes)
         else
             _scoped_allocator_split_graph(concat_, split_; name=name, sa_name=sa_name, id=id, N=N, shapes=shapes)
@@ -47195,7 +47195,7 @@ begin
         return res[1]
     end
     function igammac(a_, x_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             igammac_eager(a_, x_; name=name)
         else
             igammac_graph(a_, x_; name=name)
@@ -47248,7 +47248,7 @@ begin
         return res[1]
     end
     function batch_mat_mul(x_, y_; name=nothing, adj_x=nothing, adj_y=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             batch_mat_mul_eager(x_, y_; name=name, adj_x=adj_x, adj_y=adj_y)
         else
             batch_mat_mul_graph(x_, y_; name=name, adj_x=adj_x, adj_y=adj_y)
@@ -47312,7 +47312,7 @@ begin
         return res[1]
     end
     function enqueue_tpu_embedding_sparse_batch(sample_indices_, embedding_indices_, aggregation_weights_, mode_override_; name=nothing, N=nothing, device_ordinal=nothing, combiners=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             enqueue_tpu_embedding_sparse_batch_eager(sample_indices_, embedding_indices_, aggregation_weights_, mode_override_; name=name, N=N, device_ordinal=device_ordinal, combiners=combiners)
         else
             enqueue_tpu_embedding_sparse_batch_graph(sample_indices_, embedding_indices_, aggregation_weights_, mode_override_; name=name, N=N, device_ordinal=device_ordinal, combiners=combiners)
@@ -47352,7 +47352,7 @@ begin
         return res[1]
     end
     function queue_close_v2(handle_; name=nothing, cancel_pending_enqueues=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             queue_close_v2_eager(handle_; name=name, cancel_pending_enqueues=cancel_pending_enqueues)
         else
             queue_close_v2_graph(handle_; name=name, cancel_pending_enqueues=cancel_pending_enqueues)
@@ -47402,7 +47402,7 @@ begin
         return res[1]
     end
     function tensor_array_pack(handle_, flow_in_; name=nothing, dtype=nothing, element_shape=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_array_pack_eager(handle_, flow_in_; name=name, dtype=dtype, element_shape=element_shape)
         else
             tensor_array_pack_graph(handle_, flow_in_; name=name, dtype=dtype, element_shape=element_shape)
@@ -47440,7 +47440,7 @@ begin
         return res[1]
     end
     function reader_restore_state(reader_handle_, state_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             reader_restore_state_eager(reader_handle_, state_; name=name)
         else
             reader_restore_state_graph(reader_handle_, state_; name=name)
@@ -47534,7 +47534,7 @@ begin
         return res[1]
     end
     function _fused_conv2d(input_, filter_, args_; name=nothing, num_args=nothing, strides=nothing, padding=nothing, data_format=nothing, dilations=nothing, use_cudnn_on_gpu=nothing, fused_ops=nothing, epsilon=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             _fused_conv2d_eager(input_, filter_, args_; name=name, num_args=num_args, strides=strides, padding=padding, data_format=data_format, dilations=dilations, use_cudnn_on_gpu=use_cudnn_on_gpu, fused_ops=fused_ops, epsilon=epsilon)
         else
             _fused_conv2d_graph(input_, filter_, args_; name=name, num_args=num_args, strides=strides, padding=padding, data_format=data_format, dilations=dilations, use_cudnn_on_gpu=use_cudnn_on_gpu, fused_ops=fused_ops, epsilon=epsilon)
@@ -47580,7 +47580,7 @@ begin
         return res[1]
     end
     function _read_variables_op(resources_; name=nothing, N=nothing, dtypes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             _read_variables_op_eager(resources_; name=name, N=N, dtypes=dtypes)
         else
             _read_variables_op_graph(resources_; name=name, N=N, dtypes=dtypes)
@@ -47646,7 +47646,7 @@ begin
         return res[1]
     end
     function mutable_hash_table_of_tensors(; name=nothing, container=nothing, shared_name=nothing, use_node_name_sharing=nothing, key_dtype=nothing, value_dtype=nothing, value_shape=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             mutable_hash_table_of_tensors_eager(; name=name, container=container, shared_name=shared_name, use_node_name_sharing=use_node_name_sharing, key_dtype=key_dtype, value_dtype=value_dtype, value_shape=value_shape)
         else
             mutable_hash_table_of_tensors_graph(; name=name, container=container, shared_name=shared_name, use_node_name_sharing=use_node_name_sharing, key_dtype=key_dtype, value_dtype=value_dtype, value_shape=value_shape)
@@ -47680,7 +47680,7 @@ begin
         return res[1]
     end
     function read_file(filename_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             read_file_eager(filename_; name=name)
         else
             read_file_graph(filename_; name=name)
@@ -47750,7 +47750,7 @@ begin
         return res[1]
     end
     function load_tpu_embedding_mdl_adagrad_light_parameters(parameters_, accumulators_, weights_, benefits_; name=nothing, table_id=nothing, table_name=nothing, num_shards=nothing, shard_id=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             load_tpu_embedding_mdl_adagrad_light_parameters_eager(parameters_, accumulators_, weights_, benefits_; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
         else
             load_tpu_embedding_mdl_adagrad_light_parameters_graph(parameters_, accumulators_, weights_, benefits_; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
@@ -47804,7 +47804,7 @@ begin
         return res[1]
     end
     function fractional_avg_pool_grad(orig_input_tensor_shape_, out_backprop_, row_pooling_sequence_, col_pooling_sequence_; name=nothing, overlapping=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             fractional_avg_pool_grad_eager(orig_input_tensor_shape_, out_backprop_, row_pooling_sequence_, col_pooling_sequence_; name=name, overlapping=overlapping)
         else
             fractional_avg_pool_grad_graph(orig_input_tensor_shape_, out_backprop_, row_pooling_sequence_, col_pooling_sequence_; name=name, overlapping=overlapping)
@@ -47870,7 +47870,7 @@ begin
         return res[1]
     end
     function load_tpu_embedding_adagrad_parameters_grad_accum_debug(parameters_, accumulators_, gradient_accumulators_; name=nothing, table_id=nothing, table_name=nothing, num_shards=nothing, shard_id=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             load_tpu_embedding_adagrad_parameters_grad_accum_debug_eager(parameters_, accumulators_, gradient_accumulators_; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
         else
             load_tpu_embedding_adagrad_parameters_grad_accum_debug_graph(parameters_, accumulators_, gradient_accumulators_; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
@@ -47926,7 +47926,7 @@ begin
         return res[1]
     end
     function stateful_standard_normal_v2(resource_, algorithm_, shape_; name=nothing, dtype=nothing, shape_dtype=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             stateful_standard_normal_v2_eager(resource_, algorithm_, shape_; name=name, dtype=dtype, shape_dtype=shape_dtype)
         else
             stateful_standard_normal_v2_graph(resource_, algorithm_, shape_; name=name, dtype=dtype, shape_dtype=shape_dtype)
@@ -47970,7 +47970,7 @@ begin
         return res[1]
     end
     function bincount(arr_, size_, weights_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             bincount_eager(arr_, size_, weights_; name=name)
         else
             bincount_graph(arr_, size_, weights_; name=name)
@@ -48006,7 +48006,7 @@ begin
         return res[1]
     end
     function inv(x_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             inv_eager(x_; name=name)
         else
             inv_graph(x_; name=name)
@@ -48073,7 +48073,7 @@ begin
         return res[1]
     end
     function apply_proximal_adagrad(var_, accum_, lr_, l1_, l2_, grad_; name=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             apply_proximal_adagrad_eager(var_, accum_, lr_, l1_, l2_, grad_; name=name, use_locking=use_locking)
         else
             apply_proximal_adagrad_graph(var_, accum_, lr_, l1_, l2_, grad_; name=name, use_locking=use_locking)
@@ -48122,7 +48122,7 @@ begin
         return res[1]
     end
     function gather_v2(params_, indices_, axis_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             gather_v2_eager(params_, indices_, axis_; name=name)
         else
             gather_v2_graph(params_, indices_, axis_; name=name)
@@ -48160,7 +48160,7 @@ begin
         return res[1]
     end
     function write_file(filename_, contents_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             write_file_eager(filename_, contents_; name=name)
         else
             write_file_graph(filename_, contents_; name=name)
@@ -48199,7 +48199,7 @@ begin
         return res
     end
     function boosted_trees_get_ensemble_states(tree_ensemble_handle_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             boosted_trees_get_ensemble_states_eager(tree_ensemble_handle_; name=name)
         else
             boosted_trees_get_ensemble_states_graph(tree_ensemble_handle_; name=name)
@@ -48252,7 +48252,7 @@ begin
         return res[1]
     end
     function resource_gather(resource_, indices_; name=nothing, validate_indices=nothing, dtype=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             resource_gather_eager(resource_, indices_; name=name, validate_indices=validate_indices, dtype=dtype)
         else
             resource_gather_graph(resource_, indices_; name=name, validate_indices=validate_indices, dtype=dtype)
@@ -48313,7 +48313,7 @@ begin
         return res[1]
     end
     function resource_apply_proximal_gradient_descent(var_, alpha_, l1_, l2_, delta_; name=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             resource_apply_proximal_gradient_descent_eager(var_, alpha_, l1_, l2_, delta_; name=name, use_locking=use_locking)
         else
             resource_apply_proximal_gradient_descent_graph(var_, alpha_, l1_, l2_, delta_; name=name, use_locking=use_locking)
@@ -48354,7 +48354,7 @@ begin
         return res[1]
     end
     function truncate_mod(x_, y_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             truncate_mod_eager(x_, y_; name=name)
         else
             truncate_mod_graph(x_, y_; name=name)
@@ -48395,7 +48395,7 @@ begin
         return res
     end
     function log_matrix_determinant(input_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             log_matrix_determinant_eager(input_; name=name)
         else
             log_matrix_determinant_graph(input_; name=name)
@@ -48433,7 +48433,7 @@ begin
         return res[1]
     end
     function irfft2d(input_, fft_length_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             irfft2d_eager(input_, fft_length_; name=name)
         else
             irfft2d_graph(input_, fft_length_; name=name)
@@ -48496,7 +48496,7 @@ begin
         return res
     end
     function boosted_trees_training_predict(tree_ensemble_handle_, cached_tree_ids_, cached_node_ids_, bucketized_features_; name=nothing, num_bucketized_features=nothing, logits_dimension=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             boosted_trees_training_predict_eager(tree_ensemble_handle_, cached_tree_ids_, cached_node_ids_, bucketized_features_; name=name, num_bucketized_features=num_bucketized_features, logits_dimension=logits_dimension)
         else
             boosted_trees_training_predict_graph(tree_ensemble_handle_, cached_tree_ids_, cached_node_ids_, bucketized_features_; name=name, num_bucketized_features=num_bucketized_features, logits_dimension=logits_dimension)
@@ -48543,7 +48543,7 @@ begin
         return res
     end
     function nearest_neighbors(points_, centers_, k_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             nearest_neighbors_eager(points_, centers_, k_; name=name)
         else
             nearest_neighbors_graph(points_, centers_, k_; name=name)
@@ -48579,7 +48579,7 @@ begin
         return res[1]
     end
     function floor(x_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             floor_eager(x_; name=name)
         else
             floor_graph(x_; name=name)
@@ -48645,7 +48645,7 @@ begin
         return res[1]
     end
     function load_tpu_embedding_proximal_adagrad_parameters_grad_accum_debug(parameters_, accumulators_, gradient_accumulators_; name=nothing, table_id=nothing, table_name=nothing, num_shards=nothing, shard_id=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             load_tpu_embedding_proximal_adagrad_parameters_grad_accum_debug_eager(parameters_, accumulators_, gradient_accumulators_; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
         else
             load_tpu_embedding_proximal_adagrad_parameters_grad_accum_debug_graph(parameters_, accumulators_, gradient_accumulators_; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
@@ -48703,7 +48703,7 @@ begin
         return res[1]
     end
     function write_image_summary(writer_, step_, tag_, tensor_, bad_color_; name=nothing, max_images=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             write_image_summary_eager(writer_, step_, tag_, tensor_, bad_color_; name=name, max_images=max_images)
         else
             write_image_summary_graph(writer_, step_, tag_, tensor_, bad_color_; name=name, max_images=max_images)
@@ -48743,7 +48743,7 @@ begin
         return res[1]
     end
     function tile_grad(input_, multiples_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tile_grad_eager(input_, multiples_; name=name)
         else
             tile_grad_graph(input_, multiples_; name=name)
@@ -48792,7 +48792,7 @@ begin
         return res
     end
     function tensor_array_grad_v3(handle_, flow_in_; name=nothing, source=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_array_grad_v3_eager(handle_, flow_in_; name=name, source=source)
         else
             tensor_array_grad_v3_graph(handle_, flow_in_; name=name, source=source)
@@ -48842,7 +48842,7 @@ begin
         return res[1]
     end
     function enqueue_tpu_embedding_integer_batch(batch_, mode_override_; name=nothing, N=nothing, device_ordinal=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             enqueue_tpu_embedding_integer_batch_eager(batch_, mode_override_; name=name, N=N, device_ordinal=device_ordinal)
         else
             enqueue_tpu_embedding_integer_batch_graph(batch_, mode_override_; name=name, N=N, device_ordinal=device_ordinal)
@@ -48921,7 +48921,7 @@ begin
         return res
     end
     function fused_batch_norm(x_, scale_, offset_, mean_, variance_; name=nothing, epsilon=nothing, data_format=nothing, is_training=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             fused_batch_norm_eager(x_, scale_, offset_, mean_, variance_; name=name, epsilon=epsilon, data_format=data_format, is_training=is_training)
         else
             fused_batch_norm_graph(x_, scale_, offset_, mean_, variance_; name=name, epsilon=epsilon, data_format=data_format, is_training=is_training)
@@ -48959,7 +48959,7 @@ begin
         return res[1]
     end
     function logical_and(x_, y_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             logical_and_eager(x_, y_; name=name)
         else
             logical_and_graph(x_, y_; name=name)
@@ -49007,7 +49007,7 @@ begin
         return res[1]
     end
     function tensor_scatter_update(tensor_, indices_, updates_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_scatter_update_eager(tensor_, indices_, updates_; name=name)
         else
             tensor_scatter_update_graph(tensor_, indices_, updates_; name=name)
@@ -49055,7 +49055,7 @@ begin
         return res[1]
     end
     function text_line_reader_v2(; name=nothing, skip_header_lines=nothing, container=nothing, shared_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             text_line_reader_v2_eager(; name=name, skip_header_lines=skip_header_lines, container=container, shared_name=shared_name)
         else
             text_line_reader_v2_graph(; name=name, skip_header_lines=skip_header_lines, container=container, shared_name=shared_name)
@@ -49101,7 +49101,7 @@ begin
         return res[1]
     end
     function tensor_slice_dataset(components_; name=nothing, Toutput_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_slice_dataset_eager(components_; name=name, Toutput_types=Toutput_types, output_shapes=output_shapes)
         else
             tensor_slice_dataset_graph(components_; name=name, Toutput_types=Toutput_types, output_shapes=output_shapes)
@@ -49149,7 +49149,7 @@ begin
         return res[1]
     end
     function tensor_array_scatter_v3(handle_, indices_, value_, flow_in_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_array_scatter_v3_eager(handle_, indices_, value_, flow_in_; name=name)
         else
             tensor_array_scatter_v3_graph(handle_, indices_, value_, flow_in_; name=name)
@@ -49195,7 +49195,7 @@ begin
         return res[1]
     end
     function resize_nearest_neighbor_grad(grads_, size_; name=nothing, align_corners=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             resize_nearest_neighbor_grad_eager(grads_, size_; name=name, align_corners=align_corners)
         else
             resize_nearest_neighbor_grad_graph(grads_, size_; name=name, align_corners=align_corners)
@@ -49267,7 +49267,7 @@ begin
         return res[1]
     end
     function apply_power_sign(var_, m_, lr_, logbase_, sign_decay_, beta_, grad_; name=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             apply_power_sign_eager(var_, m_, lr_, logbase_, sign_decay_, beta_, grad_; name=name, use_locking=use_locking)
         else
             apply_power_sign_graph(var_, m_, lr_, logbase_, sign_decay_, beta_, grad_; name=name, use_locking=use_locking)
@@ -49317,7 +49317,7 @@ begin
         return res[1]
     end
     function experimental_rebatch_dataset(input_dataset_, num_workers_; name=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             experimental_rebatch_dataset_eager(input_dataset_, num_workers_; name=name, output_types=output_types, output_shapes=output_shapes)
         else
             experimental_rebatch_dataset_graph(input_dataset_, num_workers_; name=name, output_types=output_types, output_shapes=output_shapes)
@@ -49365,7 +49365,7 @@ begin
         return res[1]
     end
     function mirror_pad(input_, paddings_; name=nothing, mode=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             mirror_pad_eager(input_, paddings_; name=name, mode=mode)
         else
             mirror_pad_graph(input_, paddings_; name=name, mode=mode)
@@ -49399,7 +49399,7 @@ begin
         return res[1]
     end
     function logical_not(x_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             logical_not_eager(x_; name=name)
         else
             logical_not_graph(x_; name=name)
@@ -49433,7 +49433,7 @@ begin
         return res[1]
     end
     function batch_ifft(input_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             batch_ifft_eager(input_; name=name)
         else
             batch_ifft_graph(input_; name=name)
@@ -49488,7 +49488,7 @@ begin
         return res
     end
     function tensor_array_concat_v2(handle_, flow_in_; name=nothing, dtype=nothing, element_shape_except0=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_array_concat_v2_eager(handle_, flow_in_; name=name, dtype=dtype, element_shape_except0=element_shape_except0)
         else
             tensor_array_concat_v2_graph(handle_, flow_in_; name=name, dtype=dtype, element_shape_except0=element_shape_except0)
@@ -49537,7 +49537,7 @@ begin
         return res[1]
     end
     function sum(input_, reduction_indices_; name=nothing, keep_dims=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sum_eager(input_, reduction_indices_; name=name, keep_dims=keep_dims)
         else
             sum_graph(input_, reduction_indices_; name=name, keep_dims=keep_dims)
@@ -49587,7 +49587,7 @@ begin
         return res[1]
     end
     function boosted_trees_predict(tree_ensemble_handle_, bucketized_features_; name=nothing, num_bucketized_features=nothing, logits_dimension=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             boosted_trees_predict_eager(tree_ensemble_handle_, bucketized_features_; name=name, num_bucketized_features=num_bucketized_features, logits_dimension=logits_dimension)
         else
             boosted_trees_predict_graph(tree_ensemble_handle_, bucketized_features_; name=name, num_bucketized_features=num_bucketized_features, logits_dimension=logits_dimension)
@@ -49688,7 +49688,7 @@ begin
         return res
     end
     function quantized_conv2d_with_bias_and_relu_and_requantize(input_, filter_, bias_, min_input_, max_input_, min_filter_, max_filter_, min_freezed_output_, max_freezed_output_; name=nothing, out_type=nothing, strides=nothing, padding=nothing, dilations=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             quantized_conv2d_with_bias_and_relu_and_requantize_eager(input_, filter_, bias_, min_input_, max_input_, min_filter_, max_filter_, min_freezed_output_, max_freezed_output_; name=name, out_type=out_type, strides=strides, padding=padding, dilations=dilations)
         else
             quantized_conv2d_with_bias_and_relu_and_requantize_graph(input_, filter_, bias_, min_input_, max_input_, min_filter_, max_filter_, min_freezed_output_, max_freezed_output_; name=name, out_type=out_type, strides=strides, padding=padding, dilations=dilations)
@@ -49756,7 +49756,7 @@ begin
         return res[1]
     end
     function resource_sparse_apply_adagrad(var_, accum_, lr_, grad_, indices_; name=nothing, use_locking=nothing, update_slots=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             resource_sparse_apply_adagrad_eager(var_, accum_, lr_, grad_, indices_; name=name, use_locking=use_locking, update_slots=update_slots)
         else
             resource_sparse_apply_adagrad_graph(var_, accum_, lr_, grad_, indices_; name=name, use_locking=use_locking, update_slots=update_slots)
@@ -49803,7 +49803,7 @@ begin
         return res[1]
     end
     function leaky_relu_grad(gradients_, features_; name=nothing, alpha=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             leaky_relu_grad_eager(gradients_, features_; name=name, alpha=alpha)
         else
             leaky_relu_grad_graph(gradients_, features_; name=name, alpha=alpha)
@@ -49845,7 +49845,7 @@ begin
         return res[1]
     end
     function _device_retval(input_; name=nothing, index=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             _device_retval_eager(input_; name=name, index=index)
         else
             _device_retval_graph(input_; name=name, index=index)
@@ -49887,7 +49887,7 @@ begin
         return res[1]
     end
     function pad(input_, paddings_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             pad_eager(input_, paddings_; name=name)
         else
             pad_graph(input_, paddings_; name=name)
@@ -49943,7 +49943,7 @@ begin
         return res[1]
     end
     function add_many_sparse_to_tensors_map(sparse_indices_, sparse_values_, sparse_shape_; name=nothing, container=nothing, shared_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             add_many_sparse_to_tensors_map_eager(sparse_indices_, sparse_values_, sparse_shape_; name=name, container=container, shared_name=shared_name)
         else
             add_many_sparse_to_tensors_map_graph(sparse_indices_, sparse_values_, sparse_shape_; name=name, container=container, shared_name=shared_name)
@@ -49992,7 +49992,7 @@ begin
         return res
     end
     function sparse_reorder(input_indices_, input_values_, input_shape_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sparse_reorder_eager(input_indices_, input_values_, input_shape_; name=name)
         else
             sparse_reorder_graph(input_indices_, input_values_, input_shape_; name=name)
@@ -50033,7 +50033,7 @@ begin
         return res[1]
     end
     function bitwise_xor(x_, y_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             bitwise_xor_eager(x_, y_; name=name)
         else
             bitwise_xor_graph(x_, y_; name=name)
@@ -50074,7 +50074,7 @@ begin
         return res[1]
     end
     function batch_matrix_set_diag(input_, diagonal_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             batch_matrix_set_diag_eager(input_, diagonal_; name=name)
         else
             batch_matrix_set_diag_graph(input_, diagonal_; name=name)
@@ -50120,7 +50120,7 @@ begin
         return res[1]
     end
     function lookup_table_insert_v2(table_handle_, keys_, values_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             lookup_table_insert_v2_eager(table_handle_, keys_, values_; name=name)
         else
             lookup_table_insert_v2_graph(table_handle_, keys_, values_; name=name)
@@ -50174,7 +50174,7 @@ begin
         return res[1]
     end
     function experimental_dense_to_sparse_batch_dataset(input_dataset_, batch_size_, row_shape_; name=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             experimental_dense_to_sparse_batch_dataset_eager(input_dataset_, batch_size_, row_shape_; name=name, output_types=output_types, output_shapes=output_shapes)
         else
             experimental_dense_to_sparse_batch_dataset_graph(input_dataset_, batch_size_, row_shape_; name=name, output_types=output_types, output_shapes=output_shapes)
@@ -50255,7 +50255,7 @@ begin
         return res[1]
     end
     function resource_sparse_apply_rms_prop(var_, ms_, mom_, lr_, rho_, momentum_, epsilon_, grad_, indices_; name=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             resource_sparse_apply_rms_prop_eager(var_, ms_, mom_, lr_, rho_, momentum_, epsilon_, grad_, indices_; name=name, use_locking=use_locking)
         else
             resource_sparse_apply_rms_prop_graph(var_, ms_, mom_, lr_, rho_, momentum_, epsilon_, grad_, indices_; name=name, use_locking=use_locking)
@@ -50307,7 +50307,7 @@ begin
         return res[1]
     end
     function random_crop(image_, size_; name=nothing, seed=nothing, seed2=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             random_crop_eager(image_, size_; name=name, seed=seed, seed2=seed2)
         else
             random_crop_graph(image_, size_; name=name, seed=seed, seed2=seed2)
@@ -50353,7 +50353,7 @@ begin
         return res[1]
     end
     function lookup_table_import_v2(table_handle_, keys_, values_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             lookup_table_import_v2_eager(table_handle_, keys_, values_; name=name)
         else
             lookup_table_import_v2_graph(table_handle_, keys_, values_; name=name)
@@ -50406,7 +50406,7 @@ begin
         return res[1]
     end
     function resource_scatter_nd_update(ref_, indices_, updates_; name=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             resource_scatter_nd_update_eager(ref_, indices_, updates_; name=name, use_locking=use_locking)
         else
             resource_scatter_nd_update_graph(ref_, indices_, updates_; name=name, use_locking=use_locking)
@@ -50446,7 +50446,7 @@ begin
         return res[1]
     end
     function static_regex_full_match(input_; name=nothing, pattern=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             static_regex_full_match_eager(input_; name=name, pattern=pattern)
         else
             static_regex_full_match_graph(input_; name=name, pattern=pattern)
@@ -50480,7 +50480,7 @@ begin
         return res[1]
     end
     function gcs_configure_credentials(json_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             gcs_configure_credentials_eager(json_; name=name)
         else
             gcs_configure_credentials_graph(json_; name=name)
@@ -50518,7 +50518,7 @@ begin
         return res[1]
     end
     function tensor_array_size_v3(handle_, flow_in_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_array_size_v3_eager(handle_, flow_in_; name=name)
         else
             tensor_array_size_v3_graph(handle_, flow_in_; name=name)
@@ -50571,7 +50571,7 @@ begin
         return res[1]
     end
     function sparse_segment_sqrt_n_with_num_segments(data_, indices_, segment_ids_, num_segments_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sparse_segment_sqrt_n_with_num_segments_eager(data_, indices_, segment_ids_, num_segments_; name=name)
         else
             sparse_segment_sqrt_n_with_num_segments_graph(data_, indices_, segment_ids_, num_segments_; name=name)
@@ -50681,7 +50681,7 @@ begin
         return res[1]
     end
     function experimental_group_by_reducer_dataset(input_dataset_, key_func_other_arguments_, init_func_other_arguments_, reduce_func_other_arguments_, finalize_func_other_arguments_; name=nothing, key_func=nothing, init_func=nothing, reduce_func=nothing, finalize_func=nothing, Tkey_func_other_arguments=nothing, Tinit_func_other_arguments=nothing, Treduce_func_other_arguments=nothing, Tfinalize_func_other_arguments=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             experimental_group_by_reducer_dataset_eager(input_dataset_, key_func_other_arguments_, init_func_other_arguments_, reduce_func_other_arguments_, finalize_func_other_arguments_; name=name, key_func=key_func, init_func=init_func, reduce_func=reduce_func, finalize_func=finalize_func, Tkey_func_other_arguments=Tkey_func_other_arguments, Tinit_func_other_arguments=Tinit_func_other_arguments, Treduce_func_other_arguments=Treduce_func_other_arguments, Tfinalize_func_other_arguments=Tfinalize_func_other_arguments, output_types=output_types, output_shapes=output_shapes)
         else
             experimental_group_by_reducer_dataset_graph(input_dataset_, key_func_other_arguments_, init_func_other_arguments_, reduce_func_other_arguments_, finalize_func_other_arguments_; name=name, key_func=key_func, init_func=init_func, reduce_func=reduce_func, finalize_func=finalize_func, Tkey_func_other_arguments=Tkey_func_other_arguments, Tinit_func_other_arguments=Tinit_func_other_arguments, Treduce_func_other_arguments=Treduce_func_other_arguments, Tfinalize_func_other_arguments=Tfinalize_func_other_arguments, output_types=output_types, output_shapes=output_shapes)
@@ -50762,7 +50762,7 @@ begin
         return res[1]
     end
     function conv2d_backprop_filter(input_, filter_sizes_, out_backprop_; name=nothing, strides=nothing, use_cudnn_on_gpu=nothing, padding=nothing, explicit_paddings=nothing, data_format=nothing, dilations=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             conv2d_backprop_filter_eager(input_, filter_sizes_, out_backprop_; name=name, strides=strides, use_cudnn_on_gpu=use_cudnn_on_gpu, padding=padding, explicit_paddings=explicit_paddings, data_format=data_format, dilations=dilations)
         else
             conv2d_backprop_filter_graph(input_, filter_sizes_, out_backprop_; name=name, strides=strides, use_cudnn_on_gpu=use_cudnn_on_gpu, padding=padding, explicit_paddings=explicit_paddings, data_format=data_format, dilations=dilations)
@@ -50832,7 +50832,7 @@ begin
         return res[1]
     end
     function max_pool_grad(orig_input_, orig_output_, grad_; name=nothing, ksize=nothing, strides=nothing, padding=nothing, data_format=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             max_pool_grad_eager(orig_input_, orig_output_, grad_; name=name, ksize=ksize, strides=strides, padding=padding, data_format=data_format)
         else
             max_pool_grad_graph(orig_input_, orig_output_, grad_; name=name, ksize=ksize, strides=strides, padding=padding, data_format=data_format)
@@ -50866,7 +50866,7 @@ begin
         return res[1]
     end
     function _initialize_host_for_distributed_tpu(input_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             _initialize_host_for_distributed_tpu_eager(input_; name=name)
         else
             _initialize_host_for_distributed_tpu_graph(input_; name=name)
@@ -50930,7 +50930,7 @@ begin
         return res[1]
     end
     function stage_peek(index_; name=nothing, capacity=nothing, memory_limit=nothing, dtypes=nothing, container=nothing, shared_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             stage_peek_eager(index_; name=name, capacity=capacity, memory_limit=memory_limit, dtypes=dtypes, container=container, shared_name=shared_name)
         else
             stage_peek_graph(index_; name=name, capacity=capacity, memory_limit=memory_limit, dtypes=dtypes, container=container, shared_name=shared_name)
@@ -50977,7 +50977,7 @@ begin
         return res[1]
     end
     function pad_v2(input_, paddings_, constant_values_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             pad_v2_eager(input_, paddings_, constant_values_; name=name)
         else
             pad_v2_graph(input_, paddings_, constant_values_; name=name)
@@ -51019,7 +51019,7 @@ begin
         return res[1]
     end
     function _parallel_concat_start(; name=nothing, shape=nothing, dtype=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             _parallel_concat_start_eager(; name=name, shape=shape, dtype=dtype)
         else
             _parallel_concat_start_graph(; name=name, shape=shape, dtype=dtype)
@@ -51059,7 +51059,7 @@ begin
         return res[1]
     end
     function print_v2(input_; name=nothing, output_stream=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             print_v2_eager(input_; name=name, output_stream=output_stream)
         else
             print_v2_graph(input_; name=name, output_stream=output_stream)
@@ -51105,7 +51105,7 @@ begin
         return res[1]
     end
     function optional_get_value(optional_; name=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             optional_get_value_eager(optional_; name=name, output_types=output_types, output_shapes=output_shapes)
         else
             optional_get_value_graph(optional_; name=name, output_types=output_types, output_shapes=output_shapes)
@@ -51171,7 +51171,7 @@ begin
         return res[1]
     end
     function load_tpu_embedding_ftrl_parameters(parameters_, accumulators_, linears_; name=nothing, table_id=nothing, table_name=nothing, num_shards=nothing, shard_id=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             load_tpu_embedding_ftrl_parameters_eager(parameters_, accumulators_, linears_; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
         else
             load_tpu_embedding_ftrl_parameters_graph(parameters_, accumulators_, linears_; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
@@ -51228,7 +51228,7 @@ begin
         return res
     end
     function sparse_slice(indices_, values_, shape_, start_, size_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sparse_slice_eager(indices_, values_, shape_, start_, size_; name=name)
         else
             sparse_slice_graph(indices_, values_, shape_, start_, size_; name=name)
@@ -51281,7 +51281,7 @@ begin
         return res
     end
     function boosted_trees_make_quantile_summaries(float_values_, example_weights_, epsilon_; name=nothing, num_features=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             boosted_trees_make_quantile_summaries_eager(float_values_, example_weights_, epsilon_; name=name, num_features=num_features)
         else
             boosted_trees_make_quantile_summaries_graph(float_values_, example_weights_, epsilon_; name=name, num_features=num_features)
@@ -51328,7 +51328,7 @@ begin
         return res[1]
     end
     function matrix_solve(matrix_, rhs_; name=nothing, adjoint=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             matrix_solve_eager(matrix_, rhs_; name=name, adjoint=adjoint)
         else
             matrix_solve_graph(matrix_, rhs_; name=name, adjoint=adjoint)
@@ -51368,7 +51368,7 @@ begin
         return res[1]
     end
     function _configure_distributed_tpu(inputs_; name=nothing, N=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             _configure_distributed_tpu_eager(inputs_; name=name, N=N)
         else
             _configure_distributed_tpu_graph(inputs_; name=name, N=N)
@@ -51408,7 +51408,7 @@ begin
         return res[1]
     end
     function adjust_contrastv2(images_, contrast_factor_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             adjust_contrastv2_eager(images_, contrast_factor_; name=name)
         else
             adjust_contrastv2_graph(images_, contrast_factor_; name=name)
@@ -51462,7 +51462,7 @@ begin
         return res
     end
     function _mkl_maximum(x_, y_, mkl_x_, mkl_y_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             _mkl_maximum_eager(x_, y_, mkl_x_, mkl_y_; name=name)
         else
             _mkl_maximum_graph(x_, y_, mkl_x_, mkl_y_; name=name)
@@ -51546,7 +51546,7 @@ begin
         return res[1]
     end
     function cudnn_rnn_params_size(num_layers_, num_units_, input_size_; name=nothing, S=nothing, rnn_mode=nothing, input_mode=nothing, direction=nothing, dropout=nothing, seed=nothing, seed2=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             cudnn_rnn_params_size_eager(num_layers_, num_units_, input_size_; name=name, S=S, rnn_mode=rnn_mode, input_mode=input_mode, direction=direction, dropout=dropout, seed=seed, seed2=seed2)
         else
             cudnn_rnn_params_size_graph(num_layers_, num_units_, input_size_; name=name, S=S, rnn_mode=rnn_mode, input_mode=input_mode, direction=direction, dropout=dropout, seed=seed, seed2=seed2)
@@ -51590,7 +51590,7 @@ begin
         return res[1]
     end
     function boosted_trees_quantile_stream_resource_add_summaries(quantile_stream_resource_handle_, summaries_; name=nothing, num_features=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             boosted_trees_quantile_stream_resource_add_summaries_eager(quantile_stream_resource_handle_, summaries_; name=name, num_features=num_features)
         else
             boosted_trees_quantile_stream_resource_add_summaries_graph(quantile_stream_resource_handle_, summaries_; name=name, num_features=num_features)
@@ -51624,7 +51624,7 @@ begin
         return res[1]
     end
     function batch_ifft3d(input_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             batch_ifft3d_eager(input_; name=name)
         else
             batch_ifft3d_graph(input_; name=name)
@@ -51660,7 +51660,7 @@ begin
         return res[1]
     end
     function sigmoid(x_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sigmoid_eager(x_; name=name)
         else
             sigmoid_graph(x_; name=name)
@@ -51703,7 +51703,7 @@ begin
         return res[1]
     end
     function segment_mean(data_, segment_ids_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             segment_mean_eager(data_, segment_ids_; name=name)
         else
             segment_mean_graph(data_, segment_ids_; name=name)
@@ -51737,7 +51737,7 @@ begin
         return res[1]
     end
     function is_boosted_trees_ensemble_initialized(tree_ensemble_handle_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             is_boosted_trees_ensemble_initialized_eager(tree_ensemble_handle_; name=name)
         else
             is_boosted_trees_ensemble_initialized_graph(tree_ensemble_handle_; name=name)
@@ -51775,7 +51775,7 @@ begin
         return res[1]
     end
     function tensor_array_size_v2(handle_, flow_in_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_array_size_v2_eager(handle_, flow_in_; name=name)
         else
             tensor_array_size_v2_graph(handle_, flow_in_; name=name)
@@ -51829,7 +51829,7 @@ begin
         return res
     end
     function _mkl_sub(x_, y_, mkl_x_, mkl_y_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             _mkl_sub_eager(x_, y_, mkl_x_, mkl_y_; name=name)
         else
             _mkl_sub_graph(x_, y_, mkl_x_, mkl_y_; name=name)
@@ -51885,7 +51885,7 @@ begin
         return res[1]
     end
     function send_tpu_embedding_gradients(inputs_, learning_rates_; name=nothing, N=nothing, NN=nothing, config=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             send_tpu_embedding_gradients_eager(inputs_, learning_rates_; name=name, N=N, NN=NN, config=config)
         else
             send_tpu_embedding_gradients_graph(inputs_, learning_rates_; name=name, N=N, NN=NN, config=config)
@@ -51945,7 +51945,7 @@ begin
         return res[1]
     end
     function max_pool3d(input_; name=nothing, ksize=nothing, strides=nothing, padding=nothing, data_format=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             max_pool3d_eager(input_; name=name, ksize=ksize, strides=strides, padding=padding, data_format=data_format)
         else
             max_pool3d_graph(input_; name=name, ksize=ksize, strides=strides, padding=padding, data_format=data_format)
@@ -51994,7 +51994,7 @@ begin
         return res[1]
     end
     function prod(input_, reduction_indices_; name=nothing, keep_dims=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             prod_eager(input_, reduction_indices_; name=name, keep_dims=keep_dims)
         else
             prod_graph(input_, reduction_indices_; name=name, keep_dims=keep_dims)
@@ -52028,7 +52028,7 @@ begin
         return res[1]
     end
     function experimental_identity_indexed_dataset(size_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             experimental_identity_indexed_dataset_eager(size_; name=name)
         else
             experimental_identity_indexed_dataset_graph(size_; name=name)
@@ -52074,7 +52074,7 @@ begin
         return res[1]
     end
     function tensor_list_push_back(input_handle_, tensor_; name=nothing, element_dtype=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_list_push_back_eager(input_handle_, tensor_; name=name, element_dtype=element_dtype)
         else
             tensor_list_push_back_graph(input_handle_, tensor_; name=name, element_dtype=element_dtype)
@@ -52184,7 +52184,7 @@ begin
         return res[1]
     end
     function batch_function(in_tensors_, captured_tensors_; name=nothing, f=nothing, num_batch_threads=nothing, max_batch_size=nothing, batch_timeout_micros=nothing, max_enqueued_batches=nothing, allowed_batch_sizes=nothing, container=nothing, shared_name=nothing, batching_queue=nothing, Tin=nothing, Tcaptured=nothing, Tout=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             batch_function_eager(in_tensors_, captured_tensors_; name=name, f=f, num_batch_threads=num_batch_threads, max_batch_size=max_batch_size, batch_timeout_micros=batch_timeout_micros, max_enqueued_batches=max_enqueued_batches, allowed_batch_sizes=allowed_batch_sizes, container=container, shared_name=shared_name, batching_queue=batching_queue, Tin=Tin, Tcaptured=Tcaptured, Tout=Tout)
         else
             batch_function_graph(in_tensors_, captured_tensors_; name=name, f=f, num_batch_threads=num_batch_threads, max_batch_size=max_batch_size, batch_timeout_micros=batch_timeout_micros, max_enqueued_batches=max_enqueued_batches, allowed_batch_sizes=allowed_batch_sizes, container=container, shared_name=shared_name, batching_queue=batching_queue, Tin=Tin, Tcaptured=Tcaptured, Tout=Tout)
@@ -52238,7 +52238,7 @@ begin
         return res
     end
     function sparse_fill_empty_rows(indices_, values_, dense_shape_, default_value_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sparse_fill_empty_rows_eager(indices_, values_, dense_shape_, default_value_; name=name)
         else
             sparse_fill_empty_rows_graph(indices_, values_, dense_shape_, default_value_; name=name)
@@ -52285,7 +52285,7 @@ begin
         return res
     end
     function self_adjoint_eig_v2(input_; name=nothing, compute_v=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             self_adjoint_eig_v2_eager(input_; name=name, compute_v=compute_v)
         else
             self_adjoint_eig_v2_graph(input_; name=name, compute_v=compute_v)
@@ -52344,7 +52344,7 @@ begin
         return res
     end
     function retrieve_tpu_embedding_ftrl_parameters(; name=nothing, table_id=nothing, table_name=nothing, num_shards=nothing, shard_id=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             retrieve_tpu_embedding_ftrl_parameters_eager(; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
         else
             retrieve_tpu_embedding_ftrl_parameters_graph(; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
@@ -52424,7 +52424,7 @@ begin
         return res[1]
     end
     function resource_sparse_apply_adagrad_da(var_, gradient_accumulator_, gradient_squared_accumulator_, grad_, indices_, lr_, l1_, l2_, global_step_; name=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             resource_sparse_apply_adagrad_da_eager(var_, gradient_accumulator_, gradient_squared_accumulator_, grad_, indices_, lr_, l1_, l2_, global_step_; name=name, use_locking=use_locking)
         else
             resource_sparse_apply_adagrad_da_graph(var_, gradient_accumulator_, gradient_squared_accumulator_, grad_, indices_, lr_, l1_, l2_, global_step_; name=name, use_locking=use_locking)
@@ -52472,7 +52472,7 @@ begin
         return res[1]
     end
     function temporary_variable(; name=nothing, shape=nothing, dtype=nothing, var_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             temporary_variable_eager(; name=name, shape=shape, dtype=dtype, var_name=var_name)
         else
             temporary_variable_graph(; name=name, shape=shape, dtype=dtype, var_name=var_name)
@@ -52542,7 +52542,7 @@ begin
         return res[1]
     end
     function resource_apply_add_sign(var_, m_, lr_, alpha_, sign_decay_, beta_, grad_; name=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             resource_apply_add_sign_eager(var_, m_, lr_, alpha_, sign_decay_, beta_, grad_; name=name, use_locking=use_locking)
         else
             resource_apply_add_sign_graph(var_, m_, lr_, alpha_, sign_decay_, beta_, grad_; name=name, use_locking=use_locking)
@@ -52590,7 +52590,7 @@ begin
         return res[1]
     end
     function roll(input_, shift_, axis_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             roll_eager(input_, shift_, axis_; name=name)
         else
             roll_graph(input_, shift_, axis_; name=name)
@@ -52631,7 +52631,7 @@ begin
         return res[1]
     end
     function xdivy(x_, y_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             xdivy_eager(x_, y_; name=name)
         else
             xdivy_graph(x_, y_; name=name)
@@ -52701,7 +52701,7 @@ begin
         return res[1]
     end
     function max_pool3d_grad_grad(orig_input_, orig_output_, grad_; name=nothing, ksize=nothing, strides=nothing, padding=nothing, data_format=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             max_pool3d_grad_grad_eager(orig_input_, orig_output_, grad_; name=name, ksize=ksize, strides=strides, padding=padding, data_format=data_format)
         else
             max_pool3d_grad_grad_graph(orig_input_, orig_output_, grad_; name=name, ksize=ksize, strides=strides, padding=padding, data_format=data_format)
@@ -52761,7 +52761,7 @@ begin
         return res[1]
     end
     function crop_and_resize(image_, boxes_, box_ind_, crop_size_; name=nothing, method=nothing, extrapolation_value=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             crop_and_resize_eager(image_, boxes_, box_ind_, crop_size_; name=name, method=method, extrapolation_value=extrapolation_value)
         else
             crop_and_resize_graph(image_, boxes_, box_ind_, crop_size_; name=name, method=method, extrapolation_value=extrapolation_value)
@@ -52830,7 +52830,7 @@ begin
         return res
     end
     function quantized_bias_add(input_, bias_, min_input_, max_input_, min_bias_, max_bias_; name=nothing, out_type=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             quantized_bias_add_eager(input_, bias_, min_input_, max_input_, min_bias_, max_bias_; name=name, out_type=out_type)
         else
             quantized_bias_add_graph(input_, bias_, min_input_, max_input_, min_bias_, max_bias_; name=name, out_type=out_type)
@@ -52868,7 +52868,7 @@ begin
         return res[1]
     end
     function kmc2chain_initialization(distances_, seed_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             kmc2chain_initialization_eager(distances_, seed_; name=name)
         else
             kmc2chain_initialization_graph(distances_, seed_; name=name)
@@ -52937,7 +52937,7 @@ begin
         return res
     end
     function map_unstage_no_key(indices_; name=nothing, capacity=nothing, memory_limit=nothing, dtypes=nothing, container=nothing, shared_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             map_unstage_no_key_eager(indices_; name=name, capacity=capacity, memory_limit=memory_limit, dtypes=dtypes, container=container, shared_name=shared_name)
         else
             map_unstage_no_key_graph(indices_; name=name, capacity=capacity, memory_limit=memory_limit, dtypes=dtypes, container=container, shared_name=shared_name)
@@ -52991,7 +52991,7 @@ begin
         return res[1]
     end
     function scatter_nd_sub(ref_, indices_, updates_; name=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             scatter_nd_sub_eager(ref_, indices_, updates_; name=name, use_locking=use_locking)
         else
             scatter_nd_sub_graph(ref_, indices_, updates_; name=name, use_locking=use_locking)
@@ -53037,7 +53037,7 @@ begin
         return res[1]
     end
     function resize_bilinear(images_, size_; name=nothing, align_corners=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             resize_bilinear_eager(images_, size_; name=name, align_corners=align_corners)
         else
             resize_bilinear_graph(images_, size_; name=name, align_corners=align_corners)
@@ -53105,7 +53105,7 @@ begin
         return res[1]
     end
     function ordered_map_peek(key_, indices_; name=nothing, capacity=nothing, memory_limit=nothing, dtypes=nothing, container=nothing, shared_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             ordered_map_peek_eager(key_, indices_; name=name, capacity=capacity, memory_limit=memory_limit, dtypes=dtypes, container=container, shared_name=shared_name)
         else
             ordered_map_peek_graph(key_, indices_; name=name, capacity=capacity, memory_limit=memory_limit, dtypes=dtypes, container=container, shared_name=shared_name)
@@ -53169,7 +53169,7 @@ begin
         return res[1]
     end
     function tensor_array(size_; name=nothing, dtype=nothing, dynamic_size=nothing, clear_after_read=nothing, tensor_array_name=nothing, element_shape=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_array_eager(size_; name=name, dtype=dtype, dynamic_size=dynamic_size, clear_after_read=clear_after_read, tensor_array_name=tensor_array_name, element_shape=element_shape)
         else
             tensor_array_graph(size_; name=name, dtype=dtype, dynamic_size=dynamic_size, clear_after_read=clear_after_read, tensor_array_name=tensor_array_name, element_shape=element_shape)
@@ -53214,7 +53214,7 @@ begin
         return res[1]
     end
     function inplace_sub(x_, i_, v_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             inplace_sub_eager(x_, i_, v_; name=name)
         else
             inplace_sub_graph(x_, i_, v_; name=name)
@@ -53255,7 +53255,7 @@ begin
         return res[1]
     end
     function pow(x_, y_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             pow_eager(x_, y_; name=name)
         else
             pow_graph(x_, y_; name=name)
@@ -53307,7 +53307,7 @@ begin
         return res[1]
     end
     function stateful_standard_normal(resource_, shape_; name=nothing, dtype=nothing, shape_dtype=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             stateful_standard_normal_eager(resource_, shape_; name=name, dtype=dtype, shape_dtype=shape_dtype)
         else
             stateful_standard_normal_graph(resource_, shape_; name=name, dtype=dtype, shape_dtype=shape_dtype)
@@ -53343,7 +53343,7 @@ begin
         return res[1]
     end
     function ref_next_iteration(data_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             ref_next_iteration_eager(data_; name=name)
         else
             ref_next_iteration_graph(data_; name=name)
@@ -53383,7 +53383,7 @@ begin
         return res[1]
     end
     function scalar_summary(tags_, values_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             scalar_summary_eager(tags_, values_; name=name)
         else
             scalar_summary_graph(tags_, values_; name=name)
@@ -53432,7 +53432,7 @@ begin
         return res
     end
     function string_split_v2(input_, sep_; name=nothing, maxsplit=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             string_split_v2_eager(input_, sep_; name=name, maxsplit=maxsplit)
         else
             string_split_v2_graph(input_, sep_; name=name, maxsplit=maxsplit)
@@ -53468,7 +53468,7 @@ begin
         return res[1]
     end
     function bessel_i0e(x_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             bessel_i0e_eager(x_; name=name)
         else
             bessel_i0e_graph(x_; name=name)
@@ -53515,7 +53515,7 @@ begin
         return res
     end
     function unique(x_; name=nothing, out_idx=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             unique_eager(x_; name=name, out_idx=out_idx)
         else
             unique_graph(x_; name=name, out_idx=out_idx)
@@ -53581,7 +53581,7 @@ begin
         return res[1]
     end
     function load_tpu_embedding_rms_prop_parameters(parameters_, ms_, mom_; name=nothing, table_id=nothing, table_name=nothing, num_shards=nothing, shard_id=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             load_tpu_embedding_rms_prop_parameters_eager(parameters_, ms_, mom_; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
         else
             load_tpu_embedding_rms_prop_parameters_graph(parameters_, ms_, mom_; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
@@ -53623,7 +53623,7 @@ begin
         return res[1]
     end
     function whole_file_reader_v2(; name=nothing, container=nothing, shared_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             whole_file_reader_v2_eager(; name=name, container=container, shared_name=shared_name)
         else
             whole_file_reader_v2_graph(; name=name, container=container, shared_name=shared_name)
@@ -53675,7 +53675,7 @@ begin
         return res[1]
     end
     function eager_py_func(input_; name=nothing, token=nothing, Tin=nothing, Tout=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             eager_py_func_eager(input_; name=name, token=token, Tin=Tin, Tout=Tout)
         else
             eager_py_func_graph(input_; name=name, token=token, Tin=Tin, Tout=Tout)
@@ -53711,7 +53711,7 @@ begin
         return res[1]
     end
     function next_iteration(data_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             next_iteration_eager(data_; name=name)
         else
             next_iteration_graph(data_; name=name)
@@ -53773,7 +53773,7 @@ begin
         return res[1]
     end
     function case(branch_index_, input_; name=nothing, Tin=nothing, Tout=nothing, branches=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             case_eager(branch_index_, input_; name=name, Tin=Tin, Tout=Tout, branches=branches, output_shapes=output_shapes)
         else
             case_graph(branch_index_, input_; name=name, Tin=Tin, Tout=Tout, branches=branches, output_shapes=output_shapes)
@@ -53821,7 +53821,7 @@ begin
         return res[1]
     end
     function tensor_scatter_sub(tensor_, indices_, updates_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_scatter_sub_eager(tensor_, indices_, updates_; name=name)
         else
             tensor_scatter_sub_graph(tensor_, indices_, updates_; name=name)
@@ -53875,7 +53875,7 @@ begin
         return res[1]
     end
     function scatter_max(ref_, indices_, updates_; name=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             scatter_max_eager(ref_, indices_, updates_; name=name, use_locking=use_locking)
         else
             scatter_max_graph(ref_, indices_, updates_; name=name, use_locking=use_locking)
@@ -53911,7 +53911,7 @@ begin
         return res[1]
     end
     function sqrt(x_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sqrt_eager(x_; name=name)
         else
             sqrt_graph(x_; name=name)
@@ -53955,7 +53955,7 @@ begin
         return res[1]
     end
     function accumulator_take_gradient(handle_, num_required_; name=nothing, dtype=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             accumulator_take_gradient_eager(handle_, num_required_; name=name, dtype=dtype)
         else
             accumulator_take_gradient_graph(handle_, num_required_; name=name, dtype=dtype)
@@ -54009,7 +54009,7 @@ begin
         return res
     end
     function _mkl_add(x_, y_, mkl_x_, mkl_y_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             _mkl_add_eager(x_, y_, mkl_x_, mkl_y_; name=name)
         else
             _mkl_add_graph(x_, y_, mkl_x_, mkl_y_; name=name)
@@ -54045,7 +54045,7 @@ begin
         return res[1]
     end
     function reciprocal(x_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             reciprocal_eager(x_; name=name)
         else
             reciprocal_graph(x_; name=name)
@@ -54085,7 +54085,7 @@ begin
         return res[1]
     end
     function outfeed_enqueue_tuple(inputs_; name=nothing, dtypes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             outfeed_enqueue_tuple_eager(inputs_; name=name, dtypes=dtypes)
         else
             outfeed_enqueue_tuple_graph(inputs_; name=name, dtypes=dtypes)
@@ -54119,7 +54119,7 @@ begin
         return res[1]
     end
     function string_strip(input_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             string_strip_eager(input_; name=name)
         else
             string_strip_graph(input_; name=name)
@@ -54173,7 +54173,7 @@ begin
         return res[1]
     end
     function fake_quant_with_min_max_vars_per_channel(inputs_, min_, max_; name=nothing, num_bits=nothing, narrow_range=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             fake_quant_with_min_max_vars_per_channel_eager(inputs_, min_, max_; name=name, num_bits=num_bits, narrow_range=narrow_range)
         else
             fake_quant_with_min_max_vars_per_channel_graph(inputs_, min_, max_; name=name, num_bits=num_bits, narrow_range=narrow_range)
@@ -54207,7 +54207,7 @@ begin
         return res[1]
     end
     function barrier_ready_size(handle_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             barrier_ready_size_eager(handle_; name=name)
         else
             barrier_ready_size_graph(handle_; name=name)
@@ -54247,7 +54247,7 @@ begin
         return res[1]
     end
     function string_to_hash_bucket(string_tensor_; name=nothing, num_buckets=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             string_to_hash_bucket_eager(string_tensor_; name=name, num_buckets=num_buckets)
         else
             string_to_hash_bucket_graph(string_tensor_; name=name, num_buckets=num_buckets)
@@ -54302,7 +54302,7 @@ begin
         return res
     end
     function tensor_array_concat(handle_, flow_in_; name=nothing, dtype=nothing, element_shape_except0=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_array_concat_eager(handle_, flow_in_; name=name, dtype=dtype, element_shape_except0=element_shape_except0)
         else
             tensor_array_concat_graph(handle_, flow_in_; name=name, dtype=dtype, element_shape_except0=element_shape_except0)
@@ -54344,7 +54344,7 @@ begin
         return res[1]
     end
     function sharded_filename(basename_, shard_, num_shards_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sharded_filename_eager(basename_, shard_, num_shards_; name=name)
         else
             sharded_filename_graph(basename_, shard_, num_shards_; name=name)
@@ -54396,7 +54396,7 @@ begin
         return res[1]
     end
     function py_func(input_; name=nothing, token=nothing, Tin=nothing, Tout=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             py_func_eager(input_; name=name, token=token, Tin=Tin, Tout=Tout)
         else
             py_func_graph(input_; name=name, token=token, Tin=Tin, Tout=Tout)
@@ -54445,7 +54445,7 @@ begin
         return res[1]
     end
     function unsorted_segment_prod(data_, segment_ids_, num_segments_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             unsorted_segment_prod_eager(data_, segment_ids_, num_segments_; name=name)
         else
             unsorted_segment_prod_graph(data_, segment_ids_, num_segments_; name=name)
@@ -54487,7 +54487,7 @@ begin
         return res[1]
     end
     function count_up_to(ref_; name=nothing, limit=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             count_up_to_eager(ref_; name=name, limit=limit)
         else
             count_up_to_graph(ref_; name=name, limit=limit)
@@ -54547,7 +54547,7 @@ begin
         return res[1]
     end
     function random_gamma(shape_, alpha_; name=nothing, seed=nothing, seed2=nothing, S=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             random_gamma_eager(shape_, alpha_; name=name, seed=seed, seed2=seed2, S=S)
         else
             random_gamma_graph(shape_, alpha_; name=name, seed=seed, seed2=seed2, S=S)
@@ -54591,7 +54591,7 @@ begin
         return res[1]
     end
     function tensor_array_grad(handle_, flow_in_; name=nothing, source=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_array_grad_eager(handle_, flow_in_; name=name, source=source)
         else
             tensor_array_grad_graph(handle_, flow_in_; name=name, source=source)
@@ -54650,7 +54650,7 @@ begin
         return res[1]
     end
     function dilation2d(input_, filter_; name=nothing, strides=nothing, rates=nothing, padding=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             dilation2d_eager(input_, filter_; name=name, strides=strides, rates=rates, padding=padding)
         else
             dilation2d_graph(input_, filter_; name=name, strides=strides, rates=rates, padding=padding)
@@ -54712,7 +54712,7 @@ begin
         return res[1]
     end
     function unbatch(batched_tensor_, batch_index_, id_; name=nothing, timeout_micros=nothing, container=nothing, shared_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             unbatch_eager(batched_tensor_, batch_index_, id_; name=name, timeout_micros=timeout_micros, container=container, shared_name=shared_name)
         else
             unbatch_graph(batched_tensor_, batch_index_, id_; name=name, timeout_micros=timeout_micros, container=container, shared_name=shared_name)
@@ -54748,7 +54748,7 @@ begin
         return res[1]
     end
     function get_session_handle(value_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             get_session_handle_eager(value_; name=name)
         else
             get_session_handle_graph(value_; name=name)
@@ -54807,7 +54807,7 @@ begin
         return res
     end
     function retrieve_tpu_embedding_adam_parameters(; name=nothing, table_id=nothing, table_name=nothing, num_shards=nothing, shard_id=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             retrieve_tpu_embedding_adam_parameters_eager(; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
         else
             retrieve_tpu_embedding_adam_parameters_graph(; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
@@ -54873,7 +54873,7 @@ begin
         return res[1]
     end
     function mutable_hash_table_of_tensors_v2(; name=nothing, container=nothing, shared_name=nothing, use_node_name_sharing=nothing, key_dtype=nothing, value_dtype=nothing, value_shape=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             mutable_hash_table_of_tensors_v2_eager(; name=name, container=container, shared_name=shared_name, use_node_name_sharing=use_node_name_sharing, key_dtype=key_dtype, value_dtype=value_dtype, value_shape=value_shape)
         else
             mutable_hash_table_of_tensors_v2_graph(; name=name, container=container, shared_name=shared_name, use_node_name_sharing=use_node_name_sharing, key_dtype=key_dtype, value_dtype=value_dtype, value_shape=value_shape)
@@ -54957,7 +54957,7 @@ begin
         return res[1]
     end
     function sparse_apply_ftrl(var_, accum_, linear_, grad_, indices_, lr_, l1_, l2_, lr_power_; name=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sparse_apply_ftrl_eager(var_, accum_, linear_, grad_, indices_, lr_, l1_, l2_, lr_power_; name=name, use_locking=use_locking)
         else
             sparse_apply_ftrl_graph(var_, accum_, linear_, grad_, indices_, lr_, l1_, l2_, lr_power_; name=name, use_locking=use_locking)
@@ -55011,7 +55011,7 @@ begin
         return res[1]
     end
     function batch_dataset_v2(input_dataset_, batch_size_, drop_remainder_; name=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             batch_dataset_v2_eager(input_dataset_, batch_size_, drop_remainder_; name=name, output_types=output_types, output_shapes=output_shapes)
         else
             batch_dataset_v2_graph(input_dataset_, batch_size_, drop_remainder_; name=name, output_types=output_types, output_shapes=output_shapes)
@@ -55073,7 +55073,7 @@ begin
         return res
     end
     function sparse_sparse_minimum(a_indices_, a_values_, a_shape_, b_indices_, b_values_, b_shape_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sparse_sparse_minimum_eager(a_indices_, a_values_, a_shape_, b_indices_, b_values_, b_shape_; name=name)
         else
             sparse_sparse_minimum_graph(a_indices_, a_values_, a_shape_, b_indices_, b_values_, b_shape_; name=name)
@@ -55116,7 +55116,7 @@ begin
         return res[1]
     end
     function reverse_v2(tensor_, axis_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             reverse_v2_eager(tensor_, axis_; name=name)
         else
             reverse_v2_graph(tensor_, axis_; name=name)
@@ -55237,7 +55237,7 @@ begin
         return res[1]
     end
     function strided_slice(input_, begin_, end_, strides_; name=nothing, Index=nothing, begin_mask=nothing, end_mask=nothing, ellipsis_mask=nothing, new_axis_mask=nothing, shrink_axis_mask=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             strided_slice_eager(input_, begin_, end_, strides_; name=name, Index=Index, begin_mask=begin_mask, end_mask=end_mask, ellipsis_mask=ellipsis_mask, new_axis_mask=new_axis_mask, shrink_axis_mask=shrink_axis_mask)
         else
             strided_slice_graph(input_, begin_, end_, strides_; name=name, Index=Index, begin_mask=begin_mask, end_mask=end_mask, ellipsis_mask=ellipsis_mask, new_axis_mask=new_axis_mask, shrink_axis_mask=shrink_axis_mask)
@@ -55271,7 +55271,7 @@ begin
         return res[1]
     end
     function matching_files(pattern_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             matching_files_eager(pattern_; name=name)
         else
             matching_files_graph(pattern_; name=name)
@@ -55311,7 +55311,7 @@ begin
         return res[1]
     end
     function encode_base64(input_; name=nothing, pad=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             encode_base64_eager(input_; name=name, pad=pad)
         else
             encode_base64_graph(input_; name=name, pad=pad)
@@ -55357,7 +55357,7 @@ begin
         return res[1]
     end
     function iterator_get_next_as_optional(iterator_; name=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             iterator_get_next_as_optional_eager(iterator_; name=name, output_types=output_types, output_shapes=output_shapes)
         else
             iterator_get_next_as_optional_graph(iterator_; name=name, output_types=output_types, output_shapes=output_shapes)
@@ -55417,7 +55417,7 @@ begin
         return res[1]
     end
     function padding_fifo_queue(; name=nothing, component_types=nothing, shapes=nothing, capacity=nothing, container=nothing, shared_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             padding_fifo_queue_eager(; name=name, component_types=component_types, shapes=shapes, capacity=capacity, container=container, shared_name=shared_name)
         else
             padding_fifo_queue_graph(; name=name, component_types=component_types, shapes=shapes, capacity=capacity, container=container, shared_name=shared_name)
@@ -55451,7 +55451,7 @@ begin
         return res[1]
     end
     function iterator_to_string_handle(resource_handle_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             iterator_to_string_handle_eager(resource_handle_; name=name)
         else
             iterator_to_string_handle_graph(resource_handle_; name=name)
@@ -55516,7 +55516,7 @@ begin
         return res[1]
     end
     function max_pool_grad_grad_with_argmax(input_, grad_, argmax_; name=nothing, ksize=nothing, strides=nothing, padding=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             max_pool_grad_grad_with_argmax_eager(input_, grad_, argmax_; name=name, ksize=ksize, strides=strides, padding=padding)
         else
             max_pool_grad_grad_with_argmax_graph(input_, grad_, argmax_; name=name, ksize=ksize, strides=strides, padding=padding)
@@ -55564,7 +55564,7 @@ begin
         return res[1]
     end
     function tensor_list_gather(input_handle_, indices_, element_shape_; name=nothing, element_dtype=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_list_gather_eager(input_handle_, indices_, element_shape_; name=name, element_dtype=element_dtype)
         else
             tensor_list_gather_graph(input_handle_, indices_, element_shape_; name=name, element_dtype=element_dtype)
@@ -55622,7 +55622,7 @@ begin
         return res[1]
     end
     function multinomial(logits_, num_samples_; name=nothing, seed=nothing, seed2=nothing, output_dtype=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             multinomial_eager(logits_, num_samples_; name=name, seed=seed, seed2=seed2, output_dtype=output_dtype)
         else
             multinomial_graph(logits_, num_samples_; name=name, seed=seed, seed2=seed2, output_dtype=output_dtype)
@@ -55670,7 +55670,7 @@ begin
         return res[1]
     end
     function tensor_array_read(handle_, index_, flow_in_; name=nothing, dtype=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_array_read_eager(handle_, index_, flow_in_; name=name, dtype=dtype)
         else
             tensor_array_read_graph(handle_, index_, flow_in_; name=name, dtype=dtype)
@@ -55720,7 +55720,7 @@ begin
         return res[1]
     end
     function experimental_indexed_dataset_get(materialized_, index_; name=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             experimental_indexed_dataset_get_eager(materialized_, index_; name=name, output_types=output_types, output_shapes=output_shapes)
         else
             experimental_indexed_dataset_get_graph(materialized_, index_; name=name, output_types=output_types, output_shapes=output_shapes)
@@ -55776,7 +55776,7 @@ begin
         return res[1]
     end
     function tpu_partitioned_call(args_, device_ordinal_; name=nothing, Tin=nothing, Tout=nothing, f=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tpu_partitioned_call_eager(args_, device_ordinal_; name=name, Tin=Tin, Tout=Tout, f=f)
         else
             tpu_partitioned_call_graph(args_, device_ordinal_; name=name, Tin=Tin, Tout=Tout, f=f)
@@ -55871,7 +55871,7 @@ begin
         return res
     end
     function quantized_conv2d_and_relu_and_requantize(input_, filter_, min_input_, max_input_, min_filter_, max_filter_, min_freezed_output_, max_freezed_output_; name=nothing, out_type=nothing, strides=nothing, padding=nothing, dilations=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             quantized_conv2d_and_relu_and_requantize_eager(input_, filter_, min_input_, max_input_, min_filter_, max_filter_, min_freezed_output_, max_freezed_output_; name=name, out_type=out_type, strides=strides, padding=padding, dilations=dilations)
         else
             quantized_conv2d_and_relu_and_requantize_graph(input_, filter_, min_input_, max_input_, min_filter_, max_filter_, min_freezed_output_, max_freezed_output_; name=name, out_type=out_type, strides=strides, padding=padding, dilations=dilations)
@@ -55917,7 +55917,7 @@ begin
         return res[1]
     end
     function iterator_from_string_handle_v2(string_handle_; name=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             iterator_from_string_handle_v2_eager(string_handle_; name=name, output_types=output_types, output_shapes=output_shapes)
         else
             iterator_from_string_handle_v2_graph(string_handle_; name=name, output_types=output_types, output_shapes=output_shapes)
@@ -55958,7 +55958,7 @@ begin
         return res[1]
     end
     function bitwise_or(x_, y_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             bitwise_or_eager(x_, y_; name=name)
         else
             bitwise_or_graph(x_, y_; name=name)
@@ -56007,7 +56007,7 @@ begin
         return res[1]
     end
     function unsorted_segment_max(data_, segment_ids_, num_segments_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             unsorted_segment_max_eager(data_, segment_ids_, num_segments_; name=name)
         else
             unsorted_segment_max_graph(data_, segment_ids_, num_segments_; name=name)
@@ -56061,7 +56061,7 @@ begin
         return res
     end
     function _mkl_squared_difference(x_, y_, mkl_x_, mkl_y_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             _mkl_squared_difference_eager(x_, y_, mkl_x_, mkl_y_; name=name)
         else
             _mkl_squared_difference_graph(x_, y_, mkl_x_, mkl_y_; name=name)
@@ -56125,7 +56125,7 @@ begin
         return res[1]
     end
     function conv3d_backprop_filter(input_, filter_, out_backprop_; name=nothing, strides=nothing, padding=nothing, dilations=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             conv3d_backprop_filter_eager(input_, filter_, out_backprop_; name=name, strides=strides, padding=padding, dilations=dilations)
         else
             conv3d_backprop_filter_graph(input_, filter_, out_backprop_; name=name, strides=strides, padding=padding, dilations=dilations)
@@ -56195,7 +56195,7 @@ begin
         return res[1]
     end
     function if_(cond_, input_; name=nothing, Tin=nothing, Tout=nothing, then_branch=nothing, else_branch=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             if__eager(cond_, input_; name=name, Tin=Tin, Tout=Tout, then_branch=then_branch, else_branch=else_branch, output_shapes=output_shapes)
         else
             if__graph(cond_, input_; name=name, Tin=Tin, Tout=Tout, then_branch=then_branch, else_branch=else_branch, output_shapes=output_shapes)
@@ -56257,7 +56257,7 @@ begin
         return res[1]
     end
     function flat_map_dataset(input_dataset_, other_arguments_; name=nothing, f=nothing, Targuments=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             flat_map_dataset_eager(input_dataset_, other_arguments_; name=name, f=f, Targuments=Targuments, output_types=output_types, output_shapes=output_shapes)
         else
             flat_map_dataset_graph(input_dataset_, other_arguments_; name=name, f=f, Targuments=Targuments, output_types=output_types, output_shapes=output_shapes)
@@ -56315,7 +56315,7 @@ begin
         return res[1]
     end
     function tensor_list_scatter(tensor_, indices_, element_shape_; name=nothing, element_dtype=nothing, shape_type=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_list_scatter_eager(tensor_, indices_, element_shape_; name=name, element_dtype=element_dtype, shape_type=shape_type)
         else
             tensor_list_scatter_graph(tensor_, indices_, element_shape_; name=name, element_dtype=element_dtype, shape_type=shape_type)
@@ -56356,7 +56356,7 @@ begin
         return res[1]
     end
     function softsign_grad(gradients_, features_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             softsign_grad_eager(gradients_, features_; name=name)
         else
             softsign_grad_graph(gradients_, features_; name=name)
@@ -56404,7 +56404,7 @@ begin
         return res[1]
     end
     function copy_host(input_; name=nothing, tensor_name=nothing, debug_ops_spec=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             copy_host_eager(input_; name=name, tensor_name=tensor_name, debug_ops_spec=debug_ops_spec)
         else
             copy_host_graph(input_; name=name, tensor_name=tensor_name, debug_ops_spec=debug_ops_spec)
@@ -56452,7 +56452,7 @@ begin
         return res[1]
     end
     function lin_space(start_, stop_, num_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             lin_space_eager(start_, stop_, num_; name=name)
         else
             lin_space_graph(start_, stop_, num_; name=name)
@@ -56499,7 +56499,7 @@ begin
         return res[1]
     end
     function _parallel_concat_update(value_, update_; name=nothing, loc=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             _parallel_concat_update_eager(value_, update_; name=name, loc=loc)
         else
             _parallel_concat_update_graph(value_, update_; name=name, loc=loc)
@@ -56541,7 +56541,7 @@ begin
         return res[1]
     end
     function stack(; name=nothing, elem_type=nothing, stack_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             stack_eager(; name=name, elem_type=elem_type, stack_name=stack_name)
         else
             stack_graph(; name=name, elem_type=elem_type, stack_name=stack_name)
@@ -56587,7 +56587,7 @@ begin
         return res[1]
     end
     function stack_push_v2(handle_, elem_; name=nothing, swap_memory=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             stack_push_v2_eager(handle_, elem_; name=name, swap_memory=swap_memory)
         else
             stack_push_v2_graph(handle_, elem_; name=name, swap_memory=swap_memory)
@@ -56633,7 +56633,7 @@ begin
         return res[1]
     end
     function assign_variable_op(resource_, value_; name=nothing, dtype=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             assign_variable_op_eager(resource_, value_; name=name, dtype=dtype)
         else
             assign_variable_op_graph(resource_, value_; name=name, dtype=dtype)
@@ -56693,7 +56693,7 @@ begin
         return res
     end
     function sparse_split(split_dim_, indices_, values_, shape_; name=nothing, num_split=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sparse_split_eager(split_dim_, indices_, values_, shape_; name=name, num_split=num_split)
         else
             sparse_split_graph(split_dim_, indices_, values_, shape_; name=name, num_split=num_split)
@@ -56737,7 +56737,7 @@ begin
         return res[1]
     end
     function tensor_array_unpack(handle_, value_, flow_in_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_array_unpack_eager(handle_, value_, flow_in_; name=name)
         else
             tensor_array_unpack_graph(handle_, value_, flow_in_; name=name)
@@ -56787,7 +56787,7 @@ begin
         return res[1]
     end
     function tensor_list_stack(input_handle_, element_shape_; name=nothing, element_dtype=nothing, num_elements=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_list_stack_eager(input_handle_, element_shape_; name=name, element_dtype=element_dtype, num_elements=num_elements)
         else
             tensor_list_stack_graph(input_handle_, element_shape_; name=name, element_dtype=element_dtype, num_elements=num_elements)
@@ -56821,7 +56821,7 @@ begin
         return res[1]
     end
     function barrier_incomplete_size(handle_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             barrier_incomplete_size_eager(handle_; name=name)
         else
             barrier_incomplete_size_graph(handle_; name=name)
@@ -56871,7 +56871,7 @@ begin
         return res[1]
     end
     function restore(file_pattern_, tensor_name_; name=nothing, dt=nothing, preferred_shard=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             restore_eager(file_pattern_, tensor_name_; name=name, dt=dt, preferred_shard=preferred_shard)
         else
             restore_graph(file_pattern_, tensor_name_; name=name, dt=dt, preferred_shard=preferred_shard)
@@ -56946,7 +56946,7 @@ begin
         return res
     end
     function tensor_array_v3(size_; name=nothing, dtype=nothing, element_shape=nothing, dynamic_size=nothing, clear_after_read=nothing, identical_element_shapes=nothing, tensor_array_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_array_v3_eager(size_; name=name, dtype=dtype, element_shape=element_shape, dynamic_size=dynamic_size, clear_after_read=clear_after_read, identical_element_shapes=identical_element_shapes, tensor_array_name=tensor_array_name)
         else
             tensor_array_v3_graph(size_; name=name, dtype=dtype, element_shape=element_shape, dynamic_size=dynamic_size, clear_after_read=clear_after_read, identical_element_shapes=identical_element_shapes, tensor_array_name=tensor_array_name)
@@ -56996,7 +56996,7 @@ begin
         return res[1]
     end
     function experimental_assert_next_dataset(input_dataset_, transformations_; name=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             experimental_assert_next_dataset_eager(input_dataset_, transformations_; name=name, output_types=output_types, output_shapes=output_shapes)
         else
             experimental_assert_next_dataset_graph(input_dataset_, transformations_; name=name, output_types=output_types, output_shapes=output_shapes)
@@ -57042,7 +57042,7 @@ begin
         return res[1]
     end
     function in_top_k(predictions_, targets_; name=nothing, k=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             in_top_k_eager(predictions_, targets_; name=name, k=k)
         else
             in_top_k_graph(predictions_, targets_; name=name, k=k)
@@ -57096,7 +57096,7 @@ begin
         return res[1]
     end
     function scatter_sub(ref_, indices_, updates_; name=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             scatter_sub_eager(ref_, indices_, updates_; name=name, use_locking=use_locking)
         else
             scatter_sub_graph(ref_, indices_, updates_; name=name, use_locking=use_locking)
@@ -57132,7 +57132,7 @@ begin
         return res[1]
     end
     function acosh(x_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             acosh_eager(x_; name=name)
         else
             acosh_graph(x_; name=name)
@@ -57201,7 +57201,7 @@ begin
         return res[1]
     end
     function depthwise_conv2d_native_backprop_filter(input_, filter_sizes_, out_backprop_; name=nothing, strides=nothing, padding=nothing, data_format=nothing, dilations=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             depthwise_conv2d_native_backprop_filter_eager(input_, filter_sizes_, out_backprop_; name=name, strides=strides, padding=padding, data_format=data_format, dilations=dilations)
         else
             depthwise_conv2d_native_backprop_filter_graph(input_, filter_sizes_, out_backprop_; name=name, strides=strides, padding=padding, data_format=data_format, dilations=dilations)
@@ -57255,7 +57255,7 @@ begin
         return res[1]
     end
     function cast(x_; name=nothing, SrcT=nothing, DstT=nothing, Truncate=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             cast_eager(x_; name=name, SrcT=SrcT, DstT=DstT, Truncate=Truncate)
         else
             cast_graph(x_; name=name, SrcT=SrcT, DstT=DstT, Truncate=Truncate)
@@ -57314,7 +57314,7 @@ begin
         return res
     end
     function quantize_v2(input_, min_range_, max_range_; name=nothing, mode=nothing, round_mode=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             quantize_v2_eager(input_, min_range_, max_range_; name=name, mode=mode, round_mode=round_mode)
         else
             quantize_v2_graph(input_, min_range_, max_range_; name=name, mode=mode, round_mode=round_mode)
@@ -57404,7 +57404,7 @@ begin
         return res[1]
     end
     function generator_dataset(init_func_other_args_, next_func_other_args_, finalize_func_other_args_; name=nothing, init_func=nothing, next_func=nothing, finalize_func=nothing, Tinit_func_args=nothing, Tnext_func_args=nothing, Tfinalize_func_args=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             generator_dataset_eager(init_func_other_args_, next_func_other_args_, finalize_func_other_args_; name=name, init_func=init_func, next_func=next_func, finalize_func=finalize_func, Tinit_func_args=Tinit_func_args, Tnext_func_args=Tnext_func_args, Tfinalize_func_args=Tfinalize_func_args, output_types=output_types, output_shapes=output_shapes)
         else
             generator_dataset_graph(init_func_other_args_, next_func_other_args_, finalize_func_other_args_; name=name, init_func=init_func, next_func=next_func, finalize_func=finalize_func, Tinit_func_args=Tinit_func_args, Tnext_func_args=Tnext_func_args, Tfinalize_func_args=Tfinalize_func_args, output_types=output_types, output_shapes=output_shapes)
@@ -57438,7 +57438,7 @@ begin
         return res[1]
     end
     function tensor_forest_tree_serialize(tree_handle_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_forest_tree_serialize_eager(tree_handle_; name=name)
         else
             tensor_forest_tree_serialize_graph(tree_handle_; name=name)
@@ -57479,7 +57479,7 @@ begin
         return res[1]
     end
     function next_after(x1_, x2_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             next_after_eager(x1_, x2_; name=name)
         else
             next_after_graph(x1_, x2_; name=name)
@@ -57513,7 +57513,7 @@ begin
         return res[1]
     end
     function tensor_array_close_v2(handle_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_array_close_v2_eager(handle_; name=name)
         else
             tensor_array_close_v2_graph(handle_; name=name)
@@ -57591,7 +57591,7 @@ begin
         return res[1]
     end
     function big_query_reader(; name=nothing, container=nothing, shared_name=nothing, project_id=nothing, dataset_id=nothing, table_id=nothing, columns=nothing, timestamp_millis=nothing, test_end_point=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             big_query_reader_eager(; name=name, container=container, shared_name=shared_name, project_id=project_id, dataset_id=dataset_id, table_id=table_id, columns=columns, timestamp_millis=timestamp_millis, test_end_point=test_end_point)
         else
             big_query_reader_graph(; name=name, container=container, shared_name=shared_name, project_id=project_id, dataset_id=dataset_id, table_id=table_id, columns=columns, timestamp_millis=timestamp_millis, test_end_point=test_end_point)
@@ -57634,7 +57634,7 @@ begin
         return res
     end
     function reader_read_v2(reader_handle_, queue_handle_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             reader_read_v2_eager(reader_handle_, queue_handle_; name=name)
         else
             reader_read_v2_graph(reader_handle_, queue_handle_; name=name)
@@ -57675,7 +57675,7 @@ begin
         return res[1]
     end
     function mod(x_, y_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             mod_eager(x_, y_; name=name)
         else
             mod_graph(x_, y_; name=name)
@@ -57716,7 +57716,7 @@ begin
         return res[1]
     end
     function add_v2(x_, y_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             add_v2_eager(x_, y_; name=name)
         else
             add_v2_graph(x_, y_; name=name)
@@ -57764,7 +57764,7 @@ begin
         return res[1]
     end
     function stateless_random_normal(shape_, seed_; name=nothing, dtype=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             stateless_random_normal_eager(shape_, seed_; name=name, dtype=dtype)
         else
             stateless_random_normal_graph(shape_, seed_; name=name, dtype=dtype)
@@ -57890,7 +57890,7 @@ begin
         return res[1]
     end
     function strided_slice_assign(ref_, begin_, end_, strides_, value_; name=nothing, Index=nothing, begin_mask=nothing, end_mask=nothing, ellipsis_mask=nothing, new_axis_mask=nothing, shrink_axis_mask=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             strided_slice_assign_eager(ref_, begin_, end_, strides_, value_; name=name, Index=Index, begin_mask=begin_mask, end_mask=end_mask, ellipsis_mask=ellipsis_mask, new_axis_mask=new_axis_mask, shrink_axis_mask=shrink_axis_mask)
         else
             strided_slice_assign_graph(ref_, begin_, end_, strides_, value_; name=name, Index=Index, begin_mask=begin_mask, end_mask=end_mask, ellipsis_mask=ellipsis_mask, new_axis_mask=new_axis_mask, shrink_axis_mask=shrink_axis_mask)
@@ -57944,7 +57944,7 @@ begin
         return res[1]
     end
     function scatter_min(ref_, indices_, updates_; name=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             scatter_min_eager(ref_, indices_, updates_; name=name, use_locking=use_locking)
         else
             scatter_min_graph(ref_, indices_, updates_; name=name, use_locking=use_locking)
@@ -58069,7 +58069,7 @@ begin
         return res[1]
     end
     function resource_strided_slice_assign(ref_, begin_, end_, strides_, value_; name=nothing, Index=nothing, begin_mask=nothing, end_mask=nothing, ellipsis_mask=nothing, new_axis_mask=nothing, shrink_axis_mask=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             resource_strided_slice_assign_eager(ref_, begin_, end_, strides_, value_; name=name, Index=Index, begin_mask=begin_mask, end_mask=end_mask, ellipsis_mask=ellipsis_mask, new_axis_mask=new_axis_mask, shrink_axis_mask=shrink_axis_mask)
         else
             resource_strided_slice_assign_graph(ref_, begin_, end_, strides_, value_; name=name, Index=Index, begin_mask=begin_mask, end_mask=end_mask, ellipsis_mask=ellipsis_mask, new_axis_mask=new_axis_mask, shrink_axis_mask=shrink_axis_mask)
@@ -58110,7 +58110,7 @@ begin
         return res[1]
     end
     function random_gamma_grad(alpha_, sample_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             random_gamma_grad_eager(alpha_, sample_; name=name)
         else
             random_gamma_grad_graph(alpha_, sample_; name=name)
@@ -58183,7 +58183,7 @@ begin
         return res[1]
     end
     function resource_sparse_apply_keras_momentum(var_, accum_, lr_, grad_, indices_, momentum_; name=nothing, use_locking=nothing, use_nesterov=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             resource_sparse_apply_keras_momentum_eager(var_, accum_, lr_, grad_, indices_, momentum_; name=name, use_locking=use_locking, use_nesterov=use_nesterov)
         else
             resource_sparse_apply_keras_momentum_graph(var_, accum_, lr_, grad_, indices_, momentum_; name=name, use_locking=use_locking, use_nesterov=use_nesterov)
@@ -58231,7 +58231,7 @@ begin
         return res[1]
     end
     function boosted_trees_create_quantile_stream_resource(quantile_stream_resource_handle_, epsilon_, num_streams_; name=nothing, max_elements=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             boosted_trees_create_quantile_stream_resource_eager(quantile_stream_resource_handle_, epsilon_, num_streams_; name=name, max_elements=max_elements)
         else
             boosted_trees_create_quantile_stream_resource_graph(quantile_stream_resource_handle_, epsilon_, num_streams_; name=name, max_elements=max_elements)
@@ -58286,7 +58286,7 @@ begin
         return res
     end
     function quantized_relu6(features_, min_features_, max_features_; name=nothing, out_type=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             quantized_relu6_eager(features_, min_features_, max_features_; name=name, out_type=out_type)
         else
             quantized_relu6_graph(features_, min_features_, max_features_; name=name, out_type=out_type)
@@ -58348,7 +58348,7 @@ begin
         return res
     end
     function sparse_sparse_maximum(a_indices_, a_values_, a_shape_, b_indices_, b_values_, b_shape_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sparse_sparse_maximum_eager(a_indices_, a_values_, a_shape_, b_indices_, b_values_, b_shape_; name=name)
         else
             sparse_sparse_maximum_graph(a_indices_, a_values_, a_shape_, b_indices_, b_values_, b_shape_; name=name)
@@ -58416,7 +58416,7 @@ begin
         return res[1]
     end
     function batch_norm_with_global_normalization(t_, m_, v_, beta_, gamma_; name=nothing, variance_epsilon=nothing, scale_after_normalization=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             batch_norm_with_global_normalization_eager(t_, m_, v_, beta_, gamma_; name=name, variance_epsilon=variance_epsilon, scale_after_normalization=scale_after_normalization)
         else
             batch_norm_with_global_normalization_graph(t_, m_, v_, beta_, gamma_; name=name, variance_epsilon=variance_epsilon, scale_after_normalization=scale_after_normalization)
@@ -58461,7 +58461,7 @@ begin
         return res[1]
     end
     function in_top_kv2(predictions_, targets_, k_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             in_top_kv2_eager(predictions_, targets_, k_; name=name)
         else
             in_top_kv2_graph(predictions_, targets_, k_; name=name)
@@ -58497,7 +58497,7 @@ begin
         return res[1]
     end
     function cholesky(input_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             cholesky_eager(input_; name=name)
         else
             cholesky_graph(input_; name=name)
@@ -58575,7 +58575,7 @@ begin
         return res[1]
     end
     function resource_apply_centered_rms_prop(var_, mg_, ms_, mom_, lr_, rho_, momentum_, epsilon_, grad_; name=nothing, use_locking=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             resource_apply_centered_rms_prop_eager(var_, mg_, ms_, mom_, lr_, rho_, momentum_, epsilon_, grad_; name=name, use_locking=use_locking)
         else
             resource_apply_centered_rms_prop_graph(var_, mg_, ms_, mom_, lr_, rho_, momentum_, epsilon_, grad_; name=name, use_locking=use_locking)
@@ -58636,7 +58636,7 @@ begin
         return res[1]
     end
     function resource_apply_adagrad(var_, accum_, lr_, grad_; name=nothing, use_locking=nothing, update_slots=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             resource_apply_adagrad_eager(var_, accum_, lr_, grad_; name=name, use_locking=use_locking, update_slots=update_slots)
         else
             resource_apply_adagrad_graph(var_, accum_, lr_, grad_; name=name, use_locking=use_locking, update_slots=update_slots)
@@ -58718,7 +58718,7 @@ begin
         return res[1]
     end
     function experimental_parallel_interleave_dataset(input_dataset_, other_arguments_, cycle_length_, block_length_, sloppy_, buffer_output_elements_, prefetch_input_elements_; name=nothing, f=nothing, Targuments=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             experimental_parallel_interleave_dataset_eager(input_dataset_, other_arguments_, cycle_length_, block_length_, sloppy_, buffer_output_elements_, prefetch_input_elements_; name=name, f=f, Targuments=Targuments, output_types=output_types, output_shapes=output_shapes)
         else
             experimental_parallel_interleave_dataset_graph(input_dataset_, other_arguments_, cycle_length_, block_length_, sloppy_, buffer_output_elements_, prefetch_input_elements_; name=name, f=f, Targuments=Targuments, output_types=output_types, output_shapes=output_shapes)
@@ -58764,7 +58764,7 @@ begin
         return res[1]
     end
     function resize_bicubic_grad(grads_, original_image_; name=nothing, align_corners=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             resize_bicubic_grad_eager(grads_, original_image_; name=name, align_corners=align_corners)
         else
             resize_bicubic_grad_graph(grads_, original_image_; name=name, align_corners=align_corners)
@@ -58800,7 +58800,7 @@ begin
         return res[1]
     end
     function batch_self_adjoint_eig(input_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             batch_self_adjoint_eig_eager(input_; name=name)
         else
             batch_self_adjoint_eig_graph(input_; name=name)
@@ -58844,7 +58844,7 @@ begin
         return res[1]
     end
     function sparse_softmax(sp_indices_, sp_values_, sp_shape_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sparse_softmax_eager(sp_indices_, sp_values_, sp_shape_; name=name)
         else
             sparse_softmax_graph(sp_indices_, sp_values_, sp_shape_; name=name)
@@ -58880,7 +58880,7 @@ begin
         return res[1]
     end
     function asinh(x_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             asinh_eager(x_; name=name)
         else
             asinh_graph(x_; name=name)
@@ -58967,7 +58967,7 @@ begin
         return res
     end
     function quantized_conv2d_and_relu(input_, filter_, min_input_, max_input_, min_filter_, max_filter_; name=nothing, out_type=nothing, strides=nothing, padding=nothing, dilations=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             quantized_conv2d_and_relu_eager(input_, filter_, min_input_, max_input_, min_filter_, max_filter_; name=name, out_type=out_type, strides=strides, padding=padding, dilations=dilations)
         else
             quantized_conv2d_and_relu_graph(input_, filter_, min_input_, max_input_, min_filter_, max_filter_; name=name, out_type=out_type, strides=strides, padding=padding, dilations=dilations)
@@ -59009,7 +59009,7 @@ begin
         return res[1]
     end
     function matrix_inverse(input_; name=nothing, adjoint=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             matrix_inverse_eager(input_; name=name, adjoint=adjoint)
         else
             matrix_inverse_graph(input_; name=name, adjoint=adjoint)
@@ -59053,7 +59053,7 @@ begin
         return res[1]
     end
     function tensor_list_concat_lists(input_a_, input_b_; name=nothing, element_dtype=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             tensor_list_concat_lists_eager(input_a_, input_b_; name=name, element_dtype=element_dtype)
         else
             tensor_list_concat_lists_graph(input_a_, input_b_; name=name, element_dtype=element_dtype)
@@ -59116,7 +59116,7 @@ begin
         return res
     end
     function requantize(input_, input_min_, input_max_, requested_output_min_, requested_output_max_; name=nothing, out_type=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             requantize_eager(input_, input_min_, input_max_, requested_output_min_, requested_output_max_; name=name, out_type=out_type)
         else
             requantize_graph(input_, input_min_, input_max_, requested_output_min_, requested_output_max_; name=name, out_type=out_type)
@@ -59152,7 +59152,7 @@ begin
         return res[1]
     end
     function fft(input_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             fft_eager(input_; name=name)
         else
             fft_graph(input_; name=name)
@@ -59194,7 +59194,7 @@ begin
         return res[1]
     end
     function conjugate_transpose(x_, perm_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             conjugate_transpose_eager(x_, perm_; name=name)
         else
             conjugate_transpose_graph(x_, perm_; name=name)
@@ -59254,7 +59254,7 @@ begin
         return res[1]
     end
     function unstage(; name=nothing, capacity=nothing, memory_limit=nothing, dtypes=nothing, container=nothing, shared_name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             unstage_eager(; name=name, capacity=capacity, memory_limit=memory_limit, dtypes=dtypes, container=container, shared_name=shared_name)
         else
             unstage_graph(; name=name, capacity=capacity, memory_limit=memory_limit, dtypes=dtypes, container=container, shared_name=shared_name)
@@ -59295,7 +59295,7 @@ begin
         return res[1]
     end
     function relu6grad(gradients_, features_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             relu6grad_eager(gradients_, features_; name=name)
         else
             relu6grad_graph(gradients_, features_; name=name)
@@ -59350,7 +59350,7 @@ begin
         return res[1]
     end
     function scale_and_translate_grad(grads_, original_image_, scale_, translation_; name=nothing, kernel_type=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             scale_and_translate_grad_eager(grads_, original_image_, scale_, translation_; name=name, kernel_type=kernel_type)
         else
             scale_and_translate_grad_graph(grads_, original_image_, scale_, translation_; name=name, kernel_type=kernel_type)
@@ -59398,7 +59398,7 @@ begin
         return res[1]
     end
     function _array_to_list(input_; name=nothing, N=nothing, out_types=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             _array_to_list_eager(input_; name=name, N=N, out_types=out_types)
         else
             _array_to_list_graph(input_; name=name, N=N, out_types=out_types)
@@ -59500,7 +59500,7 @@ begin
         return res
     end
     function cudnn_rnnv3(input_, input_h_, input_c_, params_, sequence_lengths_; name=nothing, rnn_mode=nothing, input_mode=nothing, direction=nothing, dropout=nothing, seed=nothing, seed2=nothing, is_training=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             cudnn_rnnv3_eager(input_, input_h_, input_c_, params_, sequence_lengths_; name=name, rnn_mode=rnn_mode, input_mode=input_mode, direction=direction, dropout=dropout, seed=seed, seed2=seed2, is_training=is_training)
         else
             cudnn_rnnv3_graph(input_, input_h_, input_c_, params_, sequence_lengths_; name=name, rnn_mode=rnn_mode, input_mode=input_mode, direction=direction, dropout=dropout, seed=seed, seed2=seed2, is_training=is_training)
@@ -59543,7 +59543,7 @@ begin
         return res[1]
     end
     function expand_dims(input_, dim_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             expand_dims_eager(input_, dim_; name=name)
         else
             expand_dims_graph(input_, dim_; name=name)
@@ -59584,7 +59584,7 @@ begin
         return res[1]
     end
     function inv_grad(y_, dy_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             inv_grad_eager(y_, dy_; name=name)
         else
             inv_grad_graph(y_, dy_; name=name)
@@ -59632,7 +59632,7 @@ begin
         return res[1]
     end
     function non_max_suppression(boxes_, scores_, max_output_size_; name=nothing, iou_threshold=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             non_max_suppression_eager(boxes_, scores_, max_output_size_; name=name, iou_threshold=iou_threshold)
         else
             non_max_suppression_graph(boxes_, scores_, max_output_size_; name=name, iou_threshold=iou_threshold)
@@ -59668,7 +59668,7 @@ begin
         return res[1]
     end
     function l2loss(t_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             l2loss_eager(t_; name=name)
         else
             l2loss_graph(t_; name=name)
@@ -59714,7 +59714,7 @@ begin
         return res[1]
     end
     function resize_area(images_, size_; name=nothing, align_corners=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             resize_area_eager(images_, size_; name=name, align_corners=align_corners)
         else
             resize_area_graph(images_, size_; name=name, align_corners=align_corners)
@@ -59813,7 +59813,7 @@ begin
         return res
     end
     function sparse_cross(indices_, values_, shapes_, dense_inputs_; name=nothing, N=nothing, hashed_output=nothing, num_buckets=nothing, hash_key=nothing, sparse_types=nothing, dense_types=nothing, out_type=nothing, internal_type=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sparse_cross_eager(indices_, values_, shapes_, dense_inputs_; name=name, N=N, hashed_output=hashed_output, num_buckets=num_buckets, hash_key=hash_key, sparse_types=sparse_types, dense_types=dense_types, out_type=out_type, internal_type=internal_type)
         else
             sparse_cross_graph(indices_, values_, shapes_, dense_inputs_; name=name, N=N, hashed_output=hashed_output, num_buckets=num_buckets, hash_key=hash_key, sparse_types=sparse_types, dense_types=dense_types, out_type=out_type, internal_type=internal_type)
@@ -59847,7 +59847,7 @@ begin
         return res[1]
     end
     function batch_fft3d(input_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             batch_fft3d_eager(input_; name=name)
         else
             batch_fft3d_graph(input_; name=name)
@@ -59901,7 +59901,7 @@ begin
         return res[1]
     end
     function random_standard_normal(shape_; name=nothing, seed=nothing, seed2=nothing, dtype=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             random_standard_normal_eager(shape_; name=name, seed=seed, seed2=seed2, dtype=dtype)
         else
             random_standard_normal_graph(shape_; name=name, seed=seed, seed2=seed2, dtype=dtype)
@@ -59954,7 +59954,7 @@ begin
         return res[1]
     end
     function resource_scatter_mul(resource_, indices_, updates_; name=nothing, dtype=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             resource_scatter_mul_eager(resource_, indices_, updates_; name=name, dtype=dtype)
         else
             resource_scatter_mul_graph(resource_, indices_, updates_; name=name, dtype=dtype)
@@ -60083,7 +60083,7 @@ begin
         return res
     end
     function sdca_optimizer(sparse_example_indices_, sparse_feature_indices_, sparse_feature_values_, dense_features_, example_weights_, example_labels_, sparse_indices_, sparse_weights_, dense_weights_, example_state_data_; name=nothing, loss_type=nothing, adaptative=nothing, num_sparse_features=nothing, num_sparse_features_with_values=nothing, num_dense_features=nothing, l1=nothing, l2=nothing, num_loss_partitions=nothing, num_inner_iterations=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sdca_optimizer_eager(sparse_example_indices_, sparse_feature_indices_, sparse_feature_values_, dense_features_, example_weights_, example_labels_, sparse_indices_, sparse_weights_, dense_weights_, example_state_data_; name=name, loss_type=loss_type, adaptative=adaptative, num_sparse_features=num_sparse_features, num_sparse_features_with_values=num_sparse_features_with_values, num_dense_features=num_dense_features, l1=l1, l2=l2, num_loss_partitions=num_loss_partitions, num_inner_iterations=num_inner_iterations)
         else
             sdca_optimizer_graph(sparse_example_indices_, sparse_feature_indices_, sparse_feature_values_, dense_features_, example_weights_, example_labels_, sparse_indices_, sparse_weights_, dense_weights_, example_state_data_; name=name, loss_type=loss_type, adaptative=adaptative, num_sparse_features=num_sparse_features, num_sparse_features_with_values=num_sparse_features_with_values, num_dense_features=num_dense_features, l1=l1, l2=l2, num_loss_partitions=num_loss_partitions, num_inner_iterations=num_inner_iterations)
@@ -60124,7 +60124,7 @@ begin
         return res[1]
     end
     function zeta(x_, q_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             zeta_eager(x_, q_; name=name)
         else
             zeta_graph(x_, q_; name=name)
@@ -60211,7 +60211,7 @@ begin
         return res
     end
     function sample_distorted_bounding_box(image_size_, bounding_boxes_; name=nothing, seed=nothing, seed2=nothing, min_object_covered=nothing, aspect_ratio_range=nothing, area_range=nothing, max_attempts=nothing, use_image_if_no_bounding_boxes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sample_distorted_bounding_box_eager(image_size_, bounding_boxes_; name=name, seed=seed, seed2=seed2, min_object_covered=min_object_covered, aspect_ratio_range=aspect_ratio_range, area_range=area_range, max_attempts=max_attempts, use_image_if_no_bounding_boxes=use_image_if_no_bounding_boxes)
         else
             sample_distorted_bounding_box_graph(image_size_, bounding_boxes_; name=name, seed=seed, seed2=seed2, min_object_covered=min_object_covered, aspect_ratio_range=aspect_ratio_range, area_range=area_range, max_attempts=max_attempts, use_image_if_no_bounding_boxes=use_image_if_no_bounding_boxes)
@@ -60252,7 +60252,7 @@ begin
         return res[1]
     end
     function igamma_grad_a(a_, x_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             igamma_grad_a_eager(a_, x_; name=name)
         else
             igamma_grad_a_graph(a_, x_; name=name)
@@ -60295,7 +60295,7 @@ begin
         return res[1]
     end
     function segment_max(data_, segment_ids_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             segment_max_eager(data_, segment_ids_; name=name)
         else
             segment_max_graph(data_, segment_ids_; name=name)
@@ -60341,7 +60341,7 @@ begin
         return res[1]
     end
     function range(start_, limit_, delta_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             range_eager(start_, limit_, delta_; name=name)
         else
             range_graph(start_, limit_, delta_; name=name)
@@ -60400,7 +60400,7 @@ begin
         return res
     end
     function retrieve_tpu_embedding_momentum_parameters_grad_accum_debug(; name=nothing, table_id=nothing, table_name=nothing, num_shards=nothing, shard_id=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             retrieve_tpu_embedding_momentum_parameters_grad_accum_debug_eager(; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
         else
             retrieve_tpu_embedding_momentum_parameters_grad_accum_debug_graph(; name=name, table_id=table_id, table_name=table_name, num_shards=num_shards, shard_id=shard_id)
@@ -60434,7 +60434,7 @@ begin
         return res[1]
     end
     function flush_summary_writer(writer_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             flush_summary_writer_eager(writer_; name=name)
         else
             flush_summary_writer_graph(writer_; name=name)
@@ -60484,7 +60484,7 @@ begin
         return res[1]
     end
     function dequantize(input_, min_range_, max_range_; name=nothing, mode=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             dequantize_eager(input_, min_range_, max_range_; name=name, mode=mode)
         else
             dequantize_graph(input_, min_range_, max_range_; name=name, mode=mode)
@@ -60529,7 +60529,7 @@ begin
         return res
     end
     function sparse_fill_empty_rows_grad(reverse_index_map_, grad_values_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sparse_fill_empty_rows_grad_eager(reverse_index_map_, grad_values_; name=name)
         else
             sparse_fill_empty_rows_grad_graph(reverse_index_map_, grad_values_; name=name)
@@ -60575,7 +60575,7 @@ begin
         return res[1]
     end
     function iterator_get_next(iterator_; name=nothing, output_types=nothing, output_shapes=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             iterator_get_next_eager(iterator_; name=name, output_types=output_types, output_shapes=output_shapes)
         else
             iterator_get_next_graph(iterator_; name=name, output_types=output_types, output_shapes=output_shapes)
@@ -60629,7 +60629,7 @@ begin
         return res[1]
     end
     function sparse_tensor_dense_add(a_indices_, a_values_, a_shape_, b_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             sparse_tensor_dense_add_eager(a_indices_, a_values_, a_shape_, b_; name=name)
         else
             sparse_tensor_dense_add_graph(a_indices_, a_values_, a_shape_, b_; name=name)
@@ -60671,7 +60671,7 @@ begin
         return res[1]
     end
     function prevent_gradient(input_; name=nothing, message=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             prevent_gradient_eager(input_; name=name, message=message)
         else
             prevent_gradient_graph(input_; name=name, message=message)
@@ -60710,7 +60710,7 @@ begin
         return res
     end
     function lookup_table_export(table_handle_; name=nothing)
-        if tf.eager_mode
+        if tf.in_eager_mode()
             lookup_table_export_eager(table_handle_; name=name)
         else
             lookup_table_export_graph(table_handle_; name=name)

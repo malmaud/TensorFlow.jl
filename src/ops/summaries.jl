@@ -20,7 +20,7 @@ for (jl_func, op) in [
     ]
     @eval @tf.op function $jl_func(args...; collections=[:Summaries], step=0, kwargs...)
         res = tf.Ops.$op(args...; kwargs...)
-        if tf.eager_mode
+        if tf.in_eager_mode()
           tf.summary.record_summary(tf.item(res), step=step)
         else
           foreach(c->tf.add_to_collection(c, res), collections)

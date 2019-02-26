@@ -31,9 +31,6 @@ function EagerContext(;async=false, placement_policy=nothing)
     return this
 end
 
-eager_ctx = nothing #EagerContext()
-eager_mode = true
-
 Base.unsafe_convert(::Type{Ptr{Cvoid}}, c::EagerContext) = c.ptr
 
 function DeviceList(ctx::EagerContext)
@@ -123,11 +120,12 @@ function EagerOp(ctx::EagerContext, op_name)
 end
 
 function EagerOp(op_name)
-    global eager_ctx
-    if eager_ctx === nothing
-        eager_ctx = EagerContext()
+    if get_eager_context() === nothing
+        ctx = Context()
+        ctx.attrs["eager_context"] = EagerContext()
+        push!(global_context, ctx)
     end
-    ctx = eager_ctx
+    ctx = get_eager_context()
     status = Status()
     ptr = @tfcall(:TFE_NewOp, Ptr{Cvoid}, (Ptr{Cvoid}, Cstring, Ptr{Cvoid}), ctx, op_name, status)
     check_status(status)
@@ -282,7 +280,7 @@ function copy_to_device(ctx::EagerContext, h::TensorHandle, device_name)
     return res
 end
 
-copy_to_device(h, device_name) = copy_to_device(eager_ctx, h, device_name)
+copy_to_device(h, device_name) = copy_to_device(get_eager_context(), h, device_name)
 
 function set_device(op::EagerOp, device_name)
     status = Status()
@@ -319,6 +317,7 @@ Base.collect(t::TensorHandle) = Array(t)
 Base.iterate(t::TensorHandle, args...) = iterate(Array(t), args...)
 Base.zero(t::AbstractTensor) = Ops.zeros_like(t)
 Base.ones(t::AbstractTensor) = Ops.ones_like(t)
+
 function Base.:*(t1::TensorHandle, t2::Number)
     return t1 .* t2
 end
@@ -332,4 +331,45 @@ function inplace_sub(x, y)
     Ops.inplace_sub(x, i, y)
 end
 
+function Base.push!(stack::ContextStack, context::Context)
+    push!(stack.contexts, context)
+end
 
+function Base.pop!(stack::ContextStack)
+    pop!(stack.contexts)
+end
+
+function default_context()
+    context = Context()
+    context.attrs["eager"] = true
+    return context
+end
+
+function Base.getindex(c::ContextStack, name)
+    value = nothing
+    for context in c.contexts
+        new_value = get(context.attrs, name, nothing)
+        if new_value !== nothing
+            value = new_value
+        end
+    end
+    return value
+end
+
+function context_value(name)
+    return global_context[name]
+end
+
+function in_eager_mode()
+    return context_value("eager")::Bool
+end
+
+function with_context(ctx, block)
+    push!(global_context, ctx)
+    block()
+    pop!(global_context)
+end
+
+function get_eager_context()
+    return context_value("eager_context")
+end

@@ -271,7 +271,7 @@ function to_function(op::tensorflow.OpDef)
     end
     dispatch_expr = quote
         function $jl_name($(inputs...))
-            if tf.eager_mode
+            if tf.in_eager_mode()
                 $(eager_name)($(call_args...))
             else
                 $(graph_name)($(call_args...))

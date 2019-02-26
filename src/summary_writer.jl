@@ -29,7 +29,7 @@ Arguments:
 * graph: A `Graph` object.
 """
 function FileWriter(log_dir::AbstractString; graph=nothing)
-    if !tf.eager_mode && graph===nothing
+    if !tf.in_eager_mode() && graph===nothing
         graph = get_def_graph()
     end
     mkpath(log_dir)
@@ -64,9 +64,9 @@ function Base.write(writer::FileWriter, event::tensorflow.Event)
     proto_length_bytes = read(buffer)
     proto_length_bytes_rev = reverse(proto_length_bytes)
     write(file, proto_length_bytes)
-    write(file, CRC.masked_crc(proto_length_bytes))
+    write(file, masked_crc(proto_length_bytes))
     write(file, proto)
-    write(file, CRC.masked_crc(proto))
+    write(file, masked_crc(proto))
     flush(file)
     nothing
 end
@@ -100,15 +100,26 @@ function Base.write(writer::FileWriter, graph::Graph)
     write(writer, event)
 end
 
-default_file_writer = nothing
 function set_default(writer::FileWriter)
-    # todo use context
-    global default_file_writer = writer
+    context = tf.Context()
+    context.attrs["default_file_writer"] = writer
+    push!(tf.global_context, context)
+end
+
+function with_default(writer::FileWriter, block)
+    context = tf.Context()
+    context.attrs["default_file_writer"] = writer
+    tf.with_context(context, block)
+end
+
+function get_default_file_writer()
+    return tf.global_context["default_file_writer"]
 end
 
 function record_summary(summary_pb; step=0)
-    default_file_writer === nothing && return
-    write(default_file_writer, summary_pb, step)
+    writer = get_default_file_writer()
+    writer === nothing && return
+    write(writer, summary_pb, step)
 end
 
 

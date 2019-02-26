@@ -202,7 +202,7 @@ for reduction in [:sum, :prod, :min, :max, :all, :any, :mean]
         if name === nothing
             name = get_name("reduce")
         end
-        if eager_mode
+        if in_eager_mode()
             if axis === nothing
                 n_value = Array(n)  # TODO use shape functions instead
                 num_axis = length(size(n_value))

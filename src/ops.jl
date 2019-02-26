@@ -23,7 +23,7 @@ function tf_promote(args...)
         if isa(arg, AbstractArray)
             push!(new_args, arg)
         else
-            if eager_mode
+            if in_eager_mode()
                 push!(new_args, Ops.cast(arg, DstT = big_type))  # TODO implement promotion
             else
                 push!(new_args, convert(Tensor{big_type}, arg))
