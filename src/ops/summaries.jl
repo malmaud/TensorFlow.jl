@@ -5,9 +5,11 @@ scalar,
 audio,
 histogram,
 merge_all,
-image
+image,
+@scalar
 
 import TensorFlow
+using MacroTools
 const tf = TensorFlow
 
 for (jl_func, op) in [
@@ -22,8 +24,8 @@ for (jl_func, op) in [
           tf.summary.record_summary(tf.item(res), step=step)
         else
           foreach(c->tf.add_to_collection(c, res), collections)
+          return res
         end
-        res
     end
 
     # Set the documentation of the summary function to the same as the
@@ -51,6 +53,12 @@ Returns:
 function merge_all(key=:Summaries)
     tensors = tf.get_collection(key)
     merge(tensors)
+end
+
+macro scalar(f, args...)
+  quote
+    scalar($(string(f)), $(esc(f)); $(esc.(args)...))
+  end
 end
 
 end
