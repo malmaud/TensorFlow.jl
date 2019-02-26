@@ -1,9 +1,8 @@
 using ProtoBuf
+using CRC32c
 import ..TensorFlow
 const tf = TensorFlow
 import ..TensorFlow: tensorflow, Graph, get_def_graph, @py_proc
-
-include("crc.jl")
 
 struct FileWriter
     file_handle
@@ -47,6 +46,10 @@ function FileWriter(log_dir::AbstractString; graph=nothing)
     return writer
 end
 
+function masked_crc(data)
+    x = CRC32c.crc32c(data)
+    ((x>>15) | (x<<17)) + 0xa282ead8
+end
 
 function Base.write(writer::FileWriter, event::tensorflow.Event)
     b = IOBuffer()
