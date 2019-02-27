@@ -145,6 +145,12 @@ function add_input(op::EagerOp, h::TensorHandle)
     return
 end
 
+function add_input(op::EagerOp, hs::Vector{TensorHandle})
+    for h in hs
+        add_input(op, h)
+    end
+end
+
 function execute(op::EagerOp)
     op_desc = get_op_def(op.op_name)
     n_outputs = length(op_desc.output_arg)
@@ -348,9 +354,8 @@ end
 function Base.getindex(c::ContextStack, name)
     value = nothing
     for context in c.contexts
-        new_value = get(context.attrs, name, nothing)
-        if new_value !== nothing
-            value = new_value
+        if name in keys(context.attrs)
+            value = context.attrs[name]
         end
     end
     return value
@@ -366,8 +371,9 @@ end
 
 function with_context(ctx, block)
     push!(global_context, ctx)
-    block()
+    res = block()
     pop!(global_context)
+    return res
 end
 
 function get_eager_context()

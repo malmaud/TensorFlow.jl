@@ -3,8 +3,8 @@ import MacroTools: splitdef, combinedef
 
 mutable struct TapeNode
     op::Function
-    args::Vector{TensorHandle}
-    results::Vector{TensorHandle}
+    args::Vector
+    results::Vector
     kwargs::Dict
 end
 
@@ -17,17 +17,22 @@ end
 
 Tape() = Tape(Dict{TensorHandle, TapeNode}())
 
-tape = nothing
-
 function set_tape(new_tape=nothing)
     if new_tape === nothing
         new_tape = Tape()
     end
-    global tape = new_tape
-    return tape
+    context = Context()
+    context.attrs["tape"] = new_tape
+    push!(global_context, context)
+    return new_tape
+end
+
+function get_tape()
+    return global_context["tape"]
 end
 
 function add_node(t, node)
+    tape = get_tape()
     tape === nothing && return
     tape.nodes[t] = node
 end
@@ -63,10 +68,9 @@ end)
 end)
 
 function with_no_grad(f)
-    old_tape = tape
-    global tape = nothing
-    res = f()
-    global tape = old_tape
+    context = Context()
+    context.attrs["tape"] = nothing
+    res = with_context(context, f)
     return res
 end
 

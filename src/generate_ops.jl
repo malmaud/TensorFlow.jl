@@ -256,8 +256,10 @@ function to_function(op::tensorflow.OpDef)
             $(t_block...)
             res = tf.execute(desc)
             node = tf.TapeNode($jl_name, [$(inputs[2:end]...)], $(inputs[1].args...), res)
-            tf.add_node(res[1], node)
-            $eager_output_block
+            if length(res) >= 1
+                tf.add_node(res[1], node)
+                $eager_output_block
+            end
         end
 
     end
