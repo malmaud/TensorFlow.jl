@@ -8,14 +8,14 @@ mutable struct TapeNode
     kwargs::Dict
 end
 
-
 TapeNode(op, args, results; kwargs...) =  TapeNode(op, args, results, kwargs)
 
 mutable struct Tape
     nodes::Dict{TensorHandle, TapeNode}
+    attrs::Dict
 end
 
-Tape() = Tape(Dict{TensorHandle, TapeNode}())
+Tape(;kwargs...) = Tape(Dict{TensorHandle, TapeNode}(), Dict(kwargs...))
 
 function set_tape(new_tape=nothing)
     if new_tape === nothing
@@ -162,6 +162,7 @@ end
 function grad(tape, tensor, in_tensors::AbstractArray, out_grad=constant(1.0))
     grads = Dict()
     _grad(tape, tensor, out_grad, grads)
+    get(tape.attrs, "preserve", false) || empty!(tape.nodes)
     return [get(grads, tensor, nothing) for tensor in in_tensors]
 end
 
