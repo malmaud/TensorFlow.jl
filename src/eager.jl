@@ -347,8 +347,15 @@ end
 
 function default_context()
     context = Context()
-    context.attrs["eager"] = true
+    context.attrs["eager"] = false
     return context
+end
+
+function enable_eager_execution()
+    context = Context()
+    context.attrs["eager"] = true
+    push!(global_context, context)
+    return nothing
 end
 
 function Base.getindex(c::ContextStack, name)

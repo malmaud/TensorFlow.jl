@@ -359,6 +359,7 @@ function import_ops(op_names)
         module Ops
         import TensorFlow
         const tf = TensorFlow
+        import TensorFlow: Tensor
         """)
         for name in op_names
             op = ops[name]
