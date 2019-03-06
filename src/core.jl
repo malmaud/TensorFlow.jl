@@ -1793,7 +1793,7 @@ function set_tensor_shape(tensor::AbstractTensor, dims)
 end
 
 function get_tensor_num_dims(tensor::AbstractTensor)
-    if tensor.op.op_name == "NoOp"
+    if tensor isa Tensor && tensor.op.op_name == "NoOp"
         # Work  around https://github.com/malmaud/TensorFlow.jl/issues/466
         # In short libtensorflow segfaults when you ask for the shape
         # of a `no_op`. Which includes most control flow statements like `group`
