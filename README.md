@@ -19,6 +19,16 @@ over the Python API.
 
 See [NEWS](https://github.com/malmaud/TensorFlow.jl/blob/master/NEWS.md).
 
+## Looking for eager mode and other features mentioned at the TensorFlow Dev summit?
+
+They're available on the `eager_mode` branch for now. In the Julia REPL, type
+
+```
+] add TensorFlow#eager_mode
+```
+
+to access them.
+
 ## Basic usage
 
 ```julia
