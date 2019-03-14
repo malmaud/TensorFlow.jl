@@ -153,7 +153,7 @@ end
 
 ContextStack() = ContextStack(Context[])
 
-global_context = ContextStack()
+const global_context = ContextStack()
 
 function __init__()
     c_deallocator[] = @cfunction(deallocator, Cvoid, (Ptr{Cvoid}, Csize_t, Ptr{Cvoid}))

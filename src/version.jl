@@ -17,7 +17,7 @@ function tf_version(; kind=:backend)
     if kind == :backend
         res = @tfcall(:TF_Version, Cstring, ()) |> unsafe_string
     elseif kind == :python
-        res = fetch(@py_proc py_tf[][:VERSION])
+        res = fetch(@py_proc py_tf[].VERSION)
     elseif kind == :julia
         return Pkg.installed()["TensorFlow"]
     else

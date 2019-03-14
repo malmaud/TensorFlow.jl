@@ -27,9 +27,7 @@ function set_tape(new_tape=nothing)
     return new_tape
 end
 
-function get_tape()
-    return global_context["tape"]
-end
+get_tape() = global_context["tape"]
 
 function add_node(t, node)
     tape = get_tape()
@@ -66,13 +64,6 @@ end)
 @back_for(Ops.pow, function f(grad, x, y; kwargs...)
     [y.* (x.^(y.-1)), nothing]
 end)
-
-function with_no_grad(f)
-    context = Context()
-    context.attrs["tape"] = nothing
-    res = with_context(context, f)
-    return res
-end
 
 @back_for(Ops.exp, function f(grad, x; kwargs...)
     Ops.exp(x) .* grad
@@ -135,6 +126,13 @@ end)
 @back_for(Ops.bias_add, function f(grad, x, y; kwargs...)
     [grad, Ops.bias_add_grad(grad)]
 end)
+
+function with_no_grad(f)
+    context = Context()
+    context.attrs["tape"] = nothing
+    res = with_context(f, context)
+    return res
+end
 
 ensure_vector(x::AbstractArray) = x
 ensure_vector(x) = [x]

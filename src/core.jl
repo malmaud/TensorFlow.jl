@@ -507,24 +507,20 @@ end
 mutable struct DeviceList
     ptr::Ptr{Cvoid}
     count::Int
+end
 
-    function DeviceList(s::Session)
-        status = Status()
-        ptr = @tfcall(:TF_SessionListDevices, Ptr{Cvoid},
-            (Ptr{Cvoid}, Ptr{Cvoid}), s, status)
-        check_status(status)
-        count = @tfcall(:TF_DeviceListCount, Cint, (Ptr{Cvoid},),
-            ptr)
-        this = new(ptr, count)
-        finalizer(this) do self
-            close(self)
-        end
-        this
+function DeviceList(s::Session)
+    status = Status()
+    ptr = @tfcall(:TF_SessionListDevices, Ptr{Cvoid},
+        (Ptr{Cvoid}, Ptr{Cvoid}), s, status)
+    check_status(status)
+    count = @tfcall(:TF_DeviceListCount, Cint, (Ptr{Cvoid},),
+        ptr)
+    this = DeviceList(ptr, count)
+    finalizer(this) do self
+        close(self)
     end
-
-    function DeviceList(ptr, count)
-        new(ptr, count)
-    end
+    this
 end
 
 struct DeviceInfo
@@ -1174,7 +1170,10 @@ function load_proto(value::tensorflow.AttrValue)
         load_proto(value.list)
     elseif has_field(value, :_type)
         type_ = value._type
-        get(proto_type_map, type_, Float32)  # wrong
+        get(proto_type_map, type_) do
+            @warn "Unrecognized type. Defaulting to Float32." type_
+            Float32
+        end
     end
 end
 

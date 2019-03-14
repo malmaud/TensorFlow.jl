@@ -108,7 +108,7 @@ end
 function with_default(writer::FileWriter, block)
     context = tf.Context()
     context.attrs["default_file_writer"] = writer
-    tf.with_context(context, block)
+    tf.with_context(block, context)
 end
 
 function get_default_file_writer()

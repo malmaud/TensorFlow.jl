@@ -214,13 +214,11 @@ function setindex!(op::EagerOp, value::Vector, attr_name)
 end
 
 function set_attr_list(op::EagerOp, attr_name, list::Vector{<:Integer})
-    # list = Int64[Int64(x) for x in list]
     list = Int64.(list)
     @tfcall(:TFE_OpSetAttrIntList, Cvoid, (Ptr{Cvoid}, Cstring, Ptr{Int64}, Cint), op, attr_name, list, length(list))
 end
 
 function set_attr_list(op::EagerOp, attr_name, list::Vector{<:AbstractFloat})
-    # list = Float32[Float32(x) for x in list]
     list = Float32.(list)
     @tfcall(:TFE_OpSetAttrFloatList, Cvoid, (Ptr{Cvoid}, Cstring, Ptr{Float32}, Cint), op, attr_name, list, length(list))
 end
@@ -376,7 +374,7 @@ function in_eager_mode()
     return context_value("eager")::Bool
 end
 
-function with_context(ctx, block)
+function with_context(block, ctx)
     push!(global_context, ctx)
     res = block()
     pop!(global_context)
