@@ -44,16 +44,18 @@ function add_node(t, node)
     tape.nodes[t] = node
 end
 
-grad_fns = Dict()
+function backwards
+end
 
 macro back_for(target, fn)
     def = splitdef(fn)
     if def[:name] == :f
         def[:name] = Symbol(string(target, "_", "backwards"))
     end
+    backwards_expr = :(backwards(::typeof($target)) = $(def[:name]))
     quote
         $(esc(combinedef(def)))
-        grad_fns[$target] = $(def[:name])
+        $(esc(backwards_expr))
     end
 end
 
@@ -150,7 +152,7 @@ function _grad(tape::Tape, tensor, out_grad, grads)
     end
     
     node = tape.nodes[tensor]
-    back_op = grad_fns[node.op]
+    back_op = backwards(node.op)
     arg_grads = with_no_grad() do
         back_op(out_grad, node.args...; output=node.results, node.kwargs...)
     end

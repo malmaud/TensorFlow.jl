@@ -1,5 +1,6 @@
 using TensorFlow
 tf=TensorFlow
+tf.enable_eager_execution()
 m = tf.Sequential()
 
 tf.add(m, tf.Dense(3,10))
