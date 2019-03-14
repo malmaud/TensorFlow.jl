@@ -1,4 +1,4 @@
-mutable struct EagerContext
+mutable struct EagerContext <: Context
     ptr::Ptr{Cvoid}
 end
 
@@ -121,9 +121,10 @@ end
 
 function EagerOp(op_name)
     if get_eager_context() === nothing
-        ctx = Context()
-        ctx.attrs["eager_context"] = EagerContext()
-        push!(global_context, ctx)
+        # ctx = Context()
+        # ctx.attrs["eager_context"] = EagerContext()
+        # push!(global_context, ctx)
+        push!(global_context, EagerContext())
     end
     ctx = get_eager_context()
     status = Status()
@@ -245,7 +246,6 @@ function clear_caches(ctx::EagerContext)
     @tfcall(:TFE_ContextClearCaches, Cvoid, (Ptr{Cvoid},), ctx)
 end
 
-
 function num_dims(h::TensorHandle)
     status = Status()
     res = @tfcall(:TFE_TensorHandleNumDims, Cint, (Ptr{Cvoid}, Ptr{Cvoid}), h, status)
@@ -335,52 +335,24 @@ function inplace_sub(x, y)
     Ops.inplace_sub(x, i, y)
 end
 
-function Base.push!(stack::ContextStack, context::Context)
-    push!(stack.contexts, context)
+struct ExecutionMode <: Context
+    eager::Bool
 end
 
-function Base.pop!(stack::ContextStack)
-    pop!(stack.contexts)
-end
-
-function default_context()
-    context = Context()
-    context.attrs["eager"] = false
-    return context
-end
+ExecutionMode(;eager=true) = ExecutionMode(eager)
 
 function enable_eager_execution()
-    context = Context()
-    context.attrs["eager"] = true
-    push!(global_context, context)
+    # context = Context()
+    # context.attrs["eager"] = true
+    # push!(global_context, context)
+    push!(global_context, ExecutionMode(eager=true))
     return nothing
 end
 
-function Base.getindex(c::ContextStack, name)
-    value = nothing
-    for context in c.contexts
-        if name in keys(context.attrs)
-            value = context.attrs[name]
-        end
-    end
-    return value
-end
-
-function context_value(name)
-    return global_context[name]
-end
-
 function in_eager_mode()
-    return context_value("eager")::Bool
-end
-
-function with_context(block, ctx)
-    push!(global_context, ctx)
-    res = block()
-    pop!(global_context)
-    return res
+    return context_value(ExecutionMode).eager
 end
 
 function get_eager_context()
-    return context_value("eager_context")
+    return context_value(EagerContext)
 end

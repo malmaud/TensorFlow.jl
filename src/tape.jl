@@ -17,17 +17,26 @@ end
 
 Tape(;kwargs...) = Tape(Dict{TensorHandle, TapeNode}(), Dict(kwargs...))
 
+struct TapeContext <: Context
+    tape::Union{Tape, Nothing}
+end
+
 function set_tape(new_tape=nothing)
     if new_tape === nothing
         new_tape = Tape()
     end
-    context = Context()
-    context.attrs["tape"] = new_tape
-    push!(global_context, context)
+    push!(global_context, TapeContext(new_tape))
     return new_tape
 end
 
-get_tape() = global_context["tape"]
+function get_tape()
+    tape_context = context_value(TapeContext)
+    if tape_context === nothing
+        return nothing
+    else
+        return tape_context.tape
+    end
+end
 
 function add_node(t, node)
     tape = get_tape()
@@ -128,9 +137,7 @@ end)
 end)
 
 function with_no_grad(f)
-    context = Context()
-    context.attrs["tape"] = nothing
-    res = with_context(f, context)
+    res = with_context(f, TapeContext(nothing))
     return res
 end
 

@@ -4,7 +4,7 @@ import ..TensorFlow
 const tf = TensorFlow
 import ..TensorFlow: tensorflow, Graph, get_def_graph, @py_proc
 
-struct FileWriter
+struct FileWriter <: tf.Context
     file_handle
     logdir::String
 end
@@ -100,19 +100,15 @@ function Base.write(writer::FileWriter, graph::Graph)
 end
 
 function set_default(writer::FileWriter)
-    context = tf.Context()
-    context.attrs["default_file_writer"] = writer
-    push!(tf.global_context, context)
+    push!(tf.global_context, writer)
 end
 
 function with_default(writer::FileWriter, block)
-    context = tf.Context()
-    context.attrs["default_file_writer"] = writer
-    tf.with_context(block, context)
+    tf.with_context(block, writer)
 end
 
 function get_default_file_writer()
-    return tf.global_context["default_file_writer"]
+    return tf.context_value(FileWriter)
 end
 
 function record_summary(summary_pb; step=0)
@@ -120,7 +116,6 @@ function record_summary(summary_pb; step=0)
     writer === nothing && return
     write(writer, summary_pb, step)
 end
-
 
 function Base.close(writer::FileWriter)
     close(writer.file_handle)
