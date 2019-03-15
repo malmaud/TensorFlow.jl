@@ -214,16 +214,7 @@ function to_function(op::tensorflow.OpDef)
             out
         end
     end
-    eager_output_block = if scalar_output
-        quote
-            return res[1]
-        end
-    else
-        quote
-            #tf.execute(desc)
-            return res
-        end
-    end
+    eager_output_block  = scalar_output ? :(return res[1]) : :(return res)
     graph_name = Symbol("$(jl_name)_graph")
     eager_name = Symbol("$(jl_name)_eager")
     expr = quote
@@ -266,10 +257,7 @@ function to_function(op::tensorflow.OpDef)
     for arg in inputs[1].args
         push!(call_kw_params.args, Expr(:kw, arg.args[1], arg.args[1]))
     end
-    call_args = Any[call_kw_params]
-    for input in inputs[2:end]
-        push!(call_args, input)
-    end
+    call_args = [call_kw_params; inputs[2:end]]
     dispatch_expr = quote
         function $jl_name($(inputs...))
             if tf.in_eager_mode()
