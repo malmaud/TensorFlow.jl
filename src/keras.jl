@@ -105,7 +105,7 @@ function fit(m::Sequential, x, y; n_epochs=1, batch_size=nothing)
             y_predicted = forward(layer, y_predicted)
         end
         loss = m.attrs["loss"](y, y_predicted)
-        println("Epoch $epoch: Loss if $(item(loss))")
+        @info "" epoch loss=item(loss)
         values = collect(m.attrs["trainable"])
         grads = grad(tape, loss, values)
         for (value, g) in zip(values, grads)

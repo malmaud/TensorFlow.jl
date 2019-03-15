@@ -260,8 +260,8 @@ function to_function(op::tensorflow.OpDef)
                 $eager_output_block
             end
         end
-
     end
+
     call_kw_params = Expr(:parameters)
     for arg in inputs[1].args
         push!(call_kw_params.args, Expr(:kw, arg.args[1], arg.args[1]))

@@ -29,7 +29,7 @@ Arguments:
 * graph: A `Graph` object.
 """
 function FileWriter(log_dir::AbstractString; graph=nothing)
-    if !tf.in_eager_mode() && graph===nothing
+    if !tf.in_eager_mode() && graph === nothing
         graph = get_def_graph()
     end
     mkpath(log_dir)
@@ -38,7 +38,6 @@ function FileWriter(log_dir::AbstractString; graph=nothing)
         path = joinpath(log_dir, "events.out.tfevents.$i")
         isfile(path) || break
     end
-    rm(path, force=true)
     writer = FileWriter(open(path, "w"), String(log_dir))
     if graph !== nothing
         write(writer, graph)

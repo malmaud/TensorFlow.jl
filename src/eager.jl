@@ -10,7 +10,8 @@ mutable struct EagerContext <: Context
 end
 
 function EagerContext(;async=false, placement_policy=nothing)
-    # For some reason, this has to be called before :TFE_Execute or else tf
+    # For some reason, `get_all_op_list` 
+    # has to be called before :TFE_Execute or else tf
     # crashes. Maybe something about TF_GetAllOpList is causing the tf 
     # library to enter a bad state.
     get_all_op_list() 
@@ -20,6 +21,7 @@ function EagerContext(;async=false, placement_policy=nothing)
     if placement_policy !== nothing
         @tfcall(:TFE_ContextOptionsSetDevicePlacementPolicy, Cvoid, (Ptr{Cvoid}, Int), options, placement_policy)
     end
+
     status = Status()
     context = @tfcall(:TFE_NewContext, Ptr{Cvoid}, (Ptr{Cvoid}, Ptr{Cvoid}), options, status)
     check_status(status)
@@ -312,7 +314,8 @@ end
 
 Base.length(t::TensorHandle) = item(Ops.size(t))
 
-Base.eltype(::Type{TensorHandle}) = Float64 # temp hack
+Base.IteratorEltype(::Type{TensorHandle}) = Base.EltypeUnknown() # temp hack
+Base.eltype(::Type{TensorHandle}) = Any
 Base.collect(t::TensorHandle) = Array(t)
 Base.iterate(t::TensorHandle, args...) = iterate(Array(t), args...)
 Base.zero(t::AbstractTensor) = Ops.zeros_like(t)
