@@ -36,9 +36,9 @@ end
 function with_context(block, ctx)
     push!(global_context, ctx)
     res = block()
+    # This assumes the block doesn't adjust the context. We should pop explicitly the pushed context.
     pop!(global_context)
     return res
 end
-
 
 const global_context = ContextStack()

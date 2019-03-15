@@ -3,6 +3,7 @@ using CRC32c
 import ..TensorFlow
 const tf = TensorFlow
 import ..TensorFlow: tensorflow, Graph, get_def_graph, @py_proc
+export FileWriter
 
 struct FileWriter <: tf.Context
     file_handle

@@ -21,12 +21,16 @@ struct TapeContext <: Context
     tape::Union{Tape, Nothing}
 end
 
-function set_tape(new_tape=nothing)
-    if new_tape === nothing
-        new_tape = Tape()
-    end
+create_tape() = set_tape(Tape())
+
+function set_tape(new_tape)
     push!(global_context, TapeContext(new_tape))
     return new_tape
+end
+
+function with_tape(block, tape=Tape())
+    ctx = TapeContext(tape)
+    with_context(block, ctx)
 end
 
 function get_tape()

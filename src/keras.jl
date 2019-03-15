@@ -94,7 +94,7 @@ optimizier_step(g::SGD, value, grads) = inplace_sub(value, g.lr .* grads)
 function fit(m::Sequential, x, y; n_epochs=1, batch_size=nothing)
     optimizer = m.optimizer
     for epoch in 1:n_epochs
-        tape = set_tape()
+        tape = create_tape()
         y_predicted = x
         for layer in m.layers
             y_predicted = forward(layer, y_predicted)

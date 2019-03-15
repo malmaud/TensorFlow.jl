@@ -124,7 +124,14 @@ Ops,
 slice,
 import_op,
 @tfimport,
-tf_versioninfo
+tf_versioninfo,
+copy_to_device,
+enable_eager_execution,
+EagerTensor,
+summary,
+create_tape,
+set_tape,
+with_tape
 
 
 using Distributed
