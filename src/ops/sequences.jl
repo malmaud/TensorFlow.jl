@@ -109,6 +109,10 @@ end
     Ops.reverse_v2(x, indices; kwargs...)
 end
 
+@op function Base.reverse(x::AbstractTensor; dims=0, kwargs...)
+    reverse(x, [dims]; kwargs...)
+end
+
 @op function Base.fill(n::AbstractTensor, dims::Tuple{Vararg{Int64,N}} where N; kwargs...)
     invoke(fill, Tuple{AbstractTensor,Any}, n, dims; kwargs...)
 end

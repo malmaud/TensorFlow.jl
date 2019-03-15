@@ -381,7 +381,7 @@ Returns:
     with_op_name(name, "Transpose") do
         if perm === nothing
             r = range(constant(0), LinearAlgebra.rank(n)-1)
-            perm = reverse(r, [0])
+            perm = reverse(r)
         end
         result = Ops.transpose(n, perm)
     end
