@@ -158,20 +158,6 @@ function execute(op::EagerOp)
     return handles
 end
 
-function test_eager()
-    ctx = EagerContext()
-    h1 = EagerTensor(RawTensor([1,2]))
-    h2 = EagerTensor(RawTensor([3,4]))
-    op = EagerOp(ctx, "Add")
-    add_input(op, h1)
-    add_input(op, h2)
-    dtype = data_type(h1)
-    op["T"] = dtype
-    res = execute(op)
-    return res[1]
-    # return resolve(res[1])
-end
-
 function setindex!(op::EagerOp, tensor::RawTensor, attr_name)
     status = Status()
     @tfcall(:TFE_OpSetAttrTensor, Cvoid, (Ptr{Cvoid}, Cstring, Ptr{Cvoid}, Ptr{Cvoid}), op, attr_name, tensor, status)

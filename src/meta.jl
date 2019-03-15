@@ -170,7 +170,3 @@ macro tf(ex)
         end
     end |> esc
 end
-
-macro scalar_summary(f)
-    @capture(f, funcname(args__; kwargs__))
-end
