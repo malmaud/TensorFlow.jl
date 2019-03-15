@@ -74,9 +74,7 @@ function add(m::Sequential, layer)
     push!(m.attrs["layers"], layer)
 end
 
-function forward(d::Dense, x)
-    Ops.bias_add(x*d.weights, d.bias)
-end
+forward(d::Dense, x) = Ops.bias_add(x*d.weights, d.bias)
 
 function forward(m::Sequential, x)
     for layer in m.attrs["layers"]
@@ -85,9 +83,7 @@ function forward(m::Sequential, x)
     return x
 end
 
-function mse(y, y_target)
-    return mean((y .- y_target) .^ 2)
-end
+mse(y, y_target) = mean((y .- y_target) .^ 2)
 
 function set_trainable(m::Sequential, tensor)
     push!(m.attrs["trainable"], tensor)
@@ -98,9 +94,7 @@ function compile(m::Sequential; optimizer=nothing, loss=nothing)
     m.attrs["loss"] = loss
 end
 
-function optimizier_step(g::SGD, value, grads)
-    inplace_sub(value, g.lr .* grads)
-end
+optimizier_step(g::SGD, value, grads) = inplace_sub(value, g.lr .* grads)
 
 function fit(m::Sequential, x, y; n_epochs=1, batch_size=nothing)
     optimizer = m.attrs["optimizer"]

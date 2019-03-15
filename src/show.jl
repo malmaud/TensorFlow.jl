@@ -41,8 +41,7 @@ function Base.show(io::IO, t::RawTensor)
 end
 
 function Base.show(io::IO, t::TensorHandle)
-    raw_tensor = resolve(t)
-    jl_array = convert(Array, raw_tensor)
+    jl_array = convert(Array, t)
     ptr = pointer_from_objref(t)
     print(io, "Tensor<$ptr>($(jl_array))")
 end

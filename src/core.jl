@@ -1223,16 +1223,10 @@ Represents the output of an operation in the computation graph
     value_index::Int
 end
 
-get_graph(t::AbstractTensor) = Tensor(t).op.graph
-
-node_name(t::AbstractTensor) = (node_name(Tensor(t).op), Tensor(t).value_index)
-
 function Tensor(op::Operation, value_index::Int)
     base_tensor = Tensor{Any}(op, value_index)
     Tensor{get_output_type(base_tensor)}(op, value_index)
 end
-
-# Tensor constructors
 
 Tensor(op::Operation) = Tensor(op, 1)
 
@@ -1249,6 +1243,9 @@ Base.convert(::Type{Tensor{Any}}, value::Tensor{R}) where {R} = value
 
 Base.convert(::Type{Tensor{T}}, value) where {T} =  convert(Tensor{T}, constant(value))
 
+get_graph(t::AbstractTensor) = Tensor(t).op.graph
+
+node_name(t::AbstractTensor) = (node_name(Tensor(t).op), Tensor(t).value_index)
 
 function operation_output_type(port::Port)
     @tfcall(:TF_OperationOutputType, TF_DataType, (Port,), port)

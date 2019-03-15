@@ -1,7 +1,7 @@
 using MacroTools
 import MacroTools: splitdef, combinedef
 
-mutable struct TapeNode
+struct TapeNode
     op::Function
     args::Vector
     results::Vector

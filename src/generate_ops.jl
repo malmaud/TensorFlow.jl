@@ -92,7 +92,7 @@ function to_function(op::tensorflow.OpDef)
     end
     for (input_idx, input) in enumerate(op.input_arg)
         sym = inputs[input_idx]
-        convert_target = (tf.Tensor{Any})
+        convert_target = tf.Tensor{Any}
 
         # Heuristic for when 1-based conversion is necessary
         # Generally, you can tell by the name of the type attribute.
@@ -117,7 +117,7 @@ function to_function(op::tensorflow.OpDef)
             end
         end
         if input._type > 0 && haskey(proto_type_map, input._type)
-            convert_target = (tf.Tensor{(proto_type_map[input._type])})
+            convert_target = tf.Tensor{(proto_type_map[input._type])}
         end
         convert_expr = if isempty(input.number_attr) && isempty(input.type_list_attr)  # Scalar input
             :($sym = convert($(convert_target), $sym))
@@ -140,7 +140,6 @@ function to_function(op::tensorflow.OpDef)
             tf.add_input(desc, $(inputs[input_idx]))
         end)
     end
-    eager_input_block = input_block
 
     kwargs = Expr(:parameters)
     push!(kwargs.args, Expr(:kw, :name, nothing))
@@ -251,7 +250,7 @@ function to_function(op::tensorflow.OpDef)
             desc = tf.EagerOp($(op.name))
             # $convert_block
             $(eager_convert_block...)
-            $eager_input_block
+            $input_block
             $attr_block
             $(t_block...)
             res = tf.execute(desc)
@@ -329,7 +328,6 @@ function stringify_func(opfunc::OpFunc)
     s = string(expr)
     docstring = replace(opfunc.docstring, "\$" => "")
     doc_line = "\"\"\"\n$(docstring)\n\"\"\""
-    # "$doc_line\n$s\n$doc_line\n$(string(opfunc.eager_expr))\n"
     "$doc_line\n$s\n"
 end
 

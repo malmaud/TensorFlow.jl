@@ -204,7 +204,7 @@ for reduction in [:sum, :prod, :min, :max, :all, :any, :mean]
         end
         if in_eager_mode()
             if axis === nothing
-                n_value = Array(n)  # TODO use shape functions instead
+                n_value = convert(Array, n)  # TODO use shape functions instead
                 num_axis = length(size(n_value))
                 axis = Ops.range(constant(0), constant(num_axis), constant(1))
                 fn = Ops.$reduction

@@ -1,12 +1,12 @@
-mutable struct EagerContext <: Context
-    ptr::Ptr{Cvoid}
-end
-
 @enum PlacementPolicy begin
     PLACEMENT_EXPLICIT=0
     PLACEMENT_WARN=1
     PLACEMENT_SILENT=2
     PLACEMENT_SILENT_FOR_INT32=3
+end
+
+mutable struct EagerContext <: Context
+    ptr::Ptr{Cvoid}
 end
 
 function EagerContext(;async=false, placement_policy=nothing)
@@ -44,21 +44,17 @@ end
 
 mutable struct TensorHandle <: AbstractTensor{Any}
     ptr::Ptr{Cvoid}
+end
 
-    function TensorHandle(tensor::RawTensor)
-        status = Status()
-        ptr = @tfcall(:TFE_NewTensorHandle, Ptr{Cvoid}, (Ptr{Cvoid}, Ptr{Cvoid}), tensor.ptr, status)
-        check_status(status)
-        this = new(ptr)
-        finalizer(this) do self
-            @tfcall(:TFE_DeleteTensorHandle, Cvoid, (Ptr{Cvoid},), self.ptr)
-        end
-        return this
+function TensorHandle(tensor::RawTensor)
+    status = Status()
+    ptr = @tfcall(:TFE_NewTensorHandle, Ptr{Cvoid}, (Ptr{Cvoid}, Ptr{Cvoid}), tensor.ptr, status)
+    check_status(status)
+    this = TensorHandle(ptr)
+    finalizer(this) do self
+        @tfcall(:TFE_DeleteTensorHandle, Cvoid, (Ptr{Cvoid},), self.ptr)
     end
-
-    function TensorHandle()
-        return new()
-    end
+    return this
 end
 
 EagerTensor(value) = TensorHandle(RawTensor(value))
@@ -99,9 +95,7 @@ function resolve(h::TensorHandle)
     return tensor
 end
 
-function Base.Array(h::TensorHandle)
-    convert(Array, resolve(h))
-end
+Base.convert(::Type{Array}, h::TensorHandle) = convert(Array, resolve(h))
 
 mutable struct EagerOp
     ptr::Ptr{Cvoid}
@@ -120,12 +114,6 @@ function EagerOp(ctx::EagerContext, op_name)
 end
 
 function EagerOp(op_name)
-    if get_eager_context() === nothing
-        # ctx = Context()
-        # ctx.attrs["eager_context"] = EagerContext()
-        # push!(global_context, ctx)
-        push!(global_context, EagerContext())
-    end
     ctx = get_eager_context()
     status = Status()
     ptr = @tfcall(:TFE_NewOp, Ptr{Cvoid}, (Ptr{Cvoid}, Cstring, Ptr{Cvoid}), ctx, op_name, status)
@@ -155,7 +143,7 @@ end
 function execute(op::EagerOp)
     op_desc = get_op_def(op.op_name)
     n_outputs = length(op_desc.output_arg)
-    handles = [TensorHandle() for _ in 1:n_outputs]
+    handles = [TensorHandle(C_NULL) for _ in 1:n_outputs]
     ptrs = [Ptr{Cvoid}(0) for _ in 1:n_outputs]
     num_ret = Ref{Cint}(n_outputs)
     status = Status()
@@ -298,18 +286,26 @@ function get_device(op::EagerOp)
     return String(str)
 end
 
+
+"""
+    set_xla_compilation(op::EagerOp, enable::Bool)
+
+When 'enable' is 'true', and if TensorFlow is build with XLA support, a subsequent
+'execute' call on `op` will run the op via XLA.
+
+If the library is not built with XLA support, this call is a no-op.
+"""
 function set_xla_compilation(op::EagerOp, enable)
     @tfcall(:TFE_OpSetXLACompilation, Ptr{Cvoid}, (Ptr{Cvoid}, Cuchar), op, enable)
-    return enable
 end
 
 Base.convert(::Type{TensorHandle}, h::TensorHandle) = h
 Base.convert(::Type{TensorHandle}, h) = constant(h)
 
 function item(t::TensorHandle)
-    x = Array(t)
+    x = convert(Array, t)
     if length(x) != 1
-        throw(ErrorException("item can only be called on scalar tensors"))
+        throw(DimensionMismatch("item can only be called on scalar tensors"))
     end
     return x[1]
 end
@@ -354,5 +350,10 @@ function in_eager_mode()
 end
 
 function get_eager_context()
-    return context_value(EagerContext)
+    ctx = context_value(EagerContext)
+    if ctx === nothing
+        ctx = EagerContext()
+        push!(global_context, ctx)
+    end
+    return ctx
 end
