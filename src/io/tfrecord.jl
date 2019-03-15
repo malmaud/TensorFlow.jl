@@ -22,7 +22,7 @@ Opens a TensorFlow record writer.
 Records will be written to the file at the given path.
 """
 function RecordWriter(path::AbstractString)
-    pyo = @tf.py_proc py_tf[].python_io.TFRecordWriter($path)
+    pyo = @tf.py_proc py_tf[][:python_io][:TFRecordWriter]($path)
     RecordWriter(pyo)
 end
 
@@ -33,7 +33,7 @@ Writes a record `msg` to the TensorFlow writer `writer`. Tries to convert
 the msg to `Vector{UInt8}` before writing.
 """
 function Base.write(writer::RecordWriter, msg::Vector{UInt8})
-    fetch(@tf.py_proc $(writer.pyo).write(py_bytes($msg)))
+    fetch(@tf.py_proc $(writer.pyo)[:write](py_bytes($msg)))
 end
 
 Base.write(writer::RecordWriter, s::AbstractString) = write(writer, Vector{UInt8}(s))
@@ -45,7 +45,7 @@ function RecordWriter(f::Function, path)
 end
 
 function Base.close(writer::RecordWriter)
-    fetch(@tf.py_proc $(writer.pyo).close())
+    fetch(@tf.py_proc $(writer.pyo)[:close]())
 end
 
 struct RecordIterator
@@ -59,17 +59,17 @@ Returns a Julia iterator that returns the records in the TF Record file
 at `path` as `Vector{UInt8}` objects.
 """
 function RecordIterator(path::AbstractString)
-    pyo = @tf.py_proc py_tf[].python_io.tf_record_iterator($path)
+    pyo = @tf.py_proc py_tf[][:python_io][:tf_record_iterator]($path)
     RecordIterator(pyo)
 end
 
 function _next(iter::RecordIterator)
     try
         ans=@static if PyCall.pyversion >= v"3.0.0"
-            fetch(@tf.py_proc $(iter.pyo).__next__())
+            fetch(@tf.py_proc $(iter.pyo)[:__next__]())
         else
             #Python 2
-            fetch(@tf.py_proc $(iter.pyo).next())
+            fetch(@tf.py_proc $(iter.pyo)[:next]())
         end
         Vector{UInt8}(ans)
     catch err
