@@ -30,10 +30,13 @@ macro callable(f)
 end
 
 @callable mutable struct Sequential <: Model
-    attrs::Dict
+    layers::Vector{Layer}
+    loss  # TODO constrain these fields more
+    optimizer
+    trainable::Set
 end
 
-@callable mutable struct Dense <: Layer
+@callable struct Dense <: Layer
     weights::EagerTensor
     bias::EagerTensor
 end
@@ -56,28 +59,20 @@ end
 
 SGD(;lr=1e-3)= SGD(convert(EagerTensor, lr))
 
-function Sequential()
-    d = Dict()
-    d["trainable"] = Set()   
-    d["layers"]  = []
-    Sequential(d)
-end
-
+Sequential() = Sequential([], nothing, nothing, Set())
 
 function add(m::Sequential, d::Dense)
     set_trainable(m, d.weights)
     set_trainable(m, d.bias)
-    push!(m.attrs["layers"], d)
+    push!(m.layers, d)
 end
 
-function add(m::Sequential, layer)
-    push!(m.attrs["layers"], layer)
-end
+add(m::Sequential, layer) = push!(m.layers, layer)
 
 forward(d::Dense, x) = Ops.bias_add(x*d.weights, d.bias)
 
 function forward(m::Sequential, x)
-    for layer in m.attrs["layers"]
+    for layer in m.layers
         x = forward(layer, x)
     end
     return x
@@ -86,27 +81,27 @@ end
 mse(y, y_target) = mean((y .- y_target) .^ 2)
 
 function set_trainable(m::Sequential, tensor)
-    push!(m.attrs["trainable"], tensor)
+    push!(m.trainable, tensor)
 end
 
 function compile(m::Sequential; optimizer=nothing, loss=nothing)
-    m.attrs["optimizer"] = optimizer
-    m.attrs["loss"] = loss
+    m.optimizer = optimizer
+    m.loss = loss
 end
 
 optimizier_step(g::SGD, value, grads) = inplace_sub(value, g.lr .* grads)
 
 function fit(m::Sequential, x, y; n_epochs=1, batch_size=nothing)
-    optimizer = m.attrs["optimizer"]
+    optimizer = m.optimizer
     for epoch in 1:n_epochs
         tape = set_tape()
         y_predicted = x
-        for layer in m.attrs["layers"]
+        for layer in m.layers
             y_predicted = forward(layer, y_predicted)
         end
-        loss = m.attrs["loss"](y, y_predicted)
+        loss = m.loss(y, y_predicted)
         @info "" epoch loss=item(loss)
-        values = collect(m.attrs["trainable"])
+        values = collect(m.trainable)
         grads = grad(tape, loss, values)
         for (value, g) in zip(values, grads)
             if g === nothing
