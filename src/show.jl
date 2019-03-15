@@ -40,7 +40,7 @@ function Base.show(io::IO, t::RawTensor)
     end
 end
 
-function Base.show(io::IO, t::TensorHandle)
+function Base.show(io::IO, t::EagerTensor)
     jl_array = convert(Array, t)
     ptr = pointer_from_objref(t)
     print(io, "EagerTensor<$ptr>($(jl_array))")

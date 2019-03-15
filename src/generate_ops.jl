@@ -241,7 +241,7 @@ function to_function(op::tensorflow.OpDef)
 
     eager_convert_block = []
     for input in inputs[2:end]
-        c = :($input = convert(tf.TensorHandle, $input))
+        c = :($input = convert(tf.EagerTensor, $input))
         push!(eager_convert_block, c)
     end
 

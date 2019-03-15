@@ -34,8 +34,8 @@ end
 end
 
 @callable mutable struct Dense <: Layer
-    weights::TensorHandle
-    bias::TensorHandle
+    weights::EagerTensor
+    bias::EagerTensor
 end
 
 function Dense(in_size::Integer, out_size::Integer)
@@ -51,10 +51,10 @@ function forward(r::Relu, x)
 end
 
 struct SGD
-    lr::TensorHandle
+    lr::EagerTensor
 end
 
-SGD(;lr=1e-3)= SGD(convert(TensorHandle, lr))
+SGD(;lr=1e-3)= SGD(convert(EagerTensor, lr))
 
 function Sequential()
     d = Dict()

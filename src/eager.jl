@@ -44,23 +44,24 @@ function DeviceList(ctx::EagerContext)
     return this
 end
 
-mutable struct TensorHandle <: AbstractTensor{Any}
+mutable struct EagerTensor <: AbstractTensor{Any}
     ptr::Ptr{Cvoid}
+    EagerTensor(ptr::Ptr) = new(ptr)
 end
 
-function TensorHandle(tensor::RawTensor)
+function EagerTensor(tensor::RawTensor)
     status = Status()
     ptr = @tfcall(:TFE_NewTensorHandle, Ptr{Cvoid}, (Ptr{Cvoid}, Ptr{Cvoid}), tensor.ptr, status)
     check_status(status)
-    this = TensorHandle(ptr)
+    this = EagerTensor(ptr)
     finalizer(this) do self
         @tfcall(:TFE_DeleteTensorHandle, Cvoid, (Ptr{Cvoid},), self.ptr)
     end
     return this
 end
 
-EagerTensor(value) = TensorHandle(RawTensor(value))
-Base.unsafe_convert(::Type{Ptr{Cvoid}}, h::TensorHandle) = h.ptr
+EagerTensor(value) = EagerTensor(RawTensor(value))
+Base.unsafe_convert(::Type{Ptr{Cvoid}}, h::EagerTensor) = h.ptr
 
 function async_wait(ctx::EagerContext)
     status = Status()
@@ -68,14 +69,14 @@ function async_wait(ctx::EagerContext)
     check_status(status)
 end
 
-function device_name(h::TensorHandle)
+function device_name(h::EagerTensor)
     status = Status()
     c_name = @tfcall(:TFE_TensorHandleDeviceName, Cstring, (Ptr{Cvoid}, Ptr{Cvoid}), h, status)
     check_status(status)
     return unsafe_string(c_name)
 end
 
-function backing_device_name(h::TensorHandle)
+function backing_device_name(h::EagerTensor)
     status = Status()
     c_name = @tfcall(:TFE_TensorHandleBackingDeviceName, Cstring, (Ptr{Cvoid}, Ptr{Cvoid}), h, status)
     check_status(status)
@@ -83,13 +84,13 @@ function backing_device_name(h::TensorHandle)
 end
 
 
-function data_type(h::TensorHandle)
+function data_type(h::EagerTensor)
     return @tfcall(:TFE_TensorHandleDataType, TF_DataType, (Ptr{Cvoid},), h) |> tf_to_jl_type
 end
 
-Base.eltype(h::TensorHandle)  = data_type(h)
+Base.eltype(h::EagerTensor)  = data_type(h)
 
-function resolve(h::TensorHandle)
+function resolve(h::EagerTensor)
     status = Status()
     ptr = @tfcall(:TFE_TensorHandleResolve, Ptr{Cvoid}, (Ptr{Cvoid}, Ptr{Cvoid}), h, status)
     check_status(status)
@@ -97,7 +98,7 @@ function resolve(h::TensorHandle)
     return tensor
 end
 
-Base.convert(::Type{Array}, h::TensorHandle) = convert(Array, resolve(h))
+Base.convert(::Type{Array}, h::EagerTensor) = convert(Array, resolve(h))
 
 mutable struct EagerOp
     ptr::Ptr{Cvoid}
@@ -129,14 +130,14 @@ end
 
 Base.unsafe_convert(::Type{Ptr{Cvoid}}, op::EagerOp) = op.ptr
 
-function add_input(op::EagerOp, h::TensorHandle)
+function add_input(op::EagerOp, h::EagerTensor)
     status = Status()
     @tfcall(:TFE_OpAddInput, Cvoid, (Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}), op, h, status)
     check_status(status)
     return
 end
 
-function add_input(op::EagerOp, hs::Vector{TensorHandle})
+function add_input(op::EagerOp, hs::Vector{EagerTensor})
     for h in hs
         add_input(op, h)
     end
@@ -145,7 +146,7 @@ end
 function execute(op::EagerOp)
     op_desc = get_op_def(op.op_name)
     n_outputs = length(op_desc.output_arg)
-    handles = [TensorHandle(C_NULL) for _ in 1:n_outputs]
+    handles = [EagerTensor(C_NULL) for _ in 1:n_outputs]
     ptrs = [Ptr{Cvoid}(0) for _ in 1:n_outputs]
     num_ret = Ref{Cint}(n_outputs)
     status = Status()
@@ -159,8 +160,8 @@ end
 
 function test_eager()
     ctx = EagerContext()
-    h1 = TensorHandle(RawTensor([1,2]))
-    h2 = TensorHandle(RawTensor([3,4]))
+    h1 = EagerTensor(RawTensor([1,2]))
+    h2 = EagerTensor(RawTensor([3,4]))
     op = EagerOp(ctx, "Add")
     add_input(op, h1)
     add_input(op, h2)
@@ -236,14 +237,14 @@ function clear_caches(ctx::EagerContext)
     @tfcall(:TFE_ContextClearCaches, Cvoid, (Ptr{Cvoid},), ctx)
 end
 
-function num_dims(h::TensorHandle)
+function num_dims(h::EagerTensor)
     status = Status()
     res = @tfcall(:TFE_TensorHandleNumDims, Cint, (Ptr{Cvoid}, Ptr{Cvoid}), h, status)
     check_status(status)
     Int(res)
 end
 
-function num_elements(h::TensorHandle)
+function num_elements(h::EagerTensor)
     status = Status()
     res = @tfcall(:TFE_TensorHandleNumElements, Int64, (Ptr{Cvoid}, Ptr{Cvoid}), h, status)
     check_status(status)
@@ -251,24 +252,24 @@ function num_elements(h::TensorHandle)
 end
 
 
-function dim(h::TensorHandle, dim_index)
+function dim(h::EagerTensor, dim_index)
     status = Status()
     res = @tfcall(:TFE_TensorHandleDim, Int64, (Ptr{Cvoid}, Cint, Ptr{Cvoid}), h, dim_index-1, status)
     check_status(status)
     Int(res)
 end
 
-function copy_sharing_tensor(h::TensorHandle)
+function copy_sharing_tensor(h::EagerTensor)
     status = Status()
-    res = TensorHandle()
+    res = EagerTensor()
     res.ptr = @tfcall(:TFE_TensorHandleCopySharingTensor, Ptr{Cvoid}, (Ptr{Cvoid}, Ptr{Cvoid}), h, status)
     check_status(status)
     return res
 end
 
-function copy_to_device(ctx::EagerContext, h::TensorHandle, device_name)
+function copy_to_device(ctx::EagerContext, h::EagerTensor, device_name)
     status = Status()
-    res = TensorHandle()
+    res = EagerTensor()
     res.ptr = @tfcall(:TFE_TensorHandleCopyToDevice, Ptr{Cvoid}, (Ptr{Cvoid}, Ptr{Cvoid}, Cstring, Ptr{Cvoid}), h, ctx, device_name, status)
     check_status(status)
     return res
@@ -301,10 +302,10 @@ function set_xla_compilation(op::EagerOp, enable)
     @tfcall(:TFE_OpSetXLACompilation, Ptr{Cvoid}, (Ptr{Cvoid}, Cuchar), op, enable)
 end
 
-Base.convert(::Type{TensorHandle}, h::TensorHandle) = h
-Base.convert(::Type{TensorHandle}, h) = constant(h)
+Base.convert(::Type{EagerTensor}, h::EagerTensor) = h
+Base.convert(::Type{EagerTensor}, h) = constant(h)
 
-function item(t::TensorHandle)
+function item(t::EagerTensor)
     x = convert(Array, t)
     if length(x) != 1
         throw(DimensionMismatch("item can only be called on scalar tensors"))
@@ -312,20 +313,20 @@ function item(t::TensorHandle)
     return x[1]
 end
 
-Base.length(t::TensorHandle) = item(Ops.size(t))
+Base.length(t::EagerTensor) = item(Ops.size(t))
 
-Base.IteratorEltype(::Type{TensorHandle}) = Base.EltypeUnknown() # temp hack
-Base.eltype(::Type{TensorHandle}) = Any
-Base.collect(t::TensorHandle) = Array(t)
-Base.iterate(t::TensorHandle, args...) = iterate(Array(t), args...)
+Base.IteratorEltype(::Type{EagerTensor}) = Base.EltypeUnknown() # temp hack
+Base.eltype(::Type{EagerTensor}) = Any
+Base.collect(t::EagerTensor) = Array(t)
+Base.iterate(t::EagerTensor, args...) = iterate(Array(t), args...)
 Base.zero(t::AbstractTensor) = Ops.zeros_like(t)
 Base.ones(t::AbstractTensor) = Ops.ones_like(t)
 
-function Base.:*(t1::TensorHandle, t2::Number)
+function Base.:*(t1::EagerTensor, t2::Number)
     return t1 .* t2
 end
 
-function Base.:*(t1::Number, t2::TensorHandle)
+function Base.:*(t1::Number, t2::EagerTensor)
     return t1 .* t2
 end
 

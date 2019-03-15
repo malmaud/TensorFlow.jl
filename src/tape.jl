@@ -11,11 +11,11 @@ end
 TapeNode(op, args, results; kwargs...) =  TapeNode(op, args, results, kwargs)
 
 mutable struct Tape
-    nodes::Dict{TensorHandle, TapeNode}
+    nodes::Dict{EagerTensor, TapeNode}
     attrs::Dict
 end
 
-Tape(;kwargs...) = Tape(Dict{TensorHandle, TapeNode}(), Dict(kwargs...))
+Tape(;kwargs...) = Tape(Dict{EagerTensor, TapeNode}(), Dict(kwargs...))
 
 struct TapeContext <: Context
     tape::Union{Tape, Nothing}
