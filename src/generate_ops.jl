@@ -218,7 +218,7 @@ function to_function(op::tensorflow.OpDef)
     graph_name = Symbol("$(jl_name)_graph")
     eager_name = Symbol("$(jl_name)_eager")
     expr = quote
-        @tf.op function $graph_name($(inputs...))
+        function $graph_name($(inputs...))
             local desc
             tf.with_op_name(name, $(op.name)) do
                 desc = tf.NodeDescription($(op.name))
@@ -259,7 +259,7 @@ function to_function(op::tensorflow.OpDef)
     end
     call_args = [call_kw_params; inputs[2:end]]
     dispatch_expr = quote
-        function $jl_name($(inputs...))
+        @tf.op function $jl_name($(inputs...))
             if tf.in_eager_mode()
                 $(eager_name)($(call_args...))
             else
