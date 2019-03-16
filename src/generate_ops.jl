@@ -292,8 +292,6 @@ function to_function(op::tensorflow.OpDef)
     sig = "$jl_name($(posargs_str)$(kwargs_str))"
     doc_str = string("     ", sig, "\n\n",
                      escape_string(op.summary)) #TODO Workout how to get descriptions for docstrings
-    expr = unblock(MacroTools.flatten(MacroTools.striplines(expr)))
-    eager_expr = unblock(MacroTools.flatten(MacroTools.striplines(eager_expr)))
     OpFunc(expr, eager_expr, dispatch_expr, doc_str, jl_name)
 end
 
@@ -311,7 +309,9 @@ function stringify_func(opfunc::OpFunc)
         $(opfunc.eager_expr)
         $(opfunc.dispatch_expr)
     end
-    expr = unblock(MacroTools.flatten(MacroTools.striplines(expr)))
+    # MacroTools.flatten seems to have a bug that's causins an invalid expression for 'NoOp'
+    # expr = (MacroTools.flatten(MacroTools.striplines(expr)))
+    expr = MacroTools.striplines(expr)
 
     s = string(expr)
     docstring = replace(opfunc.docstring, "\$" => "")
