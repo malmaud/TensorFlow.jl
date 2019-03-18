@@ -36,6 +36,25 @@ import .rnn_cell:  zero_state, output_size, state_size
     conv2d(input, filter; padding=padding, strides=strides, kwargs...)
 end
 
+@tf.op function conv1d(input, filter_, strides_::Int64, padding::String; data_format="NHWC", kwargs...)
+    spatial_start_dim = 0
+    if data_format=="NHWC"
+        strides_ = [1,1,strides_,1]
+        spatial_start_dim = 2
+    elseif data_format == "NCHW" || data_format == "NCW"
+        data_format = "NCHW" 
+        spatial_start_dim = 3
+        strides_ = [1,1,1,strides_]
+    else
+        @error "data_format must be NHWC or NCHW or NCW"
+    end
+    input = Ops.expand_dims(input, spatial_start_dim)
+    filter_ = Ops.expand_dims(filter_, 1)
+    result = Ops.conv2d(input, filter_; strides = strides_, padding = padding, data_format=data_format, kwargs...)
+    result = Ops.squeeze(result, squeeze_dims=[spatial_start_dim-1])
+    return result
+end
+
 # Same for max pool
 @tf.op function max_pool(input, ksize, strides, padding; kwargs...)
     max_pool(input; ksize=ksize, strides=strides, padding=padding, kwargs...)
