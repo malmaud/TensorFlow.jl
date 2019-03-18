@@ -37,7 +37,7 @@ function FileWriter(log_dir::AbstractString; graph=nothing)
     local path
     for i in Iterators.countfrom(1)
         path = joinpath(log_dir, "events.out.tfevents.$i")
-        isfile(path) || break
+        ispath(path) || break
     end
     writer = FileWriter(open(path, "w"), String(log_dir))
     if graph !== nothing
