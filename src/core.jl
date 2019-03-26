@@ -507,20 +507,20 @@ end
 mutable struct DeviceList
     ptr::Ptr{Cvoid}
     count::Int
+end
 
-    function DeviceList(s::Session)
-        status = Status()
-        ptr = @tfcall(:TF_SessionListDevices, Ptr{Cvoid},
-            (Ptr{Cvoid}, Ptr{Cvoid}), s, status)
-        check_status(status)
-        count = @tfcall(:TF_DeviceListCount, Cint, (Ptr{Cvoid},),
-            ptr)
-        this = new(ptr, count)
-        finalizer(this) do self
-            close(self)
-        end
-        this
+function DeviceList(s::Session)
+    status = Status()
+    ptr = @tfcall(:TF_SessionListDevices, Ptr{Cvoid},
+        (Ptr{Cvoid}, Ptr{Cvoid}), s, status)
+    check_status(status)
+    count = @tfcall(:TF_DeviceListCount, Cint, (Ptr{Cvoid},),
+        ptr)
+    this = DeviceList(ptr, count)
+    finalizer(this) do self
+        close(self)
     end
+    this
 end
 
 struct DeviceInfo
@@ -663,6 +663,8 @@ RawTensor(data::AbstractArray) = RawTensor(collect(data))
 
 RawTensor(t::RawTensor) = t
 
+Base.unsafe_convert(::Type{Ptr{Cvoid}}, t::RawTensor) = t.ptr
+
 function varint_encode(b::IO, n::Integer)
     while n ≥ 2^7
         write(b, UInt8(0b10000000 | (n & 0b1111111)))
@@ -803,7 +805,7 @@ function Base.sizeof(t::RawTensor)
     @tfcall(:TF_TensorByteSize, Csize_t, (Ptr{Cvoid},), t.ptr) |> Int
 end
 
-function set_device(node_desc, device::String)
+function set_device(node_desc, device)
     @tfcall(:TF_SetDevice, Cvoid,
         (Ptr{Cvoid}, Cstring),
         node_desc.ptr, device)
@@ -1168,7 +1170,10 @@ function load_proto(value::tensorflow.AttrValue)
         load_proto(value.list)
     elseif has_field(value, :_type)
         type_ = value._type
-        proto_type_map[type_]
+        get(proto_type_map, type_) do
+            @warn "Unrecognized type. Defaulting to Float32." type_
+            Float32
+        end
     end
 end
 
@@ -1218,10 +1223,6 @@ Represents the output of an operation in the computation graph
     value_index::Int
 end
 
-get_graph(t::AbstractTensor) = Tensor(t).op.graph
-
-node_name(t::AbstractTensor) = (node_name(Tensor(t).op), Tensor(t).value_index)
-
 function Tensor(op::Operation, value_index::Int)
     base_tensor = Tensor{Any}(op, value_index)
     Tensor{get_output_type(base_tensor)}(op, value_index)
@@ -1241,6 +1242,10 @@ Base.convert(::Type{Tensor{T}}, value::Tensor{T}) where {T} = value
 Base.convert(::Type{Tensor{Any}}, value::Tensor{R}) where {R} = value
 
 Base.convert(::Type{Tensor{T}}, value) where {T} =  convert(Tensor{T}, constant(value))
+
+get_graph(t::AbstractTensor) = Tensor(t).op.graph
+
+node_name(t::AbstractTensor) = (node_name(Tensor(t).op), Tensor(t).value_index)
 
 function operation_output_type(port::Port)
     @tfcall(:TF_OperationOutputType, TF_DataType, (Port,), port)

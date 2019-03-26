@@ -5,9 +5,11 @@ scalar,
 audio,
 histogram,
 merge_all,
-image
+image,
+@scalar
 
 import TensorFlow
+using MacroTools
 const tf = TensorFlow
 
 for (jl_func, op) in [
@@ -16,10 +18,14 @@ for (jl_func, op) in [
     (:histogram, :histogram_summary),
     (:image, :image_summary)
     ]
-    @eval @tf.op function $jl_func(args...; collections=[:Summaries], kwargs...)
+    @eval @tf.op function $jl_func(args...; collections=[:Summaries], step=0, kwargs...)
         res = tf.Ops.$op(args...; kwargs...)
-        foreach(c->tf.add_to_collection(c, res), collections)
-        res
+        if tf.in_eager_mode()
+          tf.summary.record_summary(tf.item(res), step=step)
+        else
+          foreach(c->tf.add_to_collection(c, res), collections)
+          return res
+        end
     end
 
     # Set the documentation of the summary function to the same as the
@@ -47,6 +53,12 @@ Returns:
 function merge_all(key=:Summaries)
     tensors = tf.get_collection(key)
     merge(tensors)
+end
+
+macro scalar(f, args...)
+  quote
+    scalar($(string(f)), $(esc(f)); $(esc.(args)...))
+  end
 end
 
 end

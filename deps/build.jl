@@ -1,8 +1,8 @@
 using PyCall
 using Conda
 
-const cur_version = "1.12.0"
-const cur_py_version = "1.12.0"
+const cur_version = "1.13.1"
+const cur_py_version = "1.12"  # Temporarily downgrade Python version until 1.13.1 is released on Conda
 
 
 ############################

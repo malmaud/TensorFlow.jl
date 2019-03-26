@@ -4,9 +4,12 @@
 ######
 
 using MacroTools
+using Dates
 
 struct OpFunc
     expr::Expr
+    eager_expr::Expr
+    dispatch_expr::Expr
     docstring::String
     name::Symbol
 end
@@ -18,7 +21,7 @@ If `string` is not allowed as a Julia variable identifier, suffix it with a `_`.
 Otherwise, return it unchanged.
 """
 function keyword_escape(s)
-    keywords = ["const", "type"]
+    keywords = ["const", "type", "while", "for", "if"]
     if (s ∈ keywords) || Base.isoperator(Symbol(s))
         s = string(s, "_")
     end
@@ -41,9 +44,9 @@ function opname_to_jlname(name)
         if idx == length(name)
             word_end = true
         else
-            next_char = name[idx+1]
-            if idx < length(name)-1
-                next_next_char = name[idx+2]
+            next_char = name[idx + 1]
+            if idx < length(name) - 1
+                next_next_char = name[idx + 2]
                 if isuppercase(cur_char) && isuppercase(next_char) && islowercase(next_next_char)
                     word_end = true
                 end
@@ -78,7 +81,7 @@ function to_function(op::tensorflow.OpDef)
     inputs = []
     input_block = quote end
     convert_block = quote end
-    type_sets = Dict{String, Vector{Symbol}}()
+    type_sets = Dict{String,Vector{Symbol}}()
     for (i, input) in enumerate(op.input_arg)
         sym = Symbol("$(input.name)_")
         push!(inputs, sym)
@@ -114,14 +117,14 @@ function to_function(op::tensorflow.OpDef)
             end
         end
         if input._type > 0 && haskey(proto_type_map, input._type)
-            convert_target = tf.Tensor{proto_type_map[input._type]}
+            convert_target = tf.Tensor{(proto_type_map[input._type])}
         end
         convert_expr = if isempty(input.number_attr) && isempty(input.type_list_attr)  # Scalar input
-                :($sym=convert($(convert_target), $sym))
-            else  # Array argument
+            :($sym = convert($(convert_target), $sym))
+        else  # Array argument
                 # :($sym=convert.($(convert_target), $sym))
-                :($sym=[convert($(convert_target), x) for x in $sym])
-            end
+            :($sym = [convert($(convert_target), x) for x in $sym])
+        end
         push!(convert_block.args, quote
             $convert_expr
             $diff_expr
@@ -137,6 +140,7 @@ function to_function(op::tensorflow.OpDef)
             tf.add_input(desc, $(inputs[input_idx]))
         end)
     end
+
     kwargs = Expr(:parameters)
     push!(kwargs.args, Expr(:kw, :name, nothing))
     attr_block = quote end
@@ -149,10 +153,10 @@ function to_function(op::tensorflow.OpDef)
         m = match(r"list(\(.*\))|(.*)", attr._type)
         t = m[1] !== nothing ? m[1] : m[2]
 
-        t_map = Dict("int"=>:(Base.Int),
-                     "bool"=>:(Base.Bool),
-                     "tensor"=>:(TensorFlow.RawTensor),
-                     "string"=>:(Base.String))
+        t_map = Dict("int" => :(Base.Int),
+                     "bool" => :(Base.Bool),
+                     "tensor" => :(TensorFlow.RawTensor),
+                     "string" => :(Base.String))
         t_target = get(t_map, t, :(Base.identity))
         if m[1] === nothing
             source = :($(t_target)($name))
@@ -173,6 +177,18 @@ function to_function(op::tensorflow.OpDef)
                 desc[$(attr.name)] = $source
             end
         end)
+    end
+    t_block = []
+    for (i, input_arg) in enumerate(op.input_arg)
+        if has_field(input_arg, :type_attr)
+            type_attr = input_arg.type_attr
+            if length(type_attr) > 0
+                code = quote
+                    desc[$type_attr]  = tf.data_type($(inputs[i]))
+                end
+                push!(t_block, code)
+            end
+        end
     end
     pushfirst!(inputs, kwargs)
     scalar_output = true
@@ -198,8 +214,11 @@ function to_function(op::tensorflow.OpDef)
             out
         end
     end
+    eager_output_block  = scalar_output ? :(return res[1]) : :(return res)
+    graph_name = Symbol("$(jl_name)_graph")
+    eager_name = Symbol("$(jl_name)_eager")
     expr = quote
-        @tf.op function $(jl_name)($(inputs...))
+        function $graph_name($(inputs...))
             local desc
             tf.with_op_name(name, $(op.name)) do
                 desc = tf.NodeDescription($(op.name))
@@ -208,6 +227,44 @@ function to_function(op::tensorflow.OpDef)
                 $attr_block
             end
             $output_block
+        end
+    end
+
+    eager_convert_block = []
+    for input in inputs[2:end]
+        c = :($input = convert(tf.EagerTensor, $input))
+        push!(eager_convert_block, c)
+    end
+
+    eager_expr = quote
+        function $eager_name($(inputs...))
+            desc = tf.EagerOp($(op.name))
+            # $convert_block
+            $(eager_convert_block...)
+            $input_block
+            $attr_block
+            $(t_block...)
+            res = tf.execute(desc)
+            node = tf.TapeNode($jl_name, [$(inputs[2:end]...)], $(inputs[1].args...), res)
+            if length(res) >= 1
+                tf.add_node(res[1], node)
+                $eager_output_block
+            end
+        end
+    end
+
+    call_kw_params = Expr(:parameters)
+    for arg in inputs[1].args
+        push!(call_kw_params.args, Expr(:kw, arg.args[1], arg.args[1]))
+    end
+    call_args = [call_kw_params; inputs[2:end]]
+    dispatch_expr = quote
+        @tf.op function $jl_name($(inputs...))
+            if tf.in_eager_mode()
+                $(eager_name)($(call_args...))
+            else
+                $(graph_name)($(call_args...))
+            end
         end
     end
     posargs_str = join((arg.name for arg in op.input_arg), ", ")
@@ -221,6 +278,9 @@ function to_function(op::tensorflow.OpDef)
         catch err
             default = "?"
         end
+        if default === nothing # Not sure why this is happening. It's happening for dropout
+            default = "?"
+        end
         push!(kwargs_str, "$(arg.name)=$default")
     end
     if isempty(kwargs_str)
@@ -231,10 +291,8 @@ function to_function(op::tensorflow.OpDef)
 
     sig = "$jl_name($(posargs_str)$(kwargs_str))"
     doc_str = string("     ", sig, "\n\n",
-                     escape_string(op.summary)
-                    ) #TODO Workout how to get descriptions for docstrings
-    expr = unblock(MacroTools.flatten(MacroTools.striplines(expr)))
-    OpFunc(expr, doc_str, jl_name)
+                     escape_string(op.summary)) #TODO Workout how to get descriptions for docstrings
+    OpFunc(expr, eager_expr, dispatch_expr, doc_str, jl_name)
 end
 
 """
@@ -246,11 +304,19 @@ parsed by Julia's parser.
 The function is returned with a triple-quoted docstring.
 """
 function stringify_func(opfunc::OpFunc)
-    s = string(opfunc.expr)
-    docstring = replace(opfunc.docstring, "\$", "")
+    expr = quote
+        $(opfunc.expr)
+        $(opfunc.eager_expr)
+        $(opfunc.dispatch_expr)
+    end
+    # MacroTools.flatten seems to have a bug that's causins an invalid expression for 'NoOp'
+    # expr = (MacroTools.flatten(MacroTools.striplines(expr)))
+    expr = MacroTools.striplines(expr)
+
+    s = string(expr)
+    docstring = replace(opfunc.docstring, "\$" => "")
     doc_line = "\"\"\"\n$(docstring)\n\"\"\""
-    lines = []
-    "$doc_line\n$s"
+    "$doc_line\n$s\n"
 end
 
 stringify_func(op::tensorflow.OpDef) = stringify_func(to_function(op))
@@ -279,18 +345,19 @@ function import_ops(op_names)
         module Ops
         import TensorFlow
         const tf = TensorFlow
+        import TensorFlow: Tensor
         """)
         for name in op_names
             op = ops[name]
-            try
+            # try
                 f = to_function(op)
                 s = stringify_func(f)
                 write(ops_file, s)
                 print(ops_file, "\n\n")
-            catch err
-                err_msg = sprint(showerror, err)
-                @warn("Could not import operation $name: $err_msg")
-            end
+            # catch err
+                # err_msg = sprint(showerror, err)
+                # @warn("Could not import operation $name: $err_msg")
+            # end
         end
         write(ops_file, """
         end
@@ -330,7 +397,7 @@ Returns a reference to a Julia function corresponding to the operation.
 function import_op(name)
     jl_name = opname_to_jlname(name)
     mod = TensorFlow.Ops
-    if jl_name ∉ names(mod, all=true)
+    if jl_name ∉ names(mod, all = true)
         ops = Dict(get_all_op_list())
         op = ops[name]
         op_desc = to_function(op)

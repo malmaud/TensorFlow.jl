@@ -4,10 +4,10 @@ import Juno: Tree, Row, fade, interleave
 import Printf
 
 @render Juno.Inline t::Tensor begin
-  s = get_shape(t)
-  shape = s.rank_unknown ? [fade("unknown")] :
-    interleave(map(dim -> ismissing(dim) ? "?" : dim , s.dims), fade("×"))
-  Tree(Row(fade(try string(eltype(t)," ") catch e "" end),
+    s = get_shape(t)
+    shape = s.rank_unknown ? [fade("unknown")] :
+    interleave(map(dim->ismissing(dim) ? "?" : dim, s.dims), fade("×"))
+    Tree(Row(fade(try string(eltype(t), " ") catch e "" end),
            HTML("<span class='constant support type'>Tensor</span> "),
            shape...),
        [Text("name: $(node_name(t.op))"),
@@ -40,12 +40,18 @@ function Base.show(io::IO, t::RawTensor)
     end
 end
 
+function Base.show(io::IO, t::EagerTensor)
+    jl_array = convert(Array, t)
+    ptr = pointer_from_objref(t)
+    print(io, "EagerTensor<$ptr>($(jl_array))")
+end
+
 function Base.show(io::IO, n::Operation)
     print(io, "<Operation '$(node_name(n))'>")
 end
 
 function Base.show(io::IO, t::Tensor{T}) where T
-    @assert(T==eltype(t), "eltype = $(eltype(t)), but Tensor{$(T)})")
+    @assert(T == eltype(t), "eltype = $(eltype(t)), but Tensor{$(T)})")
 
     s = get_shape(t)
     if s.rank_unknown
@@ -165,7 +171,7 @@ function find_tensorboard()
     return path
 end
 
-function get_tensorboard(logdir=nothing)
+function get_tensorboard(logdir = nothing)
     if isdefined(tensorboard, :x)
         port = tensorboard[].port + 1
     else
@@ -209,7 +215,7 @@ function visualize end
 
 @with_def_graph function visualize(g::Graph)
     tensorboard = get_tensorboard()
-    writer = summary.FileWriter(tensorboard.logdir, graph=g)
+    writer = summary.FileWriter(tensorboard.logdir, graph = g)
     visualize(writer)
     close(writer)
 end

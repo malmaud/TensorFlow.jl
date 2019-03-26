@@ -15,7 +15,7 @@ end
 
 convert_eltype(x, dtype) = x
 
-@op function constant(value; dtype=nothing, kwargs...)
+@op function constant(value; dtype = nothing, kwargs...)
     if dtype === nothing
         if isa(value, AbstractString)
             dtype = String
@@ -25,23 +25,27 @@ convert_eltype(x, dtype) = x
     else
         value = convert_eltype(value, dtype)
     end
-    Ops.const_(; value=value, dtype=dtype, kwargs...)
+    if in_eager_mode()
+        EagerTensor(value)
+    else
+        Ops.const_(; value = value, dtype = dtype, kwargs...)
+    end
 end
 
 for f in [:zeros, :ones]
     @eval Base.$f(::Type{Tensor}, args::Integer...) = $f(Tensor{Float32}, args...)
-    @eval Base.$f(::Type{Tensor}, args::NTuple{N, Integer}) where N = $f(Tensor, args...)
+    @eval Base.$f(::Type{Tensor}, args::NTuple{N,Integer}) where N = $f(Tensor, args...)
     @eval Base.$f(::Type{Tensor{T}}, args::Integer...) where {T} = constant($f(T, args...))
-    @eval Base.$f(::Type{Tensor{T}}, args::NTuple{N, Integer}) where {T, N} = constant($f(T, args))
+    @eval Base.$f(::Type{Tensor{T}}, args::NTuple{N,Integer}) where {T,N} = constant($f(T, args))
 end
 
-@op function random_normal(shape; mean=0.0, stddev=1.0, dtype=Float32, name=nothing, kwargs...)
+@op function random_normal(shape; mean = 0.0, stddev = 1.0, dtype = Float32, name = nothing, kwargs...)
     local out
     with_op_name(name, "random_normal") do
         mean = convert(Tensor{dtype}, mean)
         stddev = convert(Tensor{dtype}, stddev)
-        standard = Ops.random_standard_normal(shape; name=name, dtype=dtype, kwargs...)
-        out = standard.*stddev + mean
+        standard = Ops.random_standard_normal(shape; name = name, dtype = dtype, kwargs...)
+        out = standard .* stddev + mean
     end
     out
 end
@@ -63,7 +67,7 @@ Args:
 Returns:
 A `Tensor` of the specified `shape` and `dtype` containing random values.
 """
-@op function random_uniform(shape, minval, maxval; name=nothing, seed=0, dtype=Float32)
+@op function random_uniform(shape, minval, maxval; name = nothing, seed = 0, dtype = Float32)
     local out
     with_op_name(name, "RandomUniformScaled") do
         seed1 = 0
@@ -71,8 +75,8 @@ A `Tensor` of the specified `shape` and `dtype` containing random values.
         seed2 = seed
         minval = convert(Tensor{dtype}, minval)
         maxval = convert(Tensor{dtype}, maxval)
-        r = random_uniform(shape; seed=seed1, seed2=seed2, dtype=dtype, name=name)
-        out = r .* (maxval-minval) + minval
+        r = random_uniform(shape; seed = seed1, seed2 = seed2, dtype = dtype, name = name)
+        out = r .* (maxval - minval) + minval
     end
     out
 end
@@ -82,14 +86,14 @@ end
     Ops.random_shuffle(t; kwargs...)
 end
 
-@op function Base.range(start::AbstractTensor; stop, num=Union{Integer, Nothin}, kwargs...)
+@op function Base.range(start::AbstractTensor; stop, num = Union{Integer,Nothin}, kwargs...)
     Ops.lin_space(start, stop, num; kwargs...)
 end
 
 @op Base.range(start::AbstractTensor, length; kwargs...) = range(start, 1, length; kwargs...)
 
 @op function Base.range(start::AbstractTensor, step, length; kwargs...)
-    Ops.range(start, length+1, step; kwargs...)
+    Ops.range(start, length + 1, step; kwargs...)
 end
 
 @op function Base.fill(n::AbstractTensor, dims; kwargs...) #TODO: I think this is uncallable in 0.5
@@ -105,6 +109,10 @@ end
     Ops.reverse_v2(x, indices; kwargs...)
 end
 
-@op function Base.fill(n::AbstractTensor, dims::Tuple{Vararg{Int64, N}} where N; kwargs...)
-    invoke(fill, Tuple{AbstractTensor, Any}, n, dims; kwargs...)
+@op function Base.reverse(x::AbstractTensor; dims=0, kwargs...)
+    reverse(x, [dims]; kwargs...)
+end
+
+@op function Base.fill(n::AbstractTensor, dims::Tuple{Vararg{Int64,N}} where N; kwargs...)
+    invoke(fill, Tuple{AbstractTensor,Any}, n, dims; kwargs...)
 end

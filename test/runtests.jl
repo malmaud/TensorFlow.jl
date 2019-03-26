@@ -31,8 +31,8 @@ tests = [
 "train.jl",
 "training.jl",
 "transformations.jl",
+"summary_eager.jl"
 ]
-
 
 tf_versioninfo() # Dump out all the info at start of the test, for easy debugging from logs. (also check `tf_versioninfo()` itself works)
 
@@ -42,3 +42,7 @@ for filename in tests
         include(filename)
     end
 end
+
+# TODO configure tests so they automatically set the appropriate graph or eager mode for themselves. For now,
+# all the eager tests run at the end.
+include(joinpath(dirname(@__FILE__), "..", "examples", "keras.jl"))

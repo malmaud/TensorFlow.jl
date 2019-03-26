@@ -64,7 +64,7 @@ mutable struct GradientDescentOptimizer <: Optimizer
     name::String
 end
 
-GradientDescentOptimizer(learning_rate; name="descent") = GradientDescentOptimizer(Tensor(learning_rate), name)
+GradientDescentOptimizer(learning_rate; name="descent") = GradientDescentOptimizer(constant(learning_rate), name)
 
 function GradientDescentOptimizer(; α=.01, kwargs...)
     GradientDescentOptimizer(α; kwargs...)

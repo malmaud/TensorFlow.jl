@@ -124,7 +124,14 @@ Ops,
 slice,
 import_op,
 @tfimport,
-tf_versioninfo
+tf_versioninfo,
+copy_to_device,
+enable_eager_execution,
+EagerTensor,
+summary,
+create_tape,
+set_tape,
+with_tape
 
 
 using Distributed
@@ -141,8 +148,13 @@ function deallocator(data, len, arg)
 
 end
 
+include("context.jl")
+
 function __init__()
     c_deallocator[] = @cfunction(deallocator, Cvoid, (Ptr{Cvoid}, Csize_t, Ptr{Cvoid}))
+    for context in default_context()
+        push!(global_context, context)
+    end
 end
 
 function load_python_process(;force_reload=false)
@@ -198,6 +210,7 @@ include("meta.jl")
 include("constants.jl")
 include("tensorflow_protos.jl")
 include("core.jl")
+include("eager.jl")
 include("run.jl")
 include("version.jl")
 include("ops.jl")
@@ -211,5 +224,7 @@ include("summary.jl")
 include("deprecated.jl")
 include("show.jl")
 include("generate_ops.jl")
+include("tape.jl")
+include("keras.jl")
 
 end

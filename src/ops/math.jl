@@ -27,18 +27,18 @@ import .Ops:
     segment_prod
 
 
-@op Base.argmin(n::AbstractTensor, dim; name=nothing) = Ops.arg_min(n, dim; name=name)+1
+@op Base.argmin(n::AbstractTensor, dim; name = nothing) = Ops.arg_min(n, dim; name = name) + 1
 
-@op Base.argmax(n::AbstractTensor, dim; name=nothing) = Ops.arg_max(n, dim; name=name)+1
+@op Base.argmax(n::AbstractTensor, dim; name = nothing) = Ops.arg_max(n, dim; name = name) + 1
 
 @op Base.max(x::AbstractTensor, y; kwargs...) = Ops.maximum(x, y; kwargs...)
 @op Base.min(x::AbstractTensor, y; kwargs...) = Ops.minimum(x, y; kwargs...)
 
 
-@op function LinearAlgebra.svd(a::AbstractTensor; full=false, kwargs...)
+@op function LinearAlgebra.svd(a::AbstractTensor; full = false, kwargs...)
     # Match Base names and ordering of results
-    s,u,v = Ops.svd(a; compute_uv=true, full_matrices=full, kwargs...)
-    u,s,v
+    s, u, v = Ops.svd(a; compute_uv = true, full_matrices = full, kwargs...)
+    u, s, v
 end
 
 
@@ -68,7 +68,7 @@ const matmul = mat_mul
 
 Broadcast.broadcasted(::typeof(Base.literal_pow), ::typeof(^), x::AbstractTensor, y::Val{T}) where T = x^Tensor(T)
 
-@op function batch_matmul(x::AbstractTensor,y::AbstractTensor; adj_x=false, adj_y=false, name=nothing)
+@op function batch_matmul(x::AbstractTensor, y::AbstractTensor; adj_x = false, adj_y = false, name = nothing)
     if tf_version() >= v"1.0.0-"
         Base.depwarn("""
         batch_matmul is deprecated. Its functionality is now subsumed by matmul.
@@ -102,8 +102,9 @@ Args:
 
 Returns:
   A `Tensor`. Has the same type as `x`.
- """
-@op function squared_difference(x, y; name=nothing)
+ 
+"""
+@op function squared_difference(x, y; name = nothing)
     local desc
     with_op_name(name, "SquaredDifference") do
         x = Tensor(x)
@@ -119,9 +120,9 @@ end
     Ops.cross(n1, n2; kwargs...)
 end
 
-*(x::Number, n::AbstractTensor) = x.*n    # For supporting notation like `2x`
+*(x::Number, n::AbstractTensor) = x .* n    # For supporting notation like `2x`
 
-^(n::AbstractTensor, x::Int) = invoke(^, Tuple{AbstractTensor, Any}, n, x)
+^(n::AbstractTensor, x::Int) = invoke(^, Tuple{AbstractTensor,Any}, n, x)
 
 for jl_func_name in [
     :log,
@@ -186,7 +187,7 @@ for (jl_func_name, tf_func_name) in [
     @eval @define_unary LinearAlgebra.$jl_func_name Ops.$tf_func_name
 end
 
-function LinearAlgebra.diagm(kv::Pair{T, S}) where {T<:Integer, S<:AbstractTensor}
+function LinearAlgebra.diagm(kv::Pair{T,S}) where {T <: Integer,S <: AbstractTensor}
     if kv.first == 0
         return Ops.diag(kv.second)
     end
@@ -197,36 +198,46 @@ end
 
 # TODO Clean this up
 for reduction in [:sum, :prod, :min, :max, :all, :any, :mean]
-    @eval @op function $(Symbol("reduce_", reduction))(n::AbstractTensor; axis=nothing, keep_dims=false, name=nothing)
+    @eval @op function $(Symbol("reduce_", reduction))(n::AbstractTensor; axis = nothing, keep_dims = false, name = nothing)
         if name === nothing
             name = get_name("reduce")
         end
-        if axis == nothing
-            n = Tensor(n)  # TODO: rewrite this
-            range_start = constant(Int32(0))
-            range_delta = constant(Int32(1))
-            desc = NodeDescription("Rank", "$name/rank")
-            add_input(desc, n)
-            rank = Tensor(Operation(desc), 1)
-            desc = NodeDescription("Range", "$name/range")
-            add_input(desc, range_start)
-            add_input(desc, rank)
-            add_input(desc, range_delta)
-            range = Tensor(Operation(desc), 1)
-            desc = NodeDescription($(capitalize(reduction)), name)
-            add_input(desc, n)
-            add_input(desc, range)
-            Tensor(Operation(desc), 1)
+        if in_eager_mode()
+            if axis === nothing
+                n_value = convert(Array, n)  # TODO use shape functions instead
+                num_axis = length(size(n_value))
+                axis = Ops.range(constant(0), constant(num_axis), constant(1))
+                fn = Ops.$reduction
+                fn(n, axis, keep_dims = keep_dims)
+            end  # TODO else case
         else
-            if isa(axis, Number)
-                axis = [axis]
+            if axis == nothing
+                n = Tensor(n)  # TODO: rewrite this
+                range_start = constant(Int32(0))
+                range_delta = constant(Int32(1))
+                desc = NodeDescription("Rank", "$name/rank")
+                add_input(desc, n)
+                rank = Tensor(Operation(desc), 1)
+                desc = NodeDescription("Range", "$name/range")
+                add_input(desc, range_start)
+                add_input(desc, rank)
+                add_input(desc, range_delta)
+                range = Tensor(Operation(desc), 1)
+                desc = NodeDescription($(capitalize(reduction)), name)
+                add_input(desc, n)
+                add_input(desc, range)
+                Tensor(Operation(desc), 1)
+            else
+                if isa(axis, Number)
+                    axis = [axis]
+                end
+                axis = [Int32(idx - 1) for idx in axis]
+                desc = NodeDescription($(capitalize(reduction)), name)
+                add_input(desc, Tensor(n))
+                add_input(desc, Tensor(axis))
+                desc["keep_dims"] = keep_dims
+                Tensor(Operation(desc), 1)
             end
-            axis = [Int32(idx-1) for idx in axis]
-            desc = NodeDescription($(capitalize(reduction)), name)
-            add_input(desc, Tensor(n))
-            add_input(desc, Tensor(axis))
-            desc["keep_dims"] = keep_dims
-            Tensor(Operation(desc), 1)
         end
     end
 end
@@ -241,7 +252,7 @@ for (jl_func, tf_func) in [
     (:(Base.any), :reduce_any),
     (:(Statistics.mean), :reduce_mean),
     ]
-    @eval function $jl_func(n::AbstractTensor, axis=nothing; kwargs...)
-        $tf_func(n; axis=axis, kwargs...)
+    @eval function $jl_func(n::AbstractTensor, axis = nothing; kwargs...)
+        $tf_func(n; axis = axis, kwargs...)
     end
 end
