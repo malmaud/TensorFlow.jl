@@ -120,6 +120,8 @@ end
     # From https://stackoverflow.com/a/26843122/179081
     # better is probably to just use ZipFile.jl package
     # run(`powershell.exe -nologo -noprofile -command "& { Add-Type -A 'System.IO.Compression.FileSystem'; [IO.Compression.ZipFile]::ExtractToDirectory('$(tensorflow_zip_path)', '.'); }"`)
+    import Pkg
+    Pkg.add("InfoZIP")
     using InfoZIP
     println(tensorflow_zip_path)
     InfoZIP.unzip(tensorflow_zip_path, download_dir)
