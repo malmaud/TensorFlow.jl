@@ -122,6 +122,7 @@ end
     # run(`powershell.exe -nologo -noprofile -command "& { Add-Type -A 'System.IO.Compression.FileSystem'; [IO.Compression.ZipFile]::ExtractToDirectory('$(tensorflow_zip_path)', '.'); }"`)
     import Pkg
     Pkg.add("InfoZIP")
+    Pkg.add("ZipFile") 
     using InfoZIP
     println(tensorflow_zip_path)
     InfoZIP.unzip(tensorflow_zip_path, download_dir)
