@@ -64,6 +64,7 @@ end
 ############################
 
 base = dirname(@__FILE__)
+@info("Base dir: " + base)
 download_dir = joinpath(base, "downloads")
 lib_dir = joinpath(download_dir, "lib")
 bin_dir = joinpath(base, "usr/bin")
@@ -104,8 +105,7 @@ end
 @static if Sys.iswindows()
     url = "http://ci.tensorflow.org/view/Nightly/job/nightly-libtensorflow-windows/lastSuccessfulBuild/artifact/lib_package/libtensorflow-cpu-windows-x86_64.zip"
     if use_gpu
-        # This is not the correct location.
-        # So error will probably happen here.
+        @info("Using GPU version.")
         url = "https://storage.googleapis.com/tensorflow/libtensorflow/libtensorflow-gpu-windows-x86_64-$cur_version.zip"
     else
         url = "https://storage.googleapis.com/tensorflow/libtensorflow/libtensorflow-cpu-windows-x86_64-$cur_version.zip"
@@ -124,13 +124,17 @@ end
     Pkg.add("InfoZIP")
     Pkg.add("ZipFile") 
     using InfoZIP
-    println(tensorflow_zip_path)
-    InfoZIP.unzip(tensorflow_zip_path, download_dir)
+    @info("TF zip path" + tensorflow_zip_path)
+    if use_gpu
+        InfoZIP.unzip(tensorflow_zip_path, lib_dir)
+    else
+        InfoZIP.unzip(tensorflow_zip_path, download_dir)
+    end        
 
     tensorflow_path = joinpath(lib_dir, "tensorflow.dll")
 
-    println(tensorflow_path)
+    @info("TF dll path " + tensorflow_path)
     tf_path = joinpath(joinpath(joinpath(base, "usr"), "bin"), "libtensorflow.dll")
-    println(tf_path)
+    @info("Final installed TF path" + tf_path)
     mv(tensorflow_path, tf_path, force=true)
 end
