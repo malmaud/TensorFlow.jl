@@ -64,7 +64,6 @@ end
 ############################
 
 base = dirname(@__FILE__)
-@info("Base dir: " + base)
 download_dir = joinpath(base, "downloads")
 lib_dir = joinpath(download_dir, "lib")
 bin_dir = joinpath(base, "usr/bin")
@@ -124,7 +123,6 @@ end
     Pkg.add("InfoZIP")
     Pkg.add("ZipFile") 
     using InfoZIP
-    @info("TF zip path" + tensorflow_zip_path)
     if use_gpu
         InfoZIP.unzip(tensorflow_zip_path, lib_dir)
     else
@@ -133,8 +131,6 @@ end
 
     tensorflow_path = joinpath(lib_dir, "tensorflow.dll")
 
-    @info("TF dll path " + tensorflow_path)
     tf_path = joinpath(joinpath(joinpath(base, "usr"), "bin"), "libtensorflow.dll")
-    @info("Final installed TF path" + tf_path)
     mv(tensorflow_path, tf_path, force=true)
 end
