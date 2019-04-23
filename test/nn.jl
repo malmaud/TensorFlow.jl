@@ -198,7 +198,7 @@ for (rnn_fun, post_proc_outputs) in ((nn.rnn, last),)
                     @test s[1,:] != s[2,:]
                     @test s[1,:] != s[3,:]
                     @test s[2,:] != s[3,:]
-                    @test s[2,:] == s[4,:]
+                    @test s[2,:] ≈ s[4,:]
                 end
             end
         end
