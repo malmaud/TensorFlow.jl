@@ -10,6 +10,11 @@ A wrapper around [TensorFlow](https://www.tensorflow.org/), a popular open sourc
 
 [![](https://img.shields.io/badge/docs-latest-blue.svg)](https://malmaud.github.io/TensorFlow.jl/latest)
 
+Other resources:
+
+* [TensorFlow Dev Summit 2019 presentation](https://www.youtube.com/watch?v=n2MwJ1guGVQ&t=2s)
+* [JuliaCon 2017 presentation](https://www.youtube.com/watch?v=MaCf1PtHEJo)
+
 ## Why use TensorFlow.jl?
 
 See a [list of advantages](https://github.com/malmaud/TensorFlow.jl/blob/master/docs/src/why_julia.md)
@@ -19,15 +24,6 @@ over the Python API.
 
 See [NEWS](https://github.com/malmaud/TensorFlow.jl/blob/master/NEWS.md).
 
-## Looking for eager mode and other features mentioned at the TensorFlow Dev summit?
-
-They're available on the `eager_mode` branch for now. In the Julia REPL, type
-
-```
-] add TensorFlow#eager_mode
-```
-
-to access them.
 
 ## Basic usage
 
@@ -137,6 +133,8 @@ for epoch in 1:100
     train.save(saver, sess, joinpath(checkpoint_path, "logistic"), global_step=epoch)
 end
 ```
+
+
 
 ## Troubleshooting
 
