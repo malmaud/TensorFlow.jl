@@ -1,3 +1,16 @@
+
+TensorFlow v0.12 Release Notes
+================================
+
+* The upstream TensorFlow version has been bumped to 1.13.1.
+
+
+TensorFlow v0.11 Release Notes
+==============================
+
+* Support for eager execution mode has been added. See [the docs](http://malmaud.github.io/TensorFlow.jl/latest/eager_mode.html) for instructions on how to use it.
+
+
 TensorFlow v0.10.0 Release Notes
 ==============================
 

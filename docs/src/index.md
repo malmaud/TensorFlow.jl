@@ -49,7 +49,7 @@ Currently, a large fraction of the computation graph-building functionality is p
 
 * PyBoard graph visualization
 
-Currently not wrapped, but planned for the near future:
+Currently not wrapped:
 
 * Distributed graph execution
 
