@@ -1,8 +1,8 @@
 using PyCall
 using Conda
 
-const cur_version = "1.15.2"
-const cur_py_version = "1.15.2"
+const cur_version = "1.14.0"
+const cur_py_version = "1.14.0"
 
 
 ############################
