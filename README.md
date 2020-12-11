@@ -10,7 +10,7 @@ A wrapper around [TensorFlow](https://www.tensorflow.org/), a popular open sourc
 | --- |
 | **Tensorflow.jl is in minimal maintance mode** |
 | While it works, it is not recieiving new features, and is  bound to an old version of libtensorflow. |
-| New users are strongly recommended to start-out with a more modern and idiomatic julia deep-learning framework such as [Flux.jl](https://github.com/FluxML/Flux.jl). |
+| The authors recommend [Flux.jl](https://github.com/FluxML/Flux.jl) for new users. |
 
 ## Documentation
 
