@@ -6,6 +6,12 @@
 
 A wrapper around [TensorFlow](https://www.tensorflow.org/), a popular open source machine learning framework from Google.
 
+| ⚠️ Notice ⚠️ |
+| --- |
+| **Tensorflow.jl is in minimal maintance mode** |
+| While it works, it is not recieiving new features, and is  bound to an old version of libtensorflow. |
+| The authors recommend [Flux.jl](https://github.com/FluxML/Flux.jl) for new users. |
+
 ## Documentation
 
 [![](https://img.shields.io/badge/docs-latest-blue.svg)](https://malmaud.github.io/TensorFlow.jl/latest)
