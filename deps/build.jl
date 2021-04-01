@@ -1,8 +1,8 @@
 using PyCall
 using Conda
 
-const cur_version = "1.13.1"
-const cur_py_version = "1.13.1"
+const cur_version = "1.15.0"
+const cur_py_version = "1.15.0"
 
 
 ############################
@@ -20,7 +20,7 @@ end
 use_gpu = "TF_USE_GPU" ∈ keys(ENV) && ENV["TF_USE_GPU"] == "1"
 
 if Sys.isapple() && use_gpu
-    @warn("No support for TF_USE_GPU on OS X - to enable the GPU, build TensorFlow from source. Falling back to CPU")
+    @warn("No support for TF_USE_GPU on OS X - to enable the GPU, build TensorFlow from source. Falling back to CPU.")
     use_gpu=false
 end
 
@@ -99,4 +99,8 @@ end
     download_and_unpack(url)
     mv("$lib_dir/libtensorflow.so", "usr/bin/libtensorflow.so", force=true)
     mv("$lib_dir/libtensorflow_framework.so", "usr/bin/libtensorflow_framework.so", force=true)
+    mv("$lib_dir/libtensorflow.so", "usr/bin/libtensorflow.so.1", force=true)
+    mv("$lib_dir/libtensorflow_framework.so", "usr/bin/libtensorflow_framework.so.$cur_version", force=true)
+    mv("$lib_dir/libtensorflow.so", "usr/bin/libtensorflow.so", force=true)
+    mv("$lib_dir/libtensorflow_framework.so", "usr/bin/libtensorflow_framework.so.$cur_version", force=true)
 end
