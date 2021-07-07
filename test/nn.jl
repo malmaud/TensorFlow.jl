@@ -4,6 +4,26 @@ using StatsFuns
 using Random
 import LinearAlgebra
 
+@testset "conv1d" begin
+    let
+        sess = Session(Graph())
+        F = zeros(Float32, 2, 3, 4) #  batch_size = 2, dimension = 3, channle = 4
+        for i = 1:2
+            for j = 1:3
+                for k = 1:4
+                    F[i,j,k] = Float32(i+j+k-3)
+                end
+            end
+        end
+        input = constant(F)
+        filter_ = constant(ones(Float32, 3, 4, 1)) # width = 3, input channel = 4 output channel = 1
+        output = nn.conv1d(input, filter_, 2, "VALID")
+        output_val = run(sess, output)
+        ref_val = reshape(Float32[30.0;42.0], 2, 1, 1)
+        @test ref_val ≈ output_val
+    end
+end
+
 @testset "conv2d_transpose" begin
     let
         sess = Session(Graph())

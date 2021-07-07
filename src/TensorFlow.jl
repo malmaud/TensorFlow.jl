@@ -135,6 +135,7 @@ with_tape
 
 
 using Distributed
+using Optim
 
 # Load these packages here so they are available to the additional
 # process spawned in 'load_python_process. Arslan thinks that will

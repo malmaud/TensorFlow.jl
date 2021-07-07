@@ -166,3 +166,6 @@ Rank
 Conv2DBackpropInput
 Svd
 Cross
+FFT
+ComplexAbs
+MatrixSolve
